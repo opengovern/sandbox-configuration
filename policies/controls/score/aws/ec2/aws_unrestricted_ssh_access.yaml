@@ -1,0 +1,56 @@
+ID: aws_unrestricted_ssh_access
+Title: Unrestricted SSH Access
+Description: Ensure no security groups allow ingress from 0.0.0.0/0 to port 22.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with ingress_sg as (
+      select
+        group_id
+      from
+        aws_vpc_security_group_rule
+      where
+        (
+          cidr_ipv4 = '0.0.0.0/0'
+          or cidr_ipv6 = '::/0'
+        )
+        and ip_protocol <> 'icmp'
+        and from_port = 22
+        and to_port = 22
+        and not is_egress
+      group by
+        group_id
+    )
+    select
+      sg.group_id as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      case
+        when isg.group_id is null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when isg.group_id is null then sg.group_id || ' does not allow unrestricted SSH access'
+        else sg.group_id || ' allows unrestricted SSH access'
+      end as reason,
+      region,
+      account_id
+    from
+      aws_vpc_security_group as sg
+      left join ingress_sg as isg on sg.group_id = isg.group_id
+  Connector:
+  - AWS
+  PrimaryTable: aws_vpc_security_group
+  ListOfTables:
+  - aws_vpc_security_group
+  - aws_vpc_security_group_rule
+  Parameters: []
+  Global: false
+ManualVerification: false
+Severity: very high
+Tags:
+  score_service_name:
+  - AWS EC2
+  score_tags:
+  - Exposed Endpoints
+Managed: false

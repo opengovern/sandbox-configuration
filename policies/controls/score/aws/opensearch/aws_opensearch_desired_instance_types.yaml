@@ -1,0 +1,52 @@
+ID: aws_opensearch_desired_instance_types
+Title: Desired Instance Type(s)
+Description: Ensure that Amazon OpenSearch cluster instances are of given instance type.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      domain_name as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN ('{{.awsOpensearchAllowedDataInstanceTypes}}' = '' or
+            '{{.awsOpensearchAllowedDataInstanceTypes}}' LIKE '%' || (cluster_config ->> 'InstanceType')::text || '%'
+          ) and (
+            '{{.awsOpensearchAllowedDedicatedMasterTypes}}' = '' or
+            '{{.awsOpensearchAllowedDedicatedMasterTypes}}' LIKE '%' || (cluster_config ->> 'DedicatedMasterType')::text || '%'
+          )
+         THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ('{{.awsOpensearchAllowedDataInstanceTypes}}' = '' or
+            '{{.awsOpensearchAllowedDataInstanceTypes}}' LIKE '%' || (cluster_config ->> 'InstanceType')::text || '%'
+          ) and (
+            '{{.awsOpensearchAllowedDedicatedMasterTypes}}' = '' or
+            '{{.awsOpensearchAllowedDedicatedMasterTypes}}'  LIKE '%' || (cluster_config ->> 'DedicatedMasterType')::text || '%'
+          ) THEN domain_name || ' was configured using the desired instance type.' 
+        ELSE domain_name || ' was not configured using the desired instance type.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_opensearch_domain
+  Connector:
+  - AWS
+  PrimaryTable: aws_opensearch_domain
+  ListOfTables:
+  - aws_opensearch_domain
+  Parameters:
+  - Key: awsOpensearchAllowedDataInstanceTypes
+    Required: false
+  - Key: awsOpensearchAllowedDedicatedMasterTypes
+    Required: false
+  Global: false
+ManualVerification: false
+Severity: medium
+Tags:
+  score_service_name:
+  - AWS OpenSearch Service
+  score_tags:
+  - Optimization
+Managed: false

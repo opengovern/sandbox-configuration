@@ -1,0 +1,59 @@
+ID: aws_unused_ami
+Title: Unused AMI
+Description: Identify unused Amazon Machine Images (AMI) to help lower the cost of your monthly AWS bill.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with dlm_managed as (
+      select kaytu_resource_id from aws_ec2_ami CROSS JOIN jsonb_each(tags) where (key like 'aws:dlm%' or key = 'dlm:managed') limit 1
+    )
+    select
+      ami.name as resource,
+      ami.kaytu_resource_id,
+      ami.kaytu_account_id,
+      case
+        when is_aws_backup_managed then 'skip'
+        when ami.root_device_type <> 'ebs' then 'skip'
+        when i.arn is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when is_aws_backup_managed then name || ' is managed by aws'
+        when ami.root_device_type <> 'ebs' then name || ' is not stored in ebs'
+        when i.arn is null then ami.name || ' is unused.'
+        else ami.name || ' is used.'
+      end as reason,  
+      case
+        when is_aws_backup_managed then 0
+        when ami.root_device_type <> 'ebs' then 0
+        when i.arn is null then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' 
+             AND es.resource_id = s.arn))
+             FROM jsonb_array_elements(ami.block_device_mappings) AS bdm
+             LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')
+        else 0
+      end as cost_optimization,
+      ami.region,
+      ami.account_id
+    from
+      aws_ec2_ami AS ami
+      LEFT JOIN aws_ec2_instance AS i ON ami.image_id = i.image_id
+    where 
+      not(exists(select * from dlm_managed dl where dl.kaytu_resource_id = ami.kaytu_resource_id)) 
+  Connector:
+  - AWS
+  PrimaryTable: aws_ec2_ami
+  ListOfTables:
+  - aws_backup_managed
+  - aws_ebs_snapshot
+  - aws_ec2_ami
+  - aws_ec2_instance
+  Parameters: []
+  Global: false
+ManualVerification: false
+Severity: low
+Tags:
+  score_service_name:
+  - AWS EC2
+  score_tags:
+  - Orphaned Resources
+Managed: false

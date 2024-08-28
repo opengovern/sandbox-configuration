@@ -1,0 +1,43 @@
+ID: aws_ebs_volumes_too_old_snapshots
+Title: EBS Volumes Too Old Snapshots
+Description: Identify and remove old AWS Elastic Block Store (EBS) volume snapshots for cost optimization.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      snapshot_id as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() THEN (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volumesnapshot' and resource_id = es.kaytu_resource_id)
+        ELSE 0
+      END AS cost_optimization,
+      CASE
+        WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN start_time +  ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() THEN snapshot_id || ' snapshot is older than 30 days' 
+        ELSE snapshot_id || ' snapshot is not older than 30 days'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_ebs_snapshot es
+  Connector:
+  - AWS
+  PrimaryTable: aws_ebs_snapshot
+  ListOfTables:
+  - aws_ebs_snapshot
+  Parameters:
+  - Key: awsEbsSnapshotAgeMaxDays
+    Required: true
+  Global: false
+ManualVerification: false
+Severity: high
+Tags:
+  score_service_name:
+  - AWS Elastic Block Store (EBS)
+  score_tags:
+  - Optimization
+Managed: false
