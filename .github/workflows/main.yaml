@@ -1,0 +1,29 @@
+name: Compare Controls
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+
+    env:
+      BENCHMARKS_PATH: "policies/benchmarks"
+      CONTROLS_PATH: "policies/controls"
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22.5'
+
+      - name: Run comparison script
+        run: go run ./scripts/compare-controls.go
