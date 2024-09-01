@@ -1,0 +1,74 @@
+ID: azure_sql_server_va_setting_scan_reports_configured
+Title: Ensure that VA setting Send scan reports to is configured for a SQL server
+Description: Configure 'Send scan reports to' with email ids of concerned data owners/stakeholders for a critical SQL servers.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when
+          security -> 'properties' ->> 'state' = 'Disabled'
+          or
+          (
+            security -> 'properties' ->> 'state' = 'Enabled'
+            and assessment -> 'properties' ->> 'storageContainerPath' is not null
+            and assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
+          )
+          then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when
+          security -> 'properties' ->> 'state' = 'Disabled'
+          or
+          (
+            security -> 'properties' ->> 'state' = 'Enabled'
+            and assessment -> 'properties' ->> 'storageContainerPath' is not null
+            and assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
+          )
+        then s.name || ' VA scan reports and alerts not configured send email.'
+        else s.name || ' VA scan reports and alerts configured to send email.'
+      end as reason
+      
+      , s.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_sql_server s,
+      jsonb_array_elements(server_security_alert_policy) security,
+      jsonb_array_elements(server_vulnerability_assessment) assessment,
+      azure_subscription sub
+    where
+      sub.subscription_id = s.subscription_id;
+  Connector:
+  - Azure
+  PrimaryTable: azure_sql_server
+  ListOfTables:
+  - azure_sql_server
+  - azure_subscription
+  Parameters: []
+  Global: false
+ManualVerification: false
+Severity: high
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 4.2.4
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "4.2"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/SQL
+Managed: false
