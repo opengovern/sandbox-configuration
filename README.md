@@ -1,21 +1,18 @@
-# Configz
-This repository contains all the default workspace configuration files for Kaytu.
-You can create your custom workspace by forking this repository and changing the files.
+# Managed Config
+This repository contains the defaul configuration files for Kaytu.
+You can customizee by forking this repository and changing the files.
 
 Here is the repository structure:
 
 
-* [assets](#assets): contains all the asset metric definitions (part of analytics)
-* [spend](#spend): contains all the spend metric definitions (part of analytics)
-* [finder](#finder): defines the default queries that are suggested to users in query page
-* [insights](#insights): contains all the insights workspace runs
+* [analytics](#assets): contains all the analytics
+* [queries](#finder): defines the default queries that are suggested to users in query page
 * [compliance](#compliance): contains all the compliance benchmarks and controls
-* connection_group: contains all the connection group definitions
-* resource-collection: contains all the resource collection definitions
+
 
 ## assets
 ### How to define:
-All the files with `yaml` extension in assets will be considered `Asset Metrics`.
+All the files with `yaml` extension in analytics will be considered.
 
 ID of each metric will be the file name so be careful of changing them as you will lose the historical data.
 Each metric must contain these fields:
@@ -46,20 +43,6 @@ tags:
 
 #### tags
 `tags` is a map of string to array of strings. Some keys like `category` are used to group the metrics in the UI.
-
-## spend
-### How to define:
-All the files with `yaml` extension in spend will be considered `Spend Metrics`.
-
-ID of each metric will be the file name so be careful of changing them as you will lose the historical data.
-
-Each metric must contain these fields:
-- connectors: `array[connector]` (connector: `AWS` or `Azure`)
-- name: `string`
-- query: `string`
-- status: `string` (active or inactive)
-- tables: `array[string]`
-- tags: `map[string][]string`
 
 #### query
 `query` should be grouped by `kaytu_account_id` and `date` and must select both of them along with the metric value with the name `sum`.
@@ -132,54 +115,6 @@ title: Cloud Networks
 ```
 </details>
 
-## insights
-### How to define:
-All the files with `yaml` extension in `insights/insights` directory
-will be considered an `insight`. You can also group insights 
-together by defining a group in `insights/insgiht_groups` directory.
-
-Each insight must contain these fields:
-- Connector: `connector` (connector: `AWS` or `Azure`)
-- Description: `string`
-- Enabled: `boolean`
-- ID: `uint` (must be unique across all the insights)
-- LongTitle: `string`
-- Query: 
-  - Engine: `string` - the query engine that is used to run the query, currently only `odysseus-v0.0.1` is supported
-  - ListOfTables: `array[string]` - list of tables that are used in the query
-  - PrimaryTable: `string` - the table that the result of the query is from
-  - QueryToExecute: `string` - the query itself, no limitations
-  - Tags: `map[string][]string`
-
-<details>
-<summary><b>Example</b></summary>
-
-```yaml
-Connector: AWS
-Description: List users that have inline policies
-Enabled: true
-ID: 9
-LongTitle: List users that have inline policies
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-  - aws_iam_user
-  PrimaryTable: aws_iam_user
-  QueryToExecute: |-
-    select
-      name as user_name,
-      inline_policies, account_id, kaytu_account_id, kaytu_resource_id
-    from
-      aws_iam_user
-    where
-      inline_policies is not null;
-ShortTitle: Users with Inline Policies
-Tags:
-  category:
-  - Security
-  - Technical Debt
-```
-</details>
 
 ## compliance
 Compliance consists of two parts: `benchmarks` and `controls`.
