@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    id,
+    content ->> 'Version' as policy_version,
+    content ->> 'Statement' as policy_statement
+  from
+    aws_organizations_policy_target
+  where
+    type = 'SERVICE_CONTROL_POLICY'
+    and target_id = 'r-9ijkl7';
+  
+Title: "Steampipe Table: aws_organizations_policy_target - Query AWS Organizations Policy Targets using SQL"
+Description: "Allows users to query AWS Organizations Policy Targets to retrieve detailed information about the application of policies to roots, organizational units (OUs), and accounts."

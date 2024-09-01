@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    cluster_name,
+    node_type,
+    count(*) as count
+  from
+    aws_dax_cluster
+  where
+    node_type not in ('cache.m5.large', 'cache.m4.4xlarge')
+  group by
+    cluster_name, node_type;
+  
+Title: "Steampipe Table: aws_dax_cluster - Query AWS DAX Clusters using SQL"
+Description: "Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata."

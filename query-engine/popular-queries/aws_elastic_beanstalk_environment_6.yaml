@@ -1,0 +1,23 @@
+connectors:
+- AWS
+query: |-
+  select
+    environment_name,
+    application_name,
+    c ->> 'DateCreated' as date_created,
+    c ->> 'DateUpdated' as date_updated,
+    c ->> 'DeploymentStatus' as deployment_status,
+    c ->> 'Description' as description,
+    c -> 'OptionSettings' ->> 'Namespace' as option_settings_namespace,
+    c -> 'OptionSettings' ->> 'OptionName' as option_name,
+    c -> 'OptionSettings' ->> 'ResourceName' as option_resource_name,
+    c -> 'OptionSettings' ->> 'Value' as option_value,
+    c ->> 'PlatformArn' as platform_arn,
+    c ->> 'SolutionStackName' as solution_stack_name,
+    c ->> 'TemplateName' as template_name
+  from
+    aws_elastic_beanstalk_environment,
+    jsonb_array_elements(configuration_settings) as c;
+  
+Title: "Steampipe Table: aws_elastic_beanstalk_environment - Query AWS Elastic Beanstalk Environments using SQL"
+Description: "Allows users to query AWS Elastic Beanstalk Environments to gain insights into their configuration, status, health, related applications, and other metadata."

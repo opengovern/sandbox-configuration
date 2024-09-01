@@ -1,0 +1,26 @@
+connectors:
+- AWS
+query: |-
+  select
+    log_group_name,
+    log_stream_name,
+    log_status,
+    action,
+    ingestion_time,
+    timestamp,
+    interface_id,
+    interface_account_id,
+    src_addr,
+    region
+  from
+    aws_vpc_flow_log_event
+  where
+    log_group_name = 'vpc-log-group-name'
+    and log_stream_name = 'eni-1d47d21d-all'
+    and src_addr << '10.0.0.0/8'::inet
+    and timestamp >= now() - interval '1 hour'
+  order by
+    timestamp;
+  
+Title: "Steampipe Table: aws_vpc_flow_log_event - Query AWS VPC Flow Logs using SQL"
+Description: "Allows users to query AWS VPC Flow Logs and retrieve information about the IP traffic going to and from network interfaces in their VPC."

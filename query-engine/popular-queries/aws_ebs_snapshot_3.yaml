@@ -1,0 +1,13 @@
+connectors:
+- AWS
+query: |-
+  select
+    snapshot_id,
+    volume_id,
+    perm ->> 'UserId' as account_ids
+  from
+    aws_ebs_snapshot
+    cross join jsonb_array_elements(create_volume_permissions) as perm;
+  
+Title: "Steampipe Table: aws_ebs_snapshot - Query AWS Elastic Block Store (EBS) using SQL"
+Description: "Allows users to query AWS EBS snapshots, providing detailed information about each snapshot's configuration, status, and associated metadata."

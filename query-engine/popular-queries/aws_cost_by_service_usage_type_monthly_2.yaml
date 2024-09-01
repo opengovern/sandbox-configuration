@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select
+    service,
+    usage_type,
+    min(unblended_cost_amount)::numeric::money as min,
+    max(unblended_cost_amount)::numeric::money as max,
+    avg(unblended_cost_amount)::numeric::money as average
+  from 
+    aws_cost_by_service_usage_type_monthly
+  group by
+    service,
+    usage_type
+  order by
+    service,
+    usage_type;
+  
+Title: "Steampipe Table: aws_cost_by_service_usage_type_monthly - Query AWS Cost Explorer Service using SQL"
+Description: "Allows users to query AWS Cost Explorer Service to get detailed cost data per service and usage type on a monthly basis."

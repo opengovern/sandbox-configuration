@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    timestamp,
+    round(minimum::numeric,2) as min_error,
+    round(maximum::numeric,2) as max_error,
+    round(average::numeric,2) as avg_error,
+    sample_count
+  from
+    aws_lambda_function_metric_errors_daily
+  where average < 1
+  order by
+    name,
+    timestamp;
+  
+Title: "Steampipe Table: aws_lambda_function_metric_errors_daily - Query AWS Lambda Function using SQL"
+Description: "Allows users to query AWS Lambda Function error metrics on a daily basis."

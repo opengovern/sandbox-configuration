@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    k.id as key_id,
+    k.key_rotation_enabled as key_rotation_enabled,
+    a.alias_name as alias_name,
+    a.arn as alias_arn
+  from
+    aws_kms_key as k,
+    aws_kms_alias as a
+  where
+    k.id = a.target_key_id and not key_rotation_enabled;
+  
+Title: "Steampipe Table: aws_kms_alias - Query AWS Key Management Service (KMS) alias using SQL"
+Description: "Allows users to query AWS KMS aliases and retrieve information about their associated keys, including the key ID, alias name, and alias ARN."

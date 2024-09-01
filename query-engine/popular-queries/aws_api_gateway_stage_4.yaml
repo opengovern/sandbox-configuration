@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    deployment_id,
+    name,
+    tracing_enabled,
+    method_settings -> '*/*' ->> 'LoggingLevel' as cloudwatch_log_level
+  from
+    aws_api_gateway_stage
+  where
+    method_settings -> '*/*' ->> 'LoggingLevel' = 'OFF';
+  
+Title: "Steampipe Table: aws_api_gateway_stage - Query AWS API Gateway Stages using SQL"
+Description: "Allows users to query AWS API Gateway Stages for information related to deployment, API, and stage details."

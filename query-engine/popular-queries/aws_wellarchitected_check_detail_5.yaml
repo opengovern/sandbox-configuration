@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    w.workload_name,
+    w.workload_id,
+    w.environment,
+    w.industry,
+    w.owner,
+    d.name as check_name,
+    d.flagged_resources,
+    d.pillar_id
+  from
+    aws_wellarchitected_check_detail d,
+    aws_wellarchitected_workload w
+  where
+    d.workload_id = w.workload_id
+    and d.status = 'ERROR';
+  
+Title: "Steampipe Table: aws_wellarchitected_check_detail - Query AWS Well-Architected Tool Check Details using SQL"
+Description: "Allows users to query AWS Well-Architected Tool Check Details for information on individual checks within a workload. The table provides data on the check status, risk, reason for risk, improvement plan, and other related details."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    db_cluster_snapshot_identifier,
+    engine,
+    snapshot_type
+  from
+    aws_neptune_db_cluster_snapshot,
+    jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot
+  where
+    cluster_snapshot -> 'AttributeValues' = '["all"]';
+  
+Title: "Steampipe Table: aws_neptune_db_cluster_snapshot - Query AWS Neptune DB Cluster Snapshots using SQL"
+Description: "Allows users to query AWS Neptune DB Cluster Snapshots for comprehensive details about their configurations, status, and associated metadata."

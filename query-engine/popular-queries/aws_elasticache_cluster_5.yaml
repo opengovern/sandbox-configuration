@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    cache_cluster_id,
+    cache_cluster_status,
+    notification_configuration ->> 'TopicArn' as topic_arn,
+    notification_configuration ->> 'TopicStatus' as topic_status
+  from
+    aws_elasticache_cluster
+  where
+    notification_configuration ->> 'TopicStatus' = 'inactive';
+  
+Title: "Steampipe Table: aws_elasticache_cluster - Query Amazon ElastiCache Cluster using SQL"
+Description: "Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account."

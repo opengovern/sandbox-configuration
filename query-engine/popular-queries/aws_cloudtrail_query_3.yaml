@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    q.query_id as query_id,
+    q.event_data_store_arn as event_data_store_arn,
+    s.name as event_data_store_name,
+    s.status as event_data_store_status,
+    s.multi_region_enabled as multi_region_enabled,
+    s.termination_protection_enabled as termination_protection_enabled,
+    s.updated_timestamp as event_data_store_updated_timestamp
+  from
+    aws_cloudtrail_query as q,
+    aws_cloudtrail_event_data_store as s
+  where
+   s.arn = q.event_data_store_arn;
+  
+Title: "Steampipe Table: aws_cloudtrail_query - Query AWS CloudTrail using SQL"
+Description: "Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services."

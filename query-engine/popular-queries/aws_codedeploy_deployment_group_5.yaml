@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    arn,
+    deployment_group_id,
+    deployment_group_name,
+    auto_rollback_configuration ->> 'Enabled' as auto_rollback_configuration_enabled
+  from
+    aws_codedeploy_deployment_group
+  where
+    auto_rollback_configuration ->> 'Enabled' = 'true';
+  
+Title: "Steampipe Table: aws_codedeploy_deployment_group - Query AWS CodeDeploy Deployment Groups using SQL"
+Description: "Allows users to query AWS CodeDeploy Deployment Group details including deployment configurations, target revisions, and associated alarm configurations."

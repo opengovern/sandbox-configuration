@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select
+    title,
+    p as principal,
+    a as action,
+    s ->> 'Effect' as effect,
+    s -> 'Condition' as conditions
+  from
+    aws_sns_topic,
+    jsonb_array_elements(policy_std -> 'Statement') as s,
+    jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+    jsonb_array_elements_text(s -> 'Action') as a
+  where
+    p = '*'
+    and s ->> 'Effect' = 'Allow';
+  
+Title: "Steampipe Table: aws_sns_topic - Query AWS SNS Topics using SQL"
+Description: "Allows users to query AWS SNS Topics to gather information about each topic, including its name, owner, ARN, and other related data."

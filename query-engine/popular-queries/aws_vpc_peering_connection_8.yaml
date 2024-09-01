@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    v.id,
+    jsonb_pretty(tags) as tags
+  from
+    aws_vpc_peering_connection as v,
+    jsonb_each(tags)
+  where
+    key = 'turbot:TurbotCreatedPeeringConnection';
+  
+Title: "Steampipe Table: aws_vpc_peering_connection - Query AWS VPC Peering Connections using SQL"
+Description: "Allows users to query VPC Peering Connections in Amazon Virtual Private Cloud (VPC)."

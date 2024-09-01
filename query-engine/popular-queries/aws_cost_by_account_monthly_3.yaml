@@ -1,0 +1,13 @@
+connectors:
+- AWS
+query: |-
+  select
+    linked_account_id,
+    period_start,
+    unblended_cost_amount::numeric::money,
+    rank() over(partition by linked_account_id order by unblended_cost_amount desc)
+  from 
+    aws_cost_by_account_monthly;
+  
+Title: "Steampipe Table: aws_cost_by_account_monthly - Query AWS Cost Explorer Service using SQL"
+Description: "Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending."

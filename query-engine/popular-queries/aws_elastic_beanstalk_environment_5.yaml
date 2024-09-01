@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    environment_name,
+    a ->> 'ActionDescription' as action_description,
+    a ->> 'ActionId' as action_id,
+    a ->> 'ActionType' as action_type,
+    a ->> 'Status' as action_status,
+    a ->> 'WindowStartTime' as action_window_start_time
+  from
+    aws_elastic_beanstalk_environment,
+    jsonb_array_elements(managed_actions) as a;
+  
+Title: "Steampipe Table: aws_elastic_beanstalk_environment - Query AWS Elastic Beanstalk Environments using SQL"
+Description: "Allows users to query AWS Elastic Beanstalk Environments to gain insights into their configuration, status, health, related applications, and other metadata."

@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    id,
+    health_check_version,
+    health_check_config ->> 'FullyQualifiedDomainName' as fully_qualified_domain_name,
+    health_check_config ->> 'IPAddress' as ip_address,
+    health_check_config ->> 'Port' as port,
+    health_check_config ->> 'Type' as type,
+    health_check_config ->> 'RequestInterval' as request_interval
+  from 
+    aws_route53_health_check;
+  
+Title: "Steampipe Table: aws_route53_health_check - Query AWS Route 53 Health Check using SQL"
+Description: "Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata."

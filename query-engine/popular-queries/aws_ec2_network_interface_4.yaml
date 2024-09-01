@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    network_interface_id as eni,
+    sg ->> 'GroupId' as "security group id",
+    sg ->> 'GroupName' as "security group name"
+  from
+    aws_ec2_network_interface
+    cross join jsonb_array_elements(groups) as sg
+  order by
+    eni;
+  
+Title: "Steampipe Table: aws_ec2_network_interface - Query AWS EC2 Network Interfaces using SQL"
+Description: "Allows users to query AWS EC2 Network Interfaces and provides comprehensive details about each interface, including its associated instances, security groups, and subnet information."

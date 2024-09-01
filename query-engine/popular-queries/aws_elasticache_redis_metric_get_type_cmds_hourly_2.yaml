@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    cache_cluster_id,
+    timestamp,
+    round(minimum::numeric,2) as min_gettypecmds,
+    round(maximum::numeric,2) as max_gettypecmds,
+    round(average::numeric,2) as avg_gettypecmds,
+    round(sum::numeric,2) as sum_gettypecmds
+  from
+    aws_elasticache_redis_metric_get_type_cmds_hourly
+  where sum > 100
+  order by
+    cache_cluster_id,
+    timestamp;
+  
+Title: "Steampipe Table: aws_elasticache_redis_metric_get_type_cmds_hourly - Query AWS ElastiCache Redis Metrics using SQL"
+Description: "Allows users to query ElastiCache Redis Metrics on an hourly basis. This includes information on GET type commands executed in the selected ElastiCache Redis cluster during the last hour."

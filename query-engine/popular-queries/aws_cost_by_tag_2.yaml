@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select
+    tag_key_1,
+    tag_value_1,
+    min(unblended_cost_amount)::numeric::money as min,
+    max(unblended_cost_amount)::numeric::money as max,
+    avg(unblended_cost_amount)::numeric::money as average
+  from
+    aws_cost_by_tag
+  where
+    granularity = 'DAILY'
+  and
+    tag_key_1 = 'Name'
+  group by
+    tag_key_1, tag_value_1;
+  
+Title: "Steampipe Table: aws_cost_by_tag - Query AWS Cost Explorer using SQL"
+Description: "Allows users to query AWS Cost Explorer to obtain cost allocation tags and associated costs."

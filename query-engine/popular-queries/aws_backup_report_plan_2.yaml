@@ -1,0 +1,18 @@
+connectors:
+- AWS
+query: |-
+  select
+    arn,
+    description,
+    creation_time,
+    last_attempted_execution_time,
+    deployment_status
+  from
+    aws_backup_report_plan
+  where
+    creation_time <= (current_date - interval '90' day)
+  order by
+    creation_time;
+  
+Title: "Steampipe Table: aws_backup_report_plan - Query AWS Backup Report Plan using SQL"
+Description: "Allows users to query AWS Backup Report Plan data, including details about backup jobs, recovery points, and backup vaults."

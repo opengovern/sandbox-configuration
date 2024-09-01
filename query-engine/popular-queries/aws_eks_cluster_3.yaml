@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    i ->> 'Enabled' as enabled,
+    i ->> 'Types' as types
+  from
+    aws_eks_cluster,
+    jsonb_array_elements(logging -> 'ClusterLogging') as i
+  where
+    i ->> 'Enabled' = 'false';
+  
+Title: "Steampipe Table: aws_eks_cluster - Query AWS Elastic Kubernetes Service Cluster using SQL"
+Description: "Allows users to query AWS Elastic Kubernetes Service Cluster data, including cluster configurations, statuses, and associated metadata."

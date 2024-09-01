@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    vpn_connection_id,
+    arn,
+    t ->> 'Status' as status
+  from
+    aws_vpc_vpn_connection,
+    jsonb_array_elements(vgw_telemetry) as t
+  where  t ->> 'Status' = 'UP';
+  
+Title: "Steampipe Table: aws_vpc_vpn_connection - Query AWS VPC VPN Connection using SQL"
+Description: "Allows users to query VPN connections in an AWS VPC."

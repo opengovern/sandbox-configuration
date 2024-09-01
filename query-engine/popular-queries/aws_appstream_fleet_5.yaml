@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    f.name,
+    f.created_time,
+    f.display_name,
+    f.image_arn,
+    i.base_image_arn,
+    i.image_builder_name,
+    i.visibility
+  from
+    aws_appstream_fleet as f,
+    aws_appstream_image as i
+  where
+    i.arn = f.image_arn
+  and
+    i.visibility = 'PRIVATE';
+  
+Title: "Steampipe Table: aws_appstream_fleet - Query AWS AppStream Fleet using SQL"
+Description: "Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details."

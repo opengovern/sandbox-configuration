@@ -1,0 +1,27 @@
+connectors:
+- AWS
+query: |-
+  with cost_data as (
+    select
+      period_start,
+      mean_value as this_month,
+      lag(mean_value,-1) over(order by period_start desc) as previous_month
+    from 
+      aws_cost_forecast_monthly
+  )
+  select
+      period_start,
+      this_month::numeric::money,
+      previous_month::numeric::money,
+      case 
+        when previous_month = 0 and this_month = 0  then 0
+        when previous_month = 0 then 999
+        else round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2) 
+      end as percent_change
+  from
+    cost_data
+  order by
+    period_start;
+  
+Title: "Steampipe Table: aws_cost_forecast_monthly - Query AWS Cost Explorer Cost Forecast using SQL"
+Description: "Allows users to query Cost Forecasts in AWS Cost Explorer for monthly cost predictions."

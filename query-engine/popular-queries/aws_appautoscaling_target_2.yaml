@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    resource_id,
+    scalable_dimension
+  from
+    aws_appautoscaling_target
+  where
+    service_namespace = 'dynamodb'
+    and scalable_dimension = 'dynamodb:table:ReadCapacityUnits'
+    or scalable_dimension = 'dynamodb:table:WriteCapacityUnits';
+  
+Title: "Steampipe Table: aws_appautoscaling_target - Query AWS Application Auto Scaling Targets using SQL"
+Description: "Allows users to query AWS Application Auto Scaling Targets. This table provides information about each target, including the service namespace, scalable dimension, resource ID, and the associated scaling policies."

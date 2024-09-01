@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    job_id,
+    recovery_point_arn,
+    backup_vault_arn,
+    status,
+    current_date
+  from
+    aws_backup_job
+  where
+    status != 'COMPLETED'
+    and creation_date > current_date
+  
+Title: "Steampipe Table: aws_backup_job - Query AWS Backup Jobs using SQL"
+Description: "Allows users to query AWS Backup Jobs, providing detailed information about the status of backups jobs."

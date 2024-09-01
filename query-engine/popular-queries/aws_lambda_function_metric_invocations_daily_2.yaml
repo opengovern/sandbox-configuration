@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    timestamp,
+    round(sum::numeric,2) as sum_invocations,
+    sample_count
+  from
+    aws_lambda_function_metric_invocations_daily
+  where 
+    date_part('day', now() - timestamp) <=3
+  and sum > 10
+  order by
+    name,
+    timestamp;
+  
+Title: "Steampipe Table: aws_lambda_function_metric_invocations_daily - Query AWS Lambda Function Metrics using SQL"
+Description: "Allows users to query AWS Lambda Function Metrics on a daily basis."

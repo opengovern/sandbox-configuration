@@ -1,0 +1,27 @@
+connectors:
+- AWS
+query: |-
+  select 
+    r.volume_id,
+    r.timestamp,
+    round(r.average) + round(w.average) as iops_avg,
+    round(r.average) as read_ops_avg,
+    round(w.average) as write_ops_avg,
+    round(r.maximum) + round(w.maximum) as iops_max,
+    round(r.maximum) as read_ops_max,
+    round(w.maximum) as write_ops_max,
+    round(r.minimum) + round(w.minimum) as iops_min,
+    round(r.minimum) as read_ops_min,
+    round(w.minimum) as write_ops_min
+  from 
+    aws_ebs_volume_metric_read_ops as r,
+    aws_ebs_volume_metric_write_ops as w
+  where 
+    r.volume_id = w.volume_id
+    and r.timestamp = w.timestamp
+  order by
+    r.volume_id,
+    r.timestamp;
+  
+Title: "Steampipe Table: aws_ebs_volume_metric_write_ops - Query AWS Elastic Block Store (EBS) using SQL"
+Description: "Allows users to query AWS Elastic Block Store (EBS) volume write operations metrics."

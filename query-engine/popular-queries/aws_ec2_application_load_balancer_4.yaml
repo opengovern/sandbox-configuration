@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    lb ->> 'Key' as logging_key,
+    lb ->> 'Value' as logging_value
+  from
+    aws_ec2_application_load_balancer
+    cross join jsonb_array_elements(load_balancer_attributes) as lb
+  where
+    lb ->> 'Key' = 'access_logs.s3.enabled'
+    and lb ->> 'Value' = 'false';
+  
+Title: "Steampipe Table: aws_ec2_application_load_balancer - Query AWS EC2 Application Load Balancer using SQL"
+Description: "Allows users to query AWS EC2 Application Load Balancer, providing detailed information about each load balancer within an AWS account. This includes its current state, availability zones, security groups, and other important attributes."

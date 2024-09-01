@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    image_id,
+    mapping -> 'Ebs' ->> 'VolumeSize' as volume_size,
+    mapping -> 'Ebs' ->> 'VolumeType' as volume_type,
+    mapping -> 'Ebs' ->> 'Encrypted' as encryption_status,
+    mapping -> 'Ebs' ->> 'KmsKeyId' as kms_key,
+    mapping -> 'Ebs' ->> 'DeleteOnTermination' as delete_on_termination
+  from
+    aws_ec2_ami
+    cross join jsonb_array_elements(block_device_mappings) as mapping;
+  
+Title: "Steampipe Table: aws_ec2_ami - Query AWS EC2 AMI using SQL"
+Description: "Allows users to query AWS EC2 AMIs (Amazon Machine Images) to retrieve detailed information about each AMI available in the AWS account."

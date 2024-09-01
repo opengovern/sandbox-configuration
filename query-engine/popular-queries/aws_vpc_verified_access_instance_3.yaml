@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    i.verified_access_instance_id,
+    i.creation_time,
+    p ->> 'Description' as trust_provider_description,
+    p ->> 'TrustProviderType' as trust_provider_type,
+    p ->> 'UserTrustProviderType' as user_trust_provider_type,
+    p ->> 'DeviceTrustProviderType' as device_trust_provider_type,
+    p ->> 'VerifiedAccessTrustProviderId' as verified_access_trust_provider_id,
+    t.policy_reference_name as trust_access_policy_reference_name
+  from
+    aws_vpc_verified_access_instance as i,
+    aws_vpc_verified_access_trust_provider as t,
+    jsonb_array_elements(verified_access_trust_providers) as p
+  where
+    p ->> 'VerifiedAccessTrustProviderId' = t.verified_access_trust_provider_id;
+  
+Title: "Steampipe Table: aws_vpc_verified_access_instance - Query AWS VPC Verified Access Instances using SQL"
+Description: "Allows users to query AWS VPC Verified Access Instances and provides information about the Amazon VPC verified access instances. This table can be used to gather details such as the instance ID, instance state, instance type, and associated tags."

@@ -1,0 +1,18 @@
+connectors:
+- AWS
+query: |-
+  select
+    db_instance_identifier as attached_vpc,
+    vsg ->> 'VpcSecurityGroupId' as vpc_security_group_id,
+    vsg ->> 'Status' as status,
+    sub -> 'SubnetAvailabilityZone' ->> 'Name' as subnet_availability_zone,
+    sub ->> 'SubnetIdentifier' as subnet_identifier,
+    sub -> 'SubnetOutpost' ->> 'Arn' as subnet_outpost,
+    sub ->> 'SubnetStatus' as subnet_status
+  from
+    aws_docdb_cluster_instance
+    cross join jsonb_array_elements(vpc_security_groups) as vsg
+    cross join jsonb_array_elements(subnets) as sub;
+  
+Title: "Steampipe Table: aws_docdb_cluster_instance - Query Amazon DocumentDB Cluster Instances using SQL"
+Description: "Allows users to query Amazon DocumentDB Cluster Instances to gather detailed information such as instance identifier, cluster identifier, instance class, availability zone, engine version, and more."

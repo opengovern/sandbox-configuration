@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    actions ->> 'ResourceIdentifier' as db_cluster_identifier,
+    details ->> 'Action' as action,
+    details ->> 'OptInStatus' as opt_in_status,
+    details ->> 'ForcedApplyDate' as forced_apply_date,
+    details ->> 'CurrentApplyDate' as current_apply_date,
+    details ->> 'AutoAppliedAfterDate' as auto_applied_after_date
+  from
+    aws_rds_db_cluster,
+    jsonb_array_elements(pending_maintenance_actions) as actions,
+    jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails') as details;
+  
+Title: "Steampipe Table: aws_rds_db_cluster - Query AWS RDS DB Clusters using SQL"
+Description: "Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster."

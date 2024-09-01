@@ -1,0 +1,18 @@
+connectors:
+- AWS
+query: |-
+  select
+    distinct b.name as bucket_name,
+    l.s3_bucket_arn,
+    b.creation_date,
+    b.bucket_policy_is_public,
+    b.versioning_enabled,
+    b.block_public_acls
+  from
+    aws_securitylake_data_lake as l,
+    aws_s3_bucket as b
+  where
+    l.s3_bucket_arn = b.arn;
+  
+Title: "Steampipe Table: aws_securitylake_data_lake - Query AWS Lake Formation Data Lakes using SQL"
+Description: "Allows users to query AWS Lake Formation Data Lakes for information such as the Data Lake name, creation time, last modified time, and more."

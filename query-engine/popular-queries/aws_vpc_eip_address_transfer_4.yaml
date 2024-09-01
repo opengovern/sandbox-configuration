@@ -1,0 +1,23 @@
+connectors:
+- AWS
+query: |-
+  select
+    t.allocation_id,
+    t.address_transfer_status,
+    t.transfer_account_id,
+    i.vpc_id,
+    v.cidr_block,
+    v.state,
+    v.is_default
+  from
+    aws_vpc_eip eip,
+    aws_ec2_instance i,
+    aws_vpc_eip_address_transfer t,
+    aws_vpc v
+  where
+    eip.instance_id = i.instance_id
+    and t.allocation_id = eip.allocation_id
+    and v.vpc_id = i.vpc_id;
+  
+Title: "Steampipe Table: aws_vpc_eip_address_transfer - Query AWS VPC Elastic IP Address Transfers using SQL"
+Description: "Allows users to query Elastic IP Address Transfers in AWS VPC."

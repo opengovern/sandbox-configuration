@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    service,
+    min(unblended_cost_amount)::numeric::money as min,
+    max(unblended_cost_amount)::numeric::money as max,
+    avg(unblended_cost_amount)::numeric::money as average
+  from 
+    aws_cost_by_service_daily
+  group by
+    service
+  order by
+    service;
+  
+Title: "Steampipe Table: aws_cost_by_service_daily - Query AWS Cost Explorer using SQL"
+Description: "Allows users to query AWS Cost Explorer to retrieve daily cost breakdown by AWS service."

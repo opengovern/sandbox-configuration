@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    function_config ->> 'Comment' as comment,
+    arn,
+    status,
+    e_tag
+  from
+    aws_cloudfront_function
+  where
+    function_metadata ->> 'Stage' = 'LIVE';
+  
+Title: "Steampipe Table: aws_cloudfront_function - Query AWS CloudFront Functions using SQL"
+Description: "Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more."

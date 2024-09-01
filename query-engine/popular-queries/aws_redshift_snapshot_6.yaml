@@ -1,0 +1,13 @@
+connectors:
+- AWS
+query: |-
+  select
+    snapshot_identifier,
+    p ->> 'AccountId' as account_id,
+    p ->> 'AccountAlias' as account_alias
+  from
+    aws_redshift_snapshot,
+    jsonb_array_elements(accounts_with_restore_access) as p;
+  
+Title: "Steampipe Table: aws_redshift_snapshot - Query AWS Redshift Snapshots using SQL"
+Description: "Allows users to query Redshift Snapshots, providing details about each snapshot's configuration, status, and associated metadata."

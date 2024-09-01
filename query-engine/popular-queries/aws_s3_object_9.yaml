@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    s.key,
+    s.bucket_name,
+    s.object_lock_retain_until_date,
+    s.object_lock_mode,
+    s.object_lock_legal_hold_status
+  from
+    aws_s3_object as s
+  where
+    bucket_name = 'steampipe-test'
+    and object_lock_retain_until_date > current_date + interval '1 year';
+  
+Title: "Steampipe Table: aws_s3_object - Query AWS S3 Object using SQL"
+Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."

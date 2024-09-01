@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    i.instance_id,
+    i.arn,
+    m.instance_id is not null as ssm_managed
+  from
+    aws_ec2_instance i
+  left join aws_ssm_managed_instance m on m.instance_id = i.instance_id
+  where 
+    m.instance_id is null;
+  
+Title: "Steampipe Table: aws_ssm_managed_instance - Query AWS SSM Managed Instances using SQL"
+Description: "Allows users to query AWS SSM Managed Instances to retrieve their configuration and status information."

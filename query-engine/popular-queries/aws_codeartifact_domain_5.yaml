@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    d.arn as domain_arn,
+    b.arn as bucket_arn,
+    d.encryption_key domain_encryption_key,
+    bucket_policy_is_public
+  from
+    aws_codeartifact_domain d
+    join aws_s3_bucket b on d.s3_bucket_arn = b.arn;
+  
+Title: "Steampipe Table: aws_codeartifact_domain - Query AWS CodeArtifact Domains using SQL"
+Description: "Allows users to query AWS CodeArtifact Domains for details such as domain ownership, encryption key, and policy information."

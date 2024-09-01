@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    id,
+    name,
+    parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingGzip' as enable_gzip
+  from
+    aws_cloudfront_cache_policy
+  where
+    parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingGzip' <> 'true';
+  
+Title: "Steampipe Table: aws_cloudfront_cache_policy - Query AWS CloudFront Cache Policies using SQL"
+Description: "Allows users to query AWS CloudFront Cache Policies for details about their configuration, status, and associated metadata."

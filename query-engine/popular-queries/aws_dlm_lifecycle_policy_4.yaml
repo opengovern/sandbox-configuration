@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    policy_id,
+    arn,
+    date_created,
+    policy_type,
+    s -> 'RetainRule' ->> 'Count' as retain_count
+  from
+    aws_dlm_lifecycle_policy,
+    jsonb_array_elements(policy_details -> 'Schedules') s
+  where 
+    s -> 'RetainRule' is not null;
+  
+Title: "Steampipe Table: aws_dlm_lifecycle_policy - Query AWS DLM Lifecycle Policies using SQL"
+Description: "Allows users to query AWS DLM Lifecycle Policies to retrieve detailed information about each policy, including its configuration, status, and tags."

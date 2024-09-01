@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    distinct i.instance_id,
+    i.instance_state,
+    i.instance_type,
+    f.title,
+    f.service,
+    f.severity,
+    f.confidence
+  from
+    aws_ec2_instance as i,
+    aws_inspector_finding as f
+  where
+    severity = 'High'
+  and
+    i.instance_id = f.agent_id;
+  
+Title: "Steampipe Table: aws_inspector_finding - Query AWS Inspector Findings using SQL"
+Description: "Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications."
