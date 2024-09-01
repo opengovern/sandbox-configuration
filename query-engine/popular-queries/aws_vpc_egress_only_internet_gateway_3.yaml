@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    vig.id,
+    vpc.is_default
+  from
+    aws_vpc_egress_only_internet_gateway as vig
+    cross join jsonb_array_elements(attachments) as i
+    join aws_vpc vpc on i ->> 'VpcId' = vpc.vpc_id
+  where
+    vpc.is_default = true;
+  
+Title: "Steampipe Table: aws_vpc_egress_only_internet_gateway - Query AWS VPC Egress Only Internet Gateways using SQL"
+Description: "Allows users to query AWS VPC Egress Only Internet Gateways, which provide egress only access for IPv6 traffic from the VPC to the internet."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    domain_name,
+    domain_id,
+    encryption_at_rest_options ->> 'Enabled' as enabled,
+    encryption_at_rest_options ->> 'KmsKeyId' as kms_key_id
+  from
+    aws_opensearch_domain
+  where
+    encryption_at_rest_options ->> 'Enabled' = 'false';
+  
+Title: "Steampipe Table: aws_opensearch_domain - Query AWS OpenSearch Service Domains using SQL"
+Description: "Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources."

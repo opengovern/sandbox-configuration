@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    stack_set_name,
+    stack_set_id,
+    stack_set_drift_detection_details ->> 'DriftDetectionStatus' as drift_detection_status,
+    stack_set_drift_detection_details ->> 'DriftStatus' as drift_status,
+    stack_set_drift_detection_details ->> 'DriftedStackInstancesCount' as drifted_stack_instances_count,
+    stack_set_drift_detection_details ->> 'FailedStackInstancesCount' as failed_stack_instances_count,
+    stack_set_drift_detection_details ->> 'InProgressStackInstancesCount' as in_progress_stack_instances_count,
+    stack_set_drift_detection_details ->> 'InSyncStackInstancesCount' as in_sync_stack_instances_count,
+    stack_set_drift_detection_details ->> 'LastDriftCheckTimestamp' as last_drift_check_timestamp,
+    stack_set_drift_detection_details ->> 'TotalStackInstancesCount' as total_stack_instances_count
+  from
+    aws_cloudformation_stack_set;
+  
+Title: "Steampipe Table: aws_cloudformation_stack_set - Query AWS CloudFormation StackSets using SQL"
+Description: "Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet's configuration, status, and associated AWS resources."

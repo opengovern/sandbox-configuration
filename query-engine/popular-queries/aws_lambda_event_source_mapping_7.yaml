@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    uuid,
+    arn,
+    function_arn,
+    state,
+    filter ->> 'Pattern' as filter_criteria_pattern
+  from
+    aws_lambda_event_source_mapping,
+    jsonb_array_elements(filter_criteria -> 'Filters') as filter
+  where
+    filter ->> 'Pattern' like '{ \"Metadata\" : [ 1, 2 ]}';
+  
+Title: "Steampipe Table: aws_lambda_event_source_mapping - Query AWS Lambda Event Source Mappings using SQL"
+Description: "Allows users to query AWS Lambda Event Source Mappings, providing a detailed view of each mapping configuration."

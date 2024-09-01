@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    title,
+    arn,
+    action ->> 'AuthenticateCognitoConfig' as authenticate_cognito_config,
+    action ->> 'AuthenticateOidcConfig' as authenticate_Oidc_config,
+    action ->> 'FixedResponseConfig' as fixed_response_config,
+    action -> 'ForwardConfig' -> 'TargetGroupStickinessConfig' ->> 'DurationSeconds' as duration_seconds,
+    action -> 'ForwardConfig' -> 'TargetGroupStickinessConfig' ->> 'Enabled' as target_group_stickiness_config_enabled
+  from
+    aws_ec2_load_balancer_listener
+    cross join jsonb_array_elements(default_actions) as action;
+  
+Title: "Steampipe Table: aws_ec2_load_balancer_listener - Query AWS EC2 Load Balancer Listeners using SQL"
+Description: "Allows users to query AWS EC2 Load Balancer Listener data, which provides information about listeners for an Application Load Balancer or Network Load Balancer."

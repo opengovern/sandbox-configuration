@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    id,
+    execution_arn,
+    execution_started_event_details -> 'Input' as event_input,
+    execution_started_event_details -> 'InputDetails' as event_input_details,
+    execution_started_event_details ->> 'RoleArn' as event_role_arn
+  from
+    aws_sfn_state_machine_execution_history
+  where
+    type = 'ExecutionStarted';
+  
+Title: "Steampipe Table: aws_sfn_state_machine_execution_history - Query AWS Step Functions State Machine Execution History using SQL"
+Description: "Allows users to query AWS Step Functions State Machine Execution History to fetch information about the execution history of a state machine."

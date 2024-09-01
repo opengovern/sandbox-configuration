@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    domain_name,
+    domain_id,
+    encryption_at_rest_options ->> 'Enabled' as enabled,
+    encryption_at_rest_options ->> 'KmsKeyId' as kms_key_id
+  from
+    aws_elasticsearch_domain
+  where
+    encryption_at_rest_options ->> 'Enabled' = 'false';
+  
+Title: "Steampipe Table: aws_elasticsearch_domain - Query AWS Elasticsearch Service Domain using SQL"
+Description: "Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains."

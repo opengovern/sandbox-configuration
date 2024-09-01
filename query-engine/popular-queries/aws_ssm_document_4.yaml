@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    owner,
+    account_ids
+  from
+    aws_ssm_document
+  where
+    owner_type = 'Self'
+    and account_ids :: jsonb ? 'all';
+  
+Title: "Steampipe Table: aws_ssm_document - Query AWS SSM Documents using SQL"
+Description: "Allows users to query AWS SSM Documents and retrieve detailed information about each document, including its name, version, owner, status, and permissions, among others."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    resource_share_name,
+    resource_share_arn,
+    associated_entity,
+    p ->> 'Arn' as resource_share_permission_arn,
+    p ->> 'Status' as resource_share_permission_status
+  from
+    aws_ram_resource_association,
+    jsonb_array_elements(resource_share_permission) p;
+  
+Title: "Steampipe Table: aws_ram_resource_association - Query AWS RAM Resource Associations using SQL"
+Description: "Allows users to query AWS RAM Resource Associations to retrieve information about the associations between resources and resource shares."

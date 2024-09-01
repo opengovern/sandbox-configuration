@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select 
+    e.arn, 
+    e.title, 
+    jsonb_pretty(e.attributes) as attributes, 
+    e.recommendation 
+  from 
+    aws_inspector_exclusion e, 
+    aws_inspector_assessment_run r, 
+    aws_inspector_assessment_template t 
+  where 
+    e.assessment_run_arn = r.arn 
+  and 
+    r.assessment_template_arn = t.arn;
+  
+Title: "Steampipe Table: aws_inspector_exclusion - Query AWS Inspector Exclusions using SQL"
+Description: "Allows users to query AWS Inspector Exclusions and retrieve data about AWS Inspector Exclusions, including their ARNs, descriptions, and recommendations."

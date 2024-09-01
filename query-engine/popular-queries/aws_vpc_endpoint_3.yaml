@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    vpc_endpoint_id,
+    vpc_id,
+    jsonb_array_elements(subnet_ids) as subnet_ids,
+    jsonb_array_elements(network_interface_ids) as network_interface_ids,
+    jsonb_array_elements(route_table_ids) as route_table_ids,
+    sg ->> 'GroupName' as sg_name
+  from
+    aws_vpc_endpoint
+    cross join jsonb_array_elements(groups) as sg;
+  
+Title: "Steampipe Table: aws_vpc_endpoint - Query AWS VPC Endpoints using SQL"
+Description: "Allows users to query AWS VPC Endpoints and retrieve information about each endpoint's configuration, type, status, and related resources such as network interfaces, DNS entries, and security groups."

@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    metric_name,
+    timestamp,
+    round(minimum::numeric, 2) as min_cpu,
+    round(maximum::numeric, 2) as max_cpu,
+    round(average::numeric, 2) as avg_cpu,
+    sum,
+    sample_count
+  from
+    aws_cloudwatch_metric_statistic_data_point
+  where
+    namespace = 'AWS/EC2'
+    and metric_name = 'CPUUtilization'
+  order by
+    timestamp;
+  
+Title: "Steampipe Table: aws_cloudwatch_metric_statistic_data_point - Query AWS CloudWatch Metric Statistics Data Point using SQL"
+Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."

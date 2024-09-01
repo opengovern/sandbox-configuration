@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    rule_id,
+    p ->> 'DataId' as data_id,
+    p ->> 'Negated' as negated,
+    p ->> 'Type' as type
+  from
+    aws_wafregional_rule,
+    jsonb_array_elements(predicates) as p;
+  
+Title: "Steampipe Table: aws_wafregional_rule - Query AWS WAF Regional Rules using SQL"
+Description: "Allows users to query AWS WAF Regional Rules for detailed information about each rule, including its ID, metric name, name, and the predicates associated with it."

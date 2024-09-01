@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    ig.id as instance_group_id,
+    ig.cluster_id,
+    c.name as cluster_name,
+    ig.instance_type
+  from
+    aws_emr_instance_group as ig,
+    aws_emr_cluster as c
+  where
+    ig.cluster_id = c.id
+    and ig.instance_group_type = 'MASTER';
+  
+Title: "Steampipe Table: aws_emr_instance_group - Query AWS EMR Instance Groups using SQL"
+Description: "Allows users to query AWS EMR Instance Groups to fetch details about each instance group within an EMR cluster."

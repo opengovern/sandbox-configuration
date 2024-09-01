@@ -1,0 +1,18 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    description,
+    arn,
+    ip_address_version,
+    region,
+    address
+  from
+    aws_wafv2_ip_set,
+    jsonb_array_elements_text(addresses) as address
+  where
+    address = '1.2.3.4/32';
+  
+Title: "Steampipe Table: aws_wafv2_ip_set - Query AWS WAFv2 IPSet using SQL"
+Description: "Allows users to query AWS WAFv2 IPSet information, including IP addresses, IP address version, and associated metadata."

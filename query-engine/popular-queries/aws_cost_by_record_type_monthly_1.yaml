@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select
+    linked_account_id,
+    record_type,
+    period_start,
+    blended_cost_amount::numeric::money,
+    unblended_cost_amount::numeric::money,
+    amortized_cost_amount::numeric::money,
+    net_unblended_cost_amount::numeric::money,
+    net_amortized_cost_amount::numeric::money
+  from 
+    aws_cost_by_record_type_monthly
+  order by
+    linked_account_id,
+    period_start;
+  
+Title: "Steampipe Table: aws_cost_by_record_type_monthly - Query AWS Cost and Usage Report Records using SQL"
+Description: "Allows users to query AWS Cost and Usage Report Records on a monthly basis."

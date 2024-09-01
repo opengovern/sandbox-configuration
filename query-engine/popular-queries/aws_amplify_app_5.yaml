@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    app_id,
+    build_spec ->> 'backend' as build_backend_spec,
+    build_spec ->> 'frontend' as build_frontend_spec,
+    build_spec ->> 'test' as build_test_spec,
+    build_spec ->> 'env' as build_env_settings
+  from
+    aws_amplify_app
+  where
+    name = 'amplify_app_name';
+  
+Title: "Steampipe Table: aws_amplify_app - Query AWS Amplify Apps using SQL"
+Description: "Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more."

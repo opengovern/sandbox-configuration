@@ -1,0 +1,12 @@
+connectors:
+- AWS
+query: |-
+  select
+    g ->> 'Count' as count,
+    g ->> 'GroupKey' as group_key
+  from
+    aws_inspector2_coverage_statistics,
+    jsonb_array_elements(counts_by_group) as g;
+  
+Title: "Steampipe Table: aws_inspector2_coverage_statistics - Query AWS Inspector2 Coverage Statistics using SQL"
+Description: "Allows users to query AWS Inspector2 Coverage Statistics to obtain detailed information about the assessment targets and the number of instances they cover."

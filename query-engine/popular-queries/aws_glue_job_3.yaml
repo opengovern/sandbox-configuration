@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    title,
+    arn,
+    created_on,
+    job_bookmark ->> 'Attempt' as total_attempts,
+    job_bookmark ->> 'Run' as total_runs,
+    job_bookmark ->> 'RunId' as run_id
+  from
+    aws_glue_job
+  where
+    job_bookmark is not null;
+  
+Title: "Steampipe Table: aws_glue_job - Query AWS Glue Jobs using SQL"
+Description: "Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status."

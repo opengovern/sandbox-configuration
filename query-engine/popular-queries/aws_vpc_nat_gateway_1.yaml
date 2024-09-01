@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    nat_gateway_id,
+    address ->> 'PrivateIp' as private_ip,
+    address ->> 'PublicIp' as public_ip,
+    address ->> 'NetworkInterfaceId' as nic_id,
+    address ->> 'AllocationId' as allocation_id
+  from
+    aws_vpc_nat_gateway
+    cross join jsonb_array_elements(nat_gateway_addresses) as address;
+  
+Title: "Steampipe Table: aws_vpc_nat_gateway - Query AWS VPC NAT Gateways using SQL"
+Description: "Allows users to query NAT Gateways within Amazon Virtual Private Cloud (VPC). The `aws_vpc_nat_gateway` table in Steampipe provides information about each NAT Gateway within a VPC. This table can be used to gather insights on NAT Gateways, such as their state, subnet association, and associated Elastic IP addresses."

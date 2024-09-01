@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select
+    c.resource_id,
+    c.resource_type,
+    c.ecr_repository_name,
+    r.registry_id,
+    r.repository_uri,
+    r.encryption_configuration
+  from
+    aws_inspector2_coverage as c,
+    aws_ecr_repository as r
+  where
+    r.repository_name = c.ecr_repository_name
+  and
+    c.resource_type = `AWS_ECR_REPOSITORY';
+  
+Title: "Steampipe Table: aws_inspector2_coverage - Query AWS Inspector Coverage using SQL"
+Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."

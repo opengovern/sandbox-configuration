@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    id,
+    s ->> 'Version' as schema_version,
+    s ->> 'TypeName' as type_name,
+    s ->> 'DisplayName' as display_name,
+    jsonb_pretty(s -> 'Attributes') as attributes
+  from
+    aws_ssm_inventory,
+    jsonb_array_elements(schema) as s
+  order by 
+    id;
+  
+Title: "Steampipe Table: aws_ssm_inventory - Query AWS Systems Manager Inventory using SQL"
+Description: "Allows users to query AWS Systems Manager Inventory, providing information about managed instances in AWS Systems Manager."

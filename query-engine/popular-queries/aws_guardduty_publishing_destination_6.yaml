@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    d.destination_id,
+    p ->> 'Sid' as sid,
+    p ->> 'Action' as policy_action,
+    p ->> 'Effect' as effect,
+    p ->> 'Principal' as policy_principal,
+    p ->> 'Condition' as policy_condition
+  from
+    aws_guardduty_publishing_destination as d,
+    aws_kms_key as k,
+    jsonb_array_elements(k.policy -> 'Statement') as p
+  where
+    d.kms_key_arn is not null
+  and
+    k.arn = d.kms_key_arn;
+  
+Title: "Steampipe Table: aws_guardduty_publishing_destination - Query AWS GuardDuty Publishing Destinations using SQL"
+Description: "Allows users to query AWS GuardDuty Publishing Destinations to retrieve information about where GuardDuty findings are published."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    name as policy_name, 
+    policy_arn, 
+    jsonb_pretty(policy_users) as policy_users
+  from
+    aws_iam_policy p
+    left join aws_iam_policy_attachment a on p.arn = a.policy_arn 
+  where
+    name = 'AdministratorAccess' and a.is_attached;
+  
+Title: "Steampipe Table: aws_iam_policy_attachment - Query AWS IAM Policy Attachments using SQL"
+Description: "Allows users to query IAM Policy Attachments in AWS to gather information about the relationship between IAM policies and their associated entities (users, groups, and roles)."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    list_name,
+    list_id,
+    a ->> 'AppName' as app_name,
+    a ->> 'Port' as port,
+    a ->> 'Protocol' as protocol
+  from
+    aws_fms_app_list,
+    jsonb_array_elements(apps_list -> 'AppsList') as a;
+  
+Title: "Steampipe Table: aws_fms_app_list - Query AWS Firewall Manager Applications using SQL"
+Description: "Allows users to query AWS Firewall Manager Applications to obtain comprehensive details about each application, including application ID, protocol, source and destination IP ranges, and source and destination ports."

@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    id,
+    arn,
+    default_cache_behavior ->> 'FieldLevelEncryptionId' as field_level_encryption_id,
+    default_cache_behavior ->> 'DefaultTTL' as default_ttl
+  from
+    aws_cloudfront_distribution
+  where
+    default_cache_behavior ->> 'FieldLevelEncryptionId' <> '';
+  
+Title: "Steampipe Table: aws_cloudfront_distribution - Query AWS CloudFront Distributions using SQL"
+Description: "Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata."

@@ -1,0 +1,18 @@
+connectors:
+- AWS
+query: |-
+  select
+    workload_id,
+    risk,
+    count(question_id) as total_questions
+  from
+    aws_wellarchitected_answer
+  where
+    risk = 'HIGH'
+    or risk = 'MEDIUM'
+  group by
+    workload_id,
+    risk;
+  
+Title: "Steampipe Table: aws_wellarchitected_answer - Query AWS Well-Architected Tool Answer using SQL"
+Description: "Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer."

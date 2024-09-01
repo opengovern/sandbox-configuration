@@ -1,0 +1,27 @@
+connectors:
+- AWS
+query: |-
+  select 
+    r.db_instance_identifier,
+    r.timestamp,
+    round(r.average) + round(w.average) as iops_avg,
+    round(r.average) as read_ops_avg,
+    round(w.average) as write_ops_avg,
+    round(r.maximum) + round(w.maximum) as iops_max,
+    round(r.maximum) as read_ops_max,
+    round(w.maximum) as write_ops_max,
+    round(r.minimum) + round(w.minimum) as iops_min,
+    round(r.minimum) as read_ops_min,
+    round(w.minimum) as write_ops_min
+  from 
+    aws_rds_db_instance_metric_read_iops_daily as r,
+    aws_rds_db_instance_metric_write_iops_daily as w
+  where 
+    r.db_instance_identifier = w.db_instance_identifier
+    and r.timestamp = w.timestamp
+  order by
+    r.db_instance_identifier,
+    r.timestamp;
+  
+Title: "Steampipe Table: aws_rds_db_instance_metric_write_iops_daily - Query AWS RDS DBInstance using SQL"
+Description: "Allows users to query AWS RDS DBInstance metrics for daily write IOPS."

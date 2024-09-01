@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    title,
+    legal_hold_id,
+    recovery_point_selection -> 'DateRange' ->> 'ToDate' as to_date,
+    recovery_point_selection -> 'DateRange' ->> 'FromDate' as from_date,
+    recovery_point_selection -> 'VaultNames' as vault_names,
+    recovery_point_selection ->> 'ResourceIdentifiers' as resource_identifiers
+  from
+    aws_backup_legal_hold;
+  
+Title: "Steampipe Table: aws_backup_legal_hold - Query AWS Backup Legal Hold using SQL"
+Description: "Allows users to query AWS Backup Legal Hold to obtain information about the legal hold settings of AWS backup resources."

@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    rule_group_name,
+    rule_group_status,
+    jsonb_pretty(rules_source -> 'StatefulRules') as stateful_rules,
+    jsonb_pretty(rule_variables) as rule_variables,
+    stateful_rule_options
+  from
+    aws_networkfirewall_rule_group
+  where
+    type = 'STATEFUL';
+  
+Title: "Steampipe Table: aws_networkfirewall_rule_group - Query AWS Network Firewall Rule Group using SQL"
+Description: "Allows users to query AWS Network Firewall Rule Group details, including rule group ARN, capacity, rule group name, and associated tags."

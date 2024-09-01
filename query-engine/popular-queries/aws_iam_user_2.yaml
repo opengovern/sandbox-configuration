@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    name as user_name,
+    iam_group ->> 'GroupName' as group_name,
+    iam_group ->> 'GroupId' as group_id,
+    iam_group ->> 'CreateDate' as create_date
+  from
+    aws_iam_user
+    cross join jsonb_array_elements(groups) as iam_group;
+  
+Title: "Steampipe Table: aws_iam_user - Query AWS IAM User using SQL"
+Description: "Allows users to query AWS IAM User data, providing details such as user ID, name, path, creation date, and more. This table is useful for security audits, policy enforcement, and operational troubleshooting."

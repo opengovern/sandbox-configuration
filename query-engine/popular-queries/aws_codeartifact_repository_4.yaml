@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    arn,
+    domain_name,
+    domain_owner,
+    u ->> 'RepositoryName' as upstream_repo_name
+  from
+    aws_codeartifact_repository,
+    jsonb_array_elements(upstreams) u;
+  
+Title: "Steampipe Table: aws_codeartifact_repository - Query AWS CodeArtifact Repository using SQL"
+Description: "Allows users to query AWS CodeArtifact Repository data, including details about the repository, its domain ownership, and associated metadata."

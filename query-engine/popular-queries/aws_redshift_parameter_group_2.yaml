@@ -1,0 +1,23 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    p ->> 'ParameterName' as parameter_name,
+    p ->> 'ParameterValue' as parameter_value,
+    p ->> 'Description' as description,
+    p ->> 'Source' as source,
+    p ->> 'DataType' as data_type,
+    p ->> 'ApplyType' as apply_type,
+    p ->> 'IsModifiable' as is_modifiable,
+    p ->> 'AllowedValues' as allowed_values,
+    p ->> 'MinimumEngineVersion' as minimum_engine_version
+  from
+    aws_redshift_parameter_group,
+    jsonb_array_elements(parameters) as p
+  where
+    p ->> 'ParameterName' = 'require_ssl'
+    and p ->> 'ParameterValue' = 'false';
+  
+Title: "Steampipe Table: aws_redshift_parameter_group - Query Amazon Redshift Parameter Groups using SQL"
+Description: "Allows users to query Amazon Redshift Parameter Groups to obtain detailed information about the configuration parameters and settings for Redshift clusters. This can be useful for managing and optimizing the performance of Redshift databases."

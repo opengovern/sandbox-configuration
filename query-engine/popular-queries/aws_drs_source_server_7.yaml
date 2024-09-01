@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    title,
+    arn,
+    data_replication_info ->> 'DataReplicationState' as data_replication_state,
+    data_replication_info ->> 'DataReplicationError' as data_replication_error,
+    data_replication_info -> 'DataReplicationInitiation' ->> 'StartDateTime' as data_replication_start_date_time,
+    data_replication_info -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' as data_replication_next_attempt_date_time
+  from
+    aws_drs_source_server
+  where
+    data_replication_info ->> 'DataReplicationState' = 'DISCONNECTED';
+  
+Title: "Steampipe Table: aws_drs_source_server - Query AWS Database Migration Service Source Server using SQL"
+Description: "Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations."

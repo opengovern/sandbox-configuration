@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    k.id as key_id,
+    count(a.alias_name) as count
+  from
+    aws_kms_key as k
+    left join aws_kms_alias as a
+    on k.id = a.target_key_id
+  group by
+    key_id;
+  
+Title: "Steampipe Table: aws_kms_alias - Query AWS Key Management Service (KMS) alias using SQL"
+Description: "Allows users to query AWS KMS aliases and retrieve information about their associated keys, including the key ID, alias name, and alias ARN."

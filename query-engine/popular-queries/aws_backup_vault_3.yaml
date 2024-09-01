@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    name
+  from
+    aws_backup_vault,
+    jsonb_array_elements(policy -> 'Statement') as s
+  where
+    s ->> 'Principal' = '*'
+    and s ->> 'Effect' != 'Deny'
+    and s ->> 'Action' like '%DeleteBackupVault%';
+  
+Title: "Steampipe Table: aws_backup_vault - Query AWS Backup Vaults using SQL"
+Description: "Allows users to query AWS Backup Vaults, providing detailed information about each backup vault, including its name, ARN, recovery points, and more."

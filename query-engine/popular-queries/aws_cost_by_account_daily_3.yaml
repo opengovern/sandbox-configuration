@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  with ranked_costs as (
+    select
+      linked_account_id,
+      period_start,
+      unblended_cost_amount::numeric::money,
+      rank() over(partition by linked_account_id order by unblended_cost_amount desc)
+    from 
+      aws_cost_by_account_daily
+  )
+  select * from ranked_costs where rank <= 10;
+  
+Title: "Steampipe Table: aws_cost_by_account_daily - Query AWS Cost Explorer using SQL"
+Description: "Allows users to query daily AWS costs by account. This table provides an overview of AWS usage and cost data for each AWS account on a daily basis."

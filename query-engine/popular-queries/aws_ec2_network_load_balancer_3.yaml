@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    lb ->> 'Key' as logging_key,
+    lb ->> 'Value' as logging_value
+  from
+    aws_ec2_network_load_balancer
+    cross join jsonb_array_elements(load_balancer_attributes) as lb
+  where
+    lb ->> 'Key' = 'access_logs.s3.enabled'
+    and lb ->> 'Value' = 'false';
+  
+Title: "Steampipe Table: aws_ec2_network_load_balancer - Query AWS EC2 Network Load Balancer using SQL"
+Description: "Allows users to query AWS EC2 Network Load Balancer data including configuration, status, and other related information."

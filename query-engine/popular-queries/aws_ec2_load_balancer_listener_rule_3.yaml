@@ -1,0 +1,21 @@
+connectors:
+- AWS
+query: |-
+  select
+    arn,
+    a ->> 'Type' as action_type,
+    a ->> 'Order' as action_order,
+    a ->> 'TargetGroupArn' as target_group_arn,
+    a -> 'RedirectConfig' as redirect_config,
+    a -> 'ForwardConfig' as forward_config,
+    a -> 'FixedResponseConfig' as fixed_response_config,
+    a -> 'AuthenticateOidcConfig' as authenticate_oidc_config,
+    a -> 'AuthenticateCognitoConfig' as authenticate_cognito_config
+  from
+    aws_ec2_load_balancer_listener_rule,
+    jsonb_array_elements(actions) as a
+  where
+    listener_arn = 'arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-load-balancer/50dc6c495c0c9188/70d7923f8398b272';
+  
+Title: "Steampipe Table: aws_ec2_load_balancer_listener_rule - Query AWS EC2 Load Balancer Listener Rules using SQL"
+Description: "Allows users to query AWS EC2 Load Balancer Listener Rules, providing detailed information on rule actions, conditions, and priority."

@@ -1,0 +1,17 @@
+connectors:
+- AWS
+query: |-
+  select
+    f.id,
+    r.title,
+    f.service_attributes ->> 'AssessmentRunArn' as assessment_run_arn,
+    r.assessment_template_arn,
+    r.finding_counts
+  from
+    aws_inspector_finding as f,
+    aws_inspector_assessment_run as r
+  where
+    f.service_attributes ->> 'AssessmentRunArn' = r.arn;
+  
+Title: "Steampipe Table: aws_inspector_finding - Query AWS Inspector Findings using SQL"
+Description: "Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications."

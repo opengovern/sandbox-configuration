@@ -1,0 +1,22 @@
+connectors:
+- AWS
+query: |-
+  select
+    jsonb_pretty(dimensions) as dimensions,
+    timestamp,
+    sum
+  from
+    aws_cloudwatch_metric_statistic_data_point
+  where
+    namespace = 'AWS/ElastiCache'
+    and metric_name = 'CacheHits'
+    and sum < 10
+    and timestamp >= now() - interval '7 day'
+    and dimensions = '[
+      {"Name": "CacheClusterId", "Value": "cluster-delete-001"}
+      ]'
+  order by
+    timestamp;
+  
+Title: "Steampipe Table: aws_cloudwatch_metric_statistic_data_point - Query AWS CloudWatch Metric Statistics Data Point using SQL"
+Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."

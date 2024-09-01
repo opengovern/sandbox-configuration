@@ -1,0 +1,20 @@
+connectors:
+- AWS
+query: |-
+  select 
+    principal_arn,
+    service_name,
+    last_authenticated,
+    age(last_authenticated::date),
+    last_authenticated_entity,
+    last_authenticated_region
+  from 
+    aws_iam_access_advisor
+  where
+    principal_arn = 'arn:aws:iam::aws:policy/AdministratorAccess'
+    and last_authenticated is not null
+  order by 
+    age asc;
+  
+Title: "Steampipe Table: aws_iam_access_advisor - Query AWS IAM Access Advisor using SQL"
+Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."

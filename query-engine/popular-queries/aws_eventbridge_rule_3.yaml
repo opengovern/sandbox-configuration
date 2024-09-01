@@ -1,0 +1,14 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    cd ->> 'Id' as target_id,
+    cd ->> 'Arn' as target_arn,
+    cd ->> 'RoleArn' as role_arn
+  from
+    aws_eventbridge_rule,
+    jsonb_array_elements(targets) as cd;
+  
+Title: "Steampipe Table: aws_eventbridge_rule - Query AWS EventBridge Rule using SQL"
+Description: "Allows users to query AWS EventBridge Rule to access information regarding the EventBridge rules defined within an AWS account."

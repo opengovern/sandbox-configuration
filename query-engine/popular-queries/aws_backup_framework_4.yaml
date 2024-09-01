@@ -1,0 +1,16 @@
+connectors:
+- AWS
+query: |-
+  select
+    framework_name,
+    controls ->> 'ControlName' as control_name,
+    control_scope
+  from
+    aws_backup_framework,
+    jsonb_array_elements(framework_controls) as controls,
+    json_array_elements_text(coalesce(controls -> 'ControlScope' ->> 'ComplianceResourceTypes', '[""]')::json) as control_scope
+  where
+    framework_name = 'framework_name';
+  
+Title: "Steampipe Table: aws_backup_framework - Query AWS Backup Frameworks using SQL"
+Description: "Allows users to query AWS Backup Frameworks and retrieve comprehensive data about each backup plan, including its unique ARN, version, creation and deletion dates, and more."

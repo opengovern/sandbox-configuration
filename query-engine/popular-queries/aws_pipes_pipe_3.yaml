@@ -1,0 +1,22 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    target_parameters ->> 'BatchJobParameters' as batch_job_parameters,
+    target_parameters ->> 'CloudWatchLogsParameters' as cloudwatch_logs_parameters,
+    target_parameters ->> 'EcsTaskParameters' as ecs_task_parameters,
+    target_parameters ->> 'EventBridgeEventBusParameters' as eventbridge_event_bus_parameters,
+    target_parameters ->> 'HttpParameters' as http_parameters,
+    target_parameters ->> 'InputTemplate' as input_template,
+    target_parameters ->> 'KinesisStreamParameters' as kinesis_stream_parameters,
+    target_parameters ->> 'LambdaFunctionParameters' as lambda_function_parameters,
+    target_parameters ->> 'RedshiftDataParameters' as redshift_data_parameters,
+    target_parameters ->> 'SageMakerPipelineParameters' as sage_maker_pipeline_parameters,
+    target_parameters ->> 'SqsQueueParameters' as sqs_queue_parameters,
+    target_parameters ->> 'StepFunctionStateMachineParameters' as step_function_state_machine_parameters
+  from
+    aws_pipes_pipe;
+  
+Title: "Steampipe Table: aws_pipes_pipe - Query AWS Pipes using SQL"
+Description: "Allows users to query AWS Pipes to obtain detailed information about individual pipes."

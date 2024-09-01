@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    cluster_arn,
+    setting ->> 'Name' as name,
+    setting ->> 'Value' as value
+  from
+    aws_ecs_cluster,
+    jsonb_array_elements(settings) as setting
+  where
+    setting ->> 'Value' = 'disabled';
+  
+Title: "Steampipe Table: aws_ecs_cluster - Query AWS ECS Clusters using SQL"
+Description: "Allows users to query AWS ECS Clusters to retrieve detailed information about each cluster's configuration, status, and associated resources."

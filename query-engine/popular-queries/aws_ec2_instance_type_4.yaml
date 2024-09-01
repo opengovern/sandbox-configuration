@@ -1,0 +1,13 @@
+connectors:
+- AWS
+query: |-
+  select
+    instance_type,
+    ebs_info ->> 'EncryptionSupport' as encryption_support
+  from
+    aws_ec2_instance_type
+  where
+    ebs_info ->> 'EncryptionSupport' = 'unsupported';
+  
+Title: "Steampipe Table: aws_ec2_instance_type - Query AWS EC2 Instance Type using SQL"
+Description: "Allows users to query AWS EC2 Instance Type data, including details about instance type name, current generation, vCPU, memory, storage, and network performance."

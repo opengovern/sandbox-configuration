@@ -1,0 +1,15 @@
+connectors:
+- AWS
+query: |-
+  select
+    arn,
+    cluster_name,
+    state,
+    vpc ->> 'SubnetIds' as subnet_ids,
+    vpc ->> 'SecurityGroupIds' as security_group_ids
+  from
+    aws_msk_serverless_cluster,
+    jsonb_array_elements(serverless -> 'VpcConfigs') as vpc
+  
+Title: "Steampipe Table: aws_msk_serverless_cluster - Query AWS Managed Streaming for Kafka (MSK) Serverless Clusters using SQL"
+Description: "Allows users to query AWS MSK Serverless Clusters to retrieve detailed information about each cluster."

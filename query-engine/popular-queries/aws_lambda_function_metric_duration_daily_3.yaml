@@ -1,0 +1,19 @@
+connectors:
+- AWS
+query: |-
+  select
+    name,
+    timestamp,
+    round(minimum::numeric,2) as min_duration,
+    round(maximum::numeric,2) as max_duration,
+    round(average::numeric,2) as avg_duration,
+    sample_count
+  from
+    aws_lambda_function_metric_duration_daily
+  where average < 5
+  order by
+    name,
+    timestamp;
+  
+Title: "Steampipe Table: aws_lambda_function_metric_duration_daily - Query AWS Lambda Function Metrics using SQL"
+Description: "Allows users to query AWS Lambda Function daily duration metrics."

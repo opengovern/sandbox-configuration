@@ -1,0 +1,32 @@
+connectors:
+- AWS
+query: |-
+  select
+    security_group_rule_id,
+    group_id,
+    ip_protocol,
+    from_port,
+    to_port,
+    cidr_ipv4
+  from
+    aws_vpc_security_group_rule
+  where
+    not is_egress
+    and cidr_ipv4 = '0.0.0.0/0'
+    and (
+      (
+        ip_protocol = '-1' -- all traffic
+        and from_port is null
+      )
+      or (
+        from_port <= 22
+        and to_port >= 22
+      )
+      or (
+        from_port <= 3389
+        and to_port >= 3389
+      )
+    );
+  
+Title: "Steampipe Table: aws_vpc_security_group_rule - Query AWS VPC Security Group Rule using SQL"
+Description: "Allows users to query AWS VPC Security Group Rule, providing detailed information about security group rules within Amazon Virtual Private Cloud (VPC)."
