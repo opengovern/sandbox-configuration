@@ -11,18 +11,16 @@ import (
 )
 
 type Benchmark struct {
-	ID            string              `json:"ID" yaml:"ID"`
-	Title         string              `json:"Title" yaml:"Title"`
-	ReferenceCode string              `json:"ReferenceCode" yaml:"ReferenceCode"`
-	Connector     string              `json:"Connector" yaml:"Connector"`
-	Description   string              `json:"Description" yaml:"Description"`
-	Children      []string            `json:"Children" yaml:"Children"`
-	Tags          map[string][]string `json:"Tags" yaml:"Tags"`
-	Managed       bool                `json:"Managed" yaml:"Managed"`
-	Enabled       bool                `json:"Enabled" yaml:"Enabled"`
-	AutoAssign    bool                `json:"AutoAssign" yaml:"AutoAssign"`
-	Baseline      bool                `json:"Baseline" yaml:"Baseline"`
-	Controls      []string            `json:"Controls" yaml:"Controls"`
+	ID          string              `json:"ID" yaml:"ID"`
+	Title       string              `json:"Title" yaml:"Title"`
+	SectionCode string              `json:"SectionCode" yaml:"SectionCode"`
+	Connector   string              `json:"Connector" yaml:"Connector"`
+	Description string              `json:"Description" yaml:"Description"`
+	Children    []string            `json:"Children" yaml:"Children"`
+	Tags        map[string][]string `json:"Tags" yaml:"Tags"`
+	Enabled     bool                `json:"Enabled" yaml:"Enabled"`
+	AutoAssign  bool                `json:"AutoAssign" yaml:"AutoAssign"`
+	Controls    []string            `json:"Controls" yaml:"Controls"`
 }
 
 type Control struct {
@@ -176,11 +174,16 @@ func compareBenchmarks(benchmarks map[string]Benchmark, controlList []string) in
 		}
 	}
 
-	fmt.Println(bold + "Controls in controls but not in benchmarks:" + reset)
+	var orphanedControls []string
 	for control := range controlSet {
 		if !benchmarkControlSet[control] {
-			fmt.Println(string(red) + " - " + string(reset) + control)
+			orphanedControls = append(orphanedControls, control)
 		}
+	}
+
+	fmt.Println(bold + fmt.Sprintf("There are %d orphaned controls. These controls are not being reference by any benchmarks:", len(orphanedControls)) + reset)
+	for _, control := range orphanedControls {
+		fmt.Println(string(red) + " - " + string(reset) + control)
 	}
 
 	if len(missingControl) > 0 || len(missingChild) > 0 {
