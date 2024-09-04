@@ -1,37 +1,18 @@
 ID: aws_tls_security_policy_version
-Title: TLS Security Policy Version
-Description: Ensure that your OpenSearch domains are using the latest version of the TLS security policy.
-Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
-      CASE
-        WHEN log_publishing_options is NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN log_publishing_options is NULL THEN domain_name || ' the CloudWatch Logs are not enabled' 
-        ELSE domain_name || ' the CloudWatch Logs are enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
-  Connector:
-  - AWS
-  PrimaryTable: aws_opensearch_domain
-  ListOfTables:
-  - aws_opensearch_domain
-  Parameters: []
-  Global: false
-ManualVerification: false
-Severity: medium
+Title: "TLS Security Policy Version"
+Description: "Ensure that your OpenSearch domains are using the latest version of the TLS security policy."
 Tags:
-  score_service_name:
-  - AWS OpenSearch Service
-  score_tags:
-  - Unencrypted Traffic
-Managed: false
+    score_service_name:
+        - AWS OpenSearch Service
+    score_tags:
+        - Unencrypted Traffic
+Query:
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_opensearch_domain
+    Parameters: []
+    PrimaryTable: aws_opensearch_domain
+    QueryToExecute: "SELECT \n  domain_name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN log_publishing_options is NULL THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN log_publishing_options is NULL THEN domain_name || ' the CloudWatch Logs are not enabled' \n    ELSE domain_name || ' the CloudWatch Logs are enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
+Severity: medium
+Connector:
+    - AWS

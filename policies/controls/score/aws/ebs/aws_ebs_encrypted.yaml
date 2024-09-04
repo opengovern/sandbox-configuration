@@ -1,39 +1,36 @@
 ID: aws_ebs_encrypted
-Title: EBS Volumes need to be encrypted
-Description: Ensure EBS volumes are encrypted to meet security and encryption compliance requirements. Encryption is a key mechanism for you to ensure that you are in full control over who has access to your data.
+Title: "EBS Volumes need to be encrypted"
+Description: "Ensure EBS volumes are encrypted to meet security and encryption compliance requirements. Encryption is a key mechanism for you to ensure that you are in full control over who has access to your data."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
-      case
-        when encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted then volume_id || ' encrypted.'
-        else volume_id || ' not encrypted.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ebs_volume
-    where
-      state = 'in-use'
-  Connector:
-  - AWS
-  PrimaryTable: aws_ebs_volume
-  ListOfTables:
-  - aws_ebs_volume
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_ebs_volume
+    Parameters: []
+    PrimaryTable: aws_ebs_volume
+    QueryToExecute: |
+        select
+          arn as resource,
+          kaytu_resource_id,
+          kaytu_account_id,
+          case
+            when encrypted then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encrypted then volume_id || ' encrypted.'
+            else volume_id || ' not encrypted.'
+          end as reason,
+          region,
+          account_id
+        from
+          aws_ebs_volume
+        where
+          state = 'in-use'
 Severity: high
 Tags:
-  score_service_name:
-  - AWS Elastic Block Store (EBS)
-  score_tags:
-  - Unencrypted Storage
-Managed: false
+    score_service_name:
+        - AWS Elastic Block Store (EBS)
+    score_tags:
+        - Unencrypted Storage
+Connector:
+    - AWS

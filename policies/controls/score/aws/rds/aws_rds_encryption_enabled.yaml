@@ -1,37 +1,34 @@
 ID: aws_rds_encryption_enabled
-Title: RDS Encryption Enabled
-Description: Ensure encryption is setup for RDS instances to fulfill compliance requirements for data-at-rest encryption.
-Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_instance_identifier as resource,
-      kaytu_account_id as kaytu_account_id,
-      kaytu_resource_id as kaytu_resource_id,
-      case
-        when storage_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when storage_encrypted then title || ' encrypted at rest.'
-        else title || ' not encrypted at rest.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance;
-  Connector:
-  - AWS
-  PrimaryTable: aws_rds_db_instance
-  ListOfTables:
-  - aws_rds_db_instance
-  Parameters: []
-  Global: false
-ManualVerification: false
+Title: "RDS Encryption Enabled"
+Description: "Ensure encryption is setup for RDS instances to fulfill compliance requirements for data-at-rest encryption."
 Severity: high
 Tags:
-  score_service_name:
-  - AWS Relational Database Service (RDS)
-  score_tags:
-  - Unencrypted Storage
-Managed: false
+    score_service_name:
+        - AWS Relational Database Service (RDS)
+    score_tags:
+        - Unencrypted Storage
+Query:
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_rds_db_instance
+    Parameters: []
+    PrimaryTable: aws_rds_db_instance
+    QueryToExecute: |-
+        select
+          db_instance_identifier as resource,
+          kaytu_account_id as kaytu_account_id,
+          kaytu_resource_id as kaytu_resource_id,
+          case
+            when storage_encrypted then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when storage_encrypted then title || ' encrypted at rest.'
+            else title || ' not encrypted at rest.'
+          end as reason,
+          region,
+          account_id
+        from
+          aws_rds_db_instance;
+Connector:
+    - AWS

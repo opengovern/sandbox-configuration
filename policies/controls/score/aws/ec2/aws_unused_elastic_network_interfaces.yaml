@@ -1,37 +1,18 @@
 ID: aws_unused_elastic_network_interfaces
-Title: Unused Elastic Network Interfaces
-Description: Identify and delete any unused Elastic Network Interfaces
+Title: "Unused Elastic Network Interfaces"
+Description: "Identify and delete any unused Elastic Network Interfaces"
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      network_interface_id as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
-      CASE
-        WHEN status = 'available' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status = 'available' THEN network_interface_id || ' is unused and can be safely removed' 
-        ELSE network_interface_id || ' is used.'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_ec2_network_interface
-  Connector:
-  - AWS
-  PrimaryTable: aws_ec2_network_interface
-  ListOfTables:
-  - aws_ec2_network_interface
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_ec2_network_interface
+    Parameters: []
+    PrimaryTable: aws_ec2_network_interface
+    QueryToExecute: "SELECT \n  network_interface_id as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN status = 'available' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN status = 'available' THEN network_interface_id || ' is unused and can be safely removed' \n    ELSE network_interface_id || ' is used.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_network_interface\n"
 Severity: low
 Tags:
-  score_service_name:
-  - AWS EC2
-  score_tags:
-  - Under Utilization
-Managed: false
+    score_service_name:
+        - AWS EC2
+    score_tags:
+        - Under Utilization
+Connector:
+    - AWS

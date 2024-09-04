@@ -1,39 +1,18 @@
 ID: aws_opensearch_slow_logs
-Title: AWS OpenSearch Slow Logs
-Description: Ensure that your AWS OpenSearch domains publish slow logs to AWS CloudWatch Logs.
+Title: "AWS OpenSearch Slow Logs"
+Description: "Ensure that your AWS OpenSearch domains publish slow logs to AWS CloudWatch Logs."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
-      CASE
-        WHEN (COALESCE((log_publishing_options -> 'INDEX_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool and
-        COALESCE((log_publishing_options -> 'SEARCH_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (COALESCE((log_publishing_options -> 'INDEX_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool and
-        COALESCE((log_publishing_options -> 'SEARCH_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool) THEN domain_name || ' Slow Logs feature is enabled' 
-        ELSE domain_name || ' Slow Logs feature is not enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
-  Connector:
-  - AWS
-  PrimaryTable: aws_opensearch_domain
-  ListOfTables:
-  - aws_opensearch_domain
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_opensearch_domain
+    Parameters: []
+    PrimaryTable: aws_opensearch_domain
+    QueryToExecute: "SELECT \n  domain_name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN (COALESCE((log_publishing_options -> 'INDEX_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool and\n    COALESCE((log_publishing_options -> 'SEARCH_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool) THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN (COALESCE((log_publishing_options -> 'INDEX_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool and\n    COALESCE((log_publishing_options -> 'SEARCH_SLOW_LOGS' ->> 'Enabled')::bool, false)::bool) THEN domain_name || ' Slow Logs feature is enabled' \n    ELSE domain_name || ' Slow Logs feature is not enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
 Severity: medium
 Tags:
-  score_service_name:
-  - AWS OpenSearch Service
-  score_tags:
-  - General Efficiency
-Managed: false
+    score_service_name:
+        - AWS OpenSearch Service
+    score_tags:
+        - General Efficiency
+Connector:
+    - AWS

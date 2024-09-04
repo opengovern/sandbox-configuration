@@ -1,39 +1,18 @@
 ID: aws_root_mfa_enabled
-Title: Root MFA Enabled
-Description: Ensure that Multi-Factor Authentication (MFA) is enabled for your AWS root account.
-Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      (user_name || ' in account ' || account_id) as resource,
-      kaytu_account_id,
-      kaytu_resource_id,
-      case
-        when mfa_active::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when mfa_active::bool then 'mfa is active for root account'
-        else 'mfa is not active for root account'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_credential_report
-    where
-      user_name = '<root_account>'
-  Connector:
-  - AWS
-  PrimaryTable: aws_iam_credential_report
-  ListOfTables:
-  - aws_iam_credential_report
-  Parameters: []
-  Global: false
-ManualVerification: false
+Title: "Root MFA Enabled"
+Description: "Ensure that Multi-Factor Authentication (MFA) is enabled for your AWS root account."
 Severity: medium
 Tags:
-  score_service_name:
-  - AWS Identity and Access Management (IAM)
-  score_tags:
-  - Problem Identities
-Managed: false
+    score_service_name:
+        - AWS Identity and Access Management (IAM)
+    score_tags:
+        - Problem Identities
+Query:
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_iam_credential_report
+    Parameters: []
+    PrimaryTable: aws_iam_credential_report
+    QueryToExecute: "select\n  (user_name || ' in account ' || account_id) as resource,\n  kaytu_account_id,\n  kaytu_resource_id,\n  case\n    when mfa_active::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when mfa_active::bool then 'mfa is active for root account'\n    else 'mfa is not active for root account'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_credential_report\nwhere\n  user_name = '<root_account>'\n"
+Connector:
+    - AWS
