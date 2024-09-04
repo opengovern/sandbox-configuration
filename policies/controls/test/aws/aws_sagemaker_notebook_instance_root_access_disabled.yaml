@@ -4,24 +4,39 @@ Description: Users with root access have administrator privileges and users can 
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          arn as resource,
-          case
-            when root_access = 'Disabled' then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when root_access = 'Disabled' then title || ' root access disabled.'
-            else title || ' root access enabled.'
-          end as reason
-          
-          
-        from
-          aws_sagemaker_notebook_instance;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when root_access = 'Disabled' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when root_access = 'Disabled' then title || ' root access disabled.'
+        else title || ' root access enabled.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_sagemaker_notebook_instance;
+  PrimaryTable: aws_sagemaker_notebook_instance
+  ListOfTables:
+  - aws_sagemaker_notebook_instance
   Parameters: []
 Connector:
 - aws
-Tags: {}
-Severity: low
+Tags:
+  aws_foundational_security:
+  - "true"
+  category:
+  - Compliance
+  foundational_security_category:
+  - root_user_access_restrictions
+  foundational_security_item_id:
+  - sagemaker_3
+  plugin:
+  - aws
+  service:
+  - AWS/SageMaker
+Severity: high

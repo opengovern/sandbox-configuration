@@ -4,26 +4,41 @@ Description: This control checks whether AWS Systems Manager documents that are 
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,
-          case
-            when account_ids :: jsonb ? 'all' then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'
-            else title || ' not publicly accesible.'
-          end as reason
-          
-          
-        from
-          aws_ssm_document
-        where
-          owner_type = 'Self';
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when account_ids :: jsonb ? 'all' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'
+        else title || ' not publicly accesible.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_ssm_document
+    where
+      owner_type = 'Self';
+  PrimaryTable: aws_ssm_document
+  ListOfTables:
+  - aws_ssm_document
   Parameters: []
 Connector:
 - aws
-Tags: {}
-Severity: low
+Tags:
+  aws_foundational_security:
+  - "true"
+  category:
+  - Compliance
+  foundational_security_category:
+  - resources_not_publicly_accessible
+  foundational_security_item_id:
+  - ssm_4
+  plugin:
+  - aws
+  service:
+  - AWS/SSM
+Severity: critical

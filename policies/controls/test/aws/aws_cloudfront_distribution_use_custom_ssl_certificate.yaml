@@ -4,24 +4,39 @@ Description: This control checks whether CloudFront distributions are using the 
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          arn as resource,
-          case
-            when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then title || ' uses custom SSL certificate.'
-            else title || ' does not use custom SSL certificate.'
-          end as reason
-          
-          
-        from
-          aws_cloudfront_distribution;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then title || ' uses custom SSL certificate.'
+        else title || ' does not use custom SSL certificate.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_cloudfront_distribution;
+  PrimaryTable: aws_cloudfront_distribution
+  ListOfTables:
+  - aws_cloudfront_distribution
   Parameters: []
 Connector:
 - aws
-Tags: {}
-Severity: low
+Tags:
+  aws_foundational_security:
+  - "true"
+  category:
+  - Compliance
+  foundational_security_category:
+  - encryption_of_data_in_transi
+  foundational_security_item_id:
+  - cloudfront_7
+  plugin:
+  - aws
+  service:
+  - AWS/CloudFront
+Severity: medium
