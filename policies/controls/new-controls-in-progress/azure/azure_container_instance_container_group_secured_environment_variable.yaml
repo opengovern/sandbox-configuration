@@ -1,0 +1,43 @@
+ID: azure_container_instance_container_group_secured_environment_variable
+Title: Container instance container groups should use secured environment variable
+Description: Ensure that container instance container group uses secured environment variables. This control is non-compliant if container instance container group does not uses secured environment variables.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with not_secured_environment_variable_container_group as (
+      select
+        id
+      from
+        azure_container_group,
+        jsonb_array_elements(containers) as c,
+        jsonb_array_elements(c -> 'properties' -> 'environmentVariables') as v
+      where
+       v  ->'value' is not null
+    )
+    select
+      cg.id as resource,
+      cg.kaytu_account_id as kaytu_account_id,
+      cg.kaytu_resource_id as kaytu_resource_id,
+      case
+        when g.id is not null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when g.id is not null then cg.name || ' have unsecured environment variable.'
+        else cg.name || ' have secured environment variable.'
+      end as reason
+    from
+      azure_container_group as cg
+      left join not_secured_environment_variable_container_group as g on g.id = cg.id,
+      azure_subscription as sub
+    where
+      sub.subscription_id = cg.subscription_id;
+  PrimaryTable: azure_container_group
+  ListOfTables:
+  - azure_container_group
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

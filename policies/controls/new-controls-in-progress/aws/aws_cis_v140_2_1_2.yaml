@@ -1,0 +1,49 @@
+ID: aws_cis_v140_2_1_2
+Title: 2.1.2 Ensure S3 Bucket Policy is set to deny HTTP requests
+Description: At the Amazon S3 bucket level, you can configure permissions through a bucket policy making the objects accessible only through HTTPS.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with ssl_ok as (
+      select
+        distinct name,
+        arn,
+        'ok' as status
+      from
+        aws_s3_bucket,
+        jsonb_array_elements(policy_std -> 'Statement') as s,
+        jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+        jsonb_array_elements_text(s -> 'Action') as a,
+        jsonb_array_elements_text(s -> 'Resource') as r,
+        jsonb_array_elements_text(
+          s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+        ) as ssl
+      where
+        p = '*'
+        and s ->> 'Effect' = 'Deny'
+        and ssl :: bool = false
+    )
+    
+    select
+      b.arn as resource,
+      b.kaytu_account_id as kaytu_account_id,
+      b.kaytu_resource_id as kaytu_resource_id,
+      case
+        when ok.status = 'ok' then 'ok'
+        else 'alarm'
+      end status,
+      case
+        when ok.status = 'ok' then b.name || ' bucket policy enforces HTTPS.'
+        else b.name || ' bucket policy does not enforce HTTPS.'
+      end reason
+    from
+      aws_s3_bucket as b
+      left join ssl_ok as ok on ok.name = b.name;
+  PrimaryTable: aws_s3_bucket
+  ListOfTables:
+  - aws_s3_bucket
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

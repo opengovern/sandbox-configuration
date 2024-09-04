@@ -1,0 +1,32 @@
+ID: azure_search_service_uses_managed_identity
+Title: Cognitive Search services should use managed identity
+Description: Cognitive Search services should use a managed identity for enhanced authentication security.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when identity ->> 'type' = 'SystemAssigned' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when identity ->> 'type' = 'SystemAssigned' then name || ' use managed identity.'
+        else name || ' not use managed identity.'
+      end as reason
+    from
+      azure_search_service as s,
+      azure_subscription as sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_search_service
+  ListOfTables:
+  - azure_search_service
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

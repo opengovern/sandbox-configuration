@@ -1,0 +1,34 @@
+ID: azure_cis_v200_3_15
+Title: 3.15 Ensure the 'Minimum TLS version' for storage accounts is set to 'Version 1.2'
+Description: In some cases, Azure Storage sets the minimum TLS version to be version 1.0 by default. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS version can be configured to be later protocols such as TLS 1.2.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      sa.id as resource,
+      sa.kaytu_account_id as kaytu_account_id,
+      sa.kaytu_resource_id as kaytu_resource_id,
+      case
+        when minimum_tls_version = 'TLSEnforcementDisabled' then 'alarm'
+        when minimum_tls_version = 'TLS1_2' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when minimum_tls_version = 'TLSEnforcementDisabled' then sa.name || ' TLS enforcement is disabled.'
+        when minimum_tls_version = 'TLS1_2' then sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
+        else sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
+      end as reason
+    from
+      azure_storage_account sa,
+      azure_subscription sub
+    where
+      sub.subscription_id = sa.subscription_id;
+  PrimaryTable: azure_storage_account
+  ListOfTables:
+  - azure_storage_account
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

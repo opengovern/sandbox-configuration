@@ -1,0 +1,34 @@
+ID: azure_cis_v150_8_5
+Title: 8.5 Ensure the key vault is recoverable
+Description: "The key vault contains object keys, secrets and certificates. Accidental unavailability of a key vault can cause immediate data loss or loss of security functions (authentication, validation, verification, non-repudiation, etc.) supported by the key vault objects. It is recommended the key vault be made recoverable by enabling the \\\"Do Not Purge\\\" and \\\"Soft Delete\\\" functions."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      kv.id as resource,
+      kv.kaytu_account_id as kaytu_account_id,
+      kv.kaytu_resource_id as kaytu_resource_id,
+      case
+        when soft_delete_enabled and purge_protection_enabled then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when not soft_delete_enabled and not purge_protection_enabled then name || ' "soft delete" and "do not purge" not enabled.'
+        when not soft_delete_enabled then name || ' "soft delete" not enabled.'
+        when not purge_protection_enabled then name || ' "do not purge" not enabled.'
+        else name || ' "soft delete" and "do not purge" enabled.'
+      end as reason
+    from
+      azure_key_vault kv,
+      azure_subscription sub
+    where
+      sub.subscription_id = kv.subscription_id;
+  PrimaryTable: azure_key_vault
+  ListOfTables:
+  - azure_key_vault
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

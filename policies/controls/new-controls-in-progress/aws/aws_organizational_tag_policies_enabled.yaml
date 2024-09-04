@@ -1,0 +1,42 @@
+ID: aws_organizational_tag_policies_enabled
+Title: Ensure Tag Policies are enabled
+Description: Tag policies help you standardize tags on all tagged resources across your organization
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with tag_policy_enabled as (
+      select
+        _ctx,
+        account_id,
+        region,
+        count(*) as count
+      from
+        aws_organizations_policy
+      where
+        type = 'TAG_POLICY'
+      group by
+        _ctx,
+        region,
+        account_id
+    )
+    select
+      case
+        when count > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when count > 0 then 'Organizational tag policies are enabled.'
+        else 'Organizational tag policies are disabled.'
+      end as reason,
+      _ctx.kaytu_account_id as kaytu_account_id,
+      _ctx.kaytu_resource_id as kaytu_resource_id
+    from
+      tag_policy_enabled;
+  PrimaryTable: aws_organizations_policy
+  ListOfTables:
+  - aws_organizations_policy
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

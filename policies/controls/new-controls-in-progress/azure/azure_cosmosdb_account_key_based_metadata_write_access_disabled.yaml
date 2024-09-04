@@ -1,0 +1,32 @@
+ID: azure_cosmosdb_account_key_based_metadata_write_access_disabled
+Title: Cosmos DB accounts should disable key based metadata write access
+Description: Ensure Cosmos DB accounts have key-based metadata write_access disabled. This control is non-compliant if Cosmos DB accounts have key-based metadata write access enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when disable_key_based_metadata_write_access then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when disable_key_based_metadata_write_access then a.name || ' key based metadata write_access disabled.'
+        else a.name || ' key based metadata write_access enabled.'
+      end as reason
+    from
+      azure_cosmosdb_account as a,
+      azure_subscription as sub
+    where
+      sub.subscription_id = a.subscription_id;
+  PrimaryTable: azure_cosmosdb_account
+  ListOfTables:
+  - azure_cosmosdb_account
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

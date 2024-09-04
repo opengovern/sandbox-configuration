@@ -1,0 +1,43 @@
+ID: azure_storage_account_blobs_logging_enabled
+Title: Storage account logging (Classic Diagnostic Setting) for blobs should be enabled
+Description: Storage Logging records details of requests (read, write, and delete operations) against your Azure blobs. This policy identifies Azure storage accounts that do not have logging enabled for blobs. As a best practice, enable logging for read, write, and delete request types on blobs.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      sa.id as resource,
+      sa.kaytu_account_id as kaytu_account_id,
+      sa.kaytu_resource_id as kaytu_resource_id,
+      case
+        when lower(sa.sku_tier) = 'standard'
+        and (not (sa.blob_service_logging ->> 'Read') :: boolean
+        or not (sa.blob_service_logging ->> 'Write') :: boolean
+        or not (sa.blob_service_logging ->> 'Delete') :: boolean) then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when lower(sa.sku_tier) = 'standard'
+        and (not (sa.blob_service_logging ->> 'Read') :: boolean
+        or not (sa.blob_service_logging ->> 'Write') :: boolean
+        or not (sa.blob_service_logging ->> 'Delete') :: boolean) then name || ' storage account logging for blobs is disabled for' ||
+          concat_ws(', ',
+            case when not (sa.blob_service_logging ->> 'Write') :: boolean then 'write' end,
+            case when not (sa.blob_service_logging ->> 'Read') :: boolean then 'read' end,
+            case when not (sa.blob_service_logging ->> 'Delete') :: boolean then 'delete' end
+          ) || ' requests.'
+        else name || ' storage account logging for blobs is enabled.'
+      end as reason
+    from
+      azure_storage_account sa,
+      azure_subscription sub
+    where
+      sub.subscription_id = sa.subscription_id;
+  PrimaryTable: azure_storage_account
+  ListOfTables:
+  - azure_storage_account
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

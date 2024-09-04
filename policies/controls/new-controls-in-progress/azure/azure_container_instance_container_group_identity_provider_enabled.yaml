@@ -1,0 +1,32 @@
+ID: azure_container_instance_container_group_identity_provider_enabled
+Title: Container instance container groups identity provider should be enabled
+Description: Ensure that managed identity provider is enabled for the container instance container group. This control is non-compliant if container instance container group identity provider is disabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cg.id as resource,
+      cg.kaytu_account_id as kaytu_account_id,
+      cg.kaytu_resource_id as kaytu_resource_id,
+      case
+        when identity is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when identity is null then cg.name || ' identity provider disabled.'
+        else cg.name || ' identity provider enabled.'
+      end as reason
+    from
+      azure_container_group as cg,
+      azure_subscription as sub
+    where
+      sub.subscription_id = cg.subscription_id;
+  PrimaryTable: azure_container_group
+  ListOfTables:
+  - azure_container_group
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

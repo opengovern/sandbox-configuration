@@ -1,0 +1,32 @@
+ID: aws_docdb_cluster_instance_logging_enabled
+Title: DocumentDB instance logging should be enabled
+Description: To help with logging and monitoring within your environment, ensure AWS DocumentDB instance logging is enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      db_instance_arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      engine,
+      case
+        when engine like 'docdb' and enabled_cloudwatch_logs_exports ?& array ['error', 'slowquery'] then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when engine like 'docdb' and enabled_cloudwatch_logs_exports ?& array ['error', 'slowquery']
+        then title || ' ' || engine || ' logging enabled.'
+        else title || ' logging not enabled.'
+      end as reason
+      
+      
+    from
+      aws_docdb_cluster_instance;
+  PrimaryTable: aws_docdb_cluster_instance
+  ListOfTables:
+  - aws_docdb_cluster_instance
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

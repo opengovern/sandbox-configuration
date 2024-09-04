@@ -1,0 +1,28 @@
+ID: aws_cis_compute_service_v100_2_2_4
+Title: 2.2.4 Ensure unused EBS volumes are removed
+Description: Identify any unused Elastic Block Store (EBS) volumes in your AWS account and remove them.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when state = 'in-use' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when state = 'in-use' then title || ' attached to EC2 instance.'
+        else title || ' not attached to EC2 instance.'
+      end as reason
+    from
+      aws_ebs_volume;
+  PrimaryTable: aws_ebs_volume
+  ListOfTables:
+  - aws_ebs_volume
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

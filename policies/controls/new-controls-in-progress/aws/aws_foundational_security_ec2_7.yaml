@@ -1,0 +1,29 @@
+ID: aws_foundational_security_ec2_7
+Title: 7 EBS default encryption should be enabled
+Description: This control checks whether account-level encryption is enabled by default for Amazon Elastic Block Store(Amazon EBS). The control fails if the account level encryption is not enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      'arn:' || partition || '::' || region || ':' || account_id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when not default_ebs_encryption_enabled then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when not default_ebs_encryption_enabled then region || ' default EBS encryption disabled.'
+        else region || ' default EBS encryption enabled.'
+      end as reason
+      
+    from
+      aws_ec2_regional_settings;
+  PrimaryTable: aws_ec2_regional_settings
+  ListOfTables:
+  - aws_ec2_regional_settings
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium
