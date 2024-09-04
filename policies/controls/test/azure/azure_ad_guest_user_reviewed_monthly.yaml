@@ -4,36 +4,50 @@ Description: Guest users allow you to share your company's applications and serv
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        with distinct_tenant as (
-          select
-            distinct tenant_id,
-            subscription_id,
-            _ctx
-          from
-            azure_tenant
-        )
-        select
-          u.display_name as resource,
-          case
-            when not account_enabled then 'alarm'
-            when u.created_date_time::timestamp <= (current_date - interval '30' day) then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when not account_enabled then 'Guest user ''' || u.display_name || ''' inactive.'
-            else 'Guest user ''' || u.display_name || ''' was created ' || extract(day from current_timestamp - u.created_date_time::timestamp) || ' days ago.'
-          end as reason,
-          t.tenant_id
-          
-        from
-          azuread_user as u
-          left join distinct_tenant as t on t.tenant_id = u.tenant_id
-        where
-          u.user_type = 'Guest';
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      u.display_name as resource,
+      u.kaytu_account_id as kaytu_account_id,
+      u.kaytu_resource_id as kaytu_resource_id,
+      case
+        when not account_enabled then 'alarm'
+        when u.created_date_time::timestamp <= (current_date - interval '30' day) then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when not account_enabled then 'Guest user ''' || u.display_name || ''' inactive.'
+        else 'Guest user ''' || u.display_name || ''' was created ' || extract(day from current_timestamp - u.created_date_time::timestamp) || ' days ago.'
+      end as reason,
+      t.tenant_id
+      
+    from
+      azuread_user as u
+      left join azure_tenant as t on t.tenant_id = u.tenant_id
+    where
+      u.user_type = 'Guest';
+  PrimaryTable: azuread_user
+  ListOfTables:
+  - azure_tenant
+  - azuread_user
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "1.3"
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "1"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/ActiveDirectory
+Severity: medium

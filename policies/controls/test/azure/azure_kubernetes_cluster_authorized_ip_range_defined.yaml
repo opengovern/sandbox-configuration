@@ -4,28 +4,36 @@ Description: ARestrict access to the Kubernetes Service Management API by granti
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          c.id as resource,
-          case
-            when api_server_access_profile -> 'AuthorizedIPRanges' is not null then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when api_server_access_profile -> 'AuthorizedIPRanges' is not null then c.title || ' authorized IP ranges defined.'
-            else c.title || ' authorized IP ranges not defined.'
-          end as reason
-          
-          
-          
-        from
-          azure_kubernetes_cluster as c,
-          azure_subscription as sub
-        where
-          sub.subscription_id = c.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      c.id as resource,
+      c.kaytu_account_id as kaytu_account_id,
+      c.kaytu_resource_id as kaytu_resource_id,
+      case
+        when api_server_access_profile -> 'AuthorizedIPRanges' is not null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when api_server_access_profile -> 'AuthorizedIPRanges' is not null then c.title || ' authorized IP ranges defined.'
+        else c.title || ' authorized IP ranges not defined.'
+      end as reason
+      
+      , c.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_kubernetes_cluster as c,
+      azure_subscription as sub
+    where
+      sub.subscription_id = c.subscription_id;
+  PrimaryTable: azure_kubernetes_cluster
+  ListOfTables:
+  - azure_kubernetes_cluster
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/KubernetesService
+Severity: high

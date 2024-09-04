@@ -4,23 +4,31 @@ Description: Azure Virtual Network deployment provides enhanced security, isolat
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          a.id as resource,
-          case
-            when virtual_network_type != 'None' then 'ok'
-            else 'alarm'
-          end as status,
-          a.name || ' Virtual network is set to '  ||  virtual_network_type as reason
-          
-          
-          
-        from
-          azure_api_management a,
-          azure_subscription sub;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when virtual_network_type != 'None' then 'ok'
+        else 'alarm'
+      end as status,
+      a.name || ' Virtual network is set to '  ||  virtual_network_type as reason
+      
+      , a.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_api_management a,
+      azure_subscription sub;
+  PrimaryTable: azure_api_management
+  ListOfTables:
+  - azure_api_management
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/APIManagement
+Severity: medium

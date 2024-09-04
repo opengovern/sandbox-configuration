@@ -4,28 +4,36 @@ Description: Azure container registries by default accept connections over the i
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          distinct a.name as resource,
-          case
-            when network_rule_set ->> 'defaultAction' = 'Deny' then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when network_rule_set ->> 'defaultAction' = 'Deny' then a.name || ' publicly not accessible.'
-            else a.name || ' publicly accessible.'
-          end as reason
-          
-          
-          
-        from
-          azure_container_registry as a,
-          azure_subscription as sub
-        where
-          sub.subscription_id = a.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      distinct a.name as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when network_rule_set ->> 'defaultAction' = 'Deny' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when network_rule_set ->> 'defaultAction' = 'Deny' then a.name || ' publicly not accessible.'
+        else a.name || ' publicly accessible.'
+      end as reason
+      
+      , a.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_container_registry as a,
+      azure_subscription as sub
+    where
+      sub.subscription_id = a.subscription_id;
+  PrimaryTable: azure_container_registry
+  ListOfTables:
+  - azure_container_registry
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/ContainerRegistry
+Severity: high

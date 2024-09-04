@@ -4,28 +4,36 @@ Description: Azure API for FHIR should have at least one approved private endpoi
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          a.id as resource,
-          case
-            when private_endpoint_connections is null then 'info'
-            when private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when private_endpoint_connections is null then a.name || ' no private link exists.'
-            when private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb then a.name || ' using private link.'
-            else a.name || ' not using private link.'
-          end as reason
-          
-          
-          
-        from
-          azure_healthcare_service a,
-          azure_subscription sub;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when private_endpoint_connections is null then 'info'
+        when private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when private_endpoint_connections is null then a.name || ' no private link exists.'
+        when private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb then a.name || ' using private link.'
+        else a.name || ' not using private link.'
+      end as reason
+      
+      , a.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_healthcare_service a,
+      azure_subscription sub;
+  PrimaryTable: azure_healthcare_service
+  ListOfTables:
+  - azure_healthcare_service
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/HealthcareAPIs
+Severity: high

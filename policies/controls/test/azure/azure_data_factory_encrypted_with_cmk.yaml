@@ -4,28 +4,36 @@ Description: Use customer-managed keys to manage the encryption at rest of your 
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          a.id as resource,
-          case
-            when encryption ->> 'vaultBaseUrl' is not null then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when encryption ->> 'vaultBaseUrl' is not null then a.name || ' encrypted with CMK.'
-            else a.name || ' not encrypted with CMK.'
-          end as reason
-          
-          
-          
-        from
-          azure_data_factory as a,
-          azure_subscription as sub
-        where
-          sub.subscription_id = a.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when encryption ->> 'vaultBaseUrl' is not null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when encryption ->> 'vaultBaseUrl' is not null then a.name || ' encrypted with CMK.'
+        else a.name || ' not encrypted with CMK.'
+      end as reason
+      
+      , a.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_data_factory as a,
+      azure_subscription as sub
+    where
+      sub.subscription_id = a.subscription_id;
+  PrimaryTable: azure_data_factory
+  ListOfTables:
+  - azure_data_factory
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/DataFactory
+Severity: high

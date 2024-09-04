@@ -4,40 +4,48 @@ Description: Customer-managed keys are commonly required to meet regulatory comp
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        with cognitive_account_cmk as (
-          select
-            distinct a.id
-          from
-            azure_cognitive_account as a,
-            jsonb_array_elements(capabilities ) as c
-          where
-            c ->> 'name' = 'CustomerManagedKey'
-        )
-        select
-          s.id as resource,
-          case
-            when c.id is null then 'ok'
-            when c.id is not null and encryption ->> 'keySource' = 'Microsoft.KeyVault' then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when c.id is null then name || ' encryption not supported.'
-            when c.id is not null and encryption ->> 'keySource' = 'Microsoft.KeyVault' then name || ' encrypted with CMK.'
-            else name || ' not encrypted with CMK.'
-          end as reason
-          
-          
-          
-        from
-          azure_cognitive_account as s
-          left join cognitive_account_cmk as c on c.id = s.id,
-          azure_subscription as sub
-        where
-          sub.subscription_id = s.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    with cognitive_account_cmk as (
+      select
+        distinct a.id
+      from
+        azure_cognitive_account as a,
+        jsonb_array_elements(capabilities ) as c
+      where
+        c ->> 'name' = 'CustomerManagedKey'
+    )
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when c.id is null then 'ok'
+        when c.id is not null and encryption ->> 'keySource' = 'Microsoft.KeyVault' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when c.id is null then name || ' encryption not supported.'
+        when c.id is not null and encryption ->> 'keySource' = 'Microsoft.KeyVault' then name || ' encrypted with CMK.'
+        else name || ' not encrypted with CMK.'
+      end as reason
+      
+      , s.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_cognitive_account as s
+      left join cognitive_account_cmk as c on c.id = s.id,
+      azure_subscription as sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_cognitive_account
+  ListOfTables:
+  - azure_cognitive_account
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  nist_sp_800_53_rev_5:
+  - "true"
+  service:
+  - Azure/CognitiveServices
+Severity: medium

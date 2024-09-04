@@ -4,34 +4,56 @@ Description: "The Storage Queue service stores messages that may be read by any 
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          sa.id as resource,
-          case
-            when queue_logging_read and queue_logging_write and queue_logging_delete then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when queue_logging_read and queue_logging_write and queue_logging_delete
-              then sa.name || ' queue service logging enabled for read, write, delete requests.'
-            else sa.name || ' queue service logging not enabled for: ' ||
-              concat_ws(', ',
-                case when not queue_logging_write then 'write' end,
-                case when not queue_logging_read then 'read' end,
-                case when not queue_logging_delete then 'delete' end
-              ) || ' requests.'
-          end as reason
-          
-          
-          
-        from
-          azure_storage_account sa,
-          azure_subscription sub
-        where
-          sub.subscription_id = sa.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      sa.id as resource,
+      sa.kaytu_account_id as kaytu_account_id,
+      sa.kaytu_resource_id as kaytu_resource_id,
+      case
+        when queue_logging_read and queue_logging_write and queue_logging_delete then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when queue_logging_read and queue_logging_write and queue_logging_delete
+          then sa.name || ' queue service logging enabled for read, write, delete requests.'
+        else sa.name || ' queue service logging not enabled for: ' ||
+          concat_ws(', ',
+            case when not queue_logging_write then 'write' end,
+            case when not queue_logging_read then 'read' end,
+            case when not queue_logging_delete then 'delete' end
+          ) || ' requests.'
+      end as reason
+      
+      , sa.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_storage_account sa,
+      azure_subscription sub
+    where
+      sub.subscription_id = sa.subscription_id;
+  PrimaryTable: azure_storage_account
+  ListOfTables:
+  - azure_storage_account
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "3.3"
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "3"
+  cis_type:
+  - manual
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Storage
+Severity: medium

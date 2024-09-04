@@ -4,28 +4,36 @@ Description: The use of Basic or Free SKUs in Azure whilst cost effective have s
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          l.id as resource,
-          case
-            when l.sku_name = 'Basic' then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when l.sku_name = 'Basic' then l.title || ' using basic SKU.'
-            else l.title || ' using ' || sku_name || ' SKU.'
-          end as reason
-          
-          
-          
-        from
-          azure_lb as l,
-          azure_subscription as sub
-        where
-          sub.subscription_id = l.subscription_id;
-  PrimaryTable: ""
-  ListOfTables: []
+    select
+      l.id as resource,
+      l.kaytu_account_id as kaytu_account_id,
+      l.kaytu_resource_id as kaytu_resource_id,
+      case
+        when l.sku_name = 'Basic' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when l.sku_name = 'Basic' then l.title || ' using basic SKU.'
+        else l.title || ' using ' || sku_name || ' SKU.'
+      end as reason
+      
+      , l.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_lb as l,
+      azure_subscription as sub
+    where
+      sub.subscription_id = l.subscription_id;
+  PrimaryTable: azure_lb
+  ListOfTables:
+  - azure_lb
+  - azure_subscription
   Parameters: []
 Connector:
 - azure
-Tags: {}
-Severity: low
+Tags:
+  cis:
+  - "true"
+  service:
+  - Azure/Network
+Severity: medium
