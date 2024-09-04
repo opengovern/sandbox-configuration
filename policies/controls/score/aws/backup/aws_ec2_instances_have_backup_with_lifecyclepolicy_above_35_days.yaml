@@ -1,44 +1,19 @@
 ID: aws_ec2_instances_have_backup_with_lifecyclepolicy_above_35_days
-Title: EC2 Instances have backup with lifecyclepolicy above 35 days
-Description: Ensure all EC2 are covered by a backup plan with a minimum of Life Cycle Policy 35 days
+Title: "EC2 Instances have backup with lifecyclepolicy above 35 days"
+Description: "Ensure all EC2 are covered by a backup plan with a minimum of Life Cycle Policy 35 days"
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    WITH points AS (
-      SELECT recovery_point_arn, resource_arn
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '35 days'::interval and (lifecycle ->> 'DeleteAfterDays')::INT >= 35 
-      and resource_type = 'EC2' and status = 'COMPLETED')
-    
-    select
-      i.arn as resource,
-      kaytu_account_id as kaytu_account_id,
-      kaytu_resource_id as kaytu_resource_id,
-      case
-        when p.recovery_point_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when p.recovery_point_arn is null then 'lacks a backup configuration with a minimum of 35 days'
-        else ''
-      end as reason
-      , region, account_id 
-    from 
-      aws_ec2_instance as i
-      left join points as p on i.arn = p.resource_arn
-  Connector:
-  - AWS
-  PrimaryTable: aws_ec2_instance
-  ListOfTables:
-  - aws_backup_recovery_point
-  - aws_ec2_instance
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_backup_recovery_point
+        - aws_ec2_instance
+    Parameters: []
+    PrimaryTable: aws_ec2_instance
+    QueryToExecute: "WITH points AS (\n  SELECT recovery_point_arn, resource_arn\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '35 days'::interval and (lifecycle ->> 'DeleteAfterDays')::INT >= 35 \n  and resource_type = 'EC2' and status = 'COMPLETED')\n\nselect\n  i.arn as resource,\n  kaytu_account_id as kaytu_account_id,\n  kaytu_resource_id as kaytu_resource_id,\n  case\n    when p.recovery_point_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when p.recovery_point_arn is null then 'lacks a backup configuration with a minimum of 35 days'\n    else ''\n  end as reason\n  , region, account_id \nfrom \n  aws_ec2_instance as i\n  left join points as p on i.arn = p.resource_arn\n"
 Severity: medium
 Tags:
-  score_service_name:
-  - AWS EC2
-  score_tags:
-  - Missing Backup
-Managed: false
+    score_service_name:
+        - AWS EC2
+    score_tags:
+        - Missing Backup
+Connector:
+    - AWS

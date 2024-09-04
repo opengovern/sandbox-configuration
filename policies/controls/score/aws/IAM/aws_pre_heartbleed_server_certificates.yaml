@@ -1,37 +1,18 @@
 ID: aws_pre_heartbleed_server_certificates
-Title: Pre-Heartbleed Server Certificates
-Description: Ensure that your server certificates are not vulnerable to Heartbleed security bug.
+Title: "Pre-Heartbleed Server Certificates"
+Description: "Ensure that your server certificates are not vulnerable to Heartbleed security bug."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
-      CASE
-        WHEN upload_date < '2014-04-01' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN upload_date < '2014-04-01' THEN name || ' is vulnerable to Heartbleed security bug.' 
-        ELSE name || ' is vulnerable to Heartbleed security bug.'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_server_certificate
-  Connector:
-  - AWS
-  PrimaryTable: aws_iam_server_certificate
-  ListOfTables:
-  - aws_iam_server_certificate
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_iam_server_certificate
+    Parameters: []
+    PrimaryTable: aws_iam_server_certificate
+    QueryToExecute: "SELECT \n  name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN upload_date < '2014-04-01' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN upload_date < '2014-04-01' THEN name || ' is vulnerable to Heartbleed security bug.' \n    ELSE name || ' is vulnerable to Heartbleed security bug.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_server_certificate\n"
 Severity: high
 Tags:
-  score_service_name:
-  - AWS Identity and Access Management (IAM)
-  score_tags:
-  - Problem Identities
-Managed: false
+    score_service_name:
+        - AWS Identity and Access Management (IAM)
+    score_tags:
+        - Problem Identities
+Connector:
+    - AWS

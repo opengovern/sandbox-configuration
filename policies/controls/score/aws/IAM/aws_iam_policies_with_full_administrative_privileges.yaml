@@ -1,38 +1,18 @@
 ID: aws_iam_policies_with_full_administrative_privileges
-Title: IAM Policies With Full Administrative Privileges
-Description: Ensure IAM policies that allow full '*:*' administrative privileges aren't created.
+Title: "IAM Policies With Full Administrative Privileges"
+Description: "Ensure IAM policies that allow full '*:*' administrative privileges aren't created."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      kaytu_account_id,
-      kaytu_resource_id,
-      case
-        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'policy allows full administrative privileges'
-        else 'policy does not allow full administrative privileges'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_policy as p,
-      jsonb_array_elements(p.policy_std -> 'Statement') as stmt
-  Connector:
-  - AWS
-  PrimaryTable: aws_iam_policy
-  ListOfTables:
-  - aws_iam_policy
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_iam_policy
+    Parameters: []
+    PrimaryTable: aws_iam_policy
+    QueryToExecute: "select\n  arn as resource,\n  kaytu_account_id,\n  kaytu_resource_id,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'policy allows full administrative privileges'\n    else 'policy does not allow full administrative privileges'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_policy as p,\n  jsonb_array_elements(p.policy_std -> 'Statement') as stmt\n"
 Severity: high
 Tags:
-  score_service_name:
-  - AWS Identity and Access Management (IAM)
-  score_tags:
-  - Problem Identities
-Managed: false
+    score_service_name:
+        - AWS Identity and Access Management (IAM)
+    score_tags:
+        - Problem Identities
+Connector:
+    - AWS

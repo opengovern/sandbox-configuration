@@ -1,58 +1,33 @@
 ID: azure_mysql_server_audit_logging_enabled
-Title: Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server
-Description: Enable audit_log_enabled on MySQL Servers.
+Title: "Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server"
+Description: "Enable audit_log_enabled on MySQL Servers."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      s.kaytu_account_id as kaytu_account_id,
-      s.kaytu_resource_id as kaytu_resource_id,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'
-        else s.name || ' server parameter audit_log_enabled on.'
-      end as reason
-      
-      , s.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_mysql_server as s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    where
-      config ->> 'Name' = 'audit_log_enabled'
-      and sub.subscription_id = s.subscription_id;
-  Connector:
-  - Azure
-  PrimaryTable: azure_mysql_server
-  ListOfTables:
-  - azure_mysql_server
-  - azure_subscription
-  Parameters: []
-  Global: false
-ManualVerification: false
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - azure_mysql_server
+        - azure_subscription
+    Parameters: []
+    PrimaryTable: azure_mysql_server
+    QueryToExecute: "select\n  s.id as resource,\n  s.kaytu_account_id as kaytu_account_id,\n  s.kaytu_resource_id as kaytu_resource_id,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'\n    else s.name || ' server parameter audit_log_enabled on.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_mysql_server as s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'audit_log_enabled'\n  and sub.subscription_id = s.subscription_id;\n"
 Severity: medium
 Tags:
-  category:
-  - Compliance
-  cis:
-  - "true"
-  cis_item_id:
-  - 4.4.3
-  cis_level:
-  - "2"
-  cis_section_id:
-  - "4.4"
-  cis_type:
-  - manual
-  cis_version:
-  - v1.5.0
-  plugin:
-  - azure
-  service:
-  - Azure/MySQL
-Managed: false
+    category:
+        - Compliance
+    cis:
+        - "true"
+    cis_item_id:
+        - 4.4.3
+    cis_level:
+        - "2"
+    cis_section_id:
+        - "4.4"
+    cis_type:
+        - manual
+    cis_version:
+        - v1.5.0
+    plugin:
+        - azure
+    service:
+        - Azure/MySQL
+Connector:
+    - Azure
