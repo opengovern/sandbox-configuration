@@ -1,74 +1,49 @@
 ID: aws_log_metric_filter_disable_or_delete_cmk
-Title: Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer managed keys
-Description: You can do real-time monitoring of API calls by directing CloudTrail logs to CloudWatch Logs and establishing corresponding metric filters and alarms. Security Hub recommends that you create a metric filter and alarm for customer managed keys that have changed state to disabled or scheduled deletion. Data encrypted with disabled or deleted keys is no longer accessible.
+Title: "Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs"
+Description: "Real-time monitoring of API calls can be achieved by directing CloudTrail Logs to CloudWatch Logs and establishing corresponding metric filters and alarms. It is recommended that a metric filter and alarm be established for customer created CMKs which have changed state to disabled or scheduled deletion."
 Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-        with trails as (
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_account
+        - aws_cloudtrail_trail
+        - aws_cloudwatch_alarm
+        - aws_cloudwatch_log_metric_filter
+        - aws_sns_topic_subscription
+    Parameters: []
+    PrimaryTable: aws_account
+    QueryToExecute: |
+        with filter_data as (
           select
             trail.account_id,
             trail.name as trail_name,
             trail.is_logging,
-            split_part(trail.log_group_arn, ':', 7) as log_group_name
+            split_part(trail.log_group_arn, ':', 7) as log_group_name,
+            filter.name as filter_name,
+            action_arn as topic_arn,
+            alarm.metric_name,
+            subscription.subscription_arn,
+            filter.filter_pattern
           from
             aws_cloudtrail_trail as trail,
-            jsonb_array_elements(trail.event_selectors) as se
+            jsonb_array_elements(trail.event_selectors) as se,
+            aws_cloudwatch_log_metric_filter as filter,
+            aws_cloudwatch_alarm as alarm,
+            jsonb_array_elements_text(alarm.alarm_actions) as action_arn,
+            aws_sns_topic_subscription as subscription
           where
             trail.is_multi_region_trail is true
             and trail.is_logging
             and se ->> 'ReadWriteType' = 'All'
             and trail.log_group_arn is not null
-          order by
-            trail_name
-        ),
-        alarms as (
-          select
-            metric_name,
-            action_arn as topic_arn
-          from
-            aws_cloudwatch_alarm,
-            jsonb_array_elements_text(aws_cloudwatch_alarm.alarm_actions) as action_arn
-          order by
-            metric_name
-        ),
-        topic_subscriptions as (
-          select
-            subscription_arn,
-            topic_arn
-          from
-            aws_sns_topic_subscription
-          order by
-            subscription_arn
-        ),
-        metric_filters as (
-          select
-            filter.name as filter_name,
-            filter_pattern,
-            log_group_name,
-            metric_transformation_name
-          from
-            aws_cloudwatch_log_metric_filter as filter
-          where
-            filter.filter_pattern ~ '\s*\$\.eventSource\s*=\s*kms.amazonaws.com.+\$\.eventName\s*=\s*DisableKey.+\$\.eventName\s*=\s*ScheduleKeyDeletion'
-          order by
-            filter_name
-        ),
-        filter_data as (
-          select
-            t.account_id,
-            t.trail_name,
-            f.filter_name
-          from
-            trails as t
-          join
-            metric_filters as f on f.log_group_name = t.log_group_name
-          join
-            alarms as alarm on alarm.metric_name = f.metric_transformation_name
-          join
-            topic_subscriptions as subscription on subscription.topic_arn = alarm.topic_arn
+            and filter.log_group_name = split_part(trail.log_group_arn, ':', 7)
+            and filter.filter_pattern ~ '\s*\$\.eventSource\s*=\s*kms.amazonaws.com.+\$\.eventName\s*=\s*DisableKey.+\$\.eventName\s*=\s*ScheduleKeyDeletion'
+            and alarm.metric_name LIKE filter.metric_transformation_name
+            and subscription.topic_arn = action_arn
         )
         select
           distinct 'arn:' || a.partition || ':::' || a.account_id as resource,
+          a.kaytu_account_id as kaytu_account_id,
+          a.kaytu_resource_id as kaytu_resource_id,
           case
             when f.trail_name is null then 'alarm'
             else 'ok'
@@ -77,14 +52,29 @@ Query:
             when f.trail_name is null then 'No log metric filter and alarm exist for disabling/deletion of CMKs.'
             else filter_name || ' forwards events for disabling/deletion of CMKs.'
           end as reason
-          
+          , a.account_id
         from
           aws_account as a
           left join filter_data as f on a.account_id = f.account_id;
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
+Severity: high
+Tags:
+    category:
+        - Compliance
+    cis:
+        - "true"
+    cis_item_id:
+        - "3.7"
+    cis_level:
+        - "2"
+    cis_section_id:
+        - "3"
+    cis_type:
+        - scored
+    cis_version:
+        - v1.2.0
+    plugin:
+        - aws
+    service:
+        - AWS/CloudWatch
 Connector:
-- aws
-Tags: {}
-Severity: low
+    - AWS
