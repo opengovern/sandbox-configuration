@@ -1,0 +1,40 @@
+ID: aws_drs_job_enabled
+Title: DRS jobs should be enabled
+Description: Ensure that DRS is enabled with jobs. This rule is non-compliant if DRS is not enabled with jobs for a particular region.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with drs_job_count as (
+          select
+            count(*) as count,
+            region,
+            account_id,
+            _ctx
+          from
+            aws_drs_job
+          group by
+            region,
+            account_id,
+            _ctx
+        )
+        select
+          'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,
+          case
+            when drs_job_count.count = 0 or drs_job_count.count is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when drs_job_count.count = 0 or drs_job_count.count is null then 'DRS job not enabled for region ' || r.region || '.'
+            else 'DRS job enabled for region ' || r.region || '.'
+          end as reason
+          
+        from
+          aws_region as r
+          left join drs_job_count on r.region = drs_job_count.region;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

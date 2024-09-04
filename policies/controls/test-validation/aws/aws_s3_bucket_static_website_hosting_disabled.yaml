@@ -1,0 +1,29 @@
+ID: aws_s3_bucket_static_website_hosting_disabled
+Title: S3 buckets static website hosting should be disabled
+Description: Enabling static website on a S3 bucket requires to grant public read access to the bucket. There is a potential risk of exposure when you turn off block public access settings to make your bucket public. This is recommend to not configure static website on S3 bucket.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then 'alarm'
+        else 'ok'
+      end status,
+      case
+        when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then name || ' static website hosting enabled.'
+        else name || ' static website hosting disabled.'
+      end reason
+      
+      
+    from
+      aws_s3_bucket;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

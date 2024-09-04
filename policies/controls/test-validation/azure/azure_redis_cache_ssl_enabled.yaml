@@ -1,0 +1,30 @@
+ID: azure_redis_cache_ssl_enabled
+Title: Only secure connections to your Azure Cache for Redis should be enabled
+Description: Audit enabling of only connections via SSL to Azure Cache for Redis. Use of secure connections ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      redis.id as resource,
+      redis.kaytu_account_id as kaytu_account_id,
+      redis.kaytu_resource_id as kaytu_resource_id,
+      case
+        when enable_non_ssl_port then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when enable_non_ssl_port then redis.name || ' secure connections disabled.'
+        else redis.name || ' secure connections enabled.'
+      end as reason
+    from
+      azure_redis_cache as redis,
+      azure_subscription as sub
+    where
+      sub.subscription_id = redis.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

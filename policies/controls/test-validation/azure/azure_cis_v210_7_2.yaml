@@ -1,0 +1,30 @@
+ID: azure_cis_v210_7_2
+Title: 7.2 Ensure Virtual Machines are utilizing Managed Disks
+Description: Migrate blob-based VHDs to Managed Disks on Virtual Machines to exploit the default features of this configuration.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      vm.id as resource,
+      vm.kaytu_account_id as kaytu_account_id,
+      vm.kaytu_resource_id as kaytu_resource_id,
+      case
+        when managed_disk_id is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when managed_disk_id is null then vm.name || ' VM not utilizing managed disks.'
+        else vm.name || ' VM utilizing managed disks.'
+      end as reason
+    from
+      azure_compute_virtual_machine as vm,
+      azure_subscription as sub
+    where
+      sub.subscription_id = vm.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

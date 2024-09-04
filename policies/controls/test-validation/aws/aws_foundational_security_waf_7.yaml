@@ -1,0 +1,29 @@
+ID: aws_foundational_security_waf_7
+Title: 7 AWS WAF Classic global rule groups should have at least one rule
+Description: This control checks whether an AWS WAF global rule group has at least one rule. The control fails if no rules are present within a rule group.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when activated_rules is null or jsonb_array_length(activated_rules) = 0 then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when activated_rules is null or jsonb_array_length(activated_rules) = 0 then title || ' has no attached rules.'
+        else title || ' has ' || jsonb_array_length(activated_rules) || ' rule(s) attached.'
+      end as reason
+      
+      
+    from
+      aws_waf_rule_group;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

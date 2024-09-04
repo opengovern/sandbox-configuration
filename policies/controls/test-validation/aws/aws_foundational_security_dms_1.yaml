@@ -1,0 +1,27 @@
+ID: aws_foundational_security_dms_1
+Title: 1 AWS Database Migration Service replication instances should not be public
+Description: This control checks whether AWS DMS replication instances are public. To do this, it examines the value of the PubliclyAccessible field. A private replication instance has a private IP address that you cannot access outside of the replication network. A replication instance should have a private IP address when the source and target databases are in the same network. The network must also be connected to the replication instance's VPC using a VPN, AWS Direct Connect, or VPC peering. To learn more about public and private replication instances, see Public and private replication instances in the AWS Database Migration Service User Guide.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when publicly_accessible then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when publicly_accessible then title || ' publicly accessible.'
+        else title || ' not publicly accessible.'
+      end as reason
+    from
+      aws_dms_replication_instance;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: critical

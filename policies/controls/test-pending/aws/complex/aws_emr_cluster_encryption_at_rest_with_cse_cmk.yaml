@@ -1,0 +1,32 @@
+ID: aws_emr_cluster_encryption_at_rest_with_cse_cmk
+Title: EMR clusters client side encryption (CSE CMK) enabled with CMK
+Description: This control checks whether EMR client side encryption (CSE CMK) is enabled with CMK. The check fails if encryption at rest is not enabled with CSE-CMK.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          cluster_arn as resource,
+          case
+            when s.name is null then 'alarm'
+            when not (encryption_configuration -> 'EnableAtRestEncryption')::bool then 'alarm'
+            when (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'S3EncryptionConfiguration' ->> 'EncryptionMode') = 'CSE-Custom' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when s.name is null then c.title || ' security configuration disabled.'
+            when not (encryption_configuration -> 'EnableAtRestEncryption')::bool then c.title || ' encryption at rest disabled.'
+            when (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'S3EncryptionConfiguration' ->> 'EncryptionMode') = 'CSE-Custom' then c.title || ' encryption at rest enabled with CSE-CMK.'
+            else c.title || ' encryption at rest not enabled with CSE-CMK.'
+          end as reason
+          
+          
+        from
+          aws_emr_cluster as c
+          left join aws_emr_security_configuration as s on c.security_configuration = s.name and s.region = s.region and s.account_id = c.account_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

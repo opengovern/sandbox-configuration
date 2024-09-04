@@ -1,0 +1,32 @@
+ID: azure_appservice_web_app_health_check_enabled
+Title: Web apps should have health check enabled
+Description: Health check increases your application's availability by rerouting requests away from unhealthy instances and replacing instances if they remain unhealthy.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    ```sql
+    select
+       a.id as resource,
+       a.kaytu_account_id as kaytu_account_id,
+       a.kaytu_resource_id as kaytu_resource_id,
+       case
+         when configuration -> 'properties' ->> 'healthCheckPath' is not null then 'ok'
+         else 'alarm'
+       end as status,
+       case
+         when configuration -> 'properties' ->> 'healthCheckPath' is not null then a.name || ' health check enabled.'
+         else a.name || ' health check disabled.'
+       end as reason
+     from
+       azure_app_service_web_app as a,
+       azure_subscription as sub
+     where
+       sub.subscription_id = a.subscription_id;
+    ```
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

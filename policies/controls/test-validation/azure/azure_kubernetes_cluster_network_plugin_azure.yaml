@@ -1,0 +1,30 @@
+ID: azure_kubernetes_cluster_network_plugin_azure
+Title: Kubernetes clusters should have Azure network plugin
+Description: This control checks if Azure CNI networking is enabled for Kubernetes cluster.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      c.id as resource,
+      c.kaytu_account_id as kaytu_account_id,
+      c.kaytu_resource_id as kaytu_resource_id,
+      case
+        when network_profile ->> 'networkPlugin' = 'azure' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when network_profile ->> 'networkPlugin' = 'azure' then c.name || ' Azure CNI networking enabled.'
+        else c.name || ' Azure CNI networking disabled.'
+      end as reason
+    from
+      azure_kubernetes_cluster c,
+      azure_subscription sub
+    where
+      sub.subscription_id = c.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

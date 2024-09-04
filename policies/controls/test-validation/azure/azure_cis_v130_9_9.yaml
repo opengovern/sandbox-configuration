@@ -1,0 +1,30 @@
+ID: azure_cis_v130_9_9
+Title: 9.9 Ensure that 'HTTP Version' is the latest, if used to run the web app
+Description: Periodically, newer versions are released for HTTP either due to security flaws or to include additional functionality. Using the latest HTTP version for web apps to take advantage of security fixes, if any, and/or new functionalities of the newer version.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      app.id as resource,
+      app.kaytu_account_id as kaytu_account_id,
+      app.kaytu_resource_id as kaytu_resource_id,
+      case
+        when not (configuration -> 'properties' ->> 'http20Enabled') :: boolean then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when not (configuration -> 'properties' ->> 'http20Enabled') :: boolean then name || ' HTTP version not latest.'
+        else name || ' HTTP version is latest.'
+      end as reason
+    from
+      azure_app_service_web_app as app,
+      azure_subscription as sub
+    where
+      sub.subscription_id = app.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

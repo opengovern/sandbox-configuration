@@ -1,0 +1,31 @@
+ID: azure_cis_v200_7_4
+Title: 7.4 Ensure that 'Unattached disks' are encrypted with 'Customer Managed Key' (CMK)
+Description: Ensure that unattached disks in a subscription are encrypted with a Customer Managed Key (CMK).
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      disk.id as resource,
+      disk.kaytu_account_id as kaytu_account_id,
+      disk.kaytu_resource_id as kaytu_resource_id,
+      case
+        when encryption_type = 'EncryptionAtRestWithCustomerKey' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when encryption_type = 'EncryptionAtRestWithCustomerKey' then disk.name || ' encrypted with CMK.'
+        else disk.name || ' not encrypted with CMK.'
+      end as reason
+    from
+      azure_compute_disk disk,
+      azure_subscription sub
+    where
+      disk_state != 'Attached'
+      and sub.subscription_id = disk.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

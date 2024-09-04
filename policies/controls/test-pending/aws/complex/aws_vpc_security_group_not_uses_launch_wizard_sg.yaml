@@ -1,0 +1,39 @@
+ID: aws_vpc_security_group_not_uses_launch_wizard_sg
+Title: VPC security groups should restrict uses of 'launch-wizard' security groups.
+Description: Ensure the launch-wizard security group in your AWS account is not being used.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with associated_sg as (
+          select
+            distinct (sg ->> 'GroupName') as sg_name
+          from
+            aws_ec2_network_interface,
+            jsonb_array_elements(groups) as sg
+          where
+            (sg ->> 'GroupName') like 'launch-wizard%'
+        )
+        select
+          arn as resource,
+          case
+            when a.sg_name is null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when a.sg_name is null then title || ' not in use.'
+            else title || ' in use.'
+          end as reason
+          
+          
+        from
+          aws_vpc_security_group as s
+          left join associated_sg as a on a.sg_name = s.group_name
+        where
+          group_name like 'launch-wizard%';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

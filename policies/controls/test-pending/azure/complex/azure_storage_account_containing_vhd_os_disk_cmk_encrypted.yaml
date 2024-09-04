@@ -1,0 +1,36 @@
+ID: azure_storage_account_containing_vhd_os_disk_cmk_encrypted
+Title: Storage account containing VHD OS disk not encrypted with CMK
+Description: This policy identifies Azure Storage account containing VHD OS disk which are not encrypted with CMK. VHD's attached to Virtual Machines are stored in Azure storage. By default Azure Storage account is encrypted using Microsoft Managed Keys. It is recommended to use Customer Managed Keys to encrypt data in Azure Storage accounts for better control on the data.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sa.id as resource,
+          case
+            when sa.encryption_key_source = 'Microsoft.Storage'
+            and vm.os_disk_vhd_uri is not null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when sa.encryption_key_source = 'Microsoft.Storage'
+            and vm.os_disk_vhd_uri is not null then sa.name || ' storage account containing VHD OS disk not encrypted with CMK.'
+            else sa.name || ' storage account containing VHD OS disk encrypted with CMK.'
+          end as reason
+          
+          
+          
+          
+        from
+          azure_storage_account sa,
+          azure_compute_virtual_machine vm,
+          azure_subscription sub
+        where
+          sub.subscription_id = sa.subscription_id
+          and vm.os_disk_vhd_uri like '%' || sa.name || '%';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

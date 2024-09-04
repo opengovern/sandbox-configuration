@@ -1,0 +1,32 @@
+ID: azure_cis_v210_3_7
+Title: 3.7 Ensure that 'Public Network Access' is `Disabled' for storage accounts
+Description: Disallowing public network access for a storage account overrides the public access settings for individual containers in that storage account for Azure Resource Manager Deployment Model storage accounts. Azure Storage accounts that use the classic deployment model will be retired on August 31, 2024.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    ```sql
+    select
+      sa.id as resource,
+      sa.kaytu_account_id as kaytu_account_id,
+      sa.kaytu_resource_id as kaytu_resource_id,
+      case
+        when lower(sa.public_network_access) = 'disabled' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when lower(sa.public_network_access) = 'disabled' then sa.name || ' not publicy accessible.'
+        else sa.name || ' publicy accessible.'
+      end as reason
+    from
+      azure_storage_account sa,
+      azure_subscription sub
+    where
+      sub.subscription_id = sa.subscription_id;
+    ```
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

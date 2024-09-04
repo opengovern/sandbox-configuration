@@ -1,0 +1,22 @@
+ID: aws_cis_compute_service_v100_4_5
+Title: 4.5 Ensure every Lambda function has its own IAM Role
+Description: Every Lambda function should have a one to one IAM execution role and the roles should not be shared between functions.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      'arn:' || partition || ':::' || account_id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason
+      
+    from
+      aws_account;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

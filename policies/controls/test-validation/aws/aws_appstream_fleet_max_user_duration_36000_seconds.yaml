@@ -1,0 +1,26 @@
+ID: aws_appstream_fleet_max_user_duration_36000_seconds
+Title: AppStream fleet max user duration should be set to less than 10 hours
+Description: Ensure user maximum session duration is no longer than 10 hours. A session duration exceeding 10 hours is unnecessary and may offer malicious users an extended period of unauthorized usage beyond acceptable limits.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when max_user_duration_in_seconds < 36000 then 'ok'
+        else 'alarm'
+      end as status,
+      title || ' max user duration in seconds is set to ' || max_user_duration_in_seconds || ' seconds.' as reason
+      
+      
+    from
+      aws_appstream_fleet;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

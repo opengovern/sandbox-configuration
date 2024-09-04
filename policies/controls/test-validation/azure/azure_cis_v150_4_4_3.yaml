@@ -1,0 +1,34 @@
+ID: azure_cis_v150_4_4_3
+Title: 4.4.3 Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server
+Description: Enable audit_log_enabled on MySQL Servers.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    ```sql
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'
+        else s.name || ' server parameter audit_log_enabled on.'
+      end as reason
+    from
+      azure_mysql_server as s,
+      jsonb_array_elements(server_configurations) config,
+      azure_subscription sub
+    where
+      config ->> 'Name' = 'audit_log_enabled'
+      and sub.subscription_id = s.subscription_id;
+    ```
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

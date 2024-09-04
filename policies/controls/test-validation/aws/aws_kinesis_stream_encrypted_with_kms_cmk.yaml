@@ -1,0 +1,29 @@
+ID: aws_kinesis_stream_encrypted_with_kms_cmk
+Title: Kinesis streams should be encrypted with CMK
+Description: Ensure Kinesis streams are encrypted using CMK. Using KMS CMK, you gain full control over who can use the keys to access AWS Kinesis data (including the system metadata).
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      stream_arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then title || ' encrypted with CMK.'
+        else title || ' not encrypted with CMK.'
+      end as reason
+      
+      
+    from
+      aws_kinesis_stream;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

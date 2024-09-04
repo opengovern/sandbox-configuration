@@ -1,0 +1,27 @@
+ID: aws_ec2_instance_termination_protection_enabled
+Title: AWS EC2 instances should have termination protection enabled
+Description: This control checks whether termination protection is enabled for EC2 instances. The control fails if termination protection is not enabled for an EC2 instance.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when disable_api_termination then 'ok'
+        else 'alarm'
+      end status,
+      case
+        when disable_api_termination then instance_id || ' termination protection enabled.'
+        else instance_id || ' termination protection disabled.'
+      end reason
+    from
+      aws_ec2_instance;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low
