@@ -1,0 +1,33 @@
+ID: azure_cis_v130_4_3_6
+Title: 4.3.6 Ensure server parameter 'connection_throttling' is set to 'ON' for PostgreSQL Database Server
+Description: Enable connection_throttling on PostgreSQL Servers.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          s.id as resource,
+          case
+            when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter connection_throttling off.'
+            else s.name || ' server parameter connection_throttling on.'
+          end as reason
+          
+          
+          
+        from
+          azure_postgresql_server s,
+          jsonb_array_elements(server_configurations) config,
+          azure_subscription sub
+        where
+          config ->> 'Name' = 'connection_throttling'
+          and sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

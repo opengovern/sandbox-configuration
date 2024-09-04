@@ -1,0 +1,31 @@
+ID: azure_kubernetes_cluster_upgrade_channel
+Title: Kubernetes clusters upgrade channel should be configured
+Description: Ensure Kubernetes clusters upgrade channel is configured. This control is non-compliant if Kubernetes clusters upgrade channel is set to none.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          c.id as resource,
+          case
+            when auto_upgrade_profile ->> 'upgradeChannel' = 'none' then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when auto_upgrade_profile ->> 'upgradeChannel' = 'none' then c.name || ' upgrade channel not configured.'
+            else c.name || ' upgrade channel configured.'
+          end as reason
+          
+          
+          
+        from
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        where
+          sub.subscription_id = c.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

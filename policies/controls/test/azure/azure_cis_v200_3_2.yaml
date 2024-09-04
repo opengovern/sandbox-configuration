@@ -1,0 +1,31 @@
+ID: azure_cis_v200_3_2
+Title: 3.2 Ensure that 'Enable Infrastructure Encryption' for Each Storage Account in Azure Storage is Set to 'enabled'
+Description: Enabling encryption at the hardware level on top of the default software encryption for Storage Accounts accessing Azure storage solutions.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          s.id as resource,
+          case
+            when require_infrastructure_encryption then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when require_infrastructure_encryption then name || ' infrastructure encryption enabled.'
+            else name || ' infrastructure encryption disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_storage_account as s,
+          azure_subscription as sub
+        where
+          sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

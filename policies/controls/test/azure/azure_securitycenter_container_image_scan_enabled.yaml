@@ -1,0 +1,28 @@
+ID: azure_securitycenter_container_image_scan_enabled
+Title: Security Center container image scan should be enabled
+Description: This control ensures that image scan for container registries are enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sub_assessment.id as resource,
+          case
+            when container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' then sub_assessment.name || ' container image scan enabled.'
+            else sub_assessment.name || ' container image scan disabled.'
+          end as reason
+          
+          
+        from
+          azure_security_center_sub_assessment sub_assessment
+          right join azure_subscription sub on sub_assessment.subscription_id = sub.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

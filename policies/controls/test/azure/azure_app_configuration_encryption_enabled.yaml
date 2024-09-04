@@ -1,0 +1,29 @@
+ID: azure_app_configuration_encryption_enabled
+Title: App Configuration encryption should be enabled
+Description: Enabling App Configuration encryption helps protect and safeguard your data to meet your organizational security and compliance commitments.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id as resource,
+          case
+            when encryption -> 'keyVaultProperties' ->> 'keyIdentifier' is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encryption -> 'keyVaultProperties' ->> 'keyIdentifier' is not null then a.name ||  'encryption enabled.'
+            else a.name || ' encryption disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_app_configuration as a,
+          azure_subscription as sub;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

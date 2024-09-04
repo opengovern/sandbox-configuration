@@ -1,0 +1,31 @@
+ID: azure_kusto_cluster_disk_encryption_enabled
+Title: Disk encryption should be enabled on Azure Data Explorer
+Description: Enabling disk encryption helps protect and safeguard your data to meet your organizational security and compliance commitments.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          kv.id as resource,
+          case
+            when enable_disk_encryption then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when enable_disk_encryption then name || ' disk encryption enabled.'
+            else name || ' disk encryption disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_kusto_cluster as kv,
+          azure_subscription as sub
+        where
+          sub.subscription_id = kv.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

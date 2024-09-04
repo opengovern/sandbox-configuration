@@ -1,0 +1,32 @@
+ID: azure_cis_v130_7_2
+Title: 7.2 Ensure that 'OS and Data' disks are encrypted with CMK
+Description: Ensure that OS disks (boot volumes) and data disks (non-boot volumes) are encrypted with CMK.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          disk.id as resource,
+          case
+            when encryption_type = 'EncryptionAtRestWithCustomerKey' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encryption_type = 'EncryptionAtRestWithCustomerKey' then disk.name || ' encrypted with CMK.'
+            else disk.name || ' not encrypted with CMK.'
+          end as reason
+          
+          
+          
+        from
+          azure_compute_disk disk,
+          azure_subscription sub
+        where
+          disk_state = 'Attached'
+          and sub.subscription_id = disk.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

@@ -1,0 +1,36 @@
+ID: azure_iam_conditional_access_mfa_enabled
+Title: Ensure Multi-factor Authentication is required for Azure Management
+Description: For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with distinct_tenant as (
+          select
+            distinct tenant_id,
+            subscription_id,
+            _ctx
+          from
+            azure_tenant
+        )
+        select
+          p.id as resource,
+          case
+            when p.built_in_controls @> '["mfa"]' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when p.built_in_controls @> '["mfa"]' then p.display_name || ' MFA enabled.'
+            else p.display_name || ' MFA disabled.'
+          end as reason,
+          t.tenant_id
+          
+        from
+          distinct_tenant as t,
+          azuread_conditional_access_policy as p;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

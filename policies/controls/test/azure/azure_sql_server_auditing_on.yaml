@@ -1,0 +1,32 @@
+ID: azure_sql_server_auditing_on
+Title: Auditing on SQL server should be enabled
+Description: Auditing on your SQL Server should be enabled to track database activities across all databases on the server and save them in an audit log.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          s.id as resource,
+          case
+            when audit -> 'properties' ->> 'state' = 'Disabled' then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when audit -> 'properties' ->> 'state' = 'Disabled' then name || ' auditing disabled.'
+            else name || ' auditing enabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_sql_server s,
+          jsonb_array_elements(server_audit_policy) audit,
+          azure_subscription sub
+        where
+          sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

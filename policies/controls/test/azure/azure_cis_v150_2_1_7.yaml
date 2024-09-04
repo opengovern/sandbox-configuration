@@ -1,0 +1,30 @@
+ID: azure_cis_v150_2_1_7
+Title: 2.1.7 Ensure That Microsoft Defender for Storage Is Set To 'On'
+Description: Turning on Microsoft Defender for Storage enables threat detection for Storage, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sub_pricing.id as resource,
+          case
+            when pricing_tier = 'Standard' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when pricing_tier = 'Standard' then 'Azure Defender on for Storage.'
+            else 'Azure Defender off for Storage.'
+          end as reason
+          
+          
+        from
+          azure_security_center_subscription_pricing sub_pricing
+          right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
+        where
+          name = 'StorageAccounts';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

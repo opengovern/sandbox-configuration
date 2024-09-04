@@ -1,0 +1,31 @@
+ID: azure_storage_account_geo_redundant_enabled
+Title: Geo-redundant storage should be enabled for Storage Accounts
+Description: Use geo-redundancy to create highly available applications.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          s.id as resource,
+          case
+            when sku_name = any(ARRAY ['Standard_GRS', 'Standard_RAGRS', 'Standard_GZRS', 'Standard_RAGZRS']) then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when sku_name = any(ARRAY ['Standard_GRS', 'Standard_RAGRS', 'Standard_GZRS', 'Standard_RAGZRS']) then name || ' geo-redundant enabled.'
+            else name || ' geo-redundant disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_storage_account as s,
+          azure_subscription as sub
+        where
+          sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

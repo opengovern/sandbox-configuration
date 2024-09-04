@@ -1,0 +1,41 @@
+ID: azure_eventhub_namespace_use_virtual_service_endpoint
+Title: Event Hub should use a virtual network service endpoint
+Description: This policy audits any Event Hub not configured to use a virtual network service endpoint.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with eventhub_namesapce_with_virtual_network as (
+          select
+            distinct a.id
+          from
+            azure_eventhub_namespace as a,
+            jsonb_array_elements(network_rule_set -> 'properties' -> 'virtualNetworkRules') as rule
+          where
+            rule -> 'subnet' ->> 'id' is not null
+        )
+        select
+          a.id as resource,
+          case
+            when c.id is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when c.id is null then a.name || ' not configured with virtual network service endpoint.'
+            else a.name || ' configured with virtual network service endpoint.'
+          end as reason
+          
+          
+          
+        from
+          azure_eventhub_namespace as a
+          left join eventhub_namesapce_with_virtual_network as c on c.id = a.id,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

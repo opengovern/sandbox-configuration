@@ -1,0 +1,31 @@
+ID: azure_keyvault_firewall_enabled
+Title: Azure Key Vault should have firewall enabled
+Description: Enable the key vault firewall so that the key vault is not accessible by default to any public IPs. Optionally, you can configure specific IP ranges to limit access to those networks.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          kv.id as resource,
+          case
+            when jsonb_array_length(network_acls -> 'ipRules') > 0 then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when jsonb_array_length(network_acls -> 'ipRules') > 0 then name || ' firewall enabled.'
+            else name || ' firewall disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_key_vault kv,
+          azure_subscription sub
+        where
+          sub.subscription_id = kv.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

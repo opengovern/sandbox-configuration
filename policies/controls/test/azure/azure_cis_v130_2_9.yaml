@@ -1,0 +1,30 @@
+ID: azure_cis_v130_2_9
+Title: 2.9 Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected
+Description: This setting enables Windows Defender ATP (WDATP) integration with Security Center.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sc_sett.id as resource,
+          case
+            when enabled then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when enabled then 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
+            else 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
+          end as reason
+          
+          
+        from
+          azure_security_center_setting sc_sett
+          right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id
+        where
+          name = 'WDATP';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

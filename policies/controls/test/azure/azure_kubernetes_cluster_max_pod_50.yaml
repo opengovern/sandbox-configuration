@@ -1,0 +1,41 @@
+ID: azure_kubernetes_cluster_max_pod_50
+Title: Kubernetes clusters should use a minimum number of 50 pods
+Description: This control checks if Kubernetes clusters is using a minimum number of 50 pods.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with max_node as (
+          select
+            distinct id
+          from
+            azure_kubernetes_cluster,
+            jsonb_array_elements(agent_pool_profiles) as p
+          where
+            (p ->> 'maxPods')::int < 50
+        )
+        select
+          c.id as resource,
+          case
+            when n.id is not null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when n.id is not null then c.name || ' nodes have less than 50 pods.'
+            else c.name || ' nodes have greater than 50 pods.'
+          end as reason
+          
+          
+          
+        from
+          azure_kubernetes_cluster c
+          left join max_node as n on n.id = c.id,
+          azure_subscription sub
+        where
+          sub.subscription_id = c.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

@@ -1,0 +1,59 @@
+ID: azure_datalake_store_account_logging_enabled
+Title: Resource logs in Azure Data Lake Store should be enabled
+Description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with logging_details as (
+          select
+            distinct account_id as account_id
+          from
+            azure_data_lake_store,
+            jsonb_array_elements(diagnostic_settings) setting,
+            jsonb_array_elements(setting -> 'properties' -> 'logs') log
+          where
+            diagnostic_settings is not null
+            and (
+              (
+                (log ->> 'enabled') :: boolean
+                and (log -> 'retentionPolicy' ->> 'enabled') :: boolean
+                and (log -> 'retentionPolicy') :: JSONB ? 'days'
+              )
+              or
+              (
+                (log ->> 'enabled') :: boolean
+                and (
+                  log -> 'retentionPolicy' ->> 'enabled' <> 'true'
+                  or setting -> 'properties' ->> 'storageAccountId' = ''
+                )
+              )
+            )
+        )
+        select
+          a.account_id as resource,
+          case
+            when a.diagnostic_settings is null then 'alarm'
+            when l.account_id is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when a.diagnostic_settings is null then a.name || ' logging disabled.'
+            when l.account_id is not null then a.name || ' logging enabled.'
+            else a.name || ' logging disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_data_lake_store as a
+          left join logging_details as l on a.account_id = l.account_id,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

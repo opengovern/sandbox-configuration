@@ -1,0 +1,31 @@
+ID: azure_kubernetes_cluster_addon_azure_policy_enabled
+Title: Kubernetes cluster addon Azure policy should be enabled
+Description: Ensure that Kubernetes cluster uses Azure Policies Add-on.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          c.id as resource,
+          case
+            when addon_profiles -> 'azurepolicy' ->> 'enabled' = 'true' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when addon_profiles -> 'azurepolicy' ->> 'enabled' = 'true' then c.name || ' addon azure policy enabled .'
+            else c.name || ' addon azure policy disabled .'
+          end as reason
+          
+          
+          
+        from
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        where
+          sub.subscription_id = c.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

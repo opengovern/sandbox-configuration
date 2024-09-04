@@ -1,0 +1,42 @@
+ID: azure_mssql_managed_instance_encryption_at_rest_using_cmk
+Title: SQL managed instances should use customer-managed keys to encrypt data at rest
+Description: Implementing Transparent Data Encryption (TDE) with your own key provides you with increased transparency and control over the TDE Protector, increased security with an HSM-backed external service, and promotion of separation of duties. This recommendation applies to organizations with a related compliance requirement.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with encryption_protector as (
+          select
+            distinct i.id as id
+          from
+            azure_mssql_managed_instance as i,
+            jsonb_array_elements(encryption_protectors) a
+            where
+              a ->> 'serverKeyType' = 'AzureKeyVault'
+              and a ->> 'uri' is not null
+        )
+        select
+          s.id as resource,
+          case
+            when a.id is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when a.id is not null then s.title || ' encrypted with CMK.'
+            else s.title || ' not encrypted with CMK.'
+          end as reason
+          
+          
+          
+        from
+          azure_mssql_managed_instance as s
+          left join encryption_protector as a on s.id = a.id,
+          azure_subscription as sub
+        where
+          sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low
