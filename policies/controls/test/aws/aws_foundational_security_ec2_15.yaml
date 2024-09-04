@@ -1,0 +1,27 @@
+ID: aws_foundational_security_ec2_15
+Title: 15 EC2 subnets should not automatically assign public IP addresses
+Description: This control checks whether the assignment of public IPs in Amazon Virtual Private Cloud (Amazon VPC) subnets have MapPublicIpOnLaunch set to FALSE. The control passes if the flag is set to FALSE.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          subnet_id as resource,
+          case
+            when map_public_ip_on_launch = 'false' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when map_public_ip_on_launch = 'false' then title || ' auto assign public IP disabled.'
+            else title || ' auto assign public IP enabled.'
+          end as reason
+          
+          
+        from
+          aws_vpc_subnet;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

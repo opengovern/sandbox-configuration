@@ -1,0 +1,35 @@
+ID: azure_cis_v140_5_1_4
+Title: 5.1.4 Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)
+Description: The storage account with the activity log export container is configured to use BYOK (Use Your Own Key).
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id as resource,
+          case
+            when a.encryption_key_source = 'Microsoft.Keyvault' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when a.encryption_key_source = 'Microsoft.Keyvault'
+              then a.name || ' container insights-operational-logs encrypted with BYOK.'
+            else a.name || ' container insights-operational-logs not encrypted with BYOK.'
+          end as reason
+          
+          
+          
+        from
+          azure_storage_container c,
+          azure_storage_account a,
+          azure_subscription sub
+        where
+          c.name = 'insights-operational-logs'
+          and c.account_name = a.name
+          and sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

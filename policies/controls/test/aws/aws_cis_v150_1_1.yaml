@@ -1,0 +1,20 @@
+ID: aws_cis_v150_1_1
+Title: 1.1 Maintain current contact details
+Description: Ensure contact email and telephone details for AWS accounts are current and map to more than one individual in your organization.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          'arn:' || partition || ':::' || account_id as resource,
+          'info' as status,
+          'Manual verification required.' as reason
+          
+        from
+          aws_account;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

@@ -1,0 +1,27 @@
+ID: aws_wafv2_web_acl_logging_enabled
+Title: Logging should be enabled on AWS WAFv2 regional and global web access control list (ACLs)
+Description: To help with logging and monitoring within your environment, enable AWS WAF (V2) logging on regional and global web ACLs.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when logging_configuration is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when logging_configuration is null then title || ' logging disabled.'
+            else title || ' logging enabled.'
+          end as reason
+          
+          
+        from
+          aws_wafv2_web_acl;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

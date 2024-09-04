@@ -1,0 +1,27 @@
+ID: aws_foundational_security_redshift_7
+Title: 7 Amazon Redshift clusters should use enhanced VPC routing
+Description: This control checks whether an Amazon Redshift cluster has EnhancedVpcRouting enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when enhanced_vpc_routing then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when enhanced_vpc_routing then title || ' enhanced VPC routing enabled.'
+            else title || ' enhanced VPC routing disabled.'
+          end as reason
+          
+          
+        from
+          aws_redshift_cluster;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: high

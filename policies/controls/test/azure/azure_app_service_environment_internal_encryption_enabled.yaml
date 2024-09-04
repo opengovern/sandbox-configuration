@@ -1,0 +1,42 @@
+ID: azure_app_service_environment_internal_encryption_enabled
+Title: App Service Environment should enable internal encryption
+Description: Setting InternalEncryption to true encrypts the pagefile, worker disks, and internal network traffic between the front ends and workers in an App Service Environment.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with app_service_environment as (
+          select
+            distinct id as id
+          from
+            azure_app_service_environment,
+            jsonb_array_elements(cluster_settings ) as s
+          where
+            s ->> 'name' = 'InternalEncryption'
+            and s ->> 'value' = 'true'
+        )
+        select
+          a.id as resource,
+          case
+            when b.id is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when b.id is not null then a.title || ' internal encryption enabled.'
+            else a.name || ' internal encryption disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_app_service_environment as a
+          left join app_service_environment as b on a.id = b.id,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

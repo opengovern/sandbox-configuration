@@ -1,0 +1,31 @@
+ID: azure_container_instance_container_group_encrypted_using_cmk
+Title: Container Instance container group should use customer-managed key for encryption
+Description: Secure your containers with greater flexibility using customer-managed keys. When you specify a customer-managed key, that key is used to protect and control access to the key that encrypts your data. Using customer-managed keys provides additional capabilities to control rotation of the key encryption key or cryptographically erase data.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          cg.id as resource,
+          case
+            when encryption_properties ->> 'keyName' is not null and encryption_properties ->> 'vaultBaseUrl' is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encryption_properties ->> 'keyName' is not null and encryption_properties ->> 'vaultBaseUrl' is not null then cg.title || ' encrypted with CMK.'
+            else cg.title || ' not encrypted with CMK.'
+          end as reason
+          
+          
+          
+        from
+          azure_container_group as cg,
+          azure_subscription as sub
+        where
+          sub.subscription_id = cg.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

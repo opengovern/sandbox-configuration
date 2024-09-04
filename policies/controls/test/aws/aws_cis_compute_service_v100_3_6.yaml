@@ -1,0 +1,27 @@
+ID: aws_cis_compute_service_v100_3_6
+Title: 3.6 Disable IPv6 Networking if not in use within your organization
+Description: Any protocols enable within Lightsail by default that aren't being used should be disabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          name as resource,
+          case
+            when ip_v6_addresses is null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when ip_v6_addresses is null then name || ' has IPv6 networking disabled.'
+            else name || ' has IPv6 networking enabled.'
+          end as reason
+          
+          
+        from
+          aws_lightsail_instance;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

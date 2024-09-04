@@ -1,0 +1,27 @@
+ID: aws_foundational_security_s3_9
+Title: 9 S3 bucket server access logging should be enabled
+Description: When logging is enabled, Amazon S3 delivers access logs for a source bucket to a chosen target bucket. The target bucket must be in the same AWS Region as the source bucket and must not have a default retention period configuration.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when logging -> 'TargetBucket' is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when logging -> 'TargetBucket' is null then title || ' logging disabled.'
+            else title || ' logging enabled.'
+          end as reason
+          
+          
+        from
+          aws_s3_bucket;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

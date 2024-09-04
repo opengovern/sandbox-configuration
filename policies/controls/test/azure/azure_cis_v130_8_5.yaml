@@ -1,0 +1,33 @@
+ID: azure_cis_v130_8_5
+Title: 8.5 Enable role-based access control (RBAC) within Azure Kubernetes Services
+Description: Ensure that RBAC is enabled on all Azure Kubernetes Services Instances.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          kv.id as resource,
+          case
+            when soft_delete_enabled and purge_protection_enabled then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when not soft_delete_enabled and not purge_protection_enabled then name || ' "soft delete" and "do not purge" not enabled.'
+            when not soft_delete_enabled then name || ' "soft delete" not enabled.'
+            when not purge_protection_enabled then name || ' "do not purge" not enabled.'
+            else name || ' "soft delete" and "do not purge" enabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_key_vault kv,
+          azure_subscription sub
+        where
+          sub.subscription_id = kv.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

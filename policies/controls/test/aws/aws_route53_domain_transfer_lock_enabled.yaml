@@ -1,0 +1,28 @@
+ID: aws_route53_domain_transfer_lock_enabled
+Title: Route 53 domains should have transfer lock enabled
+Description: Ensure Route 53 registered domains are locked to prevent any unauthorized transfers to another domain name registrar.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when transfer_lock then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when transfer_lock then title || ' transfer lock enabled.'
+            else title || ' transfer lock disabled.'
+            end reason
+    
+          
+          
+        from
+          aws_route53_domain;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

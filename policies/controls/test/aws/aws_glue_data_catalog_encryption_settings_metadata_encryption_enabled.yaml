@@ -1,0 +1,26 @@
+ID: aws_glue_data_catalog_encryption_settings_metadata_encryption_enabled
+Title: Glue data catalog metadata encryption should be enabled
+Description: Ensure Glue data catalog metadata encryption is enabled to protect sensitive information at rest.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          'arn:' || partition || '::' || region || ':' || account_id as resource,
+          case
+            when encryption_at_rest is not null and encryption_at_rest ->> 'CatalogEncryptionMode' != 'DISABLED' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encryption_at_rest is not null and encryption_at_rest ->> 'CatalogEncryptionMode' != 'DISABLED' then 'Glue data catalog metadata encryption is enabled in ' || region || '.'
+            else 'Glue data catalog metadata encryption is disabled in ' || region || '.'
+          end as reason
+          
+        from
+          aws_glue_data_catalog_encryption_settings;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

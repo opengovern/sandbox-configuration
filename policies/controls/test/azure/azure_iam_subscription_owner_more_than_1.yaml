@@ -1,0 +1,45 @@
+ID: azure_iam_subscription_owner_more_than_1
+Title: There should be more than one owner assigned to your subscription
+Description: It is recommended to designate more than one subscription owner in order to have administrator access redundancy.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with owner_roles as (
+          select
+            d.role_name,
+            d.role_type,
+            d.name,
+            d.title,
+            d._ctx,
+            d.subscription_id
+          from
+            azure_role_definition as d
+            join azure_role_assignment as a on d.id = a.role_definition_id
+          where
+            d.role_name = 'Owner'
+        )
+        select
+          owner.subscription_id as resource,
+          case
+            when count(*) > 1 then 'ok'
+            else 'alarm'
+          end as status,
+          count(*) || ' owner(s) associated.' as reason
+          
+          
+        from
+          owner_roles as owner,
+          azure_subscription as sub
+        where
+          sub.subscription_id =owner.subscription_id
+        group by
+          owner.subscription_id,
+          owner._ctx,
+          sub.display_name;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

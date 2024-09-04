@@ -1,0 +1,27 @@
+ID: aws_ebs_snapshot_encryption_enabled
+Title: EBS snapshots should be encrypted
+Description: Ensure that EBS snapshots are encrypted. This rule is non-compliant if the EBS snapshot is not encrypted.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when encrypted then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when encrypted then title || ' encryption enabled.'
+            else title || ' encryption disabled.'
+          end as reason
+          
+          
+        from
+          aws_ebs_snapshot;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

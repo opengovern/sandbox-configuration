@@ -1,0 +1,27 @@
+ID: aws_cloudwatch_alarm_action_enabled_check
+Title: CloudWatch alarm action should be enabled
+Description: Checks if AWS CloudWatch alarm actions are in enabled state. The rule is non-compliant if the CloudWatch alarm actions are not in enabled state.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when actions_enabled then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when actions_enabled then title || ' alarm actions enabled.'
+            else title || ' alarm actions disabled.'
+          end as reason
+          
+          
+        from
+          aws_cloudwatch_alarm;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

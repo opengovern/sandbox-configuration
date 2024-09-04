@@ -1,0 +1,29 @@
+ID: aws_ssm_document_prohibit_public_access
+Title: SSM documents should not be public
+Description: This control checks whether AWS Systems Manager documents that are owned by the account are public. This control fails if SSM documents with the owner Self are public.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,
+          case
+            when account_ids :: jsonb ? 'all' then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'
+            else title || ' not publicly accesible.'
+          end as reason
+          
+          
+        from
+          aws_ssm_document
+        where
+          owner_type = 'Self';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

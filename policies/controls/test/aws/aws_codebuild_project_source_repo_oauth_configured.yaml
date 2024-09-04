@@ -1,0 +1,31 @@
+ID: aws_codebuild_project_source_repo_oauth_configured
+Title: CodeBuild GitHub or Bitbucket source repository URLs should use OAuth
+Description: Ensure the GitHub or Bitbucket source repository URL does not contain personal access tokens, user name and password within AWS Codebuild project environments.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          p.arn as resource,
+          case
+            when p.source ->> 'Type' not in ('GITHUB', 'BITBUCKET') then 'skip'
+            when c.auth_type = 'OAUTH' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when p.source ->> 'Type' = 'NO_SOURCE' then p.title || ' doesn''t have input source code.'
+            when p.source ->> 'Type' not in ('GITHUB', 'BITBUCKET') then p.title || ' source code isn''t in GitHub/Bitbucket repository.'
+            when c.auth_type = 'OAUTH' then p.title || ' using OAuth to connect source repository.'
+            else p.title || ' not using OAuth to connect source repository.'
+          end as reason
+          
+          
+        from
+          aws_codebuild_project as p
+          left join aws_codebuild_source_credential as c on (p.region = c.region and p.source ->> 'Type' = c.server_type);
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

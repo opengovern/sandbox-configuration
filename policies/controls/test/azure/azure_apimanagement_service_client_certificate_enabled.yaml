@@ -1,0 +1,29 @@
+ID: azure_apimanagement_service_client_certificate_enabled
+Title: API Management client certificate should be enabled
+Description: Ensure API Management client certificate is enabled. This control is non-compliant if API Management client certificate is disabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id as resource,
+          case
+            when enable_client_certificate then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when enable_client_certificate then a.name || ' client certificate enabled.'
+            else a.name || ' client certificate disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_api_management a,
+          azure_subscription sub;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

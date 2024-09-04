@@ -1,0 +1,35 @@
+ID: aws_root_accounts_needs_to_have_mfa
+Title: "AWS Root Accounts needs to have MFA"
+Description: "AWS Root Account cannot have API Keys"
+Tags:
+    category:
+        - Compliance
+    score_service_name:
+        - AWS Identity and Access Management (IAM)
+Query:
+    Engine: odysseus-v0.0.1
+    ListOfTables:
+        - aws_iam_credential_report
+    Parameters: []
+    PrimaryTable: aws_iam_credential_report
+    QueryToExecute: |
+        select
+          user_name as resource,
+          kaytu_account_id as kaytu_account_id,
+          kaytu_resource_id as kaytu_resource_id,
+          case
+            when not mfa_active then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when not mfa_active then 'root account MFA is not activated'
+            else 'root account MFA is activated'
+          end as reason
+          , region, account_id
+        from
+          aws_iam_credential_report
+        where
+          user_name = '<root_account>';
+Severity: medium
+Connector:
+    - AWS

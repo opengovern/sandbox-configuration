@@ -1,0 +1,47 @@
+ID: aws_foundational_security_iam_7
+Title: 7 Password policies for IAM users should have strong configurations
+Description: This control checks whether the account password policy for IAM users uses the recommended configurations.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          'arn:' || a.partition || ':::' || a.account_id as resource,
+          case
+            when
+              minimum_password_length >= 8
+              and require_lowercase_characters = 'true'
+              and require_uppercase_characters = 'true'
+              and require_numbers = 'true'
+              and require_symbols = 'true'
+            then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when minimum_password_length is null then 'No password policy set.'
+            when
+              minimum_password_length >= 8
+              and require_lowercase_characters = 'true'
+              and require_uppercase_characters = 'true'
+              and require_numbers = 'true'
+              and require_symbols = 'true'
+            then 'Strong password policies configured.'
+            else 'Password policy ' ||
+              concat_ws(', ',
+                case when minimum_password_length < 8 then ('minimum password length set to ' || minimum_password_length) end,
+                case when not (require_lowercase_characters = 'true') then 'lowercase characters not required' end,
+                case when not (require_uppercase_characters = 'true') then 'uppercase characters not required' end,
+                case when not (require_numbers) then 'numbers not required' end,
+                case when not (require_symbols) then 'symbols not required' end
+              ) || '.'
+          end as reason
+          
+        from
+          aws_account as a
+          left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

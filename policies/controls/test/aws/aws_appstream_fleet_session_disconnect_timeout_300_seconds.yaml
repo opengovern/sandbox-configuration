@@ -1,0 +1,24 @@
+ID: aws_appstream_fleet_session_disconnect_timeout_300_seconds
+Title: AppStream fleet session disconnect timeout should be set to less than or equal to 5 mins
+Description: The disconnect timeout in minutes refers to the duration for which a streaming session remains active even after users have disconnected. It is recommended to set the disconnect timeout to 5 minutes or less for the AppStream Fleet.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when disconnect_timeout_in_seconds <= 300 then 'ok'
+            else 'alarm'
+          end as status,
+          title || ' disconnect timeout in seconds is set to ' || disconnect_timeout_in_seconds || ' seconds.' as reason
+          
+          
+        from
+          aws_appstream_fleet;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

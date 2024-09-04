@@ -1,0 +1,30 @@
+ID: azure_network_security_group_subnet_associated
+Title: Subnets should be associated with a Network Security Group
+Description: This policy denies if a gateway subnet is configured with a network security group. Assigning a network security group to a gateway subnet will cause the gateway to stop functioning.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sg.id resource,
+          case
+            when subnets is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when subnets is null then name || ' not associated with subnet.'
+            else name || ' associated with ' || split_part(rtrim((subnet -> 'id') :: text, '"'), '/subnets/',2) || '.'
+          end as reason
+          
+          
+          
+        from
+          azure_network_security_group as sg
+          join azure_subscription as sub on sub.subscription_id = sg.subscription_id
+          left join jsonb_array_elements(subnets) as subnet on true;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

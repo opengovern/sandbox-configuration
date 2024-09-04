@@ -1,0 +1,29 @@
+ID: aws_rds_db_cluster_aurora_mysql_audit_logging_enabled
+Title: Aurora MySQL DB clusters should publish audit logs to CloudWatch Logs
+Description: This control checks whether an Amazon Aurora MySQL DB cluster is configured to publish audit logs to Amazon CloudWatch Logs. The control fails if the cluster isn't configured to publish audit logs to CloudWatch Logs.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when engine not ilike '%aurora-mysql%' then 'skip'
+            when enabled_cloudwatch_logs_exports @> '["audit"]' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when engine not ilike '%aurora-mysql%' then title || ' is not Aurora MySQL-compatible edition.'
+            when enabled_cloudwatch_logs_exports @> '["audit"]' then title || ' audit logging enabled.'
+            else title || ' audit logging disabled.'
+          end as reason
+          
+          
+        from
+          aws_rds_db_cluster;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

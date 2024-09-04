@@ -1,0 +1,31 @@
+ID: azure_container_registry_admin_user_disabled
+Title: Container registries admin user should be disabled
+Description: Ensure container registry admin user is disabled. This control is non-compliant if admin user is enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          distinct a.name as resource,
+          case
+            when admin_user_enabled then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when admin_user_enabled then a.name || ' admin user enabled.'
+            else a.name || ' admin user disabled.'
+          end as reason
+          
+          
+          
+        from
+          azure_container_registry as a,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

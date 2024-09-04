@@ -1,0 +1,27 @@
+ID: aws_foundational_security_es_2
+Title: 2 Elasticsearch domains should not be publicly accessible
+Description: This control checks whether Amazon Elasticsearch Service domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access. You should ensure that Amazon ES domains are not attached to public subnets.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when vpc_options ->> 'VPCId' is null then 'alarm'
+            else 'ok'
+          end status,
+          case
+            when vpc_options ->> 'VPCId' is null then title || ' not in VPC.'
+            else title || ' in VPC ' || (vpc_options ->> 'VPCId') || '.'
+          end reason
+          
+          
+        from
+          aws_elasticsearch_domain;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: critical

@@ -1,0 +1,29 @@
+ID: azure_application_insights_block_log_ingestion_and_querying_from_public
+Title: Application Insights components should block log ingestion and querying from public networks
+Description: "Improve Application Insights security by blocking log ingestion and querying from public networks. Only private-link connected networks will be able to ingest and query logs of this component. Learn more at https://aka.ms/AzMonPrivateLink#configure-application-insights."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id as resource,
+          case
+            when type = 'microsoft.insights/components' and public_network_access_for_ingestion = 'Enabled' and public_network_access_for_query = 'Enabled' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when type = 'microsoft.insights/components' and public_network_access_for_ingestion = 'Enabled' and public_network_access_for_query = 'Enabled' then a.name || ' allows log ingestion and querying from public network.'
+            else a.name || ' does not allow log ingestion and querying from public network.'
+          end as reason
+          
+          
+          
+        from
+          azure_application_insight as a
+          left join azure_subscription sub on sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

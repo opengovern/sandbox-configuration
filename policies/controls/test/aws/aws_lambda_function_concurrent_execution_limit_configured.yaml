@@ -1,0 +1,27 @@
+ID: aws_lambda_function_concurrent_execution_limit_configured
+Title: Lambda functions concurrent execution limit configured
+Description: Checks whether the AWS Lambda function is configured with function-level concurrent execution limit. The control is non-compliant if the Lambda function is not configured with function-level concurrent execution limit.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when reserved_concurrent_executions is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when reserved_concurrent_executions is null then title || ' function-level concurrent execution limit not configured.'
+            else title || ' function-level concurrent execution limit configured.'
+          end as reason
+          
+          
+        from
+          aws_lambda_function;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

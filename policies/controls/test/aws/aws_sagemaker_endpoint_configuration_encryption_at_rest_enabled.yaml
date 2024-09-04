@@ -1,0 +1,27 @@
+ID: aws_sagemaker_endpoint_configuration_encryption_at_rest_enabled
+Title: SageMaker endpoint configuration encryption should be enabled
+Description: To help protect data at rest, ensure encryption with AWS Key Management Service (AWS KMS) is enabled for your SageMaker endpoint.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when kms_key_id is null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when kms_key_id is null then title || ' encryption at rest disabled.'
+            else title || ' encryption at rest enabled.'
+          end as reason
+          
+          
+        from
+          aws_sagemaker_endpoint_configuration;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

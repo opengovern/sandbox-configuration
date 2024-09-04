@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 type Benchmark struct {
@@ -23,8 +23,27 @@ type Benchmark struct {
 	Controls    []string            `json:"Controls" yaml:"Controls"`
 }
 
+type QueryParameter struct {
+	Key      string `json:"key" example:"key"`
+	Required bool   `json:"required" example:"true"`
+}
+
+type Query struct {
+	Engine         string           `json:"Engine" yaml:"Engine"`
+	QueryToExecute string           `json:"QueryToExecute" yaml:"QueryToExecute"`
+	PrimaryTable   string           `json:"PrimaryTable" yaml:"PrimaryTable"`
+	ListOfTables   []string         `json:"ListOfTables" yaml:"ListOfTables"`
+	Parameters     []QueryParameter `json:"Parameters" yaml:"Parameters"`
+}
+
 type Control struct {
-	ID string `json:"ID" yaml:"ID"`
+	ID          string              `json:"ID" yaml:"ID"`
+	Title       string              `json:"Title" yaml:"Title"`
+	Description string              `json:"Description" yaml:"Description"`
+	Query       Query               `json:"Query" yaml:"Query"`
+	Connector   []string            `json:"Connector" yaml:"Connector"`
+	Tags        map[string][]string `json:"Tags" yaml:"Tags"`
+	Severity    string              `json:"Severity" yaml:"Severity"`
 }
 
 var (

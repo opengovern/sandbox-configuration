@@ -1,0 +1,31 @@
+ID: azure_storage_account_restrict_network_access
+Title: Storage accounts should restrict network access using virtual network rules
+Description: Protect your storage accounts from potential threats using virtual network rules as a preferred method instead of IP-based filtering. Disabling IP-based filtering prevents public IPs from accessing your storage accounts.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sa.id as resource,
+          case
+            when network_rule_default_action = 'Deny' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when network_rule_default_action = 'Deny' then sa.name || ' blocks network access.'
+            else sa.name || ' allows network access.'
+          end as reason
+          
+          
+          
+        from
+          azure_storage_account sa,
+          azure_subscription sub
+        where
+          sub.subscription_id = sa.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

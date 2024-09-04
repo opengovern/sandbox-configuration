@@ -1,0 +1,31 @@
+ID: aws_es_domain_error_logging_enabled
+Title: Elasticsearch domain error logging to CloudWatch Logs should be enabled
+Description: This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when
+              log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+              and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when
+              log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+              and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then title || ' error logging enabled.'
+            else title || ' error logging disabled.'
+          end as reason
+          
+          
+        from
+          aws_elasticsearch_domain;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

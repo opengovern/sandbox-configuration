@@ -1,0 +1,36 @@
+ID: aws_elb_classic_lb_desync_mitigation_mode
+Title: ELB classic load balancers should be configured with defensive or strictest desync mitigation mode
+Description: This control checks whether a Classic Load Balancer is configured with defensive or strictest desync mitigation mode. This control will fail if the Classic Load Balancer is not configured with defensive or strictest desync mitigation mode.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with app_lb_desync_mitigation_mode as (
+          select
+            arn,
+            a ->> 'Key',
+            a ->> 'Value' as v
+          from
+            aws_ec2_classic_load_balancer,
+            jsonb_array_elements(additional_attributes) as a
+          where
+            a ->> 'Key' = 'elb.http.desyncmitigationmode'
+        )
+        select
+          c.arn as resource,
+          case
+            when m.v = any(array['defensive', 'strictest']) then 'ok'
+            else 'alarm'
+          end as status,
+            title || ' has ' || m.v || ' desync mitigation mode.' as reason
+          
+          
+        from
+          aws_ec2_classic_load_balancer as c
+          left join app_lb_desync_mitigation_mode as m on c.arn = m.arn;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

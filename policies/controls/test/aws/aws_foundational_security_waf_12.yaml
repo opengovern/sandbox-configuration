@@ -1,0 +1,27 @@
+ID: aws_foundational_security_waf_12
+Title: 12 AWS WAF rules should have CloudWatch metrics enabled
+Description: This control checks whether an AWS WAF rule or rule group has Amazon CloudWatch metrics enabled. The control fails if the rule or rule group doesn't have CloudWatch metrics enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when (visibility_config ->> 'CloudWatchMetricsEnabled')::bool then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when (visibility_config ->> 'CloudWatchMetricsEnabled')::bool then title || ' logging enabled.'
+            else title || ' logging disabled.'
+          end as reason
+          
+          
+        from
+          aws_wafv2_rule_group;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

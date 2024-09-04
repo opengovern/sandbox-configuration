@@ -1,0 +1,41 @@
+ID: aws_s3_public_access_block_bucket
+Title: S3 public access should be blocked at bucket levels
+Description: Ensure that AWS Simple Storage Service (AWS S3) buckets are publicly accessible. This rule is non-compliant if an AWS S3 bucket is not listed in the excludedPublicBuckets parameter and bucket level settings are public.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when block_public_acls
+              and block_public_policy
+              and ignore_public_acls
+              and restrict_public_buckets
+              then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when block_public_acls
+              and block_public_policy
+              and ignore_public_acls
+              and restrict_public_buckets
+              then name || ' all public access blocks enabled.'
+            else name || ' not enabled for: ' ||
+              concat_ws(', ',
+                case when not block_public_acls then 'block_public_acls' end,
+                case when not block_public_policy then 'block_public_policy' end,
+                case when not ignore_public_acls then 'ignore_public_acls' end,
+                case when not restrict_public_buckets then 'restrict_public_buckets' end
+              ) || '.'
+          end as reason
+          
+          
+        from
+          aws_s3_bucket;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

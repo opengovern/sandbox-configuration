@@ -1,0 +1,27 @@
+ID: aws_foundational_security_waf_8
+Title: 8 AWS WAF Classic global web ACLs should have at least one rule or rule group
+Description: This control checks whether an AWS WAF global web ACL contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when rules is null or jsonb_array_length(rules) = 0 then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when rules is null or jsonb_array_length(rules) = 0 then title || ' has no attached rules.'
+            else title || ' has ' || jsonb_array_length(rules) || ' rule(s) attached.'
+          end as reason
+          
+          
+        from
+          aws_waf_web_acl;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

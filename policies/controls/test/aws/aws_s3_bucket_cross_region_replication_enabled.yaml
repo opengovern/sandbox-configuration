@@ -1,0 +1,36 @@
+ID: aws_s3_bucket_cross_region_replication_enabled
+Title: S3 bucket cross-region replication should be enabled
+Description: AWS Simple Storage Service (AWS S3) Cross-Region Replication (CRR) supports maintaining adequate capacity and availability.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with bucket_with_replication as (
+          select
+            name,
+            r ->> 'Status' as rep_status
+          from
+            aws_s3_bucket,
+            jsonb_array_elements(replication -> 'Rules' ) as r
+        )
+        select
+          b.arn as resource,
+          case
+            when b.name = r.name and r.rep_status = 'Enabled' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when b.name = r.name and r.rep_status = 'Enabled' then b.title || ' enabled with cross-region replication.'
+            else b.title || ' not enabled with cross-region replication.'
+          end as reason
+          
+          
+        from
+          aws_s3_bucket b
+          left join bucket_with_replication r on b.name = r.name;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

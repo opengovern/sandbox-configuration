@@ -1,0 +1,27 @@
+ID: aws_ec2_classic_lb_connection_draining_enabled
+Title: Classic Load Balancers should have connection draining enabled
+Description: This control checks whether Classic Load Balancers have connection draining enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when connection_draining_enabled then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when connection_draining_enabled then title || ' connection draining enabled.'
+            else title || ' connection draining disabled.'
+          end as reason
+          
+          
+        from
+          aws_ec2_classic_load_balancer;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

@@ -1,0 +1,33 @@
+ID: azure_postgres_db_server_log_duration_on
+Title: Ensure server parameter 'log_duration' is set to 'ON' for PostgreSQL Database Server
+Description: Enable log_duration on PostgreSQL Servers.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          s.id as resource,
+          case
+            when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then name || ' server parameter log_duration off.'
+            else name || ' server parameter log_duration on.'
+          end as reason
+          
+          
+          
+        from
+          azure_postgresql_server s,
+          jsonb_array_elements(server_configurations) config,
+          azure_subscription sub
+        where
+          config ->> 'Name' = 'log_duration'
+          and sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

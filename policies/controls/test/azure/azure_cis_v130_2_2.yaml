@@ -1,0 +1,30 @@
+ID: azure_cis_v130_2_2
+Title: 2.2 Ensure that Azure Defender is set to On for App Service
+Description: Turning on Azure Defender enables threat detection for App Service, providing threat intelligence, anomaly detection, and behavior analytics in the Azure Security Center.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          sub_pricing.id as resource,
+          case
+            when pricing_tier = 'Standard' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when pricing_tier = 'Standard' then 'Azure Defender on for App Services.'
+            else 'Azure Defender off for App Services.'
+          end as reason
+          
+          
+        from
+          azure_security_center_subscription_pricing sub_pricing
+          right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
+        where
+          name = 'AppServices';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

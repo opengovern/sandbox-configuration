@@ -1,0 +1,28 @@
+ID: azure_signalr_service_no_free_tier_sku
+Title: SignalR Service should not use free tier SKU
+Description: This control checks whether SignalR service uses paid SKU for its SLA.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id as resource,
+          case
+            when sku ->> 'tier' = 'Free' then 'alarm'
+            else 'ok'
+          end as status,
+          a.name || ' is of ' || (sku ->>'tier' )|| ' tier.' as reason
+          
+          
+          
+        from
+          azure_signalr_service as a,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

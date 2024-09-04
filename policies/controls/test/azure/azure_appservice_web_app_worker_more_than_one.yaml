@@ -1,0 +1,29 @@
+ID: azure_appservice_web_app_worker_more_than_one
+Title: Web app should have more than one worker
+Description: It is recommended to have more than one worker for failover. This control is non-compliant if Web apps have one or less than one worker.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          p ->> 'ID' as resource,
+          case
+            when (p -> 'SiteProperties' -> 'siteConfig' ->> 'numberOfWorkers')::int > 1 then 'ok'
+            else 'alarm'
+          end as status,
+            a.name || ' has ' || (p -> 'SiteProperties' -> 'siteConfig' ->> 'numberOfWorkers') || ' no of worker(s).' as reason
+          
+          
+          
+        from
+          azure_app_service_plan as a,
+          jsonb_array_elements(apps) as p,
+          azure_subscription as sub
+        where
+          sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

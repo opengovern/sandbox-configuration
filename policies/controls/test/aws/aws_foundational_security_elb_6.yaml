@@ -1,0 +1,27 @@
+ID: aws_foundational_security_elb_6
+Title: 6 Application Load Balancer deletion protection should be enabled
+Description: This control checks whether an Application Load Balancer has deletion protection enabled. The control fails if deletion protection is not configured. Enable deletion protection to protect your Application Load Balancer from deletion.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when load_balancer_attributes @> '[{"Key": "deletion_protection.enabled", "Value": "true"}]' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when load_balancer_attributes @> '[{"Key": "deletion_protection.enabled", "Value": "true"}]' then title || ' deletion protection enabled.'
+            else title || ' deletion protection disabled.'
+          end as reason
+          
+          
+        from
+          aws_ec2_application_load_balancer;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

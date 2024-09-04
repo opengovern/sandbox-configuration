@@ -1,0 +1,47 @@
+ID: aws_sns_topic_policy_prohibit_subscription_access
+Title: SNS topic policies should prohibit subscription public access
+Description: Manage access to resources in the AWS Cloud by ensuring SNS topics cannot be accessed publicly for subscription.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with wildcard_action_policies as (
+          select
+            topic_arn,
+            count(*) as statements_num
+          from
+            aws_sns_topic,
+            jsonb_array_elements(policy_std -> 'Statement') as s,
+            jsonb_array_elements_text(s -> 'Action') as a
+          where
+            s ->> 'Effect' = 'Allow'
+            and (
+              ( s -> 'Principal' -> 'AWS') = '["*"]'
+              or s ->> 'Principal' = '*'
+            )
+            and a in ('sns:subscribe', 'sns:receive')
+            and s -> 'Condition' is null
+          group by
+            topic_arn
+        )
+        select
+          t.topic_arn as resource,
+          case
+            when p.topic_arn is null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when p.topic_arn is null then title || ' does not allow subscribe access without condition.'
+            else title || ' contains ' || coalesce(p.statements_num,0) || ' statements that allows subscribe access without condition.'
+          end as reason
+          
+          
+        from
+          aws_sns_topic as t
+          left join wildcard_action_policies as p on p.topic_arn = t.topic_arn;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

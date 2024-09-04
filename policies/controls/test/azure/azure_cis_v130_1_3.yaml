@@ -1,0 +1,39 @@
+ID: azure_cis_v130_1_3
+Title: 1.3 Ensure guest users are reviewed on a monthly basis
+Description: Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Guest users should be review on a monthly basis to ensure that inactive and unneeded accounts are removed.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with distinct_tenant as (
+          select
+            distinct tenant_id,
+            subscription_id,
+            _ctx
+          from
+            azure_tenant
+        )
+        select
+          u.display_name as resource,
+          case
+            when not account_enabled then 'alarm'
+            when u.created_date_time::timestamp <= (current_date - interval '30' day) then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when not account_enabled then 'Guest user ''' || u.display_name || ''' inactive.'
+            else 'Guest user ''' || u.display_name || ''' was created ' || extract(day from current_timestamp - u.created_date_time::timestamp) || ' days ago.'
+          end as reason,
+          t.tenant_id
+          
+        from
+          azuread_user as u
+          left join distinct_tenant as t on t.tenant_id = u.tenant_id
+        where
+          u.user_type = 'Guest';
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

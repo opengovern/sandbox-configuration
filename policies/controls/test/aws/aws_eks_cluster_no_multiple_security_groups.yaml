@@ -1,0 +1,24 @@
+ID: aws_eks_cluster_no_multiple_security_groups
+Title: EKS clusters should not use multiple security groups
+Description: This controls ensures that EKS clusters is not using multiple security groups.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') > 1 then 'alarm'
+            else 'ok'
+          end as status,
+            title || ' has '|| jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') || ' security group(s).' as reason
+          
+          
+        from
+          aws_eks_cluster;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

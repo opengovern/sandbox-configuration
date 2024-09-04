@@ -1,0 +1,27 @@
+ID: aws_cis_v150_2_1_1
+Title: 2.1.1 Ensure all S3 buckets employ encryption-at-rest
+Description: Amazon S3 provides a variety of no, or low, cost encryption options to protect data at rest.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when server_side_encryption_configuration is not null then 'ok'
+            else 'alarm'
+          end status,
+          case
+            when server_side_encryption_configuration is not null then name || ' default encryption enabled.'
+            else name || ' default encryption disabled.'
+          end reason
+          
+          
+        from
+          aws_s3_bucket;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

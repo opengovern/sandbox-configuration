@@ -1,0 +1,50 @@
+ID: aws_es_domain_logs_to_cloudwatch
+Title: Elasticsearch domain should send logs to CloudWatch
+Description: Ensure that AWS OpenSearch Service (OpenSearch Service) domains are configured to send logs to AWS CloudWatch Logs. The rule is compliant if a log is enabled for an OpenSearch Service domain. This rule is non-compliant if logging is not configured.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when
+              ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              )
+              and
+              ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              )
+              and
+              ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              )
+              then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when
+              ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              )
+              and
+              ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              )
+              and
+              ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'
+                and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null
+              ) then title || ' logging enabled for search , index and error.'
+            else title || ' logging not enabled for all search, index and error.'
+          end as reason
+          
+          
+        from
+          aws_elasticsearch_domain;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

@@ -1,0 +1,29 @@
+ID: aws_ecs_service_fargate_using_latest_platform_version
+Title: ECS fargate services should run on the latest fargate platform version
+Description: This control checks if AWS ECS Fargate services are running the latest Fargate platform version. This control fails if the platform version is not the latest.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when launch_type <> 'FARGATE' then 'skip'
+            when platform_version = 'LATEST' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when launch_type <> 'FARGATE' then title || ' is ' || launch_type || ' service.'
+            when platform_version = 'LATEST' then title || ' running on the latest fargate platform version.'
+            else title || ' not running on the latest fargate platform version.'
+          end as reason
+          
+          
+        from
+          aws_ecs_service;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

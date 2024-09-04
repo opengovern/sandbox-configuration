@@ -1,0 +1,32 @@
+ID: azure_network_watcher_in_regions_with_virtual_network
+Title: Deploy network watcher when virtual networks are created
+Description: This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          a.id resource,
+          case
+            when b.region is null then 'alarm'
+            when lower(b.resource_group) = 'networkwatcherrg' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when b.region is null then 'Network watcher does not exist in region' || a.region || '.'
+            when lower(b.resource_group) = 'networkwatcherrg' then b.name || ' exist in networkWatcherRG resource group.'
+            else b.name || ' does not exist in networkWatcherRG resource group.'
+          end as reason
+          
+          
+          
+        from
+          azure_virtual_network as a
+          left join azure_network_watcher as b on a.region = b.region
+          left join azure_subscription sub on sub.subscription_id = a.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

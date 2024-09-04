@@ -1,0 +1,35 @@
+ID: aws_iam_managed_policy_attached_to_role
+Title: IAM AWS managed policies should be attached to IAM role
+Description: This control checks if all AWS managed policies specified in the list of managed policies are attached to the AWS Identity and Access Management (IAM) role. The rule is non-compliant if an AWS managed policy is not attached to the IAM role.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with role_attached_policies as (
+          select
+            jsonb_array_elements_text(attached_policy_arns) as policy_arn
+          from
+            aws_iam_role
+        )
+        select
+          arn as resource,
+          case
+            when arn in (select policy_arn from role_attached_policies) then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when arn in (select policy_arn from role_attached_policies) then title || ' attached to IAM role.'
+            else title || ' not attached to IAM role.'
+          end as reason
+          
+          
+        from
+          aws_iam_policy
+        where
+          is_aws_managed;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

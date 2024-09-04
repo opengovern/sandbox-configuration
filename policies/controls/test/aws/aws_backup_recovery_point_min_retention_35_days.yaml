@@ -1,0 +1,27 @@
+ID: aws_backup_recovery_point_min_retention_35_days
+Title: Backup recovery points should not expire before retention period
+Description: Ensure a recovery point expires no earlier than after the specified period. The rule is non-compliant if the recovery point has a retention point less than 35 days.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        select
+          recovery_point_arn as resource,
+          case
+            when (lifecycle -> 'DeleteAfterDays') is null then 'ok'
+            when (lifecycle -> 'DeleteAfterDays')::int >= 35 then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when (lifecycle -> 'DeleteAfterDays') is null then split_part(recovery_point_arn, ':', -1) || ' retention period set to never expire.'
+            else split_part(recovery_point_arn, ':', -1) || ' recovery point has a retention period of ' || (lifecycle -> 'DeleteAfterDays')::int || ' days.'
+          end as reason
+          
+        from
+          aws_backup_recovery_point;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

@@ -1,0 +1,42 @@
+ID: azure_postgres_db_server_allow_access_to_azure_services_disabled
+Title: Ensure 'Allow access to Azure services' for PostgreSQL Database Server is disabled
+Description: Disable access from Azure services to PostgreSQL Database Server.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+        with postgres_db_with_allow_access_to_azure_services as (
+          select
+            id
+          from
+            azure_postgresql_server,
+            jsonb_array_elements(firewall_rules) as r
+          where
+            r -> 'FirewallRuleProperties' ->> 'endIpAddress' = '0.0.0.0'
+            and r -> 'FirewallRuleProperties' ->> 'startIpAddress' = '0.0.0.0'
+        )
+        select
+          s.id as resource,
+          case
+            when a.id is not null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when a.id is not null then s.title || ' does not restrict access to azure services.'
+            else s.title || ' restricts access to azure services.'
+          end as reason
+          
+          
+          
+        from
+          azure_postgresql_server as s
+          left join postgres_db_with_allow_access_to_azure_services as a on a.id = s.id,
+          azure_subscription as sub
+        where
+          sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low
