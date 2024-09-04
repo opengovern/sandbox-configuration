@@ -1,0 +1,87 @@
+ID: aws_s3_bucket_acls_should_prohibit_user_access
+Title: S3 buckets access control lists (ACLs) should not be used to manage user access to buckets
+Description: This control checks whether AWS S3 buckets provide user permissions via ACLs. The control fails if ACLs are configured for managing user access on S3 buckets.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with bucket_acl_details as (
+      select
+        arn,
+          title,
+          array[acl -> 'Owner' ->> 'ID'] as bucket_owner,
+          array_agg(grantee_id) as bucket_acl_permissions,
+          object_ownership_controls,
+          region,
+          account_id,
+          kaytu_account_id as kaytu_account_id,
+          kaytu_resource_id as kaytu_resource_id,
+          _ctx,
+          tags
+      from
+          aws_s3_bucket,
+          jsonb_path_query(acl, '$.Grants.Grantee.ID') as grantee_id
+      group by
+          arn,
+          title,
+          acl,
+          region,
+          account_id,
+          object_ownership_controls,
+          kaytu_account_id,
+          kaytu_resource_id,
+          _ctx,
+          tags
+    ),
+    bucket_acl_checks as (
+      select
+          arn,
+          title,
+          to_jsonb(bucket_acl_permissions) - bucket_owner as additional_permissions,
+          object_ownership_controls,
+          region,
+          account_id,
+          kaytu_account_id as kaytu_account_id,
+          kaytu_resource_id as kaytu_resource_id,
+          _ctx,
+          tags
+      from
+          bucket_acl_details
+    )
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+          when object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"} ]' then 'ok'
+          when jsonb_array_length(additional_permissions) = 0 then 'ok'
+          else 'alarm'
+      end as status,
+      case
+          when object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"} ]' then title || ' ACLs are disabled.'
+          when jsonb_array_length(additional_permissions) = 0 then title || ' does not have ACLs for user access.'
+          else title || ' has ACLs for user access.'
+      end as reason
+      
+      , region, account_id
+    from
+      bucket_acl_checks;
+  PrimaryTable: aws_s3_bucket
+  ListOfTables:
+  - aws_s3_bucket
+  Parameters: []
+Connector:
+- aws
+Tags:
+  aws_foundational_security:
+  - "true"
+  category:
+  - Compliance
+  foundational_security_category:
+  - access_control
+  foundational_security_item_id:
+  - s3_12
+  plugin:
+  - aws
+  service:
+  - AWS/S3
+Severity: medium

@@ -1,0 +1,53 @@
+ID: azure_storage_account_default_network_access_rule_denied
+Title: Storage accounts should restrict network access
+Description: Network access to storage accounts should be restricted. Configure network rules so only applications from allowed networks can access the storage account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      sa.id as resource,
+      sa.kaytu_account_id as kaytu_account_id,
+      sa.kaytu_resource_id as kaytu_resource_id,
+      case
+        when sa.network_rule_default_action = 'Allow' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when sa.network_rule_default_action = 'Allow' then name || ' allows traffic from all networks.'
+        else name || ' allows traffic from specific networks.'
+      end as reason
+      
+      , sa.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_storage_account sa,
+      azure_subscription sub
+    where
+      sub.subscription_id = sa.subscription_id;
+  PrimaryTable: azure_storage_account
+  ListOfTables:
+  - azure_storage_account
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "3.6"
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "3"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Storage
+Severity: high

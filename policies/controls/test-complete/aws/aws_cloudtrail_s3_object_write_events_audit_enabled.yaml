@@ -1,0 +1,79 @@
+ID: aws_cloudtrail_s3_object_write_events_audit_enabled
+Title: Ensure that Object-level logging for write events is enabled for S3 bucket
+Description: This rule enables object-level logging for write events for S3 buckets. Object-level logging for write events helps in identifying the requestor who performed the write operation on the S3 bucket objects.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with s3_selectors as
+    (
+      select
+        name as trail_name,
+        is_multi_region_trail,
+        bucket_selector
+      from
+        aws_cloudtrail_trail,
+        jsonb_array_elements(event_selectors) as event_selector,
+        jsonb_array_elements(case jsonb_typeof(event_selector -> 'DataResources') 
+        when 'array' then event_selector -> 'DataResources'
+        else '[]' end) as data_resource,
+        jsonb_array_elements(case jsonb_typeof(data_resource -> 'Values') 
+        when 'array' then data_resource -> 'Values'
+        else '[]' end) as bucket_selector
+      where
+        is_multi_region_trail
+        and data_resource ->> 'Type' = 'AWS::S3::Object'
+        and event_selector ->> 'ReadWriteType' in
+        (
+          'WriteOnly',
+          'All'
+        )
+    )
+    select
+      b.arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when count(bucket_selector) > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when count(bucket_selector) > 0 then b.name || ' object-level write events logging enabled.'
+        else b.name || ' object-level write events logging disabled.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_s3_bucket as b
+      left join
+        s3_selectors
+        on bucket_selector::json::text like ('%' || b.arn || '%')
+        or bucket_selector::json::text = '"arn:aws:s3"'
+    group by
+      b.kaytu_account_id, b.kaytu_resource_id, b.account_id, b.region, b.arn, b.name, b.tags, b._ctx;
+  PrimaryTable: aws_s3_bucket
+  ListOfTables:
+  - aws_cloudtrail_trail
+  - aws_s3_bucket
+  Parameters: []
+Connector:
+- aws
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "3.10"
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "3"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - aws
+  service:
+  - AWS/S3
+Severity: high

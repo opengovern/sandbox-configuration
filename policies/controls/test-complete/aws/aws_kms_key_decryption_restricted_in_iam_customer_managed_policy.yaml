@@ -1,0 +1,58 @@
+ID: aws_kms_key_decryption_restricted_in_iam_customer_managed_policy
+Title: KMS key decryption should be restricted in IAM customer managed policy
+Description: Checks whether the default version of IAM customer managed policies allow principals to use the AWS KMS decryption actions on all resources. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if the kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys. The control evaluates both attached and unattached customer managed policies. It does not check inline policies or AWS managed policies.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with policy_with_decrypt_grant as (
+      select
+        distinct arn
+      from
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') as statement
+      where
+        not is_aws_managed
+        and statement ->> 'Effect' = 'Allow'
+        and statement -> 'Resource' ?| array['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+        and statement -> 'Action' ?| array['*', 'kms:*', 'kms:decrypt', 'kms:reencryptfrom', 'kms:reencrypt*']
+    )
+    select
+      i.arn as resource,
+      i.kaytu_account_id as kaytu_account_id,
+      i.kaytu_resource_id as kaytu_resource_id,
+      case
+        when d.arn is null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when d.arn is null then i.title || ' doesn''t allow decryption actions on all keys.'
+        else i.title || ' allows decryption actions on all keys.'
+      end as reason
+      
+      , i.account_id
+    from
+      aws_iam_policy i
+    left join policy_with_decrypt_grant d on i.arn = d.arn
+    where
+      not is_aws_managed;
+  PrimaryTable: aws_iam_policy
+  ListOfTables:
+  - aws_iam_policy
+  - aws_managed
+  Parameters: []
+Connector:
+- aws
+Tags:
+  aws_foundational_security:
+  - "true"
+  category:
+  - Compliance
+  foundational_security_category:
+  - secure_access_management
+  foundational_security_item_id:
+  - kms_1
+  plugin:
+  - aws
+  service:
+  - AWS/KMS
+Severity: medium

@@ -1,0 +1,66 @@
+ID: aws_kms_cmk_rotation_enabled
+Title: KMS CMK rotation should be enabled
+Description: Enable key rotation to ensure that keys are rotated once they have reached the end of their crypto period.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when origin = 'EXTERNAL' then 'skip'
+        when key_state = 'PendingDeletion' then 'skip'
+        when key_state = 'Disabled' then 'skip'
+        when not key_rotation_enabled then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when origin = 'EXTERNAL' then title || ' has imported key material.'
+        when key_state = 'PendingDeletion' then title || ' is pending deletion.'
+        when key_state = 'Disabled' then title || ' is disabled.'
+        when not key_rotation_enabled then title || ' key rotation disabled.'
+        else title || ' key rotation enabled.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_kms_key
+    where
+      key_manager = 'CUSTOMER';
+  PrimaryTable: aws_kms_key
+  ListOfTables:
+  - aws_kms_key
+  Parameters: []
+Connector:
+- aws
+Tags:
+  category:
+  - Compliance
+  cis_controls_v8_ig1:
+  - "true"
+  cisa_cyber_essentials:
+  - "true"
+  fedramp_low_rev_4:
+  - "true"
+  fedramp_moderate_rev_4:
+  - "true"
+  gdpr:
+  - "true"
+  gxp_21_cfr_part_11:
+  - "true"
+  nist_800_171_rev_2:
+  - "true"
+  nist_800_53_rev_4:
+  - "true"
+  nist_800_53_rev_5:
+  - "true"
+  nist_csf:
+  - "true"
+  plugin:
+  - aws
+  rbi_cyber_security:
+  - "true"
+  service:
+  - AWS/KMS
+Severity: medium

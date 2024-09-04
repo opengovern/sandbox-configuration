@@ -1,0 +1,54 @@
+ID: azure_storage_account_blob_containers_public_access_private
+Title: Ensure that 'Public access level' is set to Private for blob containers
+Description: Disable anonymous access to blob containers and disallow blob public access on storage account.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      container.id as resource,
+      container.kaytu_account_id as kaytu_account_id,
+      container.kaytu_resource_id as kaytu_resource_id,
+      case
+        when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when not account.allow_blob_public_access and container.public_access = 'None'
+          then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+        else account.name || ' container ' || container.name || ' allows anonymous access.'
+      end as reason
+      
+      , container.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_storage_container container
+      join azure_storage_account account on container.account_name = account.name
+      join azure_subscription sub on sub.subscription_id = account.subscription_id;
+  PrimaryTable: azure_storage_container
+  ListOfTables:
+  - azure_storage_account
+  - azure_storage_container
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "3.5"
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "3"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Storage
+Severity: high

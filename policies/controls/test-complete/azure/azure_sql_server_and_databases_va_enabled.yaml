@@ -1,0 +1,55 @@
+ID: azure_sql_server_and_databases_va_enabled
+Title: Vulnerability assessment should be enabled on your SQL servers
+Description: Audit Azure SQL servers which do not have recurring vulnerability assessment scans enabled. Vulnerability assessment can discover, track, and help you remediate potential database vulnerabilities.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when security -> 'properties' ->> 'state' = 'Disabled' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when security -> 'properties' ->> 'state' = 'Disabled' then s.name || ' VA setting disabled.'
+        else s.name || ' VA setting enabled.'
+      end as reason
+      
+      , s.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_sql_server s,
+      jsonb_array_elements(server_security_alert_policy) security,
+      jsonb_array_elements(server_vulnerability_assessment) assessment,
+      azure_subscription sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_sql_server
+  ListOfTables:
+  - azure_sql_server
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 4.2.2
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "4.2"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/SQL
+Severity: high

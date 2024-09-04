@@ -1,0 +1,77 @@
+ID: azure_monitor_log_alert_create_policy_assignment
+Title: Ensure that Activity Log Alert exists for Create Policy Assignment
+Description: Create an activity log alert for the Create Policy Assignment event.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with alert_rule as (
+      select
+        alert.id as alert_id,
+        alert.name as alert_name,
+        alert.kaytu_account_id as kaytu_account_id,
+        alert.kaytu_resource_id as kaytu_resource_id,
+        alert.enabled,
+        alert.location,
+        alert.subscription_id
+      from
+        azure_log_alert as alert,
+        jsonb_array_elements_text(scopes) as sc
+      where
+        alert.location = 'Global'
+        and alert.enabled
+        and sc = '/subscriptions/' || alert.subscription_id
+        and alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+        and alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.authorization/policyassignments"}]'
+        and alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Authorization/policyAssignments/write"}]'
+      limit 1
+    )
+    select
+      sub.subscription_id as resource,
+      sub.kaytu_account_id as kaytu_account_id,
+      sub.kaytu_resource_id as kaytu_resource_id,
+      case
+        when count(a.subscription_id) > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when count(a.subscription_id) > 0 then 'Activity log alert exists for create policy assignment event.'
+        else 'Activity log alert does not exists for create policy assignment event.'
+      end as reason
+      
+      , sub.display_name as subscription
+    from
+      azure_subscription sub
+      left join alert_rule a on sub.subscription_id = a.subscription_id
+    group by
+      sub.subscription_id,
+      sub.kaytu_account_id,
+      sub.kaytu_resource_id,
+      sub._ctx,
+      sub.display_name;
+  PrimaryTable: azure_log_alert
+  ListOfTables:
+  - azure_log_alert
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 5.2.1
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "5.2"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Monitor
+Severity: medium
