@@ -1,27 +1,29 @@
 ID: aws_foundational_security_opensearch_6
 Title: 6 OpenSearch domains should have at least three data nodes
-Description: This control checks whether OpenSearch domains are configured with at
-  least three data nodes and zoneAwarenessEnabled is true. This control fails for
-  an OpenSearch domain if instanceCount is less than 3 or zoneAwarenessEnabled is
-  false.
+Description: This control checks whether OpenSearch domains are configured with at least three data nodes and zoneAwarenessEnabled is true. This control fails for an OpenSearch domain if instanceCount is less than 3 or zoneAwarenessEnabled is false.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      arn as resource,\n      case\n        when cluster_config
-    ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount' > '2'
-    then 'ok'\n        else 'alarm'\n      end as status,\n      case\n        when
-    cluster_config ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount'
-    > '2' then title || ' zone awareness is '\n        || case when cluster_config
-    ->> 'ZoneAwarenessEnabled' = 'true' then 'enabled' else 'disabled' end || ' with
-    ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configued.'\n        else
-    title || ' zone awareness is ' || case when cluster_config ->> 'ZoneAwarenessEnabled'
-    = 'true' then 'enabled' else 'disabled' end || ' with ' || (cluster_config ->>
-    'InstanceCount') || ' data node(s) configued.'\n      end as reason\n      \n
-    \     \n    from\n      aws_opensearch_domain;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount' > '2' then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount' > '2' then title || ' zone awareness is '
+            || case when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' then 'enabled' else 'disabled' end || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configued.'
+            else title || ' zone awareness is ' || case when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' then 'enabled' else 'disabled' end || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configued.'
+          end as reason
+          
+          
+        from
+          aws_opensearch_domain;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: medium

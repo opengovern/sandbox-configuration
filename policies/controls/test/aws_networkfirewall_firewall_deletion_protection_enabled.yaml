@@ -1,19 +1,28 @@
 ID: aws_networkfirewall_firewall_deletion_protection_enabled
 Title: Network Firewall firewalls should have deletion protection enabled
-Description: This control checks whether an AWS Network Firewall firewall has deletion
-  protection enabled. The control fails if deletion protection isn't enabled for a
-  firewall.
+Description: This control checks whether an AWS Network Firewall firewall has deletion protection enabled. The control fails if deletion protection isn't enabled for a firewall.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      arn as resource,\n      case\n        when delete_protection
-    then 'ok'\n        else 'alarm'\n      end status,\n      case\n        when delete_protection
-    then title || ' delete protection enabled.'\n        else title || ' delete protection
-    disabled.'\n      end reason\n      \n      \n    from\n      aws_networkfirewall_firewall;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when delete_protection then 'ok'
+            else 'alarm'
+          end status,
+          case
+            when delete_protection then title || ' delete protection enabled.'
+            else title || ' delete protection disabled.'
+          end reason
+          
+          
+        from
+          aws_networkfirewall_firewall;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

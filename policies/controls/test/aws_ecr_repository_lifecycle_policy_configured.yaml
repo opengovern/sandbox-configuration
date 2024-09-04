@@ -1,19 +1,28 @@
 ID: aws_ecr_repository_lifecycle_policy_configured
 Title: ECR repositories should have lifecycle policies configured
-Description: This control checks if ECR repositories have lifecycle policy configured.
-  This rule fails if ECR repository lifecycle policy is not enabled.
+Description: This control checks if ECR repositories have lifecycle policy configured. This rule fails if ECR repository lifecycle policy is not enabled.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      arn as resource,\n      case\n        when lifecycle_policy
-    -> 'rules' is not null then 'ok'\n        else 'alarm'\n      end as status,\n
-    \     case\n        when lifecycle_policy -> 'rules' is not null then title ||
-    ' lifecycle policy configured.'\n        else title || ' lifecycle policy not
-    configured.'\n      end as reason\n      \n      \n    from\n      aws_ecr_repository;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when lifecycle_policy -> 'rules' is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when lifecycle_policy -> 'rules' is not null then title || ' lifecycle policy configured.'
+            else title || ' lifecycle policy not configured.'
+          end as reason
+          
+          
+        from
+          aws_ecr_repository;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

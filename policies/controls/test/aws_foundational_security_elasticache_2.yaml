@@ -1,21 +1,28 @@
 ID: aws_foundational_security_elasticache_2
-Title: 2 Minor version upgrades should be automatically applied to ElastiCache for
-  Redis cache clusters
-Description: This control evaluates whether ElastiCache for Redis automatically applies
-  minor version upgrades to cache clusters. This control fails if ElastiCache for
-  Redis cache clusters do not have minor version upgrades automatically applied.
+Title: 2 Minor version upgrades should be automatically applied to ElastiCache for Redis cache clusters
+Description: This control evaluates whether ElastiCache for Redis automatically applies minor version upgrades to cache clusters. This control fails if ElastiCache for Redis cache clusters do not have minor version upgrades automatically applied.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      arn as resource,\n      case\n        when auto_minor_version_upgrade
-    then 'ok'\n        else 'alarm'\n      end as status,\n      case\n        when
-    auto_minor_version_upgrade then title || ' automatic minor version upgrades enabled.'\n
-    \       else title || ' automatic minor version upgrades disabled.'\n      end
-    as reason\n      \n      \n    from\n      aws_elasticache_cluster;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when auto_minor_version_upgrade then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when auto_minor_version_upgrade then title || ' automatic minor version upgrades enabled.'
+            else title || ' automatic minor version upgrades disabled.'
+          end as reason
+          
+          
+        from
+          aws_elasticache_cluster;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: high

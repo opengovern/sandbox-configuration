@@ -1,19 +1,28 @@
 ID: aws_neptune_db_cluster_deletion_protection_enabled
 Title: Neptune DB clusters should have deletion protection enabled
-Description: This control checks if a Neptune DB cluster has deletion protection enabled.
-  The control fails if a Neptune DB cluster doesn't have deletion protection enabled.
+Description: This control checks if a Neptune DB cluster has deletion protection enabled. The control fails if a Neptune DB cluster doesn't have deletion protection enabled.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      arn as resource,\n      case\n        when deletion_protection
-    then 'ok'\n        else 'alarm'\n      end as status,\n      case\n        when
-    deletion_protection then title || ' deletion protection enabled.'\n        else
-    title || ' deletion protection disabled.'\n      end as reason\n      \n      \n
-    \   from\n      aws_neptune_db_cluster;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          arn as resource,
+          case
+            when deletion_protection then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when deletion_protection then title || ' deletion protection enabled.'
+            else title || ' deletion protection disabled.'
+          end as reason
+          
+          
+        from
+          aws_neptune_db_cluster;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

@@ -1,24 +1,32 @@
 ID: aws_acm_certificate_not_expired
 Title: Ensure that all the expired ACM certificates are removed
-Description: This control ensures that all expired ACM certificates are removed from
-  AWS account.
+Description: This control ensures that all expired ACM certificates are removed from AWS account.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    select\n      certificate_arn as resource,\n      case\n        when
-    renewal_eligibility = 'INELIGIBLE' then 'skip'\n        when date(not_after) <
-    (current_date - interval '1' minute) then 'alarm'\n        else 'ok'\n      end
-    as status,\n      case\n        when renewal_eligibility = 'INELIGIBLE' then title
-    || ' not eligible for renewal.'\n        when date(not_after) < (current_date
-    - interval '1' minute) then title || ' expired ' || to_char(not_after, 'DD-Mon-YYYY')
-    ||\n        ' (' || extract(day from not_after - current_date) || ' days ago).'\n
-    \       else title || ' expires ' || to_char(not_after, 'DD-Mon-YYYY') ||\n        '
-    (' || extract(day from not_after - current_date) || ' days).'\n       end as reason\n
-    \     \n      \n    from\n      aws_acm_certificate;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        select
+          certificate_arn as resource,
+          case
+            when renewal_eligibility = 'INELIGIBLE' then 'skip'
+            when date(not_after) < (current_date - interval '1' minute) then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when renewal_eligibility = 'INELIGIBLE' then title || ' not eligible for renewal.'
+            when date(not_after) < (current_date - interval '1' minute) then title || ' expired ' || to_char(not_after, 'DD-Mon-YYYY') ||
+            ' (' || extract(day from not_after - current_date) || ' days ago).'
+            else title || ' expires ' || to_char(not_after, 'DD-Mon-YYYY') ||
+            ' (' || extract(day from not_after - current_date) || ' days).'
+           end as reason
+          
+          
+        from
+          aws_acm_certificate;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

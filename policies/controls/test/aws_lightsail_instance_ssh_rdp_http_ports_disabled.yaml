@@ -1,11 +1,9 @@
 ID: aws_lightsail_instance_ssh_rdp_http_ports_disabled
 Title: Disable SSH and RDP ports for Lightsail instances when not needed
-Description: Any ports enable within Lightsail by default are open and exposed to
-  the world. For SSH and RDP access you should remove and disable these ports when
-  not is use.
+Description: Any ports enable within Lightsail by default are open and exposed to the world. For SSH and RDP access you should remove and disable these ports when not is use.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |2
+  QueryToExecute: |
         with open_ports as (
           select
             i.name,
@@ -49,11 +47,11 @@ Query:
         from
           aws_lightsail_instance i
           left join insecure_ports p on i.name = p.name;
-  Connector:
-  - aws
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

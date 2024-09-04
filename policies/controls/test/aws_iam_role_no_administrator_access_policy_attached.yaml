@@ -3,20 +3,40 @@ Title: Ensure IAM role not attached with Administratoraccess policy
 Description: AWS IAM role should not be attached Administratoraccess policy.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    with admin_roles as (\n      select\n        arn,\n        name,\n
-    \       attachments\n      from\n        aws_iam_role,\n        jsonb_array_elements_text(attached_policy_arns)
-    as attachments\n      where\n        split_part(attachments, '/', 2) = 'AdministratorAccess'\n
-    \   )\n    select\n      r.arn as resource,\n      case\n        when ar.arn is
-    not null then 'alarm'\n        else 'ok'\n      end as status,\n      case\n        when
-    ar.arn is not null then r.name || ' have AdministratorAccess policy attached.'\n
-    \       else r.name || ' does not have AdministratorAccess policy attached.'\n
-    \     end as reason\n      \n      \n    from\n      aws_iam_role as r\n      left
-    join admin_roles ar on r.arn = ar.arn\n    order by\n      r.name;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        with admin_roles as (
+          select
+            arn,
+            name,
+            attachments
+          from
+            aws_iam_role,
+            jsonb_array_elements_text(attached_policy_arns) as attachments
+          where
+            split_part(attachments, '/', 2) = 'AdministratorAccess'
+        )
+        select
+          r.arn as resource,
+          case
+            when ar.arn is not null then 'alarm'
+            else 'ok'
+          end as status,
+          case
+            when ar.arn is not null then r.name || ' have AdministratorAccess policy attached.'
+            else r.name || ' does not have AdministratorAccess policy attached.'
+          end as reason
+          
+          
+        from
+          aws_iam_role as r
+          left join admin_roles ar on r.arn = ar.arn
+        order by
+          r.name;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

@@ -1,22 +1,37 @@
 ID: aws_fsx_file_system_protected_by_backup_plan
 Title: FSx file system should be protected by backup plan
-Description: Checks if AWS FSx File Systems are protected by a backup plan. The rule
-  is non-compliant if the AWS FSx File System is not covered by a backup plan.
+Description: Checks if AWS FSx File Systems are protected by a backup plan. The rule is non-compliant if the AWS FSx File System is not covered by a backup plan.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "    with backup_protected_fsx_file_system as (\n      select\n
-    \       resource_arn as arn\n      from\n        aws_backup_protected_resource
-    as b\n      where\n        resource_type = 'FSx'\n    )\n    select\n      f.arn
-    as resource,\n      case\n        when b.arn is not null then 'ok'\n        else
-    'alarm'\n      end as status,\n      case\n        when b.arn is not null then
-    f.title || ' is protected by backup plan.'\n        else f.title || ' is not protected
-    by backup plan.'\n      end as reason\n      \n      \n    from\n      aws_fsx_file_system
-    as f\n      left join backup_protected_fsx_file_system as b on f.arn = b.arn;\n"
-  Connector:
-  - aws
+  QueryToExecute: |
+        with backup_protected_fsx_file_system as (
+          select
+            resource_arn as arn
+          from
+            aws_backup_protected_resource as b
+          where
+            resource_type = 'FSx'
+        )
+        select
+          f.arn as resource,
+          case
+            when b.arn is not null then 'ok'
+            else 'alarm'
+          end as status,
+          case
+            when b.arn is not null then f.title || ' is protected by backup plan.'
+            else f.title || ' is not protected by backup plan.'
+          end as reason
+          
+          
+        from
+          aws_fsx_file_system as f
+          left join backup_protected_fsx_file_system as b on f.arn = b.arn;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""

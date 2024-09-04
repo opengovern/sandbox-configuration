@@ -1,10 +1,9 @@
 ID: aws_lightsail_instance_rdp_restricted_ip
 Title: Ensure RDP is restricted to only IP address that should have this access
-Description: Any ports enable within Lightsail by default are open and exposed to
-  the world. For SSH and RDP access you should identify which IP address need access.
+Description: Any ports enable within Lightsail by default are open and exposed to the world. For SSH and RDP access you should identify which IP address need access.
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |2
+  QueryToExecute: |
         with open_ports as (
           select
             name,
@@ -47,11 +46,11 @@ Query:
         from
           aws_lightsail_instance i
           left join unrestricted_rdp_ports urp on i.name = urp.name;
-  Connector:
-  - aws
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
   Global: false
+Connector:
+- aws
 Tags: {}
 Severity: ""
