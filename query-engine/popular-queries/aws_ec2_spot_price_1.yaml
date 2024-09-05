@@ -1,25 +1,26 @@
-connectors:
-- AWS
-query: |-
-  select
-    availability_zone,
-    instance_type,
-    product_description,
-    spot_price::numeric as spot_price,
-    create_timestamp as start_time,
-    lead(create_timestamp, 1, now()) over (partition by instance_type, availability_zone, product_description order by create_timestamp) as stop_time
-  from
-    aws_ec2_spot_price
-  where
-    instance_type = 'm5.4xlarge'
-    and product_description = 'Linux/UNIX'
-    and availability_zone in
-    (
-      'eu-west-3a',
-      'eu-west-3b'
-    )
-    and start_time = now() - interval '1' month
-    and end_time = now() - interval '1' minute;
-  
 Title: "Steampipe Table: aws_ec2_spot_price - Query AWS EC2 Spot Price using SQL"
 Description: "Allows users to query AWS EC2 Spot Price data, including information about the instance type, product description, spot price, and the date and time the price was set."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          availability_zone,
+          instance_type,
+          product_description,
+          spot_price::numeric as spot_price,
+          create_timestamp as start_time,
+          lead(create_timestamp, 1, now()) over (partition by instance_type, availability_zone, product_description order by create_timestamp) as stop_time
+        from
+          aws_ec2_spot_price
+        where
+          instance_type = 'm5.4xlarge'
+          and product_description = 'Linux/UNIX'
+          and availability_zone in
+          (
+            'eu-west-3a',
+            'eu-west-3b'
+          )
+          and start_time = now() - interval '1' month
+          and end_time = now() - interval '1' minute;

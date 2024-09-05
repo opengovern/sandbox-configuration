@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    cluster_name,
-    task_arn,
-    protection ->> 'ProtectionEnabled' as protection_enabled,
-    protection ->> 'ExpirationDate' as protection_expiration_date
-  from
-    aws_ecs_task;
-  
 Title: "Steampipe Table: aws_ecs_task - Query AWS ECS Tasks using SQL"
 Description: "Allows users to query AWS ECS Tasks to obtain detailed information about each task, including its status, task definition, cluster, and other related metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cluster_name,
+          task_arn,
+          protection ->> 'ProtectionEnabled' as protection_enabled,
+          protection ->> 'ExpirationDate' as protection_expiration_date
+        from
+          aws_ecs_task;

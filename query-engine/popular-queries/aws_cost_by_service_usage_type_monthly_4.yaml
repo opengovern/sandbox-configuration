@@ -1,19 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    service,
-    usage_type,
-    sum(unblended_cost_amount)::numeric::money as sum,
-    avg(unblended_cost_amount)::numeric::money as average
-  from 
-    aws_cost_by_service_usage_type_monthly
-  group by
-    service,
-    usage_type
-  order by
-    sum desc
-  limit 10;
-  
 Title: "Steampipe Table: aws_cost_by_service_usage_type_monthly - Query AWS Cost Explorer Service using SQL"
 Description: "Allows users to query AWS Cost Explorer Service to get detailed cost data per service and usage type on a monthly basis."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  service,\n  usage_type,\n  sum(unblended_cost_amount)::numeric::money as sum,\n  avg(unblended_cost_amount)::numeric::money as average\nfrom \n  aws_cost_by_service_usage_type_monthly\ngroup by\n  service,\n  usage_type\norder by\n  sum desc\nlimit 10;"

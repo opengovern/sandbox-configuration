@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    instance_id,
-    baseline_id,
-    operation,
-    operation_end_time,
-    operation_start_time
-  from
-    aws_ssm_managed_instance_patch_state
-  where
-    operation_end_time >= now() - interval '10' day;
-  
 Title: "Steampipe Table: aws_ssm_managed_instance_patch_state - Query AWS Systems Manager Managed Instance Patch State using SQL"
 Description: "Allows users to query AWS Systems Manager Managed Instance Patch State to gather information about the patch state of managed instances. This includes the instance ID, patch group, owner information, installed patches, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          instance_id,
+          baseline_id,
+          operation,
+          operation_end_time,
+          operation_start_time
+        from
+          aws_ssm_managed_instance_patch_state
+        where
+          operation_end_time >= now() - interval '10' day;

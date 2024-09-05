@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    compute_capacity_status ->> 'Available' as available,
-    compute_capacity_status ->> 'Desired' as desired,
-    compute_capacity_status ->> 'InUse' as in_use,
-    compute_capacity_status ->> 'Running' as running
-  from
-    aws_appstream_fleet;
-  
 Title: "Steampipe Table: aws_appstream_fleet - Query AWS AppStream Fleet using SQL"
 Description: "Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn,
+          compute_capacity_status ->> 'Available' as available,
+          compute_capacity_status ->> 'Desired' as desired,
+          compute_capacity_status ->> 'InUse' as in_use,
+          compute_capacity_status ->> 'Running' as running
+        from
+          aws_appstream_fleet;

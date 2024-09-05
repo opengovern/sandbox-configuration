@@ -1,21 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    source_version,
-    source ->> 'Auth' as auth,
-    source ->> 'BuildStatusConfig' as build_status_config,
-    source ->> 'Buildspec' as build_spec,
-    source ->> 'GitCloneDepth' as git_clone_depth,
-    source ->> 'GitSubmodulesConfig' as git_submodules_config,
-    source ->> 'InsecureSsl' as insecure_ssl,
-    source ->> 'Location' as location,
-    source ->> 'ReportBuildStatus' as report_build_status,
-    source ->> 'SourceIdentifier' as source_identifier,
-    source ->> 'Type' as type
-  from
-    aws_codebuild_project;
-  
 Title: "Steampipe Table: aws_codebuild_project - Query AWS CodeBuild Projects using SQL"
 Description: "Allows users to query AWS CodeBuild Projects and retrieve comprehensive information about each project."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          source_version,
+          source ->> 'Auth' as auth,
+          source ->> 'BuildStatusConfig' as build_status_config,
+          source ->> 'Buildspec' as build_spec,
+          source ->> 'GitCloneDepth' as git_clone_depth,
+          source ->> 'GitSubmodulesConfig' as git_submodules_config,
+          source ->> 'InsecureSsl' as insecure_ssl,
+          source ->> 'Location' as location,
+          source ->> 'ReportBuildStatus' as report_build_status,
+          source ->> 'SourceIdentifier' as source_identifier,
+          source ->> 'Type' as type
+        from
+          aws_codebuild_project;

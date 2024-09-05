@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    description,
-    creation_time,
-    report_delivery_channel ->> 'Formats' as formats,
-    report_delivery_channel ->> 'S3BucketName' as s3_bucket_name,
-    report_delivery_channel ->> 'S3KeyPrefix' as s3_key_prefix
-  from
-    aws_backup_report_plan
-  where
-    title = 'backup_jobs_report_12_07_2023';
-  
 Title: "Steampipe Table: aws_backup_report_plan - Query AWS Backup Report Plan using SQL"
 Description: "Allows users to query AWS Backup Report Plan data, including details about backup jobs, recovery points, and backup vaults."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          description,
+          creation_time,
+          report_delivery_channel ->> 'Formats' as formats,
+          report_delivery_channel ->> 'S3BucketName' as s3_bucket_name,
+          report_delivery_channel ->> 'S3KeyPrefix' as s3_key_prefix
+        from
+          aws_backup_report_plan
+        where
+          title = 'backup_jobs_report_12_07_2023';

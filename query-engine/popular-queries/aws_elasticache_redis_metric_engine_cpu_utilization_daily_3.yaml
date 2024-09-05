@@ -1,19 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    cache_cluster_id,
-    timestamp,
-    round(minimum::numeric,2) as min_cpu,
-    round(maximum::numeric,2) as max_cpu,
-    round(average::numeric,2) as avg_cpu,
-    sample_count
-  from
-    aws_elasticache_redis_metric_engine_cpu_utilization_daily
-  where average < 2
-  order by
-    cache_cluster_id,
-    timestamp;
-  
 Title: "Steampipe Table: aws_elasticache_redis_metric_engine_cpu_utilization_daily - Query AWS ElastiCache Redis Metrics using SQL"
 Description: "Allows users to query ElastiCache Redis Metrics and provides daily statistics for Engine CPU Utilization."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cache_cluster_id,
+          timestamp,
+          round(minimum::numeric,2) as min_cpu,
+          round(maximum::numeric,2) as max_cpu,
+          round(average::numeric,2) as avg_cpu,
+          sample_count
+        from
+          aws_elasticache_redis_metric_engine_cpu_utilization_daily
+        where average < 2
+        order by
+          cache_cluster_id,
+          timestamp;

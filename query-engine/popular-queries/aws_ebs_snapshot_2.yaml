@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    snapshot_id,
-    arn,
-    volume_id,
-    perm ->> 'UserId' as userid,
-    perm ->> 'Group' as group
-  from
-    aws_ebs_snapshot
-    cross join jsonb_array_elements(create_volume_permissions) as perm
-  where
-    perm ->> 'Group' = 'all';
-  
 Title: "Steampipe Table: aws_ebs_snapshot - Query AWS Elastic Block Store (EBS) using SQL"
-Description: "Allows users to query AWS EBS snapshots, providing detailed information about each snapshot's configuration, status, and associated metadata."
+Description: "Allows users to query AWS EBS snapshots, providing detailed information about each snapshot''s configuration, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          snapshot_id,
+          arn,
+          volume_id,
+          perm ->> 'UserId' as userid,
+          perm ->> 'Group' as group
+        from
+          aws_ebs_snapshot
+          cross join jsonb_array_elements(create_volume_permissions) as perm
+        where
+          perm ->> 'Group' = 'all';

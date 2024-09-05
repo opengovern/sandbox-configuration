@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    health_check_config ->> 'Type' as health_check_type,
-    health_check_config ->> 'FailureThreshold' as failure_threshold,
-    health_check_config ->> 'ResourcePath' as resource_path
-  from
-    aws_service_discovery_service;
-  
 Title: "Steampipe Table: aws_service_discovery_service - Query AWS Service Discovery Service using SQL"
 Description: "Allows users to query AWS Service Discovery Service to retrieve detailed information about AWS resources that are registered with AWS Cloud Map."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          id,
+          health_check_config ->> 'Type' as health_check_type,
+          health_check_config ->> 'FailureThreshold' as failure_threshold,
+          health_check_config ->> 'ResourcePath' as resource_path
+        from
+          aws_service_discovery_service;

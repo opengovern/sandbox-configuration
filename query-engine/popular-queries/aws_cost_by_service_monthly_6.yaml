@@ -1,30 +1,7 @@
-connectors:
-- AWS
-query: |-
-  with cost_data as (
-    select
-      service,
-      period_start,
-      unblended_cost_amount as this_month,
-      lag(unblended_cost_amount,-1) over(partition by service order by period_start desc) as previous_month
-    from 
-      aws_cost_by_service_monthly
-  )
-  select
-      service,
-      period_start,
-      this_month::numeric::money,
-      previous_month::numeric::money,
-      case 
-        when previous_month = 0 and this_month = 0  then 0
-        when previous_month = 0 then 999
-        else round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2) 
-      end as percent_change
-  from
-    cost_data
-  order by
-    service,
-    period_start;
-  
 Title: "Steampipe Table: aws_cost_by_service_monthly - Query AWS Cost Explorer Service using SQL"
 Description: "Allows users to query AWS Cost Explorer Service for monthly cost breakdown by service. This table provides details such as the service name, the cost associated with it, and the currency code."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "with cost_data as (\n  select\n    service,\n    period_start,\n    unblended_cost_amount as this_month,\n    lag(unblended_cost_amount,-1) over(partition by service order by period_start desc) as previous_month\n  from \n    aws_cost_by_service_monthly\n)\nselect\n    service,\n    period_start,\n    this_month::numeric::money,\n    previous_month::numeric::money,\n    case \n      when previous_month = 0 and this_month = 0  then 0\n      when previous_month = 0 then 999\n      else round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2) \n    end as percent_change\nfrom\n  cost_data\norder by\n  service,\n  period_start;"

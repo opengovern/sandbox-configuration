@@ -1,17 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    r.id,
-    r.health_check_version,
-    hc ->> 'IPAddress' as ip_address,
-    hc ->> 'Region' as region,
-    hc-> 'StatusReport' as status_report
-  from 
-    aws_route53_health_check as r,
-    jsonb_array_elements(health_check_status) hc 
-  where 
-    hc-> 'StatusReport' ->> 'Status' not like '%Success%';
-  
 Title: "Steampipe Table: aws_route53_health_check - Query AWS Route 53 Health Check using SQL"
 Description: "Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  r.id,\n  r.health_check_version,\n  hc ->> 'IPAddress' as ip_address,\n  hc ->> 'Region' as region,\n  hc-> 'StatusReport' as status_report\nfrom \n  aws_route53_health_check as r,\n  jsonb_array_elements(health_check_status) hc \nwhere \n  hc-> 'StatusReport' ->> 'Status' not like '%Success%';"

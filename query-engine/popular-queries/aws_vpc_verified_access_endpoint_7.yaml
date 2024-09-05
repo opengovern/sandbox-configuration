@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    e.verified_access_endpoint_id,
-    i.network_interface_id,
-    i.interface_type,
-    i.private_ip_address,
-    i.association_public_ip,
-    jsonb_pretty(i.groups) as security_groups
-  from
-    aws_vpc_verified_access_endpoint as e,
-    aws_ec2_network_interface as i
-  where
-    e.network_interface_options ->> 'NetworkInterfaceId' = i.network_interface_id;
-  
 Title: "Steampipe Table: aws_vpc_verified_access_endpoint - Query AWS VPC Verified Access Endpoint using SQL"
 Description: "Allows users to query AWS VPC Verified Access Endpoint data, including details about the endpoint configuration, service name, and VPC ID. This information can be used to manage and secure network access to services within an AWS Virtual Private Cloud."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          e.verified_access_endpoint_id,
+          i.network_interface_id,
+          i.interface_type,
+          i.private_ip_address,
+          i.association_public_ip,
+          jsonb_pretty(i.groups) as security_groups
+        from
+          aws_vpc_verified_access_endpoint as e,
+          aws_ec2_network_interface as i
+        where
+          e.network_interface_options ->> 'NetworkInterfaceId' = i.network_interface_id;

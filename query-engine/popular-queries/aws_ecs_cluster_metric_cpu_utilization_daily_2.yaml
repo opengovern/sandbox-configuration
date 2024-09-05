@@ -1,20 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    cluster_name,
-    timestamp,
-    round(minimum::numeric,2) as min_cpu,
-    round(maximum::numeric,2) as max_cpu,
-    round(average::numeric,2) as avg_cpu,
-    sample_count
-  from
-    aws_ecs_cluster_metric_cpu_utilization_daily
-  where
-    average > 80
-  order by
-    cluster_name,
-    timestamp;
-  
 Title: "Steampipe Table: aws_ecs_cluster_metric_cpu_utilization_daily - Query AWS ECS Cluster Metrics using SQL"
 Description: "Allows users to query AWS Elastic Container Service (ECS) Cluster Metrics, specifically CPU utilization on a daily basis."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cluster_name,
+          timestamp,
+          round(minimum::numeric,2) as min_cpu,
+          round(maximum::numeric,2) as max_cpu,
+          round(average::numeric,2) as avg_cpu,
+          sample_count
+        from
+          aws_ecs_cluster_metric_cpu_utilization_daily
+        where
+          average > 80
+        order by
+          cluster_name,
+          timestamp;

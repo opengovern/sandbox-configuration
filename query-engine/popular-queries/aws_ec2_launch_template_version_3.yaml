@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    launch_template_name,
-    launch_template_id,
-    create_time,
-    default_version,
-    version_number
-  from
-    aws_ec2_launch_template_version
-  where
-    create_time >= now() - interval '30' day;
-  
 Title: "Steampipe Table: aws_ec2_launch_template_version - Query AWS EC2 Launch Template Versions using SQL"
 Description: "Allows users to query AWS EC2 Launch Template Versions, providing details about each version of an Amazon EC2 launch template."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          launch_template_name,
+          launch_template_id,
+          create_time,
+          default_version,
+          version_number
+        from
+          aws_ec2_launch_template_version
+        where
+          create_time >= now() - interval '30' day;

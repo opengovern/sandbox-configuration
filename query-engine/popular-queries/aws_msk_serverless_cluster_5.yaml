@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    cluster_name,
-    state,
-    serverless -> 'ClientAuthentication' as client_authentication
-  from
-    aws_msk_serverless_cluster
-  where
-    (serverless -> 'ClientAuthentication' -> 'Sasl' -> 'Iam' ->> 'Enabled')::boolean = false;
-  
 Title: "Steampipe Table: aws_msk_serverless_cluster - Query AWS Managed Streaming for Kafka (MSK) Serverless Clusters using SQL"
 Description: "Allows users to query AWS MSK Serverless Clusters to retrieve detailed information about each cluster."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          cluster_name,
+          state,
+          serverless -> 'ClientAuthentication' as client_authentication
+        from
+          aws_msk_serverless_cluster
+        where
+          (serverless -> 'ClientAuthentication' -> 'Sasl' -> 'Iam' ->> 'Enabled')::boolean = false;

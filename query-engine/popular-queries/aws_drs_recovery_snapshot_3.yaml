@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    source_server_id,
-    count(snapshot_id) as recovery_snapshot_count
-  from
-    aws_drs_recovery_snapshot
-  group by
-    source_server_id;
-  
 Title: "Steampipe Table: aws_drs_recovery_snapshot - Query AWS DRS Recovery Snapshot using SQL"
 Description: "Allows users to query DRS Recovery Snapshot data in AWS. It provides information about recovery snapshots within AWS Disaster Recovery Service (DRS). This table can be used to gather insights on recovery snapshots, including their details, associated metadata, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          source_server_id,
+          count(snapshot_id) as recovery_snapshot_count
+        from
+          aws_drs_recovery_snapshot
+        group by
+          source_server_id;

@@ -1,19 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    subnet_group_name,
-    g.vpc_id,
-    vs.subnet_arn,
-    vs.cidr_block as subnet_cidr_block,
-    vs.state as subnet_state,
-    vs.availability_zone as subnet_availability_zone,
-    vs.region
-  from
-    aws_dax_subnet_group g,
-    jsonb_array_elements(subnets) s
-  join aws_vpc_subnet vs
-    on vs.subnet_id = s ->> 'SubnetIdentifier';
-  
 Title: "Steampipe Table: aws_dax_subnet_group - Query AWS DAX Subnet Group using SQL"
 Description: "Allows users to query AWS DAX Subnet Group details, such as the subnet group name, description, VPC ID, and the subnets in the group."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          subnet_group_name,
+          g.vpc_id,
+          vs.subnet_arn,
+          vs.cidr_block as subnet_cidr_block,
+          vs.state as subnet_state,
+          vs.availability_zone as subnet_availability_zone,
+          vs.region
+        from
+          aws_dax_subnet_group g,
+          jsonb_array_elements(subnets) s
+        join aws_vpc_subnet vs
+          on vs.subnet_id = s ->> 'SubnetIdentifier';

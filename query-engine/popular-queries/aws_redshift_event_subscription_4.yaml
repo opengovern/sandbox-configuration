@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    e.cust_subscription_id,
-    e.status,
-    s.kms_master_key_id,
-    s.topic_arn as arn
-  from
-    aws_redshift_event_subscription as e
-    join aws_sns_topic as s on s.topic_arn = e.sns_topic_arn
-  where
-    s.kms_master_key_id is null;
-  
 Title: "Steampipe Table: aws_redshift_event_subscription - Query AWS Redshift Event Subscriptions using SQL"
-Description: "Allows users to query AWS Redshift Event Subscriptions, providing insights into the subscription's configuration, status, and associated Redshift clusters."
+Description: "Allows users to query AWS Redshift Event Subscriptions, providing insights into the subscription''s configuration, status, and associated Redshift clusters."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          e.cust_subscription_id,
+          e.status,
+          s.kms_master_key_id,
+          s.topic_arn as arn
+        from
+          aws_redshift_event_subscription as e
+          join aws_sns_topic as s on s.topic_arn = e.sns_topic_arn
+        where
+          s.kms_master_key_id is null;

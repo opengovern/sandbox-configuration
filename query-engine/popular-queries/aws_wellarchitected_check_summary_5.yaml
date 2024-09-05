@@ -1,22 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    workload_id,
-    id,
-    name,
-    account_summary ->> 'ERROR' as errors,
-    account_summary ->> 'FETCH_FAILED' as fetch_failed,
-    account_summary ->> 'NOT_AVAILABLE' as not_available,
-    account_summary ->> 'OKAY' as okay,
-    account_summary ->> 'WARNING' as warnings,
-    pillar_id,
-    question_id
-  from
-    aws_wellarchitected_check_summary
-  where
-    lens_arn = 'arn:aws:wellarchitected::aws:lens/wellarchitected'
-    and workload_id = 'abcdc851ac1d8d9d5b9938615da016ce';
-  
 Title: "Steampipe Table: aws_wellarchitected_check_summary - Query AWS Well-Architected Tool Check Summary using SQL"
 Description: "Allows users to query AWS Well-Architected Tool Check Summary for detailed information about the checks for all workloads. This table provides insights into the state of your workloads, highlighting potential risks and areas for improvement."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          workload_id,
+          id,
+          name,
+          account_summary ->> 'ERROR' as errors,
+          account_summary ->> 'FETCH_FAILED' as fetch_failed,
+          account_summary ->> 'NOT_AVAILABLE' as not_available,
+          account_summary ->> 'OKAY' as okay,
+          account_summary ->> 'WARNING' as warnings,
+          pillar_id,
+          question_id
+        from
+          aws_wellarchitected_check_summary
+        where
+          lens_arn = 'arn:aws:wellarchitected::aws:lens/wellarchitected'
+          and workload_id = 'abcdc851ac1d8d9d5b9938615da016ce';

@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    cluster_name,
-    description,
-    sse_description ->> 'Status' as sse_status
-  from
-    aws_dax_cluster
-  where
-    sse_description ->> 'Status' = 'DISABLED';
-  
 Title: "Steampipe Table: aws_dax_cluster - Query AWS DAX Clusters using SQL"
 Description: "Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cluster_name,
+          description,
+          sse_description ->> 'Status' as sse_status
+        from
+          aws_dax_cluster
+        where
+          sse_description ->> 'Status' = 'DISABLED';

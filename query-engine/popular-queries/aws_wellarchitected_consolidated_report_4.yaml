@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    workload_name,
-    workload_id,
-    l ->> 'LensArn' as lens_arn,
-    l -> 'Pillars' as pillars,
-    l -> 'RiskCounts' as risk_counts
-  from
-    aws_wellarchitected_consolidated_report,
-    jsonb_array_elements(lenses) as l;
-  
 Title: "Steampipe Table: aws_wellarchitected_consolidated_report - Query AWS Well-Architected Tool Consolidated Reports using SQL"
-Description: "Allows users to query consolidated reports from the AWS Well-Architected Tool, providing a comprehensive view of a workload's alignment with AWS architectural best practices."
+Description: "Allows users to query consolidated reports from the AWS Well-Architected Tool, providing a comprehensive view of a workload''s alignment with AWS architectural best practices."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          workload_name,
+          workload_id,
+          l ->> 'LensArn' as lens_arn,
+          l -> 'Pillars' as pillars,
+          l -> 'RiskCounts' as risk_counts
+        from
+          aws_wellarchitected_consolidated_report,
+          jsonb_array_elements(lenses) as l;

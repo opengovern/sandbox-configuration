@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    server_id,
-    user_name,
-    arn
-  from
-    aws_transfer_user
-  where
-    server_id in (select server_id from aws_transfer_server)
-  and
-    user_name = 'my_user_to_search';
-  
 Title: "Steampipe Table: aws_transfer_user - Query AWS Transfer for users in a server using SQL"
 Description: "Allows users to query AWS Transfer for users in a server, equivalent to list/describe user functions."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          server_id,
+          user_name,
+          arn
+        from
+          aws_transfer_user
+        where
+          server_id in (select server_id from aws_transfer_server)
+        and
+          user_name = 'my_user_to_search';

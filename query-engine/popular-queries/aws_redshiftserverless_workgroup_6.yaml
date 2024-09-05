@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    workgroup_arn,
-    p ->> 'ParameterKey' as parameter_key,
-    p ->> 'ParameterValue' as parameter_value
-  from
-    aws_redshiftserverless_workgroup,
-    jsonb_array_elements(config_parameters) p;
-  
 Title: "Steampipe Table: aws_redshiftserverless_workgroup - Query AWS Redshift Serverless Workgroup using SQL"
 Description: "Allows users to query AWS Redshift Serverless Workgroup information, including workgroup details, query execution settings, and enforce workgroup configuration."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          workgroup_arn,
+          p ->> 'ParameterKey' as parameter_key,
+          p ->> 'ParameterValue' as parameter_value
+        from
+          aws_redshiftserverless_workgroup,
+          jsonb_array_elements(config_parameters) p;

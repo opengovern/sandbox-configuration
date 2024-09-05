@@ -1,19 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    r.workload_name,
-    r.workload_arn,
-    r.workload_id,
-    r.lenses_applied_count,
-    w.environment as workload_environment,
-    w.improvement_status as workload_improvement_status,
-    w.review_restriction_date as workload_review_restriction_date
-  from
-    aws_wellarchitected_consolidated_report as r,
-    aws_wellarchitected_workload as w
-  where
-    w.workload_id = r.workload_id;
-  
 Title: "Steampipe Table: aws_wellarchitected_consolidated_report - Query AWS Well-Architected Tool Consolidated Reports using SQL"
-Description: "Allows users to query consolidated reports from the AWS Well-Architected Tool, providing a comprehensive view of a workload's alignment with AWS architectural best practices."
+Description: "Allows users to query consolidated reports from the AWS Well-Architected Tool, providing a comprehensive view of a workload''s alignment with AWS architectural best practices."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          r.workload_name,
+          r.workload_arn,
+          r.workload_id,
+          r.lenses_applied_count,
+          w.environment as workload_environment,
+          w.improvement_status as workload_improvement_status,
+          w.review_restriction_date as workload_review_restriction_date
+        from
+          aws_wellarchitected_consolidated_report as r,
+          aws_wellarchitected_workload as w
+        where
+          w.workload_id = r.workload_id;

@@ -1,20 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    db_parameter_group_family,
-    pg ->> 'ParameterName' as parameter_name,
-    pg ->> 'ParameterValue' as parameter_value,
-    pg ->> 'AllowedValues' as allowed_values,
-    pg ->> 'ApplyType' as apply_type,
-    pg ->> 'IsModifiable' as is_modifiable,
-    pg ->> 'DataType' as data_type,
-    pg ->> 'Description' as description,
-    pg ->> 'MinimumEngineVersion' as minimum_engine_version
-  from
-    aws_rds_db_parameter_group
-    cross join jsonb_array_elements(parameters) as pg;
-  
 Title: "Steampipe Table: aws_rds_db_parameter_group - Query AWS RDS DB Parameter Groups using SQL"
 Description: "Allows users to query AWS RDS DB Parameter Groups, providing information about the configurations that control the behavior of the databases that they are associated with."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          db_parameter_group_family,
+          pg ->> 'ParameterName' as parameter_name,
+          pg ->> 'ParameterValue' as parameter_value,
+          pg ->> 'AllowedValues' as allowed_values,
+          pg ->> 'ApplyType' as apply_type,
+          pg ->> 'IsModifiable' as is_modifiable,
+          pg ->> 'DataType' as data_type,
+          pg ->> 'Description' as description,
+          pg ->> 'MinimumEngineVersion' as minimum_engine_version
+        from
+          aws_rds_db_parameter_group
+          cross join jsonb_array_elements(parameters) as pg;

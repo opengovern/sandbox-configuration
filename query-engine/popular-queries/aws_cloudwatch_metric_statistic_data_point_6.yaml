@@ -1,22 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    jsonb_pretty(dimensions) as dimensions,
-    timestamp,
-    round(average::numeric, 2) as avg_cpu
-  from
-    aws_cloudwatch_metric_statistic_data_point
-  where
-    namespace = 'AWS/RDS'
-    and metric_name = 'CPUUtilization'
-    and average > 80
-    and timestamp >= now() - interval '30 day'
-    and dimensions = '[
-      {"Name": "DBInstanceIdentifier", "Value": "database-1"}
-      ]'
-  order by
-    timestamp;
-  
 Title: "Steampipe Table: aws_cloudwatch_metric_statistic_data_point - Query AWS CloudWatch Metric Statistics Data Point using SQL"
 Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          jsonb_pretty(dimensions) as dimensions,
+          timestamp,
+          round(average::numeric, 2) as avg_cpu
+        from
+          aws_cloudwatch_metric_statistic_data_point
+        where
+          namespace = 'AWS/RDS'
+          and metric_name = 'CPUUtilization'
+          and average > 80
+          and timestamp >= now() - interval '30 day'
+          and dimensions = '[
+            {"Name": "DBInstanceIdentifier", "Value": "database-1"}
+            ]'
+        order by
+          timestamp;

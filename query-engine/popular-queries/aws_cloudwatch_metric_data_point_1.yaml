@@ -1,20 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    label,
-    timestamp,
-    period,
-    value,
-    expression
-  from
-    aws_cloudwatch_metric_data_point
-  where
-    id = 'm1'
-    and expression = 'select max(CPUUtilization) from schema("AWS/EC2", InstanceId)'
-  order by
-    timestamp;
-  
 Title: "Steampipe Table: aws_cloudwatch_metric_data_point - Query AWS CloudWatch MetricDataPoints using SQL"
 Description: "Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          label,
+          timestamp,
+          period,
+          value,
+          expression
+        from
+          aws_cloudwatch_metric_data_point
+        where
+          id = 'm1'
+          and expression = 'select max(CPUUtilization) from schema("AWS/EC2", InstanceId)'
+        order by
+          timestamp;

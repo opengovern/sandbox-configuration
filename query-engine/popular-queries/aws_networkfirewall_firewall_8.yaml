@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    l -> 'LogDestination' as log_destination,
-    l ->> 'LogDestinationType' as log_destination_type,
-    l ->> 'LogType' as log_type
-  from
-    aws_networkfirewall_firewall,
-    jsonb_array_elements(logging_configuration) as l;
-  
 Title: "Steampipe Table: aws_networkfirewall_firewall - Query AWS Network Firewall using SQL"
-Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall's properties and settings."
+Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall''s properties and settings."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn,
+          l -> 'LogDestination' as log_destination,
+          l ->> 'LogDestinationType' as log_destination_type,
+          l ->> 'LogType' as log_type
+        from
+          aws_networkfirewall_firewall,
+          jsonb_array_elements(logging_configuration) as l;

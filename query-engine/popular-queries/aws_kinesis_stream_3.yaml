@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    stream_name,
-    stream_arn,
-    stream_status,
-    consumer_count,
-    stream_creation_timestamp,
-    region
-  from
-    aws_kinesis_stream
-  where
-    consumer_count = 0;
-  
 Title: "Steampipe Table: aws_kinesis_stream - Query AWS Kinesis Stream using SQL"
 Description: "Allows users to query AWS Kinesis Stream data, including stream name, status, creation time, and associated tags."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          stream_name,
+          stream_arn,
+          stream_status,
+          consumer_count,
+          stream_creation_timestamp,
+          region
+        from
+          aws_kinesis_stream
+        where
+          consumer_count = 0;

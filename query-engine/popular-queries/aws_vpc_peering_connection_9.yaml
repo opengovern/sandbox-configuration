@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    jsonb_pretty(tags) as tags
-  from
-    aws_vpc_peering_connection
-  where
-    tags @> '{"Name": "vpc-0639e12347e5b6bfb <=> vpc-8e1234f5"}';
-  
 Title: "Steampipe Table: aws_vpc_peering_connection - Query AWS VPC Peering Connections using SQL"
 Description: "Allows users to query VPC Peering Connections in Amazon Virtual Private Cloud (VPC)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          jsonb_pretty(tags) as tags
+        from
+          aws_vpc_peering_connection
+        where
+          tags @> '{"Name": "vpc-0639e12347e5b6bfb <=> vpc-8e1234f5"}';

@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    c.certificate_id,
-    c.common_name,
-    c.directory_id,
-    c.type as certificate_type,
-    d.name as directory_name,
-    d.type as directory_type
-  from
-    aws_directory_service_certificate c,
-    aws_directory_service_directory d
-  where
-    d.type = 'MicrosoftAD';
-  
 Title: "Steampipe Table: aws_directory_service_certificate - Query AWS Directory Service Certificates using SQL"
 Description: "Allows users to query AWS Directory Service Certificates to gather information about the certificates associated with AWS Managed Microsoft AD and Simple AD directories."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          c.certificate_id,
+          c.common_name,
+          c.directory_id,
+          c.type as certificate_type,
+          d.name as directory_name,
+          d.type as directory_type
+        from
+          aws_directory_service_certificate c,
+          aws_directory_service_directory d
+        where
+          d.type = 'MicrosoftAD';

@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    application_name,
-    application_version_arn,
-    version_label,
-    tags
-  from
-    aws_elastic_beanstalk_application_version
-  where
-    tags ->> 'Environment' = 'Production';
-  
-Title: 
+Title: ""
 Description: "Allows users to query AWS Elastic Beanstalk Application Versions to obtain details about their configurations, environments, and other metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          application_name,
+          application_version_arn,
+          version_label,
+          tags
+        from
+          aws_elastic_beanstalk_application_version
+        where
+          tags ->> 'Environment' = 'Production';

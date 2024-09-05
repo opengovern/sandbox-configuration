@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    s.subscriber_name,
-    s.subscription_id,
-    r.arn,
-    r.inline_policies,
-    r.attached_policy_arns,
-    r.assume_role_policy
-  from
-    aws_securitylake_subscriber as s,
-    aws_iam_role as r
-  where
-    s.role_arn = r.arn;
-  
 Title: "Steampipe Table: aws_securitylake_subscriber - Query AWS Security Lake Subscriber using SQL"
-Description: "Allows users to query AWS Security Lake Subscriber data, providing information about each subscriber's details in the AWS Security Lake service. This includes subscriber status, endpoint type, and subscription creation time."
+Description: "Allows users to query AWS Security Lake Subscriber data, providing information about each subscriber''s details in the AWS Security Lake service. This includes subscriber status, endpoint type, and subscription creation time."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          s.subscriber_name,
+          s.subscription_id,
+          r.arn,
+          r.inline_policies,
+          r.attached_policy_arns,
+          r.assume_role_policy
+        from
+          aws_securitylake_subscriber as s,
+          aws_iam_role as r
+        where
+          s.role_arn = r.arn;

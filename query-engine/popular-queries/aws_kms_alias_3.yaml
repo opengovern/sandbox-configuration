@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    a.alias_name as alias_name,
-    k.id as key_id,
-    k.key_state as key_state,
-    k.deletion_date as key_deletion_date
-  from
-    aws_kms_key as k,
-    aws_kms_alias as a
-  where
-    k.id = a.target_key_id and key_state = 'PendingDeletion';
-  
 Title: "Steampipe Table: aws_kms_alias - Query AWS Key Management Service (KMS) alias using SQL"
 Description: "Allows users to query AWS KMS aliases and retrieve information about their associated keys, including the key ID, alias name, and alias ARN."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          a.alias_name as alias_name,
+          k.id as key_id,
+          k.key_state as key_state,
+          k.deletion_date as key_deletion_date
+        from
+          aws_kms_key as k,
+          aws_kms_alias as a
+        where
+          k.id = a.target_key_id and key_state = 'PendingDeletion';

@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    layer_arn,
-    layer_name,
-    layer_version_arn,
-    created_date,
-    jsonb_pretty(compatible_runtimes) as compatible_runtimes,
-    jsonb_pretty(compatible_architectures) as compatible_architectures,
-    version
-  from
-    aws_lambda_layer;
-  
 Title: "Steampipe Table: aws_lambda_layer - Query AWS Lambda Layer using SQL"
 Description: "Allows users to query AWS Lambda Layers and retrieve information including layer ARNs, layer versions, compatible runtimes, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          layer_arn,
+          layer_name,
+          layer_version_arn,
+          created_date,
+          jsonb_pretty(compatible_runtimes) as compatible_runtimes,
+          jsonb_pretty(compatible_architectures) as compatible_architectures,
+          version
+        from
+          aws_lambda_layer;

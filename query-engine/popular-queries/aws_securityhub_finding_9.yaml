@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    title,
-    product_arn,
-    product_name,
-    updated_at
-  from
-    aws_securityhub_finding
-  where
-     updated_at >= now() - interval '30' day;
-  
 Title: "Steampipe Table: aws_securityhub_finding - Query AWS Security Hub Findings using SQL"
 Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          title,
+          product_arn,
+          product_name,
+          updated_at
+        from
+          aws_securityhub_finding
+        where
+           updated_at >= now() - interval '30' day;

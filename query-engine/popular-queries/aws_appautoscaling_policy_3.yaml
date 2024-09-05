@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    resource_id,
-    policy_type
-  from
-    aws_appautoscaling_policy
-  where
-    service_namespace = 'ecs'
-    and creation_time > now() - interval '30 days';
-  
 Title: "Steampipe Table: aws_appautoscaling_policy - Query AWS Application Auto Scaling Policies using SQL"
 Description: "Allows users to query AWS Application Auto Scaling Policies to obtain information about their configuration, attached resources, and other metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          resource_id,
+          policy_type
+        from
+          aws_appautoscaling_policy
+        where
+          service_namespace = 'ecs'
+          and creation_time > now() - interval '30 days';

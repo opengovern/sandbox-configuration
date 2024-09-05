@@ -1,28 +1,29 @@
-connectors:
-- AWS
-query: |-
-  select
-    endpoint_identifier,
-    arn,
-    my_sql_settings ->> 'AfterConnectScript' as after_connect_script,
-    (my_sql_settings ->> 'CleanSourceMetadataOnMismatch')::boolean as clean_source_metadata_on_mismatch,
-    my_sql_settings ->> 'DatabaseName' as database_name,
-    (my_sql_settings ->> 'EventsPollInterval')::integer as events_poll_interval,
-    (my_sql_settings ->> 'ExecuteTimeout')::integer as execute_timeout,
-    (my_sql_settings ->> 'MaxFileSize')::integer as max_file_size,
-    (my_sql_settings ->> 'ParallelLoadThreads')::integer as parallel_load_threads,
-    my_sql_settings ->> 'Password' as password,
-    (my_sql_settings ->> 'Port')::integer as port,
-    my_sql_settings ->> 'SecretsManagerAccessRoleArn' as secrets_manager_access_role_arn,
-    my_sql_settings ->> 'SecretsManagerSecretId' as secrets_manager_secret_id,
-    my_sql_settings ->> 'ServerName' as server_name,
-    my_sql_settings ->> 'ServerTimezone' as server_timezone,
-    my_sql_settings ->> 'TargetDbType' as target_db_type,
-    my_sql_settings ->> 'Username' as username
-  from
-    aws_dms_endpoint
-  where
-    engine_name = 'mysql';
-  
 Title: "Steampipe Table: aws_dms_endpoint - Query AWS DMS Endpoints using SQL"
 Description: "Query AWS DMS Endpoints to retrieve connection information for source or target databases in database migration activities."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          endpoint_identifier,
+          arn,
+          my_sql_settings ->> 'AfterConnectScript' as after_connect_script,
+          (my_sql_settings ->> 'CleanSourceMetadataOnMismatch')::boolean as clean_source_metadata_on_mismatch,
+          my_sql_settings ->> 'DatabaseName' as database_name,
+          (my_sql_settings ->> 'EventsPollInterval')::integer as events_poll_interval,
+          (my_sql_settings ->> 'ExecuteTimeout')::integer as execute_timeout,
+          (my_sql_settings ->> 'MaxFileSize')::integer as max_file_size,
+          (my_sql_settings ->> 'ParallelLoadThreads')::integer as parallel_load_threads,
+          my_sql_settings ->> 'Password' as password,
+          (my_sql_settings ->> 'Port')::integer as port,
+          my_sql_settings ->> 'SecretsManagerAccessRoleArn' as secrets_manager_access_role_arn,
+          my_sql_settings ->> 'SecretsManagerSecretId' as secrets_manager_secret_id,
+          my_sql_settings ->> 'ServerName' as server_name,
+          my_sql_settings ->> 'ServerTimezone' as server_timezone,
+          my_sql_settings ->> 'TargetDbType' as target_db_type,
+          my_sql_settings ->> 'Username' as username
+        from
+          aws_dms_endpoint
+        where
+          engine_name = 'mysql';

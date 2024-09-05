@@ -1,26 +1,27 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    a ->> 'AppBlockArn' as app_block_arn,
-    a ->> 'Arn' as app_arn,
-    a ->> 'CreatedTime' as app_created_time,
-    a ->> 'Description' as app_description,
-    a ->> 'DisplayName' as app_display_name,
-    a ->> 'Enabled' as app_enabled,
-    a ->> 'IconS3Location' as app_icon_s3_location,
-    a ->> 'IconURL' as app_icon_url,
-    a ->> 'InstanceFamilies' as app_instance_families,
-    a ->> 'LaunchParameters' as app_launch_parameters,
-    a ->> 'LaunchPath' as app_launch_path,
-    a ->> 'Name' as app_name,
-    a ->> 'Platforms' as app_platforms,
-    a ->> 'WorkingDirectory' as app_WorkingDirectory
-  from
-    aws_appstream_image,
-    jsonb_array_elements(applications) as a;
-  
 Title: "Steampipe Table: aws_appstream_image - Query AWS AppStream Images using SQL"
 Description: "Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn,
+          a ->> 'AppBlockArn' as app_block_arn,
+          a ->> 'Arn' as app_arn,
+          a ->> 'CreatedTime' as app_created_time,
+          a ->> 'Description' as app_description,
+          a ->> 'DisplayName' as app_display_name,
+          a ->> 'Enabled' as app_enabled,
+          a ->> 'IconS3Location' as app_icon_s3_location,
+          a ->> 'IconURL' as app_icon_url,
+          a ->> 'InstanceFamilies' as app_instance_families,
+          a ->> 'LaunchParameters' as app_launch_parameters,
+          a ->> 'LaunchPath' as app_launch_path,
+          a ->> 'Name' as app_name,
+          a ->> 'Platforms' as app_platforms,
+          a ->> 'WorkingDirectory' as app_WorkingDirectory
+        from
+          aws_appstream_image,
+          jsonb_array_elements(applications) as a;

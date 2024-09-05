@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    p ->> 'Ip' as ip,
-    p ->> 'Port' as port
-  from
-    aws_route53_resolver_rule,
-    jsonb_array_elements(target_ips) as p;
-  
 Title: "Steampipe Table: aws_route53_resolver_rule - Query AWS Route 53 Resolver Rule using SQL"
 Description: "Allows users to query AWS Route 53 Resolver Rule to obtain data on DNS resolver rules configured in an AWS account."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          p ->> 'Ip' as ip,
+          p ->> 'Port' as port
+        from
+          aws_route53_resolver_rule,
+          jsonb_array_elements(target_ips) as p;

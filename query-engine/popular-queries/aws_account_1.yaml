@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    alias,
-    arn,
-    organization_id,
-    organization_master_account_email,
-    organization_master_account_id
-  from
-    aws_account
-    cross join jsonb_array_elements(account_aliases) as alias;
-  
 Title: "Steampipe Table: aws_account - Query AWS Accounts using SQL"
-Description: "Allows users to query AWS Account information, including details about the account's status, owner, and associated resources."
+Description: "Allows users to query AWS Account information, including details about the account''s status, owner, and associated resources."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          alias,
+          arn,
+          organization_id,
+          organization_master_account_email,
+          organization_master_account_id
+        from
+          aws_account
+          cross join jsonb_array_elements(account_aliases) as alias;

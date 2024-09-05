@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    control_id,
-    control_status,
-    severity_rating
-  from
-    aws_securityhub_standards_control
-  where
-    severity_rating = 'CRITICAL'
-    and arn like '%cis-aws-foundations-benchmark%';
-  
 Title: "Steampipe Table: aws_securityhub_standards_control - Query AWS Security Hub Standards Control using SQL"
 Description: "Allows users to query AWS Security Hub Standards Control data including details about each security standard control available in an AWS account."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          control_id,
+          control_status,
+          severity_rating
+        from
+          aws_securityhub_standards_control
+        where
+          severity_rating = 'CRITICAL'
+          and arn like '%cis-aws-foundations-benchmark%';

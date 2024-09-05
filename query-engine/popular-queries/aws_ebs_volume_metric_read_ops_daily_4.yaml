@@ -1,27 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    r.volume_id,
-    r.timestamp,
-    round(r.average) + round(w.average) as iops_avg,
-    round(r.average) as read_ops_avg,
-    round(w.average) as write_ops_avg,
-    round(r.maximum) + round(w.maximum) as iops_max,
-    round(r.maximum) as read_ops_max,
-    round(w.maximum) as write_ops_max,
-    round(r.minimum) + round(w.minimum) as iops_min,
-    round(r.minimum) as read_ops_min,
-    round(w.minimum) as write_ops_min
-  from 
-    aws_ebs_volume_metric_read_ops_daily as r,
-    aws_ebs_volume_metric_write_ops_daily as w
-  where 
-    r.volume_id = w.volume_id
-    and r.timestamp = w.timestamp
-  order by
-    r.volume_id,
-    r.timestamp;
-  
 Title: "Steampipe Table: aws_ebs_volume_metric_read_ops_daily - Query AWS EBS Volume Metrics using SQL"
 Description: "Allows users to query AWS EBS Volume metrics for daily read operations."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  r.volume_id,\n  r.timestamp,\n  round(r.average) + round(w.average) as iops_avg,\n  round(r.average) as read_ops_avg,\n  round(w.average) as write_ops_avg,\n  round(r.maximum) + round(w.maximum) as iops_max,\n  round(r.maximum) as read_ops_max,\n  round(w.maximum) as write_ops_max,\n  round(r.minimum) + round(w.minimum) as iops_min,\n  round(r.minimum) as read_ops_min,\n  round(w.minimum) as write_ops_min\nfrom \n  aws_ebs_volume_metric_read_ops_daily as r,\n  aws_ebs_volume_metric_write_ops_daily as w\nwhere \n  r.volume_id = w.volume_id\n  and r.timestamp = w.timestamp\norder by\n  r.volume_id,\n  r.timestamp;"

@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    deployment_config_id,
-    deployment_config_name,
-    traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryInterval' as canary_interval,
-    traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryPercentage' as canary_percentage
-  from
-    aws_codedeploy_deployment_config
-  where
-    traffic_routing_config ->> 'Type' = 'TimeBasedCanary';
-  
 Title: "Steampipe Table: aws_codedeploy_deployment_config - Query AWS CodeDeploy Deployment Configurations using SQL"
 Description: "Allows users to query AWS CodeDeploy Deployment Configurations to retrieve information about the deployment configurations within AWS CodeDeploy service."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          deployment_config_id,
+          deployment_config_name,
+          traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryInterval' as canary_interval,
+          traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryPercentage' as canary_percentage
+        from
+          aws_codedeploy_deployment_config
+        where
+          traffic_routing_config ->> 'Type' = 'TimeBasedCanary';

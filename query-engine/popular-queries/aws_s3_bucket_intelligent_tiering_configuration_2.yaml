@@ -1,33 +1,34 @@
-connectors:
-- AWS
-query: |-
-  with intelligent_tiering_configuration as MATERIALIZED (
-  select
-    bucket_name, id, status
-  from
-    aws_s3_bucket_intelligent_tiering_configuration ),
-    bucket as MATERIALIZED (
-    select
-      name, region
-    from
-      aws_s3_bucket )
-      select distinct
-        b.name,
-        b.region,
-        case
-          when
-            i.id is null
-          then
-            'Bucket does not have intelligent tiering configured'
-          else
-            'Bucket has intelligent tiering configured'
-        end
-        as intelligent_tiering_configuration_status
-      from
-        bucket as b
-        left join
-          intelligent_tiering_configuration as i
-          on b.name = i.bucket_name;
-  
 Title: "Steampipe Table: aws_s3_bucket_intelligent_tiering_configuration - Query AWS S3 Bucket Intelligent Tiering Configuration using SQL"
 Description: "Allows users to query Intelligent Tiering configurations for S3 buckets. It provides information about each configuration, including the bucket name, the ID of the configuration, and the status of the configuration."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        with intelligent_tiering_configuration as MATERIALIZED (
+        select
+          bucket_name, id, status
+        from
+          aws_s3_bucket_intelligent_tiering_configuration ),
+          bucket as MATERIALIZED (
+          select
+            name, region
+          from
+            aws_s3_bucket )
+            select distinct
+              b.name,
+              b.region,
+              case
+                when
+                  i.id is null
+                then
+                  'Bucket does not have intelligent tiering configured'
+                else
+                  'Bucket has intelligent tiering configured'
+              end
+              as intelligent_tiering_configuration_status
+            from
+              bucket as b
+              left join
+                intelligent_tiering_configuration as i
+                on b.name = i.bucket_name;

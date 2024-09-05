@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    arn,
-    p -> 'CustomOriginConfig' -> 'HTTPPort' as http_port,
-    p -> 'CustomOriginConfig' -> 'HTTPSPort' as https_port,
-    p -> 'CustomOriginConfig' -> 'OriginKeepaliveTimeout' as origin_keepalive_timeout,
-    p -> 'CustomOriginConfig' -> 'OriginProtocolPolicy' as origin_protocol_policy
-  from
-    aws_cloudfront_distribution,
-    jsonb_array_elements(origins) as p
-  where
-    p -> 'CustomOriginConfig' ->> 'OriginProtocolPolicy' = 'https-only';
-  
 Title: "Steampipe Table: aws_cloudfront_distribution - Query AWS CloudFront Distributions using SQL"
 Description: "Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          arn,
+          p -> 'CustomOriginConfig' -> 'HTTPPort' as http_port,
+          p -> 'CustomOriginConfig' -> 'HTTPSPort' as https_port,
+          p -> 'CustomOriginConfig' -> 'OriginKeepaliveTimeout' as origin_keepalive_timeout,
+          p -> 'CustomOriginConfig' -> 'OriginProtocolPolicy' as origin_protocol_policy
+        from
+          aws_cloudfront_distribution,
+          jsonb_array_elements(origins) as p
+        where
+          p -> 'CustomOriginConfig' ->> 'OriginProtocolPolicy' = 'https-only';

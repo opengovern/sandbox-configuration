@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    count(az ->> 'ZoneName') as zone_count
-  from
-    aws_ec2_gateway_load_balancer,
-    jsonb_array_elements(availability_zones) as az
-  group by
-    name
-  having
-    count(az ->> 'ZoneName') < 2;
-  
 Title: "Steampipe Table: aws_ec2_gateway_load_balancer - Query AWS EC2 Gateway Load Balancer using SQL"
 Description: "Allows users to query AWS EC2 Gateway Load Balancer details, including its configuration, state, type, and associated tags."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          count(az ->> 'ZoneName') as zone_count
+        from
+          aws_ec2_gateway_load_balancer,
+          jsonb_array_elements(availability_zones) as az
+        group by
+          name
+        having
+          count(az ->> 'ZoneName') < 2;

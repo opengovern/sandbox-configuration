@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    rule_id,
-    p ->> 'DataId' as data_id,
-    p ->> 'Negated' as negated,
-    p ->> 'Type' as type
-  from
-    aws_waf_rule,
-    jsonb_array_elements(predicates) as p;
-  
 Title: "Steampipe Table: aws_waf_rule - Query AWS WAF Rule using SQL"
 Description: "Allows users to query AWS Web Application Firewall (WAF) rules."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          rule_id,
+          p ->> 'DataId' as data_id,
+          p ->> 'Negated' as negated,
+          p ->> 'Type' as type
+        from
+          aws_waf_rule,
+          jsonb_array_elements(predicates) as p;

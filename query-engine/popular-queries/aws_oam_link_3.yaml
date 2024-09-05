@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    l.id,
-    l.arn,
-    l.label,
-    l.label_template,
-    r as resource_type
-  from
-    aws_oam_link as l,
-    jsonb_array_elements_text(resource_types) as r
-  where
-    r = 'AWS::Logs::LogGroup';
-  
 Title: "Steampipe Table: aws_oam_link - Query AWS OAM Links using SQL"
 Description: "Allows users to query AWS OAM Links to gather information about the link between an AWS resource and an AWS OAM resource."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          l.id,
+          l.arn,
+          l.label,
+          l.label_template,
+          r as resource_type
+        from
+          aws_oam_link as l,
+          jsonb_array_elements_text(resource_types) as r
+        where
+          r = 'AWS::Logs::LogGroup';

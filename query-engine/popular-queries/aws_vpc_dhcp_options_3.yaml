@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    dhcp_options_id,
-    netbios_node_type
-  from
-    aws_vpc_dhcp_options
-    cross join jsonb_array_elements_text(netbios_node_type) as i
-  where
-    not i.value :: int in (2);
-  
 Title: "Steampipe Table: aws_vpc_dhcp_options - Query AWS VPC DHCP Options using SQL"
 Description: "Allows users to query DHCP Options associated with Virtual Private Cloud (VPC) in AWS."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          dhcp_options_id,
+          netbios_node_type
+        from
+          aws_vpc_dhcp_options
+          cross join jsonb_array_elements_text(netbios_node_type) as i
+        where
+          not i.value :: int in (2);

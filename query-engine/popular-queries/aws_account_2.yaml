@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    organization_id,
-    policy ->> 'Type' as policy_type,
-    policy ->> 'Status' as policy_status
-  from
-    aws_account
-    cross join jsonb_array_elements(organization_available_policy_types) as policy;
-  
 Title: "Steampipe Table: aws_account - Query AWS Accounts using SQL"
-Description: "Allows users to query AWS Account information, including details about the account's status, owner, and associated resources."
+Description: "Allows users to query AWS Account information, including details about the account''s status, owner, and associated resources."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          organization_id,
+          policy ->> 'Type' as policy_type,
+          policy ->> 'Status' as policy_status
+        from
+          aws_account
+          cross join jsonb_array_elements(organization_available_policy_types) as policy;

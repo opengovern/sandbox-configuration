@@ -1,23 +1,24 @@
-connectors:
-- AWS
-query: |-
-  select
-    jsonb_pretty(dimensions) as dimensions,
-    timestamp,
-    minimum
-  from
-    aws_cloudwatch_metric_statistic_data_point
-  where
-    namespace = 'AWS/S3'
-    and metric_name = 'BucketSizeBytes'
-    and timestamp between '2023-03-6T00:00:00Z' and '2023-03-15T00:00:00Z'
-    and period = 86400
-    and dimensions = '[
-      {"Name": "BucketName", "Value": "steampipe-test"},
-      {"Name": "StorageType", "Value": "StandardStorage"}
-      ]'
-  order by
-    timestamp;
-  
 Title: "Steampipe Table: aws_cloudwatch_metric_statistic_data_point - Query AWS CloudWatch Metric Statistics Data Point using SQL"
 Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          jsonb_pretty(dimensions) as dimensions,
+          timestamp,
+          minimum
+        from
+          aws_cloudwatch_metric_statistic_data_point
+        where
+          namespace = 'AWS/S3'
+          and metric_name = 'BucketSizeBytes'
+          and timestamp between '2023-03-6T00:00:00Z' and '2023-03-15T00:00:00Z'
+          and period = 86400
+          and dimensions = '[
+            {"Name": "BucketName", "Value": "steampipe-test"},
+            {"Name": "StorageType", "Value": "StandardStorage"}
+            ]'
+        order by
+          timestamp;

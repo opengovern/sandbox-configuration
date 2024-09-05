@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    t.name as assessment_template_name,
-    r.name as assessment_run_name,
-    r.created_at as assessment_run_created_at,
-    r.state,
-    r.region
-  from
-    aws_inspector_assessment_run as r,
-    aws_inspector_assessment_template as t
-  where
-    r.assessment_template_arn = t.arn;
-  
 Title: "Steampipe Table: aws_inspector_assessment_run - Query AWS Inspector Assessment Runs using SQL"
 Description: "Allows users to query AWS Inspector Assessment Runs to get detailed information about each assessment run, including its state, duration, findings, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          t.name as assessment_template_name,
+          r.name as assessment_run_name,
+          r.created_at as assessment_run_created_at,
+          r.state,
+          r.region
+        from
+          aws_inspector_assessment_run as r,
+          aws_inspector_assessment_template as t
+        where
+          r.assessment_template_arn = t.arn;

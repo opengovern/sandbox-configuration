@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    creation_date
-  from
-    aws_backup_vault
-  where
-    creation_date <= (current_date - interval '90' day)
-  order by
-    creation_date;
-  
 Title: "Steampipe Table: aws_backup_vault - Query AWS Backup Vaults using SQL"
 Description: "Allows users to query AWS Backup Vaults, providing detailed information about each backup vault, including its name, ARN, recovery points, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn,
+          creation_date
+        from
+          aws_backup_vault
+        where
+          creation_date <= (current_date - interval '90' day)
+        order by
+          creation_date;

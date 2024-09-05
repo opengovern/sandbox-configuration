@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    list_name,
-    list_id,
-    arn,
-    create_time
-  from
-    aws_fms_app_list
-  where
-    create_time >= now() - interval '30' day;
-  
 Title: "Steampipe Table: aws_fms_app_list - Query AWS Firewall Manager Applications using SQL"
 Description: "Allows users to query AWS Firewall Manager Applications to obtain comprehensive details about each application, including application ID, protocol, source and destination IP ranges, and source and destination ports."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          list_name,
+          list_id,
+          arn,
+          create_time
+        from
+          aws_fms_app_list
+        where
+          create_time >= now() - interval '30' day;

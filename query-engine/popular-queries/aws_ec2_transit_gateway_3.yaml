@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    association_default_route_table_id,
-    count(transit_gateway_id) as transit_gateway
-  from
-    aws_ec2_transit_gateway
-  group by
-    association_default_route_table_id;
-  
 Title: "Steampipe Table: aws_ec2_transit_gateway - Query AWS EC2 Transit Gateway using SQL"
 Description: "Allows users to query AWS EC2 Transit Gateway resources for detailed information on configuration, status, and associations."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          association_default_route_table_id,
+          count(transit_gateway_id) as transit_gateway
+        from
+          aws_ec2_transit_gateway
+        group by
+          association_default_route_table_id;

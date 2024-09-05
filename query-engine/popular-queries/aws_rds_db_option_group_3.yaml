@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    option ->> 'OptionName' as option_name,
-    option -> 'Permanent' as Permanent,
-    option -> 'Persistent' as Persistent,
-    option -> 'VpcSecurityGroupMemberships' as vpc_security_group_membership,
-    option -> 'Port' as Port
-  from
-    aws_rds_db_option_group
-    cross join jsonb_array_elements(options) as option;
-  
 Title: "Steampipe Table: aws_rds_db_option_group - Query AWS RDS DB Option Groups using SQL"
 Description: "Allows users to query AWS RDS DB Option Groups and provides information about the option groups within Amazon Relational Database Service (RDS)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          option ->> 'OptionName' as option_name,
+          option -> 'Permanent' as Permanent,
+          option -> 'Persistent' as Persistent,
+          option -> 'VpcSecurityGroupMemberships' as vpc_security_group_membership,
+          option -> 'Port' as Port
+        from
+          aws_rds_db_option_group
+          cross join jsonb_array_elements(options) as option;

@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    db_cluster_identifier,
-    count(db_cluster_snapshot_identifier) as snapshot_count
-  from
-    aws_docdb_cluster_snapshot
-  group by
-    db_cluster_identifier;
-  
 Title: "Steampipe Table: aws_docdb_cluster_snapshot - Query Amazon DocumentDB Cluster Snapshot using SQL"
 Description: "Allows users to query Amazon DocumentDB Cluster Snapshots for detailed information about their configuration, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          db_cluster_identifier,
+          count(db_cluster_snapshot_identifier) as snapshot_count
+        from
+          aws_docdb_cluster_snapshot
+        group by
+          db_cluster_identifier;

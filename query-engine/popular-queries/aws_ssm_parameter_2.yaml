@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    tier,
-    p ->> 'PolicyType' as policy_type,
-    p ->> 'PolicyStatus' as Policy_status,
-    p ->> 'PolicyText' as policy_text
-  from
-    aws_ssm_parameter,
-    jsonb_array_elements(policies) as p;
-  
 Title: "Steampipe Table: aws_ssm_parameter - Query AWS Systems Manager Parameter Store using SQL"
 Description: "Allows users to query AWS Systems Manager Parameter Store to retrieve information about parameters, their types, values, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          tier,
+          p ->> 'PolicyType' as policy_type,
+          p ->> 'PolicyStatus' as Policy_status,
+          p ->> 'PolicyText' as policy_text
+        from
+          aws_ssm_parameter,
+          jsonb_array_elements(policies) as p;

@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    policy_name,
-    last_updated_time,
-    jsonb_pretty(policy) as policy,
-    jsonb_pretty(policy_std) as policy_std
-  from
-    aws_cloudwatch_log_resource_policy;
-  
 Title: "Steampipe Table: aws_cloudwatch_log_resource_policy - Query AWS CloudWatch Log Resource Policies using SQL"
 Description: "Allows users to query AWS CloudWatch Log Resource Policies, providing details such as the policy name, policy document, and last updated timestamp."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          policy_name,
+          last_updated_time,
+          jsonb_pretty(policy) as policy,
+          jsonb_pretty(policy_std) as policy_std
+        from
+          aws_cloudwatch_log_resource_policy;

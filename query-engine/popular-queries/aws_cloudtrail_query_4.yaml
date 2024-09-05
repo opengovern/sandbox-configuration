@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    query_id,
-    event_data_store_arn,
-    query_status,
-    creation_time,
-    query_string,
-    execution_time_in_millis
-  from
-    aws_cloudtrail_query
-  where
-    creation_time <= now() - interval '3' day;
-  
 Title: "Steampipe Table: aws_cloudtrail_query - Query AWS CloudTrail using SQL"
 Description: "Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          query_id,
+          event_data_store_arn,
+          query_status,
+          creation_time,
+          query_string,
+          execution_time_in_millis
+        from
+          aws_cloudtrail_query
+        where
+          creation_time <= now() - interval '3' day;

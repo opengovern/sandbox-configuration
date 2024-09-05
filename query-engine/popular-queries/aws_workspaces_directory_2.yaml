@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    directory_id,
-    arn,
-    alias,
-    customer_user_name,
-    directory_type,
-    state
-  from
-    aws_workspaces_directory
-  where
-    certificate_based_auth_properties ->> 'Status' = 'ENABLED';
-  
 Title: "Steampipe Table: aws_workspaces_directory - Query AWS WorkSpaces Directory using SQL"
 Description: "Allows users to query AWS WorkSpaces Directory information to retrieve details such as directory ID, directory type, workspace creation properties, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          directory_id,
+          arn,
+          alias,
+          customer_user_name,
+          directory_type,
+          state
+        from
+          aws_workspaces_directory
+        where
+          certificate_based_auth_properties ->> 'Status' = 'ENABLED';

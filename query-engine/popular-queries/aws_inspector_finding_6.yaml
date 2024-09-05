@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    title,
-    asset_attributes ->> 'AgentId' as agent_id,
-    asset_attributes ->> 'AmiId' as ami_id,
-    asset_attributes ->> 'Hostname' as hostname,
-    asset_attributes ->> 'Tags' as tags
-  from
-    aws_inspector_finding;
-  
 Title: "Steampipe Table: aws_inspector_finding - Query AWS Inspector Findings using SQL"
 Description: "Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          title,
+          asset_attributes ->> 'AgentId' as agent_id,
+          asset_attributes ->> 'AmiId' as ami_id,
+          asset_attributes ->> 'Hostname' as hostname,
+          asset_attributes ->> 'Tags' as tags
+        from
+          aws_inspector_finding;

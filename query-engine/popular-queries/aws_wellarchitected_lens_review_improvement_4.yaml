@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    lens_alias,
-    workload_id,
-    p ->> 'ChoiceId' as choice_id,
-    p ->> 'DisplayText' as display_text,
-    p ->> 'ImprovementPlanUrl' as improvement_plan_url
-  from
-    aws_wellarchitected_lens_review_improvement,
-    jsonb_array_elements(improvement_plans) as p;
-  
 Title: "Steampipe Table: aws_wellarchitected_lens_review_improvement - Query AWS Well-Architected Framework Lens Review using SQL"
 Description: "Allows users to query Lens Review Improvements in the AWS Well-Architected Framework."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          lens_alias,
+          workload_id,
+          p ->> 'ChoiceId' as choice_id,
+          p ->> 'DisplayText' as display_text,
+          p ->> 'ImprovementPlanUrl' as improvement_plan_url
+        from
+          aws_wellarchitected_lens_review_improvement,
+          jsonb_array_elements(improvement_plans) as p;

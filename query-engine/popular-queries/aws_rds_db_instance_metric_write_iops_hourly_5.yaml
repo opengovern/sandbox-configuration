@@ -1,27 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    r.db_instance_identifier,
-    r.timestamp,
-    round(r.average) + round(w.average) as iops_avg,
-    round(r.average) as read_ops_avg,
-    round(w.average) as write_ops_avg,
-    round(r.maximum) + round(w.maximum) as iops_max,
-    round(r.maximum) as read_ops_max,
-    round(w.maximum) as write_ops_max,
-    round(r.minimum) + round(w.minimum) as iops_min,
-    round(r.minimum) as read_ops_min,
-    round(w.minimum) as write_ops_min
-  from 
-    aws_rds_db_instance_metric_read_iops_hourly as r,
-    aws_rds_db_instance_metric_write_iops_hourly as w
-  where 
-    r.db_instance_identifier = w.db_instance_identifier
-    and r.timestamp = w.timestamp
-  order by
-    r.db_instance_identifier,
-    r.timestamp;
-  
 Title: "Steampipe Table: aws_rds_db_instance_metric_write_iops_hourly - Query AWS RDS DBInstance Metrics using SQL"
 Description: "Allows users to query AWS RDS DBInstance write IOPS metrics on an hourly basis."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  r.db_instance_identifier,\n  r.timestamp,\n  round(r.average) + round(w.average) as iops_avg,\n  round(r.average) as read_ops_avg,\n  round(w.average) as write_ops_avg,\n  round(r.maximum) + round(w.maximum) as iops_max,\n  round(r.maximum) as read_ops_max,\n  round(w.maximum) as write_ops_max,\n  round(r.minimum) + round(w.minimum) as iops_min,\n  round(r.minimum) as read_ops_min,\n  round(w.minimum) as write_ops_min\nfrom \n  aws_rds_db_instance_metric_read_iops_hourly as r,\n  aws_rds_db_instance_metric_write_iops_hourly as w\nwhere \n  r.db_instance_identifier = w.db_instance_identifier\n  and r.timestamp = w.timestamp\norder by\n  r.db_instance_identifier,\n  r.timestamp;"

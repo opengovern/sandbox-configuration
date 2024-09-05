@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    artifact_name,
-    artifact_type,
-    metadata,
-    results
-  from
-    trivy_scan_artifact as a,
-    aws_ecr_image as i
-  where
-    artifact_name = image_uri
-    and repository_name = 'hello';
-  
 Title: "Steampipe Table: aws_ecr_image - Query Amazon ECR Images using SQL"
 Description: "Allows users to query Amazon Elastic Container Registry (ECR) Images and retrieve detailed information about each image, including image tags, push timestamps, image sizes, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          artifact_name,
+          artifact_type,
+          metadata,
+          results
+        from
+          trivy_scan_artifact as a,
+          aws_ecr_image as i
+        where
+          artifact_name = image_uri
+          and repository_name = 'hello';

@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    title,
-    arn,
-    created_on,
-    command ->> 'Name' as script_name,
-    command ->> 'ScriptLocation' as script_location,
-    default_arguments ->> '--job-language' as job_language
-  from
-    aws_glue_job;
-  
 Title: "Steampipe Table: aws_glue_job - Query AWS Glue Jobs using SQL"
 Description: "Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          title,
+          arn,
+          created_on,
+          command ->> 'Name' as script_name,
+          command ->> 'ScriptLocation' as script_location,
+          default_arguments ->> '--job-language' as job_language
+        from
+          aws_glue_job;

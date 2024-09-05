@@ -1,18 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    m.membership_id,
-    m.group_id,
-    m.identity_store_id,
-    u.name as user_name 
-  from
-    aws_identitystore_group_membership as m,
-    aws_identitystore_user as u 
-  where
-    m.identity_store_id = 'd-1234567890' 
-    and u.identity_store_id = m.identity_store_id 
-    and u.id = m.member_id;
-  
 Title: "Steampipe Table: aws_identitystore_group_membership - Query AWS Identity Store Group Memberships using SQL"
-Description: "Allows users to query AWS Identity Store Group Memberships, providing information about AWS users' membership status within various identity groups."
+Description: "Allows users to query AWS Identity Store Group Memberships, providing information about AWS users'' membership status within various identity groups."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  m.membership_id,\n  m.group_id,\n  m.identity_store_id,\n  u.name as user_name \nfrom\n  aws_identitystore_group_membership as m,\n  aws_identitystore_user as u \nwhere\n  m.identity_store_id = 'd-1234567890' \n  and u.identity_store_id = m.identity_store_id \n  and u.id = m.member_id;"

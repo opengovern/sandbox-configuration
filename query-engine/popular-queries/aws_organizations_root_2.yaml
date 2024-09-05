@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    name,
-    p ->> 'Status' as policy_status,
-    p ->> 'Type' as policy_type
-  from
-    aws_organizations_root,
-    jsonb_array_elements(policy_types) as p;
-  
 Title: "Steampipe Table: aws_organizations_root - Query AWS Organizations Root using SQL"
 Description: "Allows users to query AWS Organizations Root to retrieve detailed information on AWS Organizations Root account. This table can be utilized to gain insights on organizations root account."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          name,
+          p ->> 'Status' as policy_status,
+          p ->> 'Type' as policy_type
+        from
+          aws_organizations_root,
+          jsonb_array_elements(policy_types) as p;

@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    cache_cluster_id,
-    timestamp,
-    round(sum::numeric,2) as sum_cachehits,
-    round(average::numeric,2) as average_cachehits,
-    sample_count
-  from
-    aws_elasticache_redis_metric_cache_hits_hourly
-  where sum < 10
-  order by
-    cache_cluster_id,
-    timestamp;
-  
 Title: "Steampipe Table: aws_elasticache_redis_metric_cache_hits_hourly - Query Amazon ElastiCache Redis Cache Hits using SQL"
 Description: "Allows users to query Amazon ElastiCache Redis Cache Hits on an hourly basis."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cache_cluster_id,
+          timestamp,
+          round(sum::numeric,2) as sum_cachehits,
+          round(average::numeric,2) as average_cachehits,
+          sample_count
+        from
+          aws_elasticache_redis_metric_cache_hits_hourly
+        where sum < 10
+        order by
+          cache_cluster_id,
+          timestamp;

@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    a.name as accelerator_name,
-    a.status as accelerator_status,
-    l.title as listener_title,
-    l.client_affinity as listener_client_affinity,
-    l.port_ranges as listener_port_ranges,
-    l.protocol as listener_protocol
-  from
-    aws_globalaccelerator_accelerator a,
-    aws_globalaccelerator_listener l
-  where
-    l.accelerator_arn = a.arn;
-  
 Title: "Steampipe Table: aws_globalaccelerator_listener - Query AWS Global Accelerator Listener using SQL"
 Description: "Allows users to query AWS Global Accelerator Listener data, including details about each listener that processes inbound connections based on the port or port ranges that you configure."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          a.name as accelerator_name,
+          a.status as accelerator_status,
+          l.title as listener_title,
+          l.client_affinity as listener_client_affinity,
+          l.port_ranges as listener_port_ranges,
+          l.protocol as listener_protocol
+        from
+          aws_globalaccelerator_accelerator a,
+          aws_globalaccelerator_listener l
+        where
+          l.accelerator_arn = a.arn;

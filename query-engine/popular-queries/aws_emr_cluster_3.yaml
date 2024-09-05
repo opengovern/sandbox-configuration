@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    name,
-    status ->> 'State' as state,
-    status -> 'StateChangeReason' ->> 'Message' as state_change_reason
-  from
-    aws_emr_cluster
-  where
-    status ->> 'State' = 'TERMINATED_WITH_ERRORS';
-  
 Title: "Steampipe Table: aws_emr_cluster - Query AWS Elastic MapReduce Cluster using SQL"
 Description: "Allows users to query AWS Elastic MapReduce Cluster data."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          name,
+          status ->> 'State' as state,
+          status -> 'StateChangeReason' ->> 'Message' as state_change_reason
+        from
+          aws_emr_cluster
+        where
+          status ->> 'State' = 'TERMINATED_WITH_ERRORS';

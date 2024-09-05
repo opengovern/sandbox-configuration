@@ -1,25 +1,26 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    p as principal,
-    a as action,
-    s ->> 'Effect' as effect,
-    s ->> 'Condition' as conditions,
-    ssl
-  from
-    aws_s3_bucket,
-    jsonb_array_elements(policy_std -> 'Statement') as s,
-    jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-    jsonb_array_elements_text(s -> 'Action') as a,
-    jsonb_array_elements_text(
-      s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
-    ) as ssl
-  where
-    p = '*'
-    and s ->> 'Effect' = 'Deny'
-    and ssl :: bool = false;
-  
 Title: "Steampipe Table: aws_s3_bucket - Query AWS S3 Buckets using SQL"
 Description: "Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          p as principal,
+          a as action,
+          s ->> 'Effect' as effect,
+          s ->> 'Condition' as conditions,
+          ssl
+        from
+          aws_s3_bucket,
+          jsonb_array_elements(policy_std -> 'Statement') as s,
+          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+          jsonb_array_elements_text(s -> 'Action') as a,
+          jsonb_array_elements_text(
+            s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+          ) as ssl
+        where
+          p = '*'
+          and s ->> 'Effect' = 'Deny'
+          and ssl :: bool = false;

@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    name,
-    parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' as enable_brotli
-  from
-    aws_cloudfront_cache_policy
-  where
-    parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' <> 'true';
-  
 Title: "Steampipe Table: aws_cloudfront_cache_policy - Query AWS CloudFront Cache Policies using SQL"
 Description: "Allows users to query AWS CloudFront Cache Policies for details about their configuration, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          name,
+          parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' as enable_brotli
+        from
+          aws_cloudfront_cache_policy
+        where
+          parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' <> 'true';

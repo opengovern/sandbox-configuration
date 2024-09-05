@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    s.name,
-    s.enable_termination_protection,
-    s.disable_rollback,
-    r.logical_resource_id,
-    r.resource_status
-  from
-    aws_cloudformation_stack_resource as r,
-    aws_cloudformation_stack as s
-  where
-    r.stack_id = s.id
-    and not enable_termination_protection;
-  
 Title: "Steampipe Table: aws_cloudformation_stack_resource - Query AWS CloudFormation Stack Resources using SQL"
 Description: "Allows users to query AWS CloudFormation Stack Resources, providing details about each resource within the stack, including its status, type, and associated metadata. This table is useful for managing and analyzing AWS CloudFormation resources."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          s.name,
+          s.enable_termination_protection,
+          s.disable_rollback,
+          r.logical_resource_id,
+          r.resource_status
+        from
+          aws_cloudformation_stack_resource as r,
+          aws_cloudformation_stack as s
+        where
+          r.stack_id = s.id
+          and not enable_termination_protection;

@@ -1,21 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    period_start,
-    dimension_1 as account_id,
-    dimension_2 as record_type,
-    net_unblended_cost_amount::numeric::money
-  from
-    aws_cost_usage
-  where
-    granularity = 'MONTHLY'
-    and dimension_type_1 = 'LINKED_ACCOUNT'
-    and dimension_type_2 = 'RECORD_TYPE'
-    and dimension_2 in ('DiscountedUsage', 'Credit')
-  order by
-    dimension_1,
-    period_start;
-  
 Title: "Steampipe Table: aws_cost_usage - Query AWS Cost Explorer Service Cost and Usage using SQL"
 Description: "Allows users to query Cost and Usage data from AWS Cost Explorer Service to monitor, track, and manage AWS costs and usage over time."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          period_start,
+          dimension_1 as account_id,
+          dimension_2 as record_type,
+          net_unblended_cost_amount::numeric::money
+        from
+          aws_cost_usage
+        where
+          granularity = 'MONTHLY'
+          and dimension_type_1 = 'LINKED_ACCOUNT'
+          and dimension_type_2 = 'RECORD_TYPE'
+          and dimension_2 in ('DiscountedUsage', 'Credit')
+        order by
+          dimension_1,
+          period_start;

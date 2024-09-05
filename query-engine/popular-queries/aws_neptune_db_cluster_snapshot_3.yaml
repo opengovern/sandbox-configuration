@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    db_cluster_identifier,
-    count(db_cluster_snapshot_identifier) snapshot_count
-  from
-    aws_neptune_db_cluster_snapshot
-  group by
-    db_cluster_identifier;
-  
 Title: "Steampipe Table: aws_neptune_db_cluster_snapshot - Query AWS Neptune DB Cluster Snapshots using SQL"
 Description: "Allows users to query AWS Neptune DB Cluster Snapshots for comprehensive details about their configurations, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          db_cluster_identifier,
+          count(db_cluster_snapshot_identifier) snapshot_count
+        from
+          aws_neptune_db_cluster_snapshot
+        group by
+          db_cluster_identifier;

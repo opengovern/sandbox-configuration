@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    name,
-    description,
-    encryption_configuration
-  from
-    aws_networkfirewall_firewall
-  where
-    encryption_configuration ->> 'Type' = `AWS_OWNED_KMS_KEY';
-  
 Title: "Steampipe Table: aws_networkfirewall_firewall - Query AWS Network Firewall using SQL"
-Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall's properties and settings."
+Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall''s properties and settings."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          name,
+          description,
+          encryption_configuration
+        from
+          aws_networkfirewall_firewall
+        where
+          encryption_configuration ->> 'Type' = `AWS_OWNED_KMS_KEY';

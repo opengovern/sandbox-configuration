@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    certificate ->> 'CertificateArn' as certificate_arn,
-    certificate ->> 'CertificateType' as certificate_type,
-    certificate ->> 'ValidFrom' as valid_from,
-    certificate ->> 'ValidTill' as valid_till
-  from
-    aws_rds_db_instance;
-  
 Title: "Steampipe Table: aws_rds_db_instance - Query AWS RDS DB Instances using SQL"
 Description: "Allows users to query AWS RDS DB Instances for detailed information about the configuration, status, and other metadata associated with each database instance."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          certificate ->> 'CertificateArn' as certificate_arn,
+          certificate ->> 'CertificateType' as certificate_type,
+          certificate ->> 'ValidFrom' as valid_from,
+          certificate ->> 'ValidTill' as valid_till
+        from
+          aws_rds_db_instance;

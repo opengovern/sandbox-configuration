@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    p.parameter_group_name,
-    c.cluster_name,
-    c.node_type,
-    c.status
-  from
-    aws_dax_parameter_group as p,
-    aws_dax_cluster as c
-  where
-    c.parameter_group ->> 'ParameterGroupName' = p.parameter_group_name;
-  
 Title: "Steampipe Table: aws_dax_parameter_group - Query AWS DAX Parameter Groups using SQL"
 Description: "Allows users to query AWS DynamoDB Accelerator (DAX) Parameter Groups, providing details such as parameter group name, ARN, description, and parameter settings."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          p.parameter_group_name,
+          c.cluster_name,
+          c.node_type,
+          c.status
+        from
+          aws_dax_parameter_group as p,
+          aws_dax_cluster as c
+        where
+          c.parameter_group ->> 'ParameterGroupName' = p.parameter_group_name;

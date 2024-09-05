@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    workgroup_arn,
-    endpoint ->> 'Address' as endpoint_address,
-    endpoint ->> 'Port' as endpoint_port,
-    endpoint -> 'VpcEndpoints' as endpoint_vpc_details
-  from
-    aws_redshiftserverless_workgroup;
-  
 Title: "Steampipe Table: aws_redshiftserverless_workgroup - Query AWS Redshift Serverless Workgroup using SQL"
 Description: "Allows users to query AWS Redshift Serverless Workgroup information, including workgroup details, query execution settings, and enforce workgroup configuration."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          workgroup_arn,
+          endpoint ->> 'Address' as endpoint_address,
+          endpoint ->> 'Port' as endpoint_port,
+          endpoint -> 'VpcEndpoints' as endpoint_vpc_details
+        from
+          aws_redshiftserverless_workgroup;

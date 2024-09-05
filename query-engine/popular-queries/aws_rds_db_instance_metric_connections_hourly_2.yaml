@@ -1,20 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    db_instance_identifier,
-    timestamp,
-    minimum,
-    maximum,
-    average,
-    sample_count
-  from
-    aws_rds_db_instance_metric_connections_hourly
-  where 
-    average > 100
-  order by
-    db_instance_identifier,
-    timestamp;
-  
 Title: "Steampipe Table: aws_rds_db_instance_metric_connections_hourly - Query AWS RDS DB Instance Metrics using SQL"
 Description: "Allows users to query AWS RDS DB Instance Metrics on an hourly basis, specifically the connection metrics. It provides data about the number of database connections to each DB instance in your Amazon RDS environment."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  db_instance_identifier,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n  sample_count\nfrom\n  aws_rds_db_instance_metric_connections_hourly\nwhere \n  average > 100\norder by\n  db_instance_identifier,\n  timestamp;"

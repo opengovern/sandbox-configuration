@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    function_metadata ->> 'Stage' as stage,
-    status,
-    function_metadata ->> 'CreatedTime' as created_time,
-    function_metadata ->> 'LastModifiedTime' as last_modified_time
-   from
-    aws_cloudfront_function
-  order by
-    function_metadata ->> 'CreatedTime' DESC;
-  
 Title: "Steampipe Table: aws_cloudfront_function - Query AWS CloudFront Functions using SQL"
 Description: "Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn,
+          function_metadata ->> 'Stage' as stage,
+          status,
+          function_metadata ->> 'CreatedTime' as created_time,
+          function_metadata ->> 'LastModifiedTime' as last_modified_time
+         from
+          aws_cloudfront_function
+        order by
+          function_metadata ->> 'CreatedTime' DESC;

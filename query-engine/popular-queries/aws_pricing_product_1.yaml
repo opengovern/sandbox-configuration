@@ -1,34 +1,35 @@
-connectors:
-- AWS
-query: |-
-  select
-    term,
-    purchase_option,
-    lease_contract_length,
-    unit,
-    price_per_unit::numeric::money,
-    currency,
-    begin_range,
-    end_range,
-    effective_date,
-    description,
-    attributes ->> 'instanceType',
-    attributes ->> 'vcpu',
-    attributes ->> 'memory',
-    attributes ->> 'operatingSystem',
-    attributes ->> 'preInstalledSw'
-  from
-    aws_pricing_product
-  where
-    service_code = 'AmazonEC2'
-    and filters = '{
-    "regionCode": "eu-west-3",
-    "locationType": "AWS Region",
-    "instanceType": "c5.2xlarge",
-    "operatingSystem": "Linux",
-    "tenancy": "Shared",
-    "preInstalledSw": "NA",
-    "capacityStatus": "Used" }'::jsonb;
-  
 Title: "Steampipe Table: aws_pricing_product - Query AWS Pricing Product using SQL"
-Description: "Allows users to query AWS Pricing Product details such as the product's description, pricing details, and associated attributes."
+Description: "Allows users to query AWS Pricing Product details such as the product''s description, pricing details, and associated attributes."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          term,
+          purchase_option,
+          lease_contract_length,
+          unit,
+          price_per_unit::numeric::money,
+          currency,
+          begin_range,
+          end_range,
+          effective_date,
+          description,
+          attributes ->> 'instanceType',
+          attributes ->> 'vcpu',
+          attributes ->> 'memory',
+          attributes ->> 'operatingSystem',
+          attributes ->> 'preInstalledSw'
+        from
+          aws_pricing_product
+        where
+          service_code = 'AmazonEC2'
+          and filters = '{
+          "regionCode": "eu-west-3",
+          "locationType": "AWS Region",
+          "instanceType": "c5.2xlarge",
+          "operatingSystem": "Linux",
+          "tenancy": "Shared",
+          "preInstalledSw": "NA",
+          "capacityStatus": "Used" }'::jsonb;

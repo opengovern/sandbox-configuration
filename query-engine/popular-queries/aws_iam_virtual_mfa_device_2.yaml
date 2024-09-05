@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    u.user_id,
-    mfa.serial_number,
-    path,
-    create_date,
-    password_last_used
-  from
-    aws_iam_user u
-    inner join aws_iam_virtual_mfa_device mfa on u.name = mfa.user_name;
-  
 Title: "Steampipe Table: aws_iam_virtual_mfa_device - Query AWS Identity and Access Management (IAM) Virtual MFA Devices using SQL"
 Description: "Allows users to query Virtual MFA Devices in AWS Identity and Access Management (IAM)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          u.user_id,
+          mfa.serial_number,
+          path,
+          create_date,
+          password_last_used
+        from
+          aws_iam_user u
+          inner join aws_iam_virtual_mfa_device mfa on u.name = mfa.user_name;

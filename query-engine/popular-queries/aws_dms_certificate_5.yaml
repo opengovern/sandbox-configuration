@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    certificate_identifier,
-    arn,
-    certificate_owner,
-    (valid_to_date - current_date) as days_left,
-    region
-  from
-    aws_dms_certificate;
-  
 Title: "Steampipe Table: aws_dms_certificate - Query AWS DMS Certificates using SQL"
 Description: "Allows users to query AWS DMS (Database Migration Service) Certificates. This table provides information about SSL/TLS certificates used in AWS DMS for encrypting data during database migration tasks. Certificates play a crucial role in ensuring the security and integrity of data transferred between source and target databases."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          certificate_identifier,
+          arn,
+          certificate_owner,
+          (valid_to_date - current_date) as days_left,
+          region
+        from
+          aws_dms_certificate;

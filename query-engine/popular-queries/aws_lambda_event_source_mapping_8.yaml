@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    m.arn,
-    m.function_arn,
-    f.runtime,
-    f.handler,
-    f.architectures
-  from
-    aws_lambda_event_source_mapping as m,
-    aws_lambda_function as f
-  where
-    f.name = m.function_name;
-  
 Title: "Steampipe Table: aws_lambda_event_source_mapping - Query AWS Lambda Event Source Mappings using SQL"
 Description: "Allows users to query AWS Lambda Event Source Mappings, providing a detailed view of each mapping configuration."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          m.arn,
+          m.function_arn,
+          f.runtime,
+          f.handler,
+          f.architectures
+        from
+          aws_lambda_event_source_mapping as m,
+          aws_lambda_function as f
+        where
+          f.name = m.function_name;

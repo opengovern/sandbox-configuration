@@ -1,20 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    f.arn,
-    f.name,
-    f.vpc_id,
-    s ->> 'SubnetId' as subnet_id,
-    cidr_block,
-    availability_zone,
-    default_for_az
-  from
-    aws_networkfirewall_firewall f,
-    jsonb_array_elements(subnet_mappings) s,
-    aws_vpc_subnet vs
-  where
-    vs.subnet_id = s ->> 'SubnetId';
-  
 Title: "Steampipe Table: aws_networkfirewall_firewall - Query AWS Network Firewall using SQL"
-Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall's properties and settings."
+Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall''s properties and settings."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          f.arn,
+          f.name,
+          f.vpc_id,
+          s ->> 'SubnetId' as subnet_id,
+          cidr_block,
+          availability_zone,
+          default_for_az
+        from
+          aws_networkfirewall_firewall f,
+          jsonb_array_elements(subnet_mappings) s,
+          aws_vpc_subnet vs
+        where
+          vs.subnet_id = s ->> 'SubnetId';

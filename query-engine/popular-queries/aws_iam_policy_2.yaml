@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn
-  from
-    aws_iam_policy
-  where
-    not is_aws_managed
-    and path = '/turbot/';
-  
 Title: "Steampipe Table: aws_iam_policy - Query AWS IAM Policy using SQL"
 Description: "Allows users to query AWS IAM Policies, providing detailed information about each policy, including permissions, attachment, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          arn
+        from
+          aws_iam_policy
+        where
+          not is_aws_managed
+          and path = '/turbot/';

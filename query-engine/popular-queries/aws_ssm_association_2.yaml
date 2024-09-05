@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    association_id,
-    overview ->> 'AssociationStatusAggregatedCount' as association_status_aggregated_count,
-    overview ->> 'DetailedStatus' as detailed_status,
-    overview ->> 'Status' as status
-  from
-    aws_ssm_association
-  where
-    overview ->> 'Status' = 'Failed';
-  
 Title: "Steampipe Table: aws_ssm_association - Query AWS SSM Association using SQL"
 Description: "Allows users to query AWS SSM Associations for detailed information about the AWS Systems Manager associations, including their status, targets, and parameters."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          association_id,
+          overview ->> 'AssociationStatusAggregatedCount' as association_status_aggregated_count,
+          overview ->> 'DetailedStatus' as detailed_status,
+          overview ->> 'Status' as status
+        from
+          aws_ssm_association
+        where
+          overview ->> 'Status' = 'Failed';

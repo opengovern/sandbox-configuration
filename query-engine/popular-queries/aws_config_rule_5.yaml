@@ -1,12 +1,13 @@
-connectors:
-- AWS
-query: |-
-  select
-    name as config_rule_name,
-    compliance_status -> 'Compliance' -> 'ComplianceType' as compliance_type
-  from
-    aws_config_rule,
-    jsonb_array_elements(compliance_by_config_rule) as compliance_status;
-  
 Title: "Steampipe Table: aws_config_rule - Query AWS Config Rules using SQL"
 Description: "Allows users to query Config Rules in AWS Config service. It provides information about each Config Rule, including its name, ARN, description, scope, and compliance status."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name as config_rule_name,
+          compliance_status -> 'Compliance' -> 'ComplianceType' as compliance_type
+        from
+          aws_config_rule,
+          jsonb_array_elements(compliance_by_config_rule) as compliance_status;

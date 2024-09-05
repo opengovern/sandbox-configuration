@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    instance_id,
-    instance_state,
-    launch_time,
-    maintenance_options ->> 'AutoRecovery' as auto_recovery
-  from
-    aws_ec2_instance;
-  
 Title: "Steampipe Table: aws_ec2_instance - Query AWS EC2 Instances using SQL"
 Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          instance_id,
+          instance_state,
+          launch_time,
+          maintenance_options ->> 'AutoRecovery' as auto_recovery
+        from
+          aws_ec2_instance;

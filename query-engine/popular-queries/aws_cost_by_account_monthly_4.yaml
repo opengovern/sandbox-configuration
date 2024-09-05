@@ -1,26 +1,7 @@
-connectors:
-- AWS
-query: |-
-  with cost_data as (
-    select
-      linked_account_id,
-      period_start,
-      unblended_cost_amount as this_month,
-      lag(unblended_cost_amount,-1) over(partition by linked_account_id order by period_start desc) as previous_month
-    from 
-      aws_cost_by_account_monthly
-  )
-  select
-      linked_account_id,
-      period_start,
-      this_month::numeric::money,
-      previous_month::numeric::money,
-      round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2) as percent_change
-  from
-    cost_data
-  order by
-    linked_account_id,
-    period_start;
-  
 Title: "Steampipe Table: aws_cost_by_account_monthly - Query AWS Cost Explorer Service using SQL"
 Description: "Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "with cost_data as (\n  select\n    linked_account_id,\n    period_start,\n    unblended_cost_amount as this_month,\n    lag(unblended_cost_amount,-1) over(partition by linked_account_id order by period_start desc) as previous_month\n  from \n    aws_cost_by_account_monthly\n)\nselect\n    linked_account_id,\n    period_start,\n    this_month::numeric::money,\n    previous_month::numeric::money,\n    round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2) as percent_change\nfrom\n  cost_data\norder by\n  linked_account_id,\n  period_start;"

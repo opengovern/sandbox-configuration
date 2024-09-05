@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    create_date,
-    valid_until,
-    region,
-    account_id
-  from
-    aws_iam_saml_provider
-  where
-    valid_until <= (current_date - interval '30' day)
-  order by
-    valid_until;
-  
 Title: "Steampipe Table: aws_iam_saml_provider - Query AWS IAM SAML Providers using SQL"
 Description: "Allows users to query AWS IAM SAML Providers and retrieve detailed information about each SAML provider within AWS Identity and Access Management (IAM)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          create_date,
+          valid_until,
+          region,
+          account_id
+        from
+          aws_iam_saml_provider
+        where
+          valid_until <= (current_date - interval '30' day)
+        order by
+          valid_until;

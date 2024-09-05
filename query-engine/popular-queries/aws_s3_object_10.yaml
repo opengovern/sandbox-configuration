@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    key,
-    bucket_name,
-    jsonb_pretty(tags) as tags
-  from
-    aws_s3_object
-  where
-    bucket_name = 'steampipe-test'
-    and tags ->> 'application' is not null;
-  
 Title: "Steampipe Table: aws_s3_object - Query AWS S3 Object using SQL"
 Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          key,
+          bucket_name,
+          jsonb_pretty(tags) as tags
+        from
+          aws_s3_object
+        where
+          bucket_name = 'steampipe-test'
+          and tags ->> 'application' is not null;

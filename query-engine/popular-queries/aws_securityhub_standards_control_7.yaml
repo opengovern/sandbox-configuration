@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    control_id,
-    r as related_requirements
-  from
-    aws_securityhub_standards_control,
-    jsonb_array_elements_text(related_requirements) as r
-  where
-    control_id like '%S3%'
-  group by
-    control_id, r
-  order by
-    control_id, r;
-  
 Title: "Steampipe Table: aws_securityhub_standards_control - Query AWS Security Hub Standards Control using SQL"
 Description: "Allows users to query AWS Security Hub Standards Control data including details about each security standard control available in an AWS account."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          control_id,
+          r as related_requirements
+        from
+          aws_securityhub_standards_control,
+          jsonb_array_elements_text(related_requirements) as r
+        where
+          control_id like '%S3%'
+        group by
+          control_id, r
+        order by
+          control_id, r;

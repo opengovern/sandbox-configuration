@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    repository_name,
-    encryption_configuration ->> 'EncryptionType' as encryption_type,
-    encryption_configuration ->> 'KmsKey' as kms_key
-  from
-    aws_ecr_repository
-  where
-    encryption_configuration ->> 'EncryptionType' = 'AES256';
-  
 Title: "Steampipe Table: aws_ecr_repository - Query AWS ECR Repositories using SQL"
 Description: "Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          repository_name,
+          encryption_configuration ->> 'EncryptionType' as encryption_type,
+          encryption_configuration ->> 'KmsKey' as kms_key
+        from
+          aws_ecr_repository
+        where
+          encryption_configuration ->> 'EncryptionType' = 'AES256';

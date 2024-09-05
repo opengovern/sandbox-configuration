@@ -1,21 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    c.resource_id,
-    c.resource_type,
-    c.lambda_function_name,
-    f.arn as lambda_function_arn,
-    c.lambda_function_runtime,
-    f.code_sha_256,
-    f.code_size,
-    f.kms_key_arn,
-    f.package_type
-  from
-    aws_inspector2_coverage as c,
-    aws_lambda_function as f
-  where
-    f.name = c.lambda_function_name;
-  
 Title: "Steampipe Table: aws_inspector2_coverage - Query AWS Inspector Coverage using SQL"
 Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          c.resource_id,
+          c.resource_type,
+          c.lambda_function_name,
+          f.arn as lambda_function_arn,
+          c.lambda_function_runtime,
+          f.code_sha_256,
+          f.code_size,
+          f.kms_key_arn,
+          f.package_type
+        from
+          aws_inspector2_coverage as c,
+          aws_lambda_function as f
+        where
+          f.name = c.lambda_function_name;

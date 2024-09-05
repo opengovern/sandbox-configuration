@@ -1,18 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    i.name,
-    i.id,
-    traffic_policy_id,
-    p.name as traffic_policy_name,
-    traffic_policy_type,
-    traffic_policy_version,
-    p.document
-  from 
-    aws_route53_traffic_policy_instance i
-    join aws_route53_traffic_policy p on i.traffic_policy_id = p.id 
-    and i.traffic_policy_version = p.version;
-  
 Title: "Steampipe Table: aws_route53_traffic_policy_instance - Query AWS Route 53 Traffic Policy Instances using SQL"
 Description: "Allows users to query AWS Route 53 Traffic Policy Instances, providing detailed information about each instance such as the ID, version, DNS name, and more. This table is useful for gaining insights into the configuration and status of traffic policy instances."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  i.name,\n  i.id,\n  traffic_policy_id,\n  p.name as traffic_policy_name,\n  traffic_policy_type,\n  traffic_policy_version,\n  p.document\nfrom \n  aws_route53_traffic_policy_instance i\n  join aws_route53_traffic_policy p on i.traffic_policy_id = p.id \n  and i.traffic_policy_version = p.version;"

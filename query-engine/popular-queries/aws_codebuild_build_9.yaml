@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    p ->> 'EndTime' as end_time,
-    p ->> 'Contexts' as contexts,
-    p ->> 'PhaseType' as phase_type,
-    p ->> 'StartTime' as start_time,
-    p ->> 'DurationInSeconds' as duration_in_seconds,
-    p ->> 'PhaseStatus' as phase_status
-  from
-    aws_codebuild_build,
-    jsonb_array_elements(phases) as p;
-  
 Title: "Steampipe Table: aws_codebuild_build - Query AWS CodeBuild Build using SQL"
-Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects' builds."
+Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          p ->> 'EndTime' as end_time,
+          p ->> 'Contexts' as contexts,
+          p ->> 'PhaseType' as phase_type,
+          p ->> 'StartTime' as start_time,
+          p ->> 'DurationInSeconds' as duration_in_seconds,
+          p ->> 'PhaseStatus' as phase_status
+        from
+          aws_codebuild_build,
+          jsonb_array_elements(phases) as p;

@@ -1,12 +1,13 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    hardware ->> 'CpuCount' as "CPU Count",
-    hardware ->> 'RamSizeInGb' as "RAM Size (in GB)"
-  from
-    aws_lightsail_instance;
-  
 Title: "Steampipe Table: aws_lightsail_instance - Query AWS Lightsail Instances using SQL"
 Description: "Allows users to query AWS Lightsail Instances and retrieve detailed information about each instance such as instance state, type, associated bundles, and more."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          hardware ->> 'CpuCount' as "CPU Count",
+          hardware ->> 'RamSizeInGb' as "RAM Size (in GB)"
+        from
+          aws_lightsail_instance;

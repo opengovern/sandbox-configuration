@@ -1,20 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    principal_arn,
-    service_name,
-    last_authenticated,
-    age(last_authenticated::date),
-    last_authenticated_entity,
-    last_authenticated_region
-  from 
-    aws_iam_access_advisor
-  where
-    principal_arn = 'arn:aws:iam::aws:policy/AdministratorAccess'
-    and last_authenticated is not null
-  order by 
-    age asc;
-  
 Title: "Steampipe Table: aws_iam_access_advisor - Query AWS IAM Access Advisor using SQL"
 Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  principal_arn,\n  service_name,\n  last_authenticated,\n  age(last_authenticated::date),\n  last_authenticated_entity,\n  last_authenticated_region\nfrom \n  aws_iam_access_advisor\nwhere\n  principal_arn = 'arn:aws:iam::aws:policy/AdministratorAccess'\n  and last_authenticated is not null\norder by \n  age asc;"

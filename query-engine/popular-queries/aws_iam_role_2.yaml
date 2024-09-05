@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    description,
-    split_part(policy, '/', 3) as attached_policy
-  from
-    aws_iam_role
-    cross join jsonb_array_elements_text(attached_policy_arns) as policy;
-  
 Title: "Steampipe Table: aws_iam_role - Query AWS Identity and Access Management (IAM) Roles using SQL"
 Description: "Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          description,
+          split_part(policy, '/', 3) as attached_policy
+        from
+          aws_iam_role
+          cross join jsonb_array_elements_text(attached_policy_arns) as policy;

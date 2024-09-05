@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    cluster_name,
-    subnet_group,
-    sg ->> 'SecurityGroupIdentifier' as sg_id,
-    n ->> 'AvailabilityZone' as az_name,
-    cluster_discovery_endpoint ->> 'Address' as cluster_discovery_endpoint_address,
-    cluster_discovery_endpoint ->> 'Port' as cluster_discovery_endpoint_port
-  from
-    aws_dax_cluster,
-    jsonb_array_elements(security_groups) as sg,
-    jsonb_array_elements(nodes) as n;
-  
 Title: "Steampipe Table: aws_dax_cluster - Query AWS DAX Clusters using SQL"
 Description: "Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          cluster_name,
+          subnet_group,
+          sg ->> 'SecurityGroupIdentifier' as sg_id,
+          n ->> 'AvailabilityZone' as az_name,
+          cluster_discovery_endpoint ->> 'Address' as cluster_discovery_endpoint_address,
+          cluster_discovery_endpoint ->> 'Port' as cluster_discovery_endpoint_port
+        from
+          aws_dax_cluster,
+          jsonb_array_elements(security_groups) as sg,
+          jsonb_array_elements(nodes) as n;

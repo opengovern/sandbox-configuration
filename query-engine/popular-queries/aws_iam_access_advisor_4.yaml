@@ -1,27 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    adv.service_name,
-    action as action_granted,
-    attached as granted_in,
-    adv.service_namespace
-  from 
-    aws_iam_access_advisor as adv,
-    aws_iam_role as r,
-    jsonb_array_elements_text(r.attached_policy_arns) as attached,
-    aws_iam_policy as p,  
-    jsonb_array_elements(p.policy_std -> 'Statement') as stmt,
-    jsonb_array_elements_text(stmt -> 'Action') as action
-  where
-    principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'
-    and r.arn = adv.principal_arn
-    and last_authenticated is null
-    and attached  = p.arn
-    and stmt ->> 'Effect' = 'Allow'
-    and action like adv.service_namespace || ':%'
-  order by 
-    adv.service_name;
-  
 Title: "Steampipe Table: aws_iam_access_advisor - Query AWS IAM Access Advisor using SQL"
 Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  adv.service_name,\n  action as action_granted,\n  attached as granted_in,\n  adv.service_namespace\nfrom \n  aws_iam_access_advisor as adv,\n  aws_iam_role as r,\n  jsonb_array_elements_text(r.attached_policy_arns) as attached,\n  aws_iam_policy as p,  \n  jsonb_array_elements(p.policy_std -> 'Statement') as stmt,\n  jsonb_array_elements_text(stmt -> 'Action') as action\nwhere\n  principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'\n  and r.arn = adv.principal_arn\n  and last_authenticated is null\n  and attached  = p.arn\n  and stmt ->> 'Effect' = 'Allow'\n  and action like adv.service_namespace || ':%'\norder by \n  adv.service_name;"

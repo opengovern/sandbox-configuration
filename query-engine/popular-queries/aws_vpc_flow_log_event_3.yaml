@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    distinct(interface_id)
-  from
-    aws_vpc_flow_log_event
-  where
-    log_group_name = 'vpc-log-group-name'
-    and timestamp >= now() - interval '1 hour';
-  
 Title: "Steampipe Table: aws_vpc_flow_log_event - Query AWS VPC Flow Logs using SQL"
 Description: "Allows users to query AWS VPC Flow Logs and retrieve information about the IP traffic going to and from network interfaces in their VPC."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          distinct(interface_id)
+        from
+          aws_vpc_flow_log_event
+        where
+          log_group_name = 'vpc-log-group-name'
+          and timestamp >= now() - interval '1 hour';

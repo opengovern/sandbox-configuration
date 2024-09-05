@@ -1,23 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select 
-    name,
-    policy.id,
-    policy.version, 
-    comment 
-  from 
-    aws_route53_traffic_policy policy,
-    (select
-      id,
-      max(version) as version
-    from 
-      aws_route53_traffic_policy 
-    group by 
-      id) as latest
-  where 
-    latest.id = policy.id 
-    and latest.version = policy.version;
-  
 Title: "Steampipe Table: aws_route53_traffic_policy - Query AWS Route 53 Traffic Policies using SQL"
-Description: "Allows users to query AWS Route 53 Traffic Policies to retrieve information about each policy's versions, including the policy identifier, name, type, and document. This table also provides data related to the policy's associated metadata."
+Description: "Allows users to query AWS Route 53 Traffic Policies to retrieve information about each policy''s versions, including the policy identifier, name, type, and document. This table also provides data related to the policy''s associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select \n  name,\n  policy.id,\n  policy.version, \n  comment \nfrom \n  aws_route53_traffic_policy policy,\n  (select\n    id,\n    max(version) as version\n  from \n    aws_route53_traffic_policy \n  group by \n    id) as latest\nwhere \n  latest.id = policy.id \n  and latest.version = policy.version;"

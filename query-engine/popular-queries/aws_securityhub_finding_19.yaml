@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    distinct r ->> 'Id' as resource_arn,
-    r ->> 'Type' as resource_type,
-    f.title,
-    f.compliance_status,
-    f.severity ->> 'Original' as severity_original
-  from
-    aws_securityhub_finding as f,
-    jsonb_array_elements(resources) as r
-  where
-    r -> 'Tags' ->> 'Environment' = 'PROD';
-  
 Title: "Steampipe Table: aws_securityhub_finding - Query AWS Security Hub Findings using SQL"
 Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          distinct r ->> 'Id' as resource_arn,
+          r ->> 'Type' as resource_type,
+          f.title,
+          f.compliance_status,
+          f.severity ->> 'Original' as severity_original
+        from
+          aws_securityhub_finding as f,
+          jsonb_array_elements(resources) as r
+        where
+          r -> 'Tags' ->> 'Environment' = 'PROD';

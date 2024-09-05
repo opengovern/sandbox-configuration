@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    public_ipv4_pool,
-    count(public_ip) as elastic_ips
-  from
-    aws_vpc_eip
-  group by
-    public_ipv4_pool;
-  
 Title: "Steampipe Table: aws_vpc_eip - Query AWS VPC Elastic IP Addresses using SQL"
 Description: "Allows users to query AWS VPC Elastic IP Addresses"
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          public_ipv4_pool,
+          count(public_ip) as elastic_ips
+        from
+          aws_vpc_eip
+        group by
+          public_ipv4_pool;

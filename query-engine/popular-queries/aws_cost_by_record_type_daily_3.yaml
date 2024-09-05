@@ -1,17 +1,7 @@
-connectors:
-- AWS
-query: |-
-  with ranked_costs as (
-    select
-      linked_account_id,
-      record_type,
-      period_start,
-      unblended_cost_amount::numeric::money,
-      rank() over(partition by linked_account_id, record_type order by unblended_cost_amount desc)
-    from 
-      aws_cost_by_record_type_daily
-  )
-  select * from ranked_costs where rank <= 10;
-  
 Title: "Steampipe Table: aws_cost_by_record_type_daily - Query AWS Cost and Usage Report using SQL"
 Description: "Allows users to query daily AWS cost data by record type. This table provides information about AWS costs incurred per record type on a daily basis."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "with ranked_costs as (\n  select\n    linked_account_id,\n    record_type,\n    period_start,\n    unblended_cost_amount::numeric::money,\n    rank() over(partition by linked_account_id, record_type order by unblended_cost_amount desc)\n  from \n    aws_cost_by_record_type_daily\n)\nselect * from ranked_costs where rank <= 10;"

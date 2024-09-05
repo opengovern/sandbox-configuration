@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    a.name,
-    a.arn,
-    a.assessment_report_destination,
-    a.assessment_report_destination_type,
-    b.bucket_policy_is_public as is_public_bucket
-  from
-    aws_auditmanager_assessment as a
-  join aws_s3_bucket as b on a.assessment_report_destination = 's3://' || b.Name and b.bucket_policy_is_public;
-  
 Title: "Steampipe Table: aws_auditmanager_assessment - Query AWS Audit Manager Assessments using SQL"
 Description: "Allows users to query AWS Audit Manager Assessments to retrieve detailed information about each assessment."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          a.name,
+          a.arn,
+          a.assessment_report_destination,
+          a.assessment_report_destination_type,
+          b.bucket_policy_is_public as is_public_bucket
+        from
+          aws_auditmanager_assessment as a
+        join aws_s3_bucket as b on a.assessment_report_destination = 's3://' || b.Name and b.bucket_policy_is_public;

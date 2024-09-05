@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    verified_access_trust_provider_id,
-    creation_time,
-    last_updated_time,
-    policy_reference_name,
-    trust_provider_type
-  from
-    aws_vpc_verified_access_trust_provider
-  where
-    creation_time >= now() - interval '90' day;
-  
 Title: "Steampipe Table: aws_vpc_verified_access_trust_provider - Query AWS VPC Verified Access Trust Providers using SQL"
 Description: "Allows users to query AWS VPC Verified Access Trust Providers, providing information about the trust providers for VPC endpoints in AWS. This table can be used to gain insights into the trust relationships between VPC endpoints and the services they access."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          verified_access_trust_provider_id,
+          creation_time,
+          last_updated_time,
+          policy_reference_name,
+          trust_provider_type
+        from
+          aws_vpc_verified_access_trust_provider
+        where
+          creation_time >= now() - interval '90' day;

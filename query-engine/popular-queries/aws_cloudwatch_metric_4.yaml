@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    metric_name,
-    namespace,
-    dimensions
-  from
-    aws_cloudwatch_metric
-  where
-    dimensions_filter = '[
-      {"Name": "ClusterIdentifier", "Value": "my-cluster-1"}
-    ]'::jsonb;
-  
 Title: "Steampipe Table: aws_cloudwatch_metric - Query AWS CloudWatch Metrics using SQL"
 Description: "Allows users to query AWS CloudWatch Metrics to gather information about the performance of their AWS resources and applications."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          metric_name,
+          namespace,
+          dimensions
+        from
+          aws_cloudwatch_metric
+        where
+          dimensions_filter = '[
+            {"Name": "ClusterIdentifier", "Value": "my-cluster-1"}
+          ]'::jsonb;

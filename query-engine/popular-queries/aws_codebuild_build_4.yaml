@@ -1,14 +1,15 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    arn,
-    vpc_config ->> 'SecurityGroupIds' as security_group_id,
-    vpc_config ->> 'Subnets' as subnets,
-    vpc_config ->> 'VpcId' as vpc_id
-  from
-    aws_codebuild_build;
-  
 Title: "Steampipe Table: aws_codebuild_build - Query AWS CodeBuild Build using SQL"
-Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects' builds."
+Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          arn,
+          vpc_config ->> 'SecurityGroupIds' as security_group_id,
+          vpc_config ->> 'Subnets' as subnets,
+          vpc_config ->> 'VpcId' as vpc_id
+        from
+          aws_codebuild_build;

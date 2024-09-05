@@ -1,18 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    create_date,
-    client_id_list,
-    thumbprint_list,
-    tags,
-    url,
-    account_id
-  from
-    aws_iam_open_id_connect_provider
-  where
-    tags ->> 'Environment' = 'Production';
-  
 Title: "Steampipe Table: aws_iam_open_id_connect_provider - Query AWS IAM OpenID Connect Providers using SQL"
 Description: "Allows users to query AWS IAM OpenID Connect Providers and retrieve details about the OpenID Connect (OIDC) identity providers in their AWS account."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          arn,
+          create_date,
+          client_id_list,
+          thumbprint_list,
+          tags,
+          url,
+          account_id
+        from
+          aws_iam_open_id_connect_provider
+        where
+          tags ->> 'Environment' = 'Production';

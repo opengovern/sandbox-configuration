@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    e ->> 'S3EncryptionMode' as encyption_mode,
-    e ->> 'KmsKeyArn' as kms_key_arn
-  from
-    aws_glue_security_configuration,
-    jsonb_array_elements(s3_encryption) e
-  where
-    e ->> 'S3EncryptionMode' != 'DISABLED';
-  
 Title: "Steampipe Table: aws_glue_security_configuration - Query AWS Glue Security Configurations using SQL"
 Description: "Allows users to query AWS Glue Security Configurations and gain insights into the security configurations of Glue resources."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          e ->> 'S3EncryptionMode' as encyption_mode,
+          e ->> 'KmsKeyArn' as kms_key_arn
+        from
+          aws_glue_security_configuration,
+          jsonb_array_elements(s3_encryption) e
+        where
+          e ->> 'S3EncryptionMode' != 'DISABLED';

@@ -1,17 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    arn,
-    ssl_policy
-  from
-    aws_ec2_load_balancer_listener listener
-  join 
-    aws_ec2_ssl_policy ssl_policy
-  on
-    listener.ssl_policy = ssl_policy.Name
-  where
-    ssl_policy.ciphers @> '[{"Name":"DES-CBC3-SHA"}]';
-  
 Title: "Steampipe Table: aws_ec2_ssl_policy - Query AWS EC2 SSL Policies using SQL"
 Description: "Allows users to query AWS EC2 SSL Policies to retrieve detailed information about SSL policies used in AWS EC2 Load Balancers."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  arn,\n  ssl_policy\nfrom\n  aws_ec2_load_balancer_listener listener\njoin \n  aws_ec2_ssl_policy ssl_policy\non\n  listener.ssl_policy = ssl_policy.Name\nwhere\n  ssl_policy.ciphers @> '[{\"Name\":\"DES-CBC3-SHA\"}]';"

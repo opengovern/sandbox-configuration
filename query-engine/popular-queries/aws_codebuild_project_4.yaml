@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    description,
-    logs_config -> 'CloudWatchLogs' ->> 'Status' as cloud_watch_logs_status,
-    logs_config -> 'S3Logs' ->> 'Status' as s3_logs_status
-  from
-    aws_codebuild_project
-  where
-    logs_config -> 'CloudWatchLogs' ->> 'Status' = 'DISABLED'
-    and logs_config -> 'S3Logs' ->> 'Status' = 'DISABLED';
-  
 Title: "Steampipe Table: aws_codebuild_project - Query AWS CodeBuild Projects using SQL"
 Description: "Allows users to query AWS CodeBuild Projects and retrieve comprehensive information about each project."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          description,
+          logs_config -> 'CloudWatchLogs' ->> 'Status' as cloud_watch_logs_status,
+          logs_config -> 'S3Logs' ->> 'Status' as s3_logs_status
+        from
+          aws_codebuild_project
+        where
+          logs_config -> 'CloudWatchLogs' ->> 'Status' = 'DISABLED'
+          and logs_config -> 'S3Logs' ->> 'Status' = 'DISABLED';

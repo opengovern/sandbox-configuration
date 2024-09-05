@@ -1,16 +1,17 @@
-connectors:
-- AWS
-query: |-
-  select
-    domain_name,
-    vpc_options ->> 'AvailabilityZones' as availability_zones,
-    vpc_options ->> 'SecurityGroupIds' as security_group_ids,
-    vpc_options ->> 'SubnetIds' as subnet_ids,
-    vpc_options ->> 'VPCId' as vpc_id
-  from
-    aws_elasticsearch_domain
-  where
-    vpc_options ->> 'AvailabilityZones' is not null;
-  
 Title: "Steampipe Table: aws_elasticsearch_domain - Query AWS Elasticsearch Service Domain using SQL"
 Description: "Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          domain_name,
+          vpc_options ->> 'AvailabilityZones' as availability_zones,
+          vpc_options ->> 'SecurityGroupIds' as security_group_ids,
+          vpc_options ->> 'SubnetIds' as subnet_ids,
+          vpc_options ->> 'VPCId' as vpc_id
+        from
+          aws_elasticsearch_domain
+        where
+          vpc_options ->> 'AvailabilityZones' is not null;

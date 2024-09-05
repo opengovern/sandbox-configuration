@@ -1,22 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    a.question_id,
-    a.lens_alias,
-    a.workload_id,
-    a.question_title,
-    a.risk,
-    c ->> 'ChoiceId' as choice_id,
-    c ->> 'Status' as choice_status,
-    c ->> 'Reason' as choice_reason,
-    c ->> 'Notes' as choice_notes
-  from
-    aws_wellarchitected_answer a,
-    jsonb_array_elements(choice_answers) c
-  where
-    risk = 'HIGH'
-    or risk = 'MEDIUM';
-  
 Title: "Steampipe Table: aws_wellarchitected_answer - Query AWS Well-Architected Tool Answer using SQL"
 Description: "Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          a.question_id,
+          a.lens_alias,
+          a.workload_id,
+          a.question_title,
+          a.risk,
+          c ->> 'ChoiceId' as choice_id,
+          c ->> 'Status' as choice_status,
+          c ->> 'Reason' as choice_reason,
+          c ->> 'Notes' as choice_notes
+        from
+          aws_wellarchitected_answer a,
+          jsonb_array_elements(choice_answers) c
+        where
+          risk = 'HIGH'
+          or risk = 'MEDIUM';

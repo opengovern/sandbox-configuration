@@ -1,13 +1,14 @@
-connectors:
-- AWS
-query: |-
-  select
-    count(arn) as application_count,
-    compute_platform
-  from
-    aws_codedeploy_app
-  group by
-    compute_platform;
-  
 Title: "Steampipe Table: aws_codedeploy_app - Query AWS CodeDeploy Applications using SQL"
 Description: "Allows users to query AWS CodeDeploy Applications to return detailed information about each application, including application name, ID, and associated deployment groups."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          count(arn) as application_count,
+          compute_platform
+        from
+          aws_codedeploy_app
+        group by
+          compute_platform;

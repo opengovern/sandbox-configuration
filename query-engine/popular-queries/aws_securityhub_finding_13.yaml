@@ -1,23 +1,7 @@
-connectors:
-- AWS
-query: |-
-  select
-    title,
-    v ->> 'Id' as vulnerabilitie_id,
-    v -> 'Vendor' ->> 'Name' as vendor_name,
-    v -> 'Vendor' ->> 'Url' as vendor_url,
-    v -> 'Vendor' ->> 'VendorCreatedAt' as vendor_created_at,
-    v -> 'Vendor' ->> 'VendorSeverity' as vendor_severity,
-    v -> 'Vendor' ->> 'VendorUpdatedAt' as vendor_updated_at,
-    v ->> 'Cvss' as cvss,
-    v ->> 'ReferenceUrls' as reference_urls,
-    v ->> 'RelatedVulnerabilities' as related_vulnerabilities,
-    v ->> 'VulnerablePackages' as vulnerable_packages
-  from
-    aws_securityhub_finding,
-    jsonb_array_elements(vulnerabilities) as v
-  where 
-    title = 'EC2 instance involved in SSH brute force attacks.';
-  
 Title: "Steampipe Table: aws_securityhub_finding - Query AWS Security Hub Findings using SQL"
 Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: "select\n  title,\n  v ->> 'Id' as vulnerabilitie_id,\n  v -> 'Vendor' ->> 'Name' as vendor_name,\n  v -> 'Vendor' ->> 'Url' as vendor_url,\n  v -> 'Vendor' ->> 'VendorCreatedAt' as vendor_created_at,\n  v -> 'Vendor' ->> 'VendorSeverity' as vendor_severity,\n  v -> 'Vendor' ->> 'VendorUpdatedAt' as vendor_updated_at,\n  v ->> 'Cvss' as cvss,\n  v ->> 'ReferenceUrls' as reference_urls,\n  v ->> 'RelatedVulnerabilities' as related_vulnerabilities,\n  v ->> 'VulnerablePackages' as vulnerable_packages\nfrom\n  aws_securityhub_finding,\n  jsonb_array_elements(vulnerabilities) as v\nwhere \n  title = 'EC2 instance involved in SSH brute force attacks.';"

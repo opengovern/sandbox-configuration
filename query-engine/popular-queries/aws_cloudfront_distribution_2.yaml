@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    logging ->> 'Bucket' as bucket,
-    logging ->> 'Enabled' as logging_enabled,
-    logging ->> 'IncludeCookies' as include_cookies
-  from
-    aws_cloudfront_distribution
-  where
-    logging ->> 'Enabled' = 'false';
-  
 Title: "Steampipe Table: aws_cloudfront_distribution - Query AWS CloudFront Distributions using SQL"
 Description: "Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          logging ->> 'Bucket' as bucket,
+          logging ->> 'Enabled' as logging_enabled,
+          logging ->> 'IncludeCookies' as include_cookies
+        from
+          aws_cloudfront_distribution
+        where
+          logging ->> 'Enabled' = 'false';

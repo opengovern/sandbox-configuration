@@ -1,19 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    s.key,
-    b ->> 'awsAccountId' as account_id,
-    b ->> 'digestEndTime' as digest_end_time,
-    b ->> 'digestPublicKeyFingerprint' as digest_public_key_fingerprint,
-    b ->> 'digestS3Bucket' as digest_s3_bucket,
-    b ->> 'digestStartTime' as digest_start_time
-  from
-    aws_s3_object as s,
-    jsonb_array_elements(body::jsonb) as b
-  where
-    bucket_name = 'steampipe-test'
-    and prefix = 'test1/log_text.txt';
-  
 Title: "Steampipe Table: aws_s3_object - Query AWS S3 Object using SQL"
 Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          s.key,
+          b ->> 'awsAccountId' as account_id,
+          b ->> 'digestEndTime' as digest_end_time,
+          b ->> 'digestPublicKeyFingerprint' as digest_public_key_fingerprint,
+          b ->> 'digestS3Bucket' as digest_s3_bucket,
+          b ->> 'digestStartTime' as digest_start_time
+        from
+          aws_s3_object as s,
+          jsonb_array_elements(body::jsonb) as b
+        where
+          bucket_name = 'steampipe-test'
+          and prefix = 'test1/log_text.txt';

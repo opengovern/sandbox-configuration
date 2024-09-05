@@ -1,15 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    cluster_arn,
-    name,
-    auto_terminate,
-    status ->> 'State' as state,
-    tags
-  from
-    aws_emr_cluster;
-  
 Title: "Steampipe Table: aws_emr_cluster - Query AWS Elastic MapReduce Cluster using SQL"
 Description: "Allows users to query AWS Elastic MapReduce Cluster data."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          id,
+          cluster_arn,
+          name,
+          auto_terminate,
+          status ->> 'State' as state,
+          tags
+        from
+          aws_emr_cluster;

@@ -1,17 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    creation_time,
-    current_state,
-    desired_state,
-    enrichment,
-    target
-  from
-    aws_pipes_pipe
-  where
-    creation_time >= now() - interval '30' day;
-  
 Title: "Steampipe Table: aws_pipes_pipe - Query AWS Pipes using SQL"
 Description: "Allows users to query AWS Pipes to obtain detailed information about individual pipes."
+Connectors:
+    - AWS
+Query:
+    Engine: odysseus-v0.0.1
+    QueryToExecute: |-
+        select
+          name,
+          creation_time,
+          current_state,
+          desired_state,
+          enrichment,
+          target
+        from
+          aws_pipes_pipe
+        where
+          creation_time >= now() - interval '30' day;
