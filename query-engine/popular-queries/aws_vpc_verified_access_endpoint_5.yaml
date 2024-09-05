@@ -1,18 +1,23 @@
-Title: "Steampipe Table: aws_vpc_verified_access_endpoint - Query AWS VPC Verified Access Endpoint using SQL"
+Title: "List Verified Access Endpoints in AWS VPC"
 Description: "Allows users to query AWS VPC Verified Access Endpoint data, including details about the endpoint configuration, service name, and VPC ID. This information can be used to manage and secure network access to services within an AWS Virtual Private Cloud."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          e.verified_access_group_id,
-          e.creation_time,
-          i.creation_time as instance_create_time,
-          i.verified_access_instance_id,
-          jsonb_pretty(i.verified_access_trust_providers) as verified_access_trust_providers
-        from
-          aws_vpc_verified_access_endpoint as e,
-          aws_vpc_verified_access_instance as i
-        where
-          e.verified_access_instance_id = i.verified_access_instance_id;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      e.verified_access_group_id,
+      e.creation_time,
+      i.creation_time as instance_create_time,
+      i.verified_access_instance_id,
+      jsonb_pretty(i.verified_access_trust_providers) as verified_access_trust_providers
+    from
+      aws_vpc_verified_access_endpoint as e,
+      aws_vpc_verified_access_instance as i
+    where
+      e.verified_access_instance_id = i.verified_access_instance_id;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: VPC Verified Access Endpoint

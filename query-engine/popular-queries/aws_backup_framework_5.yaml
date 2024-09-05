@@ -1,38 +1,42 @@
-Title: "Steampipe Table: aws_backup_framework - Query AWS Backup Frameworks using SQL"
+Title: "Find AWS Backup Frameworks and Compliance Types"
 Description: "Allows users to query AWS Backup Frameworks and retrieve comprehensive data about each backup plan, including its unique ARN, version, creation and deletion dates, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      rule_name,
+      compliance_result -> 'Compliance' ->> 'ComplianceType' as compliance_type,
+      compliance_result -> 'Compliance' -> 'ComplianceContributorCount' ->> 'CappedCount' as count_of_noncompliant_resources
+    from
+      aws_config_rule
+    inner join
+    (
+      -- The sub-query will create the AWS Config rule name from information stored in the AWS Backup framework table.
+      select
+        case when framework_information.control_scope = '' then concat(framework_information.control_name, '-', framework_information.framework_uuid)
+        else concat(upper(framework_information.control_scope), '-', framework_information.control_name, '-', framework_information.framework_uuid)
+        end as rule_name
+      from
+      (
         select
-          rule_name,
-          compliance_result -> 'Compliance' ->> 'ComplianceType' as compliance_type,
-          compliance_result -> 'Compliance' -> 'ComplianceContributorCount' ->> 'CappedCount' as count_of_noncompliant_resources
+          framework_name,
+          controls ->> 'ControlName' as control_name,
+          control_scope,
+          right(arn, 36) as framework_uuid
         from
-          aws_config_rule
-        inner join
-        (
-          -- The sub-query will create the AWS Config rule name from information stored in the AWS Backup framework table.
-          select
-            case when framework_information.control_scope = '' then concat(framework_information.control_name, '-', framework_information.framework_uuid)
-            else concat(upper(framework_information.control_scope), '-', framework_information.control_name, '-', framework_information.framework_uuid)
-            end as rule_name
-          from
-          (
-            select
-              framework_name,
-              controls ->> 'ControlName' as control_name,
-              control_scope,
-              right(arn, 36) as framework_uuid
-            from
-              aws_backup_framework,
-              jsonb_array_elements(framework_controls) as controls,
-              json_array_elements_text(coalesce(controls -> 'ControlScope' ->> 'ComplianceResourceTypes', '[""]')::json) as control_scope
-          ) as framework_information
-        ) as backup_framework
-        on
-          aws_config_rule.name = backup_framework.rule_name,
-          jsonb_array_elements(compliance_by_config_rule) as compliance_result
-        where
-          compliance_result -> 'Compliance' ->> 'ComplianceType' = 'NON_COMPLIANT';
+          aws_backup_framework,
+          jsonb_array_elements(framework_controls) as controls,
+          json_array_elements_text(coalesce(controls -> 'ControlScope' ->> 'ComplianceResourceTypes', '[""]')::json) as control_scope
+      ) as framework_information
+    ) as backup_framework
+    on
+      aws_config_rule.name = backup_framework.rule_name,
+      jsonb_array_elements(compliance_by_config_rule) as compliance_result
+    where
+      compliance_result -> 'Compliance' ->> 'ComplianceType' = 'NON_COMPLIANT';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Backup

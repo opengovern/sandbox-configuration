@@ -1,15 +1,20 @@
-Title: "Steampipe Table: aws_app_runner_service - Query AWS App Runner Services using SQL"
+Title: "List all AWS App Runner Services with Auto Scaling Info"
 Description: "Allows users to query AWS App Runner services, providing detailed information on service configurations, scaling, and network settings."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          service_name,
-          arn,
-          auto_scaling_configuration_summary
-        from
-          aws_app_runner_service
-        where
-          jsonb_path_exists(auto_scaling_configuration_summary, '$.AutoScalingConfigurationArn');
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      service_name,
+      arn,
+      auto_scaling_configuration_summary
+    from
+      aws_app_runner_service
+    where
+      jsonb_path_exists(auto_scaling_configuration_summary, '$.AutoScalingConfigurationArn');
+Tags:
+  cloud_network_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: App Runner

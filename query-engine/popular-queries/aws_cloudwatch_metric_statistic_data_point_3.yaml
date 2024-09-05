@@ -1,24 +1,29 @@
-Title: "Steampipe Table: aws_cloudwatch_metric_statistic_data_point - Query AWS CloudWatch Metric Statistics Data Point using SQL"
+Title: "Find AWS CloudWatch Metric Statistic Data Points"
 Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          jsonb_pretty(dimensions) as dimensions,
-          timestamp,
-          average
-        from
-          aws_cloudwatch_metric_statistic_data_point
-        where
-          namespace = 'AWS/EBS'
-          and metric_name = 'VolumeReadOps'
-          and average > 1000
-          and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
-          and period = 300
-          and dimensions = '[
-            {"Name": "VolumeId", "Value": "vol-00607053b218c6d74"}
-            ]'
-        order by
-          timestamp;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      jsonb_pretty(dimensions) as dimensions,
+      timestamp,
+      average
+    from
+      aws_cloudwatch_metric_statistic_data_point
+    where
+      namespace = 'AWS/EBS'
+      and metric_name = 'VolumeReadOps'
+      and average > 1000
+      and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
+      and period = 300
+      and dimensions = '[
+        {"Name": "VolumeId", "Value": "vol-00607053b218c6d74"}
+        ]'
+    order by
+      timestamp;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CloudWatch

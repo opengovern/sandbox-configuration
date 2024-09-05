@@ -1,22 +1,27 @@
-Title: "Steampipe Table: aws_inspector2_coverage - Query AWS Inspector Coverage using SQL"
+Title: "Find AWS Inspector Coverage Data for EC2 Instances"
 Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          c.resource_id as ec2_instance_id,
-          c.resource_type,
-          c.ec2_ami_id,
-          i.instance_type,
-          i.instance_state,
-          i.disable_api_termination,
-          i.ebs_optimized
-        from
-          aws_inspector2_coverage as c,
-          aws_ec2_instance as i
-        where
-          i.instance_id = c.resource_id
-        and
-          c.resource_type = `AWS_EC2_INSTANCE';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.resource_id as ec2_instance_id,
+      c.resource_type,
+      c.ec2_ami_id,
+      i.instance_type,
+      i.instance_state,
+      i.disable_api_termination,
+      i.ebs_optimized
+    from
+      aws_inspector2_coverage as c,
+      aws_ec2_instance as i
+    where
+      i.instance_id = c.resource_id
+    and
+      c.resource_type = `AWS_EC2_INSTANCE';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Inspector

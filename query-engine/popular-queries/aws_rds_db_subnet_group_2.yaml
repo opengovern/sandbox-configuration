@@ -1,16 +1,20 @@
-Title: "Steampipe Table: aws_rds_db_subnet_group - Query AWS RDS DB Subnet Groups using SQL"
+Title: "List all AWS RDS DB Subnet Groups Information"
 Description: "Allows users to query AWS RDS DB Subnet Groups to retrieve information about each DB subnet group configured in an AWS account."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          subnet -> 'SubnetAvailabilityZone' ->> 'Name' as subnet_availability_zone,
-          subnet ->> 'SubnetIdentifier' as subnet_identifier,
-          subnet -> 'SubnetOutpost' ->> 'Arn' as subnet_outpost,
-          subnet ->> 'SubnetStatus' as subnet_status
-        from
-          aws_rds_db_subnet_group
-          cross join jsonb_array_elements(subnets) as subnet;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      subnet -> 'SubnetAvailabilityZone' ->> 'Name' as subnet_availability_zone,
+      subnet ->> 'SubnetIdentifier' as subnet_identifier,
+      subnet -> 'SubnetOutpost' ->> 'Arn' as subnet_outpost,
+      subnet ->> 'SubnetStatus' as subnet_status
+    from
+      aws_rds_db_subnet_group
+      cross join jsonb_array_elements(subnets) as subnet;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: RDS

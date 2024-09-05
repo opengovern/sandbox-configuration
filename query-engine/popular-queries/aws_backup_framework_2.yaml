@@ -1,18 +1,22 @@
-Title: "Steampipe Table: aws_backup_framework - Query AWS Backup Frameworks using SQL"
+Title: "List all AWS Backup Frameworks and Detailed Information"
 Description: "Allows users to query AWS Backup Frameworks and retrieve comprehensive data about each backup plan, including its unique ARN, version, creation and deletion dates, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          framework_name,
-          arn,
-          creation_time,
-          number_of_controls
-        from
-          aws_backup_framework
-        where
-          creation_time >= (current_date - interval '90' day)
-        order by
-          creation_time;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      framework_name,
+      arn,
+      creation_time,
+      number_of_controls
+    from
+      aws_backup_framework
+    where
+      creation_time >= (current_date - interval '90' day)
+    order by
+      creation_time;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Backup

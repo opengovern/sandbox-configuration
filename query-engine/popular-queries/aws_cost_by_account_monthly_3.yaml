@@ -1,7 +1,19 @@
-Title: "Steampipe Table: aws_cost_by_account_monthly - Query AWS Cost Explorer Service using SQL"
+Title: "List all Monthly AWS Costs Per Account"
 Description: "Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select\n  linked_account_id,\n  period_start,\n  unblended_cost_amount::numeric::money,\n  rank() over(partition by linked_account_id order by unblended_cost_amount desc)\nfrom \n  aws_cost_by_account_monthly;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      linked_account_id,
+      period_start,
+      unblended_cost_amount::numeric::money,
+      rank() over(partition by linked_account_id order by unblended_cost_amount desc)
+    from 
+      aws_cost_by_account_monthly;
+Tags:
+  cloud_asset_management: true
+  cloud_finops: true
+  cloud_provider: aws
+  cloud_service: Cost Explorer Service

@@ -1,21 +1,25 @@
-Title: "Steampipe Table: aws_glacier_vault - Query AWS Glacier Vaults using SQL"
+Title: "List AWS Glacier Vaults with Detailed Information"
 Description: "Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault''s name, ARN, creation date, number of archives, size of archives, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          title,
-          p as principal,
-          a as action,
-          s ->> 'Effect' as effect,
-          s -> 'Condition' as conditions
-        from
-          aws_glacier_vault,
-          jsonb_array_elements(policy_std -> 'Statement') as s,
-          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-          jsonb_array_elements_text(s -> 'Action') as a
-        where
-          p = '*'
-          and s ->> 'Effect' = 'Allow';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      p as principal,
+      a as action,
+      s ->> 'Effect' as effect,
+      s -> 'Condition' as conditions
+    from
+      aws_glacier_vault,
+      jsonb_array_elements(policy_std -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+      jsonb_array_elements_text(s -> 'Action') as a
+    where
+      p = '*'
+      and s ->> 'Effect' = 'Allow';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Glacier

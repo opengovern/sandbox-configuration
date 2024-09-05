@@ -1,19 +1,24 @@
-Title: "Steampipe Table: aws_backup_plan - Query AWS Backup Plan using SQL"
+Title: "List all AWS Backup Plans and details within 90 days"
 Description: "Allows users to query AWS Backup Plan data, providing detailed information about each backup plan created within an AWS account. Useful for DevOps engineers to monitor and manage backup strategies and ensure data recovery processes are in place."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          backup_plan_id,
-          arn,
-          creation_date,
-          last_execution_date
-        from
-          aws_backup_plan
-        where
-          creation_date <= (current_date - interval '90' day)
-        order by
-          creation_date;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      backup_plan_id,
+      arn,
+      creation_date,
+      last_execution_date
+    from
+      aws_backup_plan
+    where
+      creation_date <= (current_date - interval '90' day)
+    order by
+      creation_date;
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: AWS Backup Plan

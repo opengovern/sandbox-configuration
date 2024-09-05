@@ -1,14 +1,19 @@
-Title: "Steampipe Table: aws_ec2_instance_type - Query AWS EC2 Instance Type using SQL"
+Title: "Find all AWS EC2 Instance Types with Unsupported Encryption"
 Description: "Allows users to query AWS EC2 Instance Type data, including details about instance type name, current generation, vCPU, memory, storage, and network performance."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          instance_type,
-          ebs_info ->> 'EncryptionSupport' as encryption_support
-        from
-          aws_ec2_instance_type
-        where
-          ebs_info ->> 'EncryptionSupport' = 'unsupported';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_type,
+      ebs_info ->> 'EncryptionSupport' as encryption_support
+    from
+      aws_ec2_instance_type
+    where
+      ebs_info ->> 'EncryptionSupport' = 'unsupported';
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: EC2

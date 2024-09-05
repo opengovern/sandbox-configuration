@@ -1,15 +1,19 @@
-Title: "Steampipe Table: aws_emr_cluster - Query AWS Elastic MapReduce Cluster using SQL"
+Title: "Find AWS Elastic MapReduce Cluster Data"
 Description: "Allows users to query AWS Elastic MapReduce Cluster data."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          cluster_arn,
-          a ->> 'Name' as application_name,
-          a ->> 'Version' as application_version
-        from
-          aws_emr_cluster,
-          jsonb_array_elements(applications) as a;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      cluster_arn,
+      a ->> 'Name' as application_name,
+      a ->> 'Version' as application_version
+    from
+      aws_emr_cluster,
+      jsonb_array_elements(applications) as a;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Elastic MapReduce

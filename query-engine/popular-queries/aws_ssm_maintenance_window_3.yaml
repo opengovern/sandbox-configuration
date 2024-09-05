@@ -1,15 +1,20 @@
-Title: "Steampipe Table: aws_ssm_maintenance_window - Query AWS Systems Manager Maintenance Windows using SQL"
+Title: "List All Maintenance Windows in AWS Systems Manager"
 Description: "Allows users to query AWS Systems Manager Maintenance Windows to retrieve details about scheduled maintenance tasks for AWS resources."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          p ->> 'WindowTaskId' as window_task_id,
-          p ->> 'ServiceRoleArn' as service_role_arn,
-          p ->> 'Name' as task_name
-        from
-          aws_ssm_maintenance_window,
-          jsonb_array_elements(tasks) as p;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      p ->> 'WindowTaskId' as window_task_id,
+      p ->> 'ServiceRoleArn' as service_role_arn,
+      p ->> 'Name' as task_name
+    from
+      aws_ssm_maintenance_window,
+      jsonb_array_elements(tasks) as p;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Systems Manager

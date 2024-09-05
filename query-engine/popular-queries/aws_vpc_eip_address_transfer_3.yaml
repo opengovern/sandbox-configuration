@@ -1,17 +1,22 @@
-Title: "Steampipe Table: aws_vpc_eip_address_transfer - Query AWS VPC Elastic IP Address Transfers using SQL"
+Title: "Find AWS Elastic IP Address Transfers in VPC using SQL"
 Description: "Allows users to query Elastic IP Address Transfers in AWS VPC."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          allocation_id,
-          address_transfer_status,
-          public_ip,
-          transfer_account_id,
-          transfer_offer_expiration_timestamp
-        from
-          aws_vpc_eip_address_transfer
-        where
-          transfer_offer_expiration_timestamp >= now() - interval '10' day;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      allocation_id,
+      address_transfer_status,
+      public_ip,
+      transfer_account_id,
+      transfer_offer_expiration_timestamp
+    from
+      aws_vpc_eip_address_transfer
+    where
+      transfer_offer_expiration_timestamp >= now() - interval '10' day;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: VPC

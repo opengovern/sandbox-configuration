@@ -1,14 +1,19 @@
-Title: "Steampipe Table: aws_api_gatewayv2_domain_name - Query AWS API Gateway Domain Names using SQL"
+Title: "Find all AWS API Gateway Domain Names and Their Details"
 Description: "Allows users to query AWS API Gateway Domain Names and provides information about each domain name within the AWS API Gateway Service. This table can be used to query domain name details, including associated API mappings, security policy, and associated tags."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          domain_name,
-          mutual_tls_authentication ->> 'TruststoreUri' as truststore_uri,
-          mutual_tls_authentication ->> 'TruststoreVersion' as truststore_version,
-          mutual_tls_authentication ->> 'TruststoreWarnings' as truststore_warnings
-        from
-          aws_api_gatewayv2_domain_name;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      mutual_tls_authentication ->> 'TruststoreUri' as truststore_uri,
+      mutual_tls_authentication ->> 'TruststoreVersion' as truststore_version,
+      mutual_tls_authentication ->> 'TruststoreWarnings' as truststore_warnings
+    from
+      aws_api_gatewayv2_domain_name;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: AWS
+  cloud_service: API Gateway

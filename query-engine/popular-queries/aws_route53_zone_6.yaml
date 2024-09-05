@@ -1,7 +1,24 @@
-Title: "Steampipe Table: aws_route53_zone - Query AWS Route 53 Zone using SQL"
+Title: "List AWS Route 53 Zone Details including Hosted Zone ID"
 Description: "Allows users to query AWS Route 53 Zone details including hosted zone ID, name, type, record set count, and associated tags."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select \n  name,\n  id,\n  v.vpc_id as vpc_id,\n  v.cidr_block as cidr_block,\n  v.is_default as is_default,\n  v.dhcp_options_id as dhcp_options_id\nfrom\n  aws_route53_zone,\n  jsonb_array_elements(vpcs) as p,\n  aws_vpc as v\nwhere\n  p ->> 'VPCId' = v.vpc_id;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      name,
+      id,
+      v.vpc_id as vpc_id,
+      v.cidr_block as cidr_block,
+      v.is_default as is_default,
+      v.dhcp_options_id as dhcp_options_id
+    from
+      aws_route53_zone,
+      jsonb_array_elements(vpcs) as p,
+      aws_vpc as v
+    where
+      p ->> 'VPCId' = v.vpc_id;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: AWS
+  cloud_service: Route 53

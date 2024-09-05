@@ -1,19 +1,23 @@
-Title: "Steampipe Table: aws_cloudfront_function - Query AWS CloudFront Functions using SQL"
+Title: "List of AWS CloudFront Functions with Detailed Information"
 Description: "Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          arn,
-          function_metadata ->> 'Stage' as stage,
-          status,
-          function_metadata ->> 'LastModifiedTime' as last_modified_time
-        from
-          aws_cloudfront_function
-        where
-          (function_metadata ->> 'LastModifiedTime')::timestamp >= (now() - interval '1' hour)
-        order by
-          function_metadata ->> 'LastModifiedTime' DESC;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      function_metadata ->> 'Stage' as stage,
+      status,
+      function_metadata ->> 'LastModifiedTime' as last_modified_time
+    from
+      aws_cloudfront_function
+    where
+      (function_metadata ->> 'LastModifiedTime')::timestamp >= (now() - interval '1' hour)
+    order by
+      function_metadata ->> 'LastModifiedTime' DESC;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: CloudFront

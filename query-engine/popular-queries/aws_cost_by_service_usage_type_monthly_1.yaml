@@ -1,7 +1,26 @@
-Title: "Steampipe Table: aws_cost_by_service_usage_type_monthly - Query AWS Cost Explorer Service using SQL"
+Title: "Find AWS Monthly Cost by Service and Usage Type"
 Description: "Allows users to query AWS Cost Explorer Service to get detailed cost data per service and usage type on a monthly basis."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select\n  service,\n  usage_type,\n  period_start,\n  blended_cost_amount::numeric::money,\n  unblended_cost_amount::numeric::money,\n  amortized_cost_amount::numeric::money,\n  net_unblended_cost_amount::numeric::money,\n  net_amortized_cost_amount::numeric::money\nfrom \n  aws_cost_by_service_usage_type_monthly\norder by\n  service,\n  period_start;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      service,
+      usage_type,
+      period_start,
+      blended_cost_amount::numeric::money,
+      unblended_cost_amount::numeric::money,
+      amortized_cost_amount::numeric::money,
+      net_unblended_cost_amount::numeric::money,
+      net_amortized_cost_amount::numeric::money
+    from 
+      aws_cost_by_service_usage_type_monthly
+    order by
+      service,
+      period_start;
+Tags:
+  cloud_asset_management: true
+  cloud_finops: true
+  cloud_provider: aws
+  cloud_service: Cost Explorer

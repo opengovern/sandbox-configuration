@@ -1,15 +1,19 @@
-Title: "Steampipe Table: aws_cloudsearch_domain - Query AWS CloudSearch Domain using SQL"
+Title: "List All AWS CloudSearch Domains with Detailed Info"
 Description: "Allows users to query AWS CloudSearch Domain to retrieve detailed information about each search domain configured within an AWS account."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          domain_name,
-          domain_id,
-          search_service ->> 'Endpoint' as search_service_endpoint,
-          limits ->> 'MaximumPartitionCount' as maximum_partition_count,
-          limits ->> 'MaximumReplicationCount' as maximum_replication_count
-        from
-          aws_cloudsearch_domain;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      domain_id,
+      search_service ->> 'Endpoint' as search_service_endpoint,
+      limits ->> 'MaximumPartitionCount' as maximum_partition_count,
+      limits ->> 'MaximumReplicationCount' as maximum_replication_count
+    from
+      aws_cloudsearch_domain;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: CloudSearch

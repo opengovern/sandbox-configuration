@@ -1,7 +1,26 @@
-Title: "Steampipe Table: aws_cost_by_service_usage_type_daily - Query AWS Cost Explorer Service usage type daily using SQL"
+Title: "List all AWS service usage and costs by usage type"
 Description: "Allows users to query AWS Cost Explorer Service daily usage type to fetch detailed data about AWS service usage and costs."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select\n  service,\n  usage_type,\n  min(unblended_cost_amount)::numeric::money as min,\n  max(unblended_cost_amount)::numeric::money as max,\n  avg(unblended_cost_amount)::numeric::money as average\nfrom \n  aws_cost_by_service_usage_type_daily\ngroup by\n  service,\n  usage_type\norder by\n  service,\n  usage_type;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      service,
+      usage_type,
+      min(unblended_cost_amount)::numeric::money as min,
+      max(unblended_cost_amount)::numeric::money as max,
+      avg(unblended_cost_amount)::numeric::money as average
+    from 
+      aws_cost_by_service_usage_type_daily
+    group by
+      service,
+      usage_type
+    order by
+      service,
+      usage_type;
+Tags:
+  cloud_asset_management: true
+  cloud_finops: true
+  cloud_provider: AWS
+  cloud_service: Cost Explorer Service

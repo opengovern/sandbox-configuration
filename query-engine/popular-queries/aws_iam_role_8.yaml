@@ -1,28 +1,33 @@
-Title: "Steampipe Table: aws_iam_role - Query AWS Identity and Access Management (IAM) Roles using SQL"
+Title: "Find IAM Roles, Insights into Permissions and Policies in AWS"
 Description: "Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          maintenance.name,
-          admin.name,
-          jsonb_pretty(maintenance_stmt),
-          jsonb_pretty(admin_stmt)
-        from
-          -- use the account to get the organization_id
-          aws_account as a,
-          -- check any role as the "maintenance-role"
-          aws_iam_role as maintenance,
-          -- Combine via join with any role as the "admin-role"
-          aws_iam_role as admin,
-          jsonb_array_elements(maintenance.assume_role_policy_std -> 'Statement') as maintenance_stmt,
-          jsonb_array_elements(admin.assume_role_policy_std -> 'Statement') as admin_stmt
-        where
-          -- maintenance role can be assumed by any AWS principal
-          maintenance_stmt -> 'Principal' -> 'AWS' ? '*'
-          -- maintenance role principal must be in same account
-          and maintenance_stmt -> 'Condition' -> 'StringEquals' -> 'aws:principalorgid' ? a.organization_id
-          -- admin role specifically allow maintenance role
-          and admin_stmt -> 'Principal' -> 'AWS' ? maintenance.arn;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      maintenance.name,
+      admin.name,
+      jsonb_pretty(maintenance_stmt),
+      jsonb_pretty(admin_stmt)
+    from
+      -- use the account to get the organization_id
+      aws_account as a,
+      -- check any role as the "maintenance-role"
+      aws_iam_role as maintenance,
+      -- Combine via join with any role as the "admin-role"
+      aws_iam_role as admin,
+      jsonb_array_elements(maintenance.assume_role_policy_std -> 'Statement') as maintenance_stmt,
+      jsonb_array_elements(admin.assume_role_policy_std -> 'Statement') as admin_stmt
+    where
+      -- maintenance role can be assumed by any AWS principal
+      maintenance_stmt -> 'Principal' -> 'AWS' ? '*'
+      -- maintenance role principal must be in same account
+      and maintenance_stmt -> 'Condition' -> 'StringEquals' -> 'aws:principalorgid' ? a.organization_id
+      -- admin role specifically allow maintenance role
+      and admin_stmt -> 'Principal' -> 'AWS' ? maintenance.arn;
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM

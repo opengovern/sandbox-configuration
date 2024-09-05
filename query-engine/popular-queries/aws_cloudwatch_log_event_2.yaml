@@ -1,21 +1,25 @@
-Title: "Steampipe Table: aws_cloudwatch_log_event - Query AWS CloudWatch Log Events using SQL"
+Title: "List all AWS CloudWatch Log Events for Monitoring"
 Description: "Allows users to query AWS CloudWatch Log Events to retrieve information about log events from a specified log group. Users can utilize this table to monitor and troubleshoot systems and applications using their existing log data."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          log_group_name,
-          log_stream_name,
-          event_id,
-          timestamp,
-          ingestion_time,
-          message
-        from
-          aws_cloudwatch_log_event
-        where
-          log_group_name = 'cloudwatch-log-event-group-name'
-          and timestamp between (now() - interval '10 minutes') and (now() - interval '5 minutes')
-        order by
-          timestamp asc;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      log_group_name,
+      log_stream_name,
+      event_id,
+      timestamp,
+      ingestion_time,
+      message
+    from
+      aws_cloudwatch_log_event
+    where
+      log_group_name = 'cloudwatch-log-event-group-name'
+      and timestamp between (now() - interval '10 minutes') and (now() - interval '5 minutes')
+    order by
+      timestamp asc;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CloudWatch

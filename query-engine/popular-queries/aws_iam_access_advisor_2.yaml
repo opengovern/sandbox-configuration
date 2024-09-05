@@ -1,7 +1,21 @@
-Title: "Steampipe Table: aws_iam_access_advisor - Query AWS IAM Access Advisor using SQL"
+Title: "List all AWS IAM entities with no recent service access"
 Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select \n  principal_arn,\n  service_name\nfrom \n  aws_iam_access_advisor\nwhere\n  principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'\n  and last_authenticated is null\norder by \n  service_name"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      principal_arn,
+      service_name
+    from 
+      aws_iam_access_advisor
+    where
+      principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'
+      and last_authenticated is null
+    order by 
+      service_name
+Tags:
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM Access Advisor

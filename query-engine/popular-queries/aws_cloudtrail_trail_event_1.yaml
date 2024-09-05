@@ -1,20 +1,26 @@
-Title: "Steampipe Table: aws_cloudtrail_trail_event - Query AWS CloudTrail Events using SQL"
+Title: "Find AWS CloudTrail Events with Details in Table Format"
 Description: "Allows users to query AWS CloudTrail Events, providing information about each trail event within AWS CloudTrail. The table can be used to retrieve details such as the event time, event name, resources involved, and much more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          event_name,
-          event_source,
-          event_time,
-          user_type,
-          username,
-          user_identifier,
-          jsonb_pretty(response_elements) as response_elements
-        from
-          aws_cloudtrail_trail_event
-        where
-          log_group_name = 'aws-cloudtrail-log-group-name'
-          and timestamp >= now() - interval '5 minutes';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      event_name,
+      event_source,
+      event_time,
+      user_type,
+      username,
+      user_identifier,
+      jsonb_pretty(response_elements) as response_elements
+    from
+      aws_cloudtrail_trail_event
+    where
+      log_group_name = 'aws-cloudtrail-log-group-name'
+      and timestamp >= now() - interval '5 minutes';
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CloudTrail

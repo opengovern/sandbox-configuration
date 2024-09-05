@@ -1,16 +1,21 @@
-Title: "Steampipe Table: aws_vpc_egress_only_internet_gateway - Query AWS VPC Egress Only Internet Gateways using SQL"
+Title: "Find all AWS VPC Egress Only Internet Gateways"
 Description: "Allows users to query AWS VPC Egress Only Internet Gateways, which provide egress only access for IPv6 traffic from the VPC to the internet."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          id,
-          att ->> 'State' as state,
-          att ->> 'VpcId' as vpc_id,
-          tags,
-          region
-        from
-          aws_vpc_egress_only_internet_gateway
-          cross join jsonb_array_elements(attachments) as att;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      att ->> 'State' as state,
+      att ->> 'VpcId' as vpc_id,
+      tags,
+      region
+    from
+      aws_vpc_egress_only_internet_gateway
+      cross join jsonb_array_elements(attachments) as att;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: VPC

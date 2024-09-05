@@ -1,7 +1,22 @@
-Title: "Steampipe Table: aws_ec2_instance - Query AWS EC2 Instances using SQL"
+Title: "List all AWS EC2 Instances with Comprehensive Data"
 Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select \n  i.instance_id, \n  i.vpc_id, \n  i.subnet_id, \n  s.tags ->> 'Name' as subnet_name\nfrom \n  aws_ec2_instance as i, \n  aws_vpc_subnet as s \nwhere \n  i.subnet_id = s.subnet_id;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      i.instance_id, 
+      i.vpc_id, 
+      i.subnet_id, 
+      s.tags ->> 'Name' as subnet_name
+    from 
+      aws_ec2_instance as i, 
+      aws_vpc_subnet as s 
+    where 
+      i.subnet_id = s.subnet_id;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: EC2

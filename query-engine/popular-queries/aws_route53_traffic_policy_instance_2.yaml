@@ -1,7 +1,21 @@
-Title: "Steampipe Table: aws_route53_traffic_policy_instance - Query AWS Route 53 Traffic Policy Instances using SQL"
+Title: "List all AWS Route 53 Traffic Policy Instances"
 Description: "Allows users to query AWS Route 53 Traffic Policy Instances, providing detailed information about each instance such as the ID, version, DNS name, and more. This table is useful for gaining insights into the configuration and status of traffic policy instances."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select \n  i.name,\n  i.id,\n  h.id as hosted_zone_id,\n  h.name as hosted_zone_name,\n  h.caller_reference,\n  h.private_zone\nfrom \n  aws_route53_traffic_policy_instance i\n  join aws_route53_zone h on i.hosted_zone_id = h.id;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      i.name,
+      i.id,
+      h.id as hosted_zone_id,
+      h.name as hosted_zone_name,
+      h.caller_reference,
+      h.private_zone
+    from 
+      aws_route53_traffic_policy_instance i
+      join aws_route53_zone h on i.hosted_zone_id = h.id;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Route 53

@@ -1,21 +1,26 @@
-Title: "Steampipe Table: aws_rds_db_recommendation - Query AWS RDS DB Recommendations using SQL"
+Title: "Find all AWS RDS DB recommendation statuses and actions"
 Description: "Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation''s status, impact, and suggested actions."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          recommendation_id,
-          action ->> 'Title' as title,
-          action ->> 'Status' as status,
-          action ->> 'ActionId' as action_id,
-          action ->> 'Operation' as operation,
-          action -> 'ApplyModes' as apply_modes,
-          action -> 'Parameters' as parameters,
-          action ->> 'Description' as description,
-          action ->> 'IssueDetails' as issue_details,
-          action -> 'ContextAttributes' as context_attributes
-        from
-          aws_rds_db_recommendation,
-          jsonb_array_elements(recommended_actions) as action;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      recommendation_id,
+      action ->> 'Title' as title,
+      action ->> 'Status' as status,
+      action ->> 'ActionId' as action_id,
+      action ->> 'Operation' as operation,
+      action -> 'ApplyModes' as apply_modes,
+      action -> 'Parameters' as parameters,
+      action ->> 'Description' as description,
+      action ->> 'IssueDetails' as issue_details,
+      action -> 'ContextAttributes' as context_attributes
+    from
+      aws_rds_db_recommendation,
+      jsonb_array_elements(recommended_actions) as action;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: RDS

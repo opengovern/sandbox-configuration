@@ -1,36 +1,41 @@
-Title: "Steampipe Table: aws_cloudwatch_metric_data_point - Query AWS CloudWatch MetricDataPoints using SQL"
+Title: "Query AWS CloudWatch Metric Data Points for Detailed Info"
 Description: "Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          id,
-          label,
-          timestamp,
-          value,
-          metric_stat
-        from
-          aws_cloudwatch_metric_data_point
-        where
-          id = 'e1'
-          and source_account_id = '533743456432100'
-          and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
-          and metric_stat = '{
-            "Metric": {
-            "Namespace": "AWS/S3",
-            "MetricName": "BucketSizeBytes",
-            "Dimensions": [
-              {
-                "Name": "BucketName",
-                "Value": "steampipe-test"
-              },
-              {
-                "Name": "StorageType",
-                "Value": "StandardStorage"
-              }
-            ]},
-            "Stat": "Maximum"}'
-        order by
-          timestamp;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      label,
+      timestamp,
+      value,
+      metric_stat
+    from
+      aws_cloudwatch_metric_data_point
+    where
+      id = 'e1'
+      and source_account_id = '533743456432100'
+      and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
+      and metric_stat = '{
+        "Metric": {
+        "Namespace": "AWS/S3",
+        "MetricName": "BucketSizeBytes",
+        "Dimensions": [
+          {
+            "Name": "BucketName",
+            "Value": "steampipe-test"
+          },
+          {
+            "Name": "StorageType",
+            "Value": "StandardStorage"
+          }
+        ]},
+        "Stat": "Maximum"}'
+    order by
+      timestamp;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CloudWatch

@@ -1,18 +1,22 @@
-Title: "Steampipe Table: aws_ssm_association - Query AWS SSM Association using SQL"
+Title: "List AWS SSM Associations with Status and Targets"
 Description: "Allows users to query AWS SSM Associations for detailed information about the AWS Systems Manager associations, including their status, targets, and parameters."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          association.association_id as association_id,
-          target ->> 'Key' as target_key,
-          target ->> 'Values' as target_value,
-          instances
-        from
-          aws_ssm_association as association,
-          jsonb_array_elements(targets) as target,
-          jsonb_array_elements_text(target -> 'Values') as instances
-        where
-          target ->> 'Key' = 'InstanceIds';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      association.association_id as association_id,
+      target ->> 'Key' as target_key,
+      target ->> 'Values' as target_value,
+      instances
+    from
+      aws_ssm_association as association,
+      jsonb_array_elements(targets) as target,
+      jsonb_array_elements_text(target -> 'Values') as instances
+    where
+      target ->> 'Key' = 'InstanceIds';
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Systems Manager

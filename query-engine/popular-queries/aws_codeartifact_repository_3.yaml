@@ -1,24 +1,29 @@
-Title: "Steampipe Table: aws_codeartifact_repository - Query AWS CodeArtifact Repository using SQL"
+Title: "List all AWS CodeArtifact Repositories with SQL Queries"
 Description: "Allows users to query AWS CodeArtifact Repository data, including details about the repository, its domain ownership, and associated metadata."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          arn,
-          p as principal,
-          a as action,
-          s ->> 'Effect' as effect
-        from
-          aws_codeartifact_repository,
-          jsonb_array_elements(policy_std -> 'Statement') as s,
-          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-          string_to_array(p, ':') as pa,
-          jsonb_array_elements_text(s -> 'Action') as a
-        where
-          s ->> 'Effect' = 'Allow'
-          and (
-            pa [5] != account_id
-            or p = '*'
-          );
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      p as principal,
+      a as action,
+      s ->> 'Effect' as effect
+    from
+      aws_codeartifact_repository,
+      jsonb_array_elements(policy_std -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+      string_to_array(p, ':') as pa,
+      jsonb_array_elements_text(s -> 'Action') as a
+    where
+      s ->> 'Effect' = 'Allow'
+      and (
+        pa [5] != account_id
+        or p = '*'
+      );
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: AWS CodeArtifact

@@ -1,23 +1,27 @@
-Title: "Steampipe Table: aws_backup_selection - Query AWS Backup Selections using SQL"
+Title: "List all AWS Backup Selection Details"
 Description: "Allows users to query AWS Backup Selections to obtain detailed information about the backup selection resources within AWS Backup service."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        with filtered_data as (
-          select
-            backup_plan_id,
-            jsonb_agg(r) as assigned_resource
-          from
-            aws_backup_selection,
-            jsonb_array_elements(resources) as r
-          group by backup_plan_id
-        )
-        select
-          v.volume_id,
-          v.region,
-          v.account_id
-        from
-          aws_ebs_volume as v
-          join filtered_data t on t.assigned_resource ?| array[v.arn];
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with filtered_data as (
+      select
+        backup_plan_id,
+        jsonb_agg(r) as assigned_resource
+      from
+        aws_backup_selection,
+        jsonb_array_elements(resources) as r
+      group by backup_plan_id
+    )
+    select
+      v.volume_id,
+      v.region,
+      v.account_id
+    from
+      aws_ebs_volume as v
+      join filtered_data t on t.assigned_resource ?| array[v.arn];
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Backup

@@ -1,20 +1,25 @@
-Title: "Steampipe Table: aws_s3_access_point - Query AWS S3 Access Point using SQL"
+Title: "Find AWS S3 Access Point details with public policies"
 Description: "Allows users to query AWS S3 Access Point details such as name, bucket, network origin, policy status, creation time, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          block_public_acls,
-          block_public_policy,
-          ignore_public_acls,
-          restrict_public_buckets
-        from
-          aws_s3_access_point
-        where
-          not block_public_acls
-          or not block_public_policy
-          or not ignore_public_acls
-          or not restrict_public_buckets;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      block_public_acls,
+      block_public_policy,
+      ignore_public_acls,
+      restrict_public_buckets
+    from
+      aws_s3_access_point
+    where
+      not block_public_acls
+      or not block_public_policy
+      or not ignore_public_acls
+      or not restrict_public_buckets;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: S3

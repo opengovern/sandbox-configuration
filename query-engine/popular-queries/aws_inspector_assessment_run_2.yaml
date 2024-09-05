@@ -1,16 +1,21 @@
-Title: "Steampipe Table: aws_inspector_assessment_run - Query AWS Inspector Assessment Runs using SQL"
+Title: "Find AWS Inspector Assessment Runs with Details"
 Description: "Allows users to query AWS Inspector Assessment Runs to get detailed information about each assessment run, including its state, duration, findings, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          finding_counts ->> 'High' as high,
-          finding_counts ->> 'Low' as low,
-          finding_counts ->> 'Medium' as medium,
-          finding_counts ->> 'Informational' as informational,
-          state
-        from
-          aws_inspector_assessment_run;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      finding_counts ->> 'High' as high,
+      finding_counts ->> 'Low' as low,
+      finding_counts ->> 'Medium' as medium,
+      finding_counts ->> 'Informational' as informational,
+      state
+    from
+      aws_inspector_assessment_run;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Inspector

@@ -1,7 +1,20 @@
-Title: "Steampipe Table: aws_athena_query_execution - Query AWS Athena Query Executions using SQL"
+Title: "Find top AWS Athena query executions"
 Description: "Allows users to query AWS Athena Query Executions to retrieve detailed information about each individual query execution."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: "select\n  database,\n  count(id) as nb_query \nfrom\n  aws_athena_query_execution \ngroup by\n  database \norder by\n  nb_query limit 5;"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      database,
+      count(id) as nb_query 
+    from
+      aws_athena_query_execution 
+    group by
+      database 
+    order by
+      nb_query limit 5;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Athena

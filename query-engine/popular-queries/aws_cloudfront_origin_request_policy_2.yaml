@@ -1,14 +1,18 @@
-Title: "Steampipe Table: aws_cloudfront_origin_request_policy - Query AWS CloudFront Origin Request Policies using SQL"
+Title: "List all AWS CloudFront Origin Request Policies"
 Description: "Allows users to query AWS CloudFront Origin Request Policies, providing details about each policy such as ID, name, comment, cookies configuration, headers configuration, query strings configuration, and more."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          name,
-          id,
-          headers_config ->> 'HeaderBehavior' as header_behavior,
-          headers_config ->> 'Headers' as headers
-        from
-          aws_cloudfront_origin_request_policy;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      headers_config ->> 'HeaderBehavior' as header_behavior,
+      headers_config ->> 'Headers' as headers
+    from
+      aws_cloudfront_origin_request_policy;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: CloudFront

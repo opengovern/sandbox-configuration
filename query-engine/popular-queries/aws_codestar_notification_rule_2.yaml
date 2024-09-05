@@ -1,14 +1,18 @@
-Title: "Steampipe Table: aws_codestar_notification_rule - Query AWS CodeStar notification rules using SQL"
+Title: "Find AWS CodeStar notification rules using SQL"
 Description: "Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          pipeline.name as pipeline,
-          notification_rule.name notification_rule,
-          notification_rule.status
-        from
-          aws_codepipeline_pipeline as pipeline
-          left join aws_codestar_notification_rule as notification_rule on pipeline.arn = notification_rule.resource;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      pipeline.name as pipeline,
+      notification_rule.name notification_rule,
+      notification_rule.status
+    from
+      aws_codepipeline_pipeline as pipeline
+      left join aws_codestar_notification_rule as notification_rule on pipeline.arn = notification_rule.resource;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CodeStar

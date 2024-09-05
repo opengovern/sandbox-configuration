@@ -1,16 +1,21 @@
-Title: "Steampipe Table: aws_msk_serverless_cluster - Query AWS Managed Streaming for Kafka (MSK) Serverless Clusters using SQL"
+Title: "Find AWS MSK Serverless Clusters with Specific Client Auth"
 Description: "Allows users to query AWS MSK Serverless Clusters to retrieve detailed information about each cluster."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          arn,
-          cluster_name,
-          state,
-          serverless -> 'ClientAuthentication' as client_authentication
-        from
-          aws_msk_serverless_cluster
-        where
-          (serverless -> 'ClientAuthentication' -> 'Sasl' -> 'Iam' ->> 'Enabled')::boolean = false;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      cluster_name,
+      state,
+      serverless -> 'ClientAuthentication' as client_authentication
+    from
+      aws_msk_serverless_cluster
+    where
+      (serverless -> 'ClientAuthentication' -> 'Sasl' -> 'Iam' ->> 'Enabled')::boolean = false;
+Tags:
+  cloud_identity_security: true
+  cloud_ops: true
+  cloud_provider: AWS
+  cloud_service: Managed Streaming for Kafka (MSK)

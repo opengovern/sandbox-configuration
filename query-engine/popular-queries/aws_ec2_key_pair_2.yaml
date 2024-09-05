@@ -1,14 +1,18 @@
-Title: "Steampipe Table: aws_ec2_key_pair - Query AWS EC2 Key Pairs using SQL"
+Title: "List all AWS EC2 Key Pairs to Securely Log Into EC2 Instances"
 Description: "Allows users to query AWS EC2 Key Pairs, providing information about key pairs which are used to securely log into EC2 instances."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          key_name,
-          tags
-        from
-          aws_ec2_key_pair
-        where
-          not tags :: JSONB ? 'owner';
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      key_name,
+      tags
+    from
+      aws_ec2_key_pair
+    where
+      not tags :: JSONB ? 'owner';
+Tags:
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: EC2 Key Pairs

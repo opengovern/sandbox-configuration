@@ -1,14 +1,19 @@
-Title: "Steampipe Table: aws_elasticache_subnet_group - Query AWS ElastiCache Subnet Groups using SQL"
+Title: "Find AWS ElastiCache Subnet Groups and VPC Details"
 Description: "Allows users to query AWS ElastiCache Subnet Groups, providing details about each subnet group within their ElastiCache service, including the associated VPC, subnets, and status."
 Connectors:
-    - AWS
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    QueryToExecute: |-
-        select
-          c.cache_cluster_id,
-          sg.cache_subnet_group_name,
-          sg.vpc_id
-        from
-          aws_elasticache_subnet_group as sg
-          join aws_elasticache_cluster as c on sg.cache_subnet_group_name = c.cache_subnet_group_name;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.cache_cluster_id,
+      sg.cache_subnet_group_name,
+      sg.vpc_id
+    from
+      aws_elasticache_subnet_group as sg
+      join aws_elasticache_cluster as c on sg.cache_subnet_group_name = c.cache_subnet_group_name;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: ElastiCache
