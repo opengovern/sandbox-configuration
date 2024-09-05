@@ -1,0 +1,32 @@
+ID: azure_cis_v140_4_3_1
+Title: 4.3.1 Ensure 'Enforce SSL connection' is set to 'ENABLED' for PostgreSQL Database Server
+Description: Enable SSL connection on PostgreSQL Servers.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when ssl_enforcement = 'Disabled' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when ssl_enforcement = 'Disabled' then name || ' SSL connection disabled.'
+        else name || ' SSL connection enabled.'
+      end as reason
+    from
+      azure_postgresql_server s,
+      azure_subscription sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_postgresql_server
+  ListOfTables:
+  - azure_postgresql_server
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

@@ -1,0 +1,32 @@
+ID: azure_kubernetes_cluster_restrict_public_access
+Title: Kubernetes cluster should restrict public access
+Description: Ensure that Kubernetes cluster enables private clusters to restrict public access.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.id as resource,
+      c.kaytu_account_id as kaytu_account_id,
+      c.kaytu_resource_id as kaytu_resource_id,
+      case
+        when api_server_access_profile ->> 'enablePrivateCluster' = 'true' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when api_server_access_profile ->> 'enablePrivateCluster' = 'true' then c.name || ' not publicly accessible.'
+        else c.name || ' publicly accessibe.'
+      end as reason
+    from
+      azure_kubernetes_cluster c,
+      azure_subscription sub
+    where
+      sub.subscription_id = c.subscription_id;
+  PrimaryTable: azure_kubernetes_cluster
+  ListOfTables:
+  - azure_kubernetes_cluster
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

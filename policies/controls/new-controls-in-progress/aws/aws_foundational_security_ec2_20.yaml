@@ -1,0 +1,40 @@
+ID: aws_foundational_security_ec2_20
+Title: 20 Both VPN tunnels for an AWS Site-to-Site VPN connection should be up
+Description: This control checks that both VPN tunnels provided by AWS Site-to-Site VPN are in UP status. The control fails if one or both tunnels are in DOWN status.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with filter_data as (
+      select
+        arn,
+        count(t ->> 'Status')
+      from
+        aws_vpc_vpn_connection,
+        jsonb_array_elements(vgw_telemetry) as t
+      where t ->> 'Status' = 'UP'
+      group by arn
+    )
+    select
+      a.arn as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when b.count is null or b.count < 2 then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when b.count is null then a.title || ' has both tunnels offline.'
+        when b.count = 1 then a.title || ' has one tunnel offline.'
+        else a.title || ' has both tunnels online.'
+      end as reason
+    from
+      aws_vpc_vpn_connection as a
+      left join filter_data as b on a.arn = b.arn;
+  PrimaryTable: aws_vpc_vpn_connection
+  ListOfTables:
+  - aws_vpc_vpn_connection
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium

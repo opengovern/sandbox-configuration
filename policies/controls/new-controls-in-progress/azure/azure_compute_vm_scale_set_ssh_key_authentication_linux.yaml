@@ -1,0 +1,34 @@
+ID: azure_compute_vm_scale_set_ssh_key_authentication_linux
+Title: Compute virtual machine scale sets with linux OS should have SSH key authentication enabled
+Description: This control checks whether virtual machine scale sets have SSH key authentication enabled. This control is only applicable for Linux-type operating systems.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' then 'skip'
+        when virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' then a.title || ' is using windows OS.'
+        when virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' then a.title || ' has SSK key authentication enabled.'
+        else a.title || ' has password authentication enabled.'
+      end as reason
+    from
+      azure_compute_virtual_machine_scale_set as a,
+      azure_subscription as sub
+    where
+      sub.subscription_id = a.subscription_id;
+  PrimaryTable: azure_compute_virtual_machine_scale_set
+  ListOfTables:
+  - azure_compute_virtual_machine_scale_set
+  - azure_subscription
+  Parameters: []
+Connector:
+- azure
+Tags: {}
+Severity: low

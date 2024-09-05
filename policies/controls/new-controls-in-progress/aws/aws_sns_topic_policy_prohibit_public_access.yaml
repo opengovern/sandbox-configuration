@@ -1,0 +1,46 @@
+ID: aws_sns_topic_policy_prohibit_public_access
+Title: SNS topic policies should prohibit public access
+Description: Manage access to resources in the AWS Cloud by ensuring AWS SNS topics cannot be publicly accessed.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with wildcard_action_policies as (
+      select
+        topic_arn,
+        count(*) as statements_num
+      from
+        aws_sns_topic,
+        jsonb_array_elements(policy_std -> 'Statement') as s
+      where
+        s ->> 'Effect' = 'Allow'
+        and (
+          ( s -> 'Principal' -> 'AWS') = '["*"]'
+          or s ->> 'Principal' = '*'
+        )
+      group by
+        topic_arn
+    )
+    select
+      t.topic_arn as resource,
+      t.kaytu_account_id as kaytu_account_id,
+      t.kaytu_resource_id as kaytu_resource_id,
+      case
+        when p.topic_arn is null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when p.topic_arn is null then title || ' does not allow public access.'
+        else title || ' contains ' || coalesce(p.statements_num,0) ||
+        ' statements that allows public access.'
+      end as reason
+    from
+      aws_sns_topic as t
+      left join wildcard_action_policies as p on p.topic_arn = t.topic_arn;
+  PrimaryTable: aws_sns_topic
+  ListOfTables:
+  - aws_sns_topic
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: low

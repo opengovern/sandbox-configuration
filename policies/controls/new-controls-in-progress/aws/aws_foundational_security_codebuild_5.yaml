@@ -1,0 +1,28 @@
+ID: aws_foundational_security_codebuild_5
+Title: 5 CodeBuild project environments should not have privileged mode enabled
+Description: This control checks if an AWS CodeBuild project environment has privileged mode enabled. This control fails when an AWS CodeBuild project environment has privileged mode enabled.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when environment ->> 'PrivilegedMode' = 'true' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when environment ->> 'PrivilegedMode' = 'true' then title || ' environment privileged mode enabled.'
+        else title || ' environment privileged mode disabled.'
+      end as reason
+    from
+      aws_codebuild_project;
+  PrimaryTable: aws_codebuild_project
+  ListOfTables:
+  - aws_codebuild_project
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: high

@@ -1,0 +1,28 @@
+ID: aws_foundational_security_elb_9
+Title: 9 Classic Load Balancers should have cross-zone load balancing enabled
+Description: This control checks if cross-zone load balancing is enabled for the Classic Load Balancers (CLBs). This control fails if cross-zone load balancing is not enabled for a CLB.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when cross_zone_load_balancing_enabled then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when cross_zone_load_balancing_enabled then title || ' cross-zone load balancing enabled.'
+        else title || ' cross-zone load balancing disabled.'
+      end as reason
+    from
+      aws_ec2_classic_load_balancer;
+  PrimaryTable: aws_ec2_classic_load_balancer
+  ListOfTables:
+  - aws_ec2_classic_load_balancer
+  Parameters: []
+Connector:
+- aws
+Tags: {}
+Severity: medium
