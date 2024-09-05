@@ -1,0 +1,36 @@
+ID: azure_cis_v150_4_1_2
+Title: "4.1.2 Ensure no Azure SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)"
+Description: "Ensure that no SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      s.id resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when firewall_rules @> '[{"properties":{"endIpAddress":"0.0.0.0","startIpAddress":"0.0.0.0"}}]'
+        or firewall_rules @> '[{"properties":{"endIpAddress":"255.255.255.255","startIpAddress":"0.0.0.0"}}]'
+          then 'alarm'
+          else 'ok'
+      end as status,
+      case
+        when firewall_rules @> '[{"properties":{"endIpAddress":"0.0.0.0","startIpAddress":"0.0.0.0"}}]'
+        or firewall_rules @> '[{"properties":{"endIpAddress":"255.255.255.255","startIpAddress":"0.0.0.0"}}]'
+          then s.title || ' allows ingress 0.0.0.0/0 or any ip over internet.'
+          else s.title || ' not allows ingress 0.0.0.0/0 or any ip over internet.'
+      end as reason
+    from
+      azure_sql_server s,
+      azure_subscription sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_sql_server
+  ListOfTables:
+  - azure_sql_server
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

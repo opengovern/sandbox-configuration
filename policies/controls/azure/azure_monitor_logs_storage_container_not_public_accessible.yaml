@@ -1,54 +1,54 @@
 ID: azure_monitor_logs_storage_container_not_public_accessible
 Title: "Ensure the storage container storing the activity logs is not publicly accessible"
 Description: "The storage account container containing the activity log export should not be publicly accessible."
+Connector:
+- Azure
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_storage_container
-        - azure_subscription
-    Parameters: []
-    PrimaryTable: azure_storage_container
-    QueryToExecute: |
-        select
-          sc.id as resource,
-          sc.kaytu_account_id as kaytu_account_id,
-          sc.kaytu_resource_id as kaytu_resource_id,
-          case
-            when public_access != 'None' then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when public_access != 'None'
-              then account_name || ' container insights-operational-logs storing activity logs publicly accessible.'
-            else account_name || ' container insights-operational-logs storing activity logs not publicly accessible.'
-          end as reason
-          , sc.resource_group as resource_group
-          , sub.display_name as subscription
-        from
-          azure_storage_container sc,
-          azure_subscription sub
-        where
-          name LIKE 'insight%logs%'
-          and sub.subscription_id = sc.subscription_id;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      sc.id as resource,
+      sc.kaytu_account_id as kaytu_account_id,
+      sc.kaytu_resource_id as kaytu_resource_id,
+      case
+        when public_access != 'None' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when public_access != 'None'
+          then account_name || ' container insights-operational-logs storing activity logs publicly accessible.'
+        else account_name || ' container insights-operational-logs storing activity logs not publicly accessible.'
+      end as reason
+      , sc.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_storage_container sc,
+      azure_subscription sub
+    where
+      name LIKE 'insight%logs%'
+      and sub.subscription_id = sc.subscription_id;
+  PrimaryTable: azure_storage_container
+  ListOfTables:
+  - azure_storage_container
+  - azure_subscription
+  Parameters: []
 Severity: high
 Tags:
-    category:
-        - Compliance
-    cis:
-        - "true"
-    cis_item_id:
-        - 5.1.3
-    cis_level:
-        - "1"
-    cis_section_id:
-        - "5.1"
-    cis_type:
-        - automated
-    cis_version:
-        - v1.3.0
-    plugin:
-        - azure
-    service:
-        - Azure/Monitor
-Connector:
-    - Azure
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 5.1.3
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "5.1"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Monitor

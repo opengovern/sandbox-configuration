@@ -1,42 +1,42 @@
 ID: azure_disks_should_use_standard_snapshots
 Title: "Disks should use standard snapshots"
 Description: "Use standard storage instead of premium storage for managed disk snapshots to save 60% on costs."
+Connector:
+- Azure
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_compute_snapshot
-        - azure_subscription
-    Parameters: []
-    PrimaryTable: azure_compute_snapshot
-    QueryToExecute: |
-        select
-          ss.id as resource,
-          ss.kaytu_resource_id,
-          ss.kaytu_account_id,
-          case
-            when ss.sku_tier = 'Standard' then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when ss.sku_tier = 'Standard' then 0
-            else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = ss.kaytu_resource_id)
-          end as cost_optimization,
-          case
-            when ss.sku_tier = 'Standard' then ss.title || ' has storage type ' || ss.sku_tier || '.'
-            else ss.title || ' has storage type ' || ss.sku_tier || '.'
-          end as reason,
-          ss.resource_group,
-          display_name as subscription
-        from
-          azure_compute_snapshot as ss,
-          azure_subscription as sub
-        where
-          ss.subscription_id = sub.subscription_id;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      ss.id as resource,
+      ss.kaytu_resource_id,
+      ss.kaytu_account_id,
+      case
+        when ss.sku_tier = 'Standard' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when ss.sku_tier = 'Standard' then 0
+        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = ss.kaytu_resource_id)
+      end as cost_optimization,
+      case
+        when ss.sku_tier = 'Standard' then ss.title || ' has storage type ' || ss.sku_tier || '.'
+        else ss.title || ' has storage type ' || ss.sku_tier || '.'
+      end as reason,
+      ss.resource_group,
+      display_name as subscription
+    from
+      azure_compute_snapshot as ss,
+      azure_subscription as sub
+    where
+      ss.subscription_id = sub.subscription_id;
+  PrimaryTable: azure_compute_snapshot
+  ListOfTables:
+  - azure_compute_snapshot
+  - azure_subscription
+  Parameters: []
 Severity: medium
 Tags:
-    score_service_name:
-        - Azure Virtual Machines
-    score_tags:
-        - Over Utilization
-Connector:
-    - Azure
+  score_service_name:
+  - Azure Virtual Machines
+  score_tags:
+  - Over Utilization

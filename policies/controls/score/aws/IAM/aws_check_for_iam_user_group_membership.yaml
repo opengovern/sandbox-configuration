@@ -1,18 +1,34 @@
 ID: aws_check_for_iam_user_group_membership
 Title: "Check for IAM User Group Membership"
 Description: "Ensure that all Amazon IAM users have group memberships."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_iam_user
-    Parameters: []
-    PrimaryTable: aws_iam_user
-    QueryToExecute: "SELECT \n  name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN groups is null THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN groups is null THEN name || ' does not belong to any IAM group.' \n    ELSE name || ' belongs to at least one IAM group.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      name as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN groups is null THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN groups is null THEN name || ' does not belong to any IAM group.' 
+        ELSE name || ' belongs to at least one IAM group.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_iam_user
+  PrimaryTable: aws_iam_user
+  ListOfTables:
+  - aws_iam_user
+  Parameters: []
 Severity: high
 Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-    score_tags:
-        - Problem Identities
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

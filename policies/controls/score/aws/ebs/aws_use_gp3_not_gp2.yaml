@@ -1,32 +1,32 @@
 ID: aws_use_gp3_not_gp2
 Title: "Use GP3, not GP2"
 Description: "EBS gp2 volumes are legacy, costly, and have lower performance than gp3."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_ebs_volume
-    Parameters: []
-    PrimaryTable: aws_ebs_volume
-    QueryToExecute: |
-        select
-          arn as resource,
-          kaytu_resource_id,
-          kaytu_account_id,
-          case
-            when volume_type = 'gp2' then 'alarm'
-            when volume_type = 'gp3' then 'ok'
-            else 'skip'
-          end as status,
-          volume_id || ' type is ' || volume_type || '.' as reason,
-          region,
-          account_id
-        from
-          aws_ebs_volume;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      case
+        when volume_type = 'gp2' then 'alarm'
+        when volume_type = 'gp3' then 'ok'
+        else 'skip'
+      end as status,
+      volume_id || ' type is ' || volume_type || '.' as reason,
+      region,
+      account_id
+    from
+      aws_ebs_volume;
+  PrimaryTable: aws_ebs_volume
+  ListOfTables:
+  - aws_ebs_volume
+  Parameters: []
 Severity: medium
 Tags:
-    score_service_name:
-        - AWS Elastic Block Store (EBS)
-    score_tags:
-        - General Efficiency
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Elastic Block Store (EBS)
+  score_tags:
+  - General Efficiency

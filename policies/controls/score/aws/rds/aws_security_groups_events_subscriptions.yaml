@@ -1,19 +1,39 @@
 ID: aws_security_groups_events_subscriptions
 Title: "Security Groups Events Subscriptions"
 Description: "Enable Event Subscriptions for DB Security Groups Events."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_account
-        - aws_rds_db_event_subscription
-    Parameters: []
-    PrimaryTable: aws_account
-    QueryToExecute: "select distinct\n  a.kaytu_account_id,\n  a.kaytu_resource_id,\n  case\n    when s.arn\n    is null then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when s.arn is\n    null then 'Event subscription is not enabled for database security groups'\n    else\n    'Event subscription is enabled for database security groups'\n  end reason,\n\n    a.account_id\nfrom \n  aws_account a\n  left join (select * from aws_rds_db_event_subscription\n    where source_type = 'db-security-group') s on s.kaytu_account_id = a.kaytu_account_id\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select distinct
+      a.kaytu_account_id,
+      a.kaytu_resource_id,
+      case
+        when s.arn
+        is null then 'alarm'
+        else 'ok'
+      end status,
+      case
+        when s.arn is
+        null then 'Event subscription is not enabled for database security groups'
+        else
+        'Event subscription is enabled for database security groups'
+      end reason,
+    
+        a.account_id
+    from 
+      aws_account a
+      left join (select * from aws_rds_db_event_subscription
+        where source_type = 'db-security-group') s on s.kaytu_account_id = a.kaytu_account_id
+  PrimaryTable: aws_account
+  ListOfTables:
+  - aws_account
+  - aws_rds_db_event_subscription
+  Parameters: []
 Severity: high
 Tags:
-    score_service_name:
-        - AWS Relational Database Service (RDS)
-    score_tags:
-        - General Efficiency
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Relational Database Service (RDS)
+  score_tags:
+  - General Efficiency

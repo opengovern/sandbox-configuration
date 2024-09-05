@@ -1,0 +1,58 @@
+ID: aws_elasticache_replication_group_encryption_at_rest_enabled_with_kms_cmk
+Title: "ElastiCache for Redis replication groups should be encrypted with CMK"
+Description: "Ensure ElastiCache for Redis replication group are encrypted using CMK. The rule is non-compliant if the ElastiCache for Redis replication group is not encrypted using CMK."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with aws_elasticache_replication_groups as (
+      select
+        arn,
+        at_rest_encryption_enabled,
+        title,
+        kms_key_id,
+        region,
+        account_id,
+        _ctx
+      from
+        aws_elasticache_replication_group
+      order by
+        arn
+    ),
+    kms_keys as (
+      select
+        k.arn,
+        k.region,
+        k.account_id,
+        k.enabled
+      from
+        aws_kms_key as k
+    )
+    select
+      r.arn as resource,
+      r.kaytu_account_id as kaytu_account_id,
+      r.kaytu_resource_id as kaytu_resource_id,
+      case
+        when not at_rest_encryption_enabled then 'alarm'
+        when at_rest_encryption_enabled and kms_key_id is null then 'alarm'
+        when at_rest_encryption_enabled and kms_key_id is not null and k.enabled then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when not at_rest_encryption_enabled then r.title || ' encryption at rest disabled.'
+        when at_rest_encryption_enabled and kms_key_id is null then r.title || ' encryption at rest not enabled with CMK.'
+        when at_rest_encryption_enabled and kms_key_id is not null and k.enabled then r.title || ' encryption at rest enabled with CMK.'
+        else r.title || ' encryption at rest enabled with disabled CMK.'
+      end as reason
+      
+    from
+      aws_elasticache_replication_groups as r
+      left join kms_keys as k on k.arn = r.kms_key_id;
+  PrimaryTable: aws_elasticache_replication_group
+  ListOfTables:
+  - aws_elasticache_replication_group
+  - aws_kms_key
+  Parameters: []
+Severity: low
+Tags: {}

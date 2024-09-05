@@ -1,18 +1,35 @@
 ID: aws_iam_policies_with_effect_set_to_allow_and_notaction
 Title: "IAM Policies with Effect set to Allow and NotAction"
 Description: "Ensure that IAM policies do not use \"Allow\" in combination with \"NotAction\" element to follow IAM security best practices."
+Connector:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      name as resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      case
+        when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then name || ' has allowed nonAction policy'
+        else name || ' does not have allowed nonAction policy'
+      end as reason,
+      region, 
+      account_id
+    from
+      aws_iam_policy,
+      jsonb_array_elements(policy_std -> 'Statement') as s
+  PrimaryTable: aws_iam_policy
+  ListOfTables:
+  - aws_iam_policy
+  Parameters: []
 Severity: medium
 Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-    score_tags:
-        - Problem Identities
-Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_iam_policy
-    Parameters: []
-    PrimaryTable: aws_iam_policy
-    QueryToExecute: "select\n  name as resource,\n  kaytu_account_id,\n  kaytu_resource_id,\n  case\n    when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then name || ' has allowed nonAction policy'\n    else name || ' does not have allowed nonAction policy'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_policy,\n  jsonb_array_elements(policy_std -> 'Statement') as s\n"
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

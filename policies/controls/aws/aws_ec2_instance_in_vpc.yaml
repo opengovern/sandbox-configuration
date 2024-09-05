@@ -1,0 +1,68 @@
+ID: aws_ec2_instance_in_vpc
+Title: "EC2 instances should be in a VPC"
+Description: "Deploy AWS Elastic Compute Cloud (AWS EC2) instances within an AWS Virtual Private Cloud (AWS VPC) to enable secure communication between an instance and other services within the amazon VPC, without requiring an internet gateway, NAT device, or VPN connection."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when vpc_id is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when vpc_id is null then title || ' not in VPC.'
+        else title || ' in VPC.'
+      end as reason
+      
+      , region, account_id
+    from
+      aws_ec2_instance;
+  PrimaryTable: aws_ec2_instance
+  ListOfTables:
+  - aws_ec2_instance
+  Parameters: []
+Severity: medium
+Tags:
+  category:
+  - Compliance
+  cis_controls_v8_ig1:
+  - "true"
+  cisa_cyber_essentials:
+  - "true"
+  fedramp_low_rev_4:
+  - "true"
+  fedramp_moderate_rev_4:
+  - "true"
+  ffiec:
+  - "true"
+  gxp_21_cfr_part_11:
+  - "true"
+  hipaa_final_omnibus_security_rule_2013:
+  - "true"
+  hipaa_security_rule_2003:
+  - "true"
+  nist_800_171_rev_2:
+  - "true"
+  nist_800_53_rev_4:
+  - "true"
+  nist_800_53_rev_5:
+  - "true"
+  nist_csf:
+  - "true"
+  pci_dss_v321:
+  - "true"
+  plugin:
+  - aws
+  rbi_cyber_security:
+  - "true"
+  score_tags:
+  - Exposed Endpoints
+  service:
+  - AWS/EC2
+  soc_2:
+  - "true"

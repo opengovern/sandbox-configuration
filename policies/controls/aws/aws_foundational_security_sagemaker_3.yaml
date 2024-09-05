@@ -1,0 +1,28 @@
+ID: aws_foundational_security_sagemaker_3
+Title: "3 Users should not have root access to SageMaker notebook instances"
+Description: "This control checks whether root access is turned on for an Amazon SageMaker notebook instance. The control fails if root access is turned on for a SageMaker notebook instance."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when root_access = 'Disabled' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when root_access = 'Disabled' then title || ' root access disabled.'
+        else title || ' root access enabled.'
+      end as reason
+    from
+      aws_sagemaker_notebook_instance;
+  PrimaryTable: aws_sagemaker_notebook_instance
+  ListOfTables:
+  - aws_sagemaker_notebook_instance
+  Parameters: []
+Severity: high
+Tags: {}

@@ -1,0 +1,32 @@
+ID: azure_cis_v150_9_4
+Title: "9.4 Ensure the web app has 'Client Certificates (Incoming client certificates)' set to 'On'"
+Description: "Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      app.id as resource,
+      app.kaytu_account_id as kaytu_account_id,
+      app.kaytu_resource_id as kaytu_resource_id,
+      case
+        when not client_cert_enabled then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when not client_cert_enabled then name || ' incoming client certificates set to off.'
+        else name || ' incoming client certificates set to on.'
+      end as reason
+    from
+      azure_app_service_web_app as app,
+      azure_subscription as sub
+    where
+      sub.subscription_id = app.subscription_id;
+  PrimaryTable: azure_app_service_web_app
+  ListOfTables:
+  - azure_app_service_web_app
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

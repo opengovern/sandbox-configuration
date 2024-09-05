@@ -1,0 +1,34 @@
+ID: azure_cis_v200_4_1_6
+Title: "4.1.6 Ensure that 'Auditing' Retention is 'greater than 90 days'"
+Description: "SQL Server Audit Retention should be configured to be greater than 90 days."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      s.id as resource,
+      case
+        when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then 'ok'
+        when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then name || ' audit retention set to unlimited days.'
+        when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then name || ' audit retention greater than 90 days.'
+        else  name || ' audit retention less than 90 days.'
+      end as reason
+      
+      
+      
+    from
+      azure_sql_server s,
+      jsonb_array_elements(server_audit_policy) audit,
+      azure_subscription sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Severity: low
+Tags: {}

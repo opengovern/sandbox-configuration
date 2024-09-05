@@ -1,0 +1,46 @@
+ID: aws_glacier_vault_restrict_public_access
+Title: "Glacier vault should restrict public access"
+Description: "Manage access to resources in the AWS Cloud by ensuring AWS Glacier vault cannot be publicly accessed."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with wildcard_action_policies as (
+      select
+        vault_arn,
+        count(*) as statements_num
+      from
+        aws_glacier_vault,
+        jsonb_array_elements(policy_std -> 'Statement') as s
+      where
+        s ->> 'Effect' = 'Allow'
+        and (
+          ( s -> 'Principal' -> 'AWS') = '["*"]'
+          or s ->> 'Principal' = '*'
+        )
+      group by
+        vault_arn
+    )
+    select
+      g.vault_arn as resource,
+      g.kaytu_account_id as kaytu_account_id,
+      g.kaytu_resource_id as kaytu_resource_id,
+      case
+        when p.vault_arn is null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when p.vault_arn is null then title || ' does not allow public access.'
+        else title || ' contains ' || coalesce(p.statements_num, 0) ||
+        ' statements that allow public access.'
+      end as reason
+    from
+      aws_glacier_vault as g
+      left join wildcard_action_policies as p on p.vault_arn = g.vault_arn;
+  PrimaryTable: aws_glacier_vault
+  ListOfTables:
+  - aws_glacier_vault
+  Parameters: []
+Severity: low
+Tags: {}

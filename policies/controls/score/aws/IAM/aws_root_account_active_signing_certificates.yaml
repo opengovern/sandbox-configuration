@@ -1,18 +1,36 @@
 ID: aws_root_account_active_signing_certificates
 Title: "Root Account Active Signing Certificates"
 Description: "Ensure that your AWS root account user is not using X.509 certificates to validate API requests."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_iam_credential_report
-    Parameters: []
-    PrimaryTable: aws_iam_credential_report
-    QueryToExecute: "select\n  (user_name || ' in account ' || account_id) as resource,\n  kaytu_account_id,\n  kaytu_resource_id,\n  case\n    when cert_1_active or cert_2_active then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when cert_1_active or cert_2_active then 'is using X.509 certificates to perform SOAP-protocol requests to AWS services. It is better to be disabled'\n    else 'is not using X.509 certificates to perform SOAP-protocol requests to AWS services'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_credential_report\nwhere\n  user_name = '<root_account>'\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      (user_name || ' in account ' || account_id) as resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      case
+        when cert_1_active or cert_2_active then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when cert_1_active or cert_2_active then 'is using X.509 certificates to perform SOAP-protocol requests to AWS services. It is better to be disabled'
+        else 'is not using X.509 certificates to perform SOAP-protocol requests to AWS services'
+      end as reason,
+      region, 
+      account_id
+    from
+      aws_iam_credential_report
+    where
+      user_name = '<root_account>'
+  PrimaryTable: aws_iam_credential_report
+  ListOfTables:
+  - aws_iam_credential_report
+  Parameters: []
 Severity: high
 Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-    score_tags:
-        - Insecure Keys
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Insecure Keys

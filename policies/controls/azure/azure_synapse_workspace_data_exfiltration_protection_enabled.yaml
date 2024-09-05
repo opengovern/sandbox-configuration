@@ -1,0 +1,32 @@
+ID: azure_synapse_workspace_data_exfiltration_protection_enabled
+Title: "Synapse workspaces should have data exfiltration protection enabled"
+Description: "This control checks whether Synapse workspace has data exfiltration protection enabled."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' then s.title || ' data exfiltration protection enabled.'
+        else s.title || ' data exfiltration protection disabled.'
+      end as reason
+    from
+      azure_synapse_workspace as s,
+      azure_subscription as sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_synapse_workspace
+  ListOfTables:
+  - azure_synapse_workspace
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

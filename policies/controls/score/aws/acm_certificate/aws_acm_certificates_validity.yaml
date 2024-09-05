@@ -1,18 +1,36 @@
 ID: aws_acm_certificates_validity
 Title: "AWS ACM Certificates Validity"
 Description: "Ensure expired SSL/TLS certificates are removed from AWS Certificate Manager (ACM)."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_acm_certificate
-    Parameters: []
-    PrimaryTable: aws_acm_certificate
-    QueryToExecute: "SELECT \n  certificate_arn as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN status = 'EXPIRED' then 'skip'\n    WHEN status = 'PENDING_VALIDATION' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN status = 'EXPIRED' then 'certificate has been expired'\n    WHEN status = 'PENDING_VALIDATION' THEN 'certificate validation is pending' \n    ELSE 'certificate has been validated'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_acm_certificate\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      certificate_arn as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN status = 'EXPIRED' then 'skip'
+        WHEN status = 'PENDING_VALIDATION' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN status = 'EXPIRED' then 'certificate has been expired'
+        WHEN status = 'PENDING_VALIDATION' THEN 'certificate validation is pending' 
+        ELSE 'certificate has been validated'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_acm_certificate
+  PrimaryTable: aws_acm_certificate
+  ListOfTables:
+  - aws_acm_certificate
+  Parameters: []
 Severity: medium
 Tags:
-    score_service_name:
-        - AWS Certificate Manager
-    score_tags:
-        - Tolerate Failures
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Certificate Manager
+  score_tags:
+  - Tolerate Failures

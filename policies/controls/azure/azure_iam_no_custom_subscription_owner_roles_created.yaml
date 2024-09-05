@@ -1,33 +1,77 @@
 ID: azure_iam_no_custom_subscription_owner_roles_created
-Title: "Ensure that no custom subscription owner roles are created"
-Description: "Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access."
+Title: "Ensure that no Custom Subscription Administrator roles exist"
+Description: "The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access."
+Connector:
+- azure
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_role_definition
-        - azure_subscription
-    Parameters: []
-    PrimaryTable: azure_subscription
-    QueryToExecute: "with owner_custom_roles as (\n  select\n    role_name,\n    role_type,\n    title,\n    action,\n    kaytu_account_id as kaytu_account_id,\n    kaytu_resource_id as kaytu_resource_id,\n    _ctx,\n    subscription_id\n  from\n    azure_role_definition,\n    jsonb_array_elements(permissions) as s,\n    jsonb_array_elements_text(s -> 'actions') as action\n  where\n    role_type = 'CustomRole'\n    and action in ('*', '*:*')\n)\nselect\n  cr.subscription_id as resource,\n  cr.kaytu_account_id as kaytu_account_id,\n  cr.kaytu_resource_id as kaytu_resource_id,\n  case\n    when count(*) > 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when count(*) = 1 then 'There is one custom owner role.'\n    when count(*) > 1 then 'There are ' || count(*) || ' custom owner roles.'\n    else 'There are no custom owner roles.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  owner_custom_roles cr,\n  azure_subscription sub\nwhere\n  sub.subscription_id = cr.subscription_id\ngroup by\n  cr.subscription_id,\n  cr.kaytu_account_id,\n  cr.kaytu_resource_id,\n  cr._ctx,\n  sub.display_name;\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with owner_custom_roles as (
+      select
+        role_name,
+        role_type,
+        title,
+        action,
+        kaytu_account_id as kaytu_account_id,
+        kaytu_resource_id as kaytu_resource_id,
+        _ctx,
+        subscription_id
+      from
+        azure_role_definition,
+        jsonb_array_elements(permissions) as s,
+        jsonb_array_elements_text(s -> 'actions') as action
+      where
+        role_type = 'CustomRole'
+        and action in ('*', '*:*')
+    )
+    select
+      cr.subscription_id as resource,
+      cr.kaytu_account_id as kaytu_account_id,
+      cr.kaytu_resource_id as kaytu_resource_id,
+      case
+        when count(*) > 0 then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when count(*) = 1 then 'There is one custom owner role.'
+        when count(*) > 1 then 'There are ' || count(*) || ' custom owner roles.'
+        else 'There are no custom owner roles.'
+      end as reason
+      
+      , sub.display_name as subscription
+    from
+      owner_custom_roles cr,
+      azure_subscription sub
+    where
+      sub.subscription_id = cr.subscription_id
+    group by
+      cr.subscription_id,
+      cr.kaytu_account_id,
+      cr.kaytu_resource_id,
+      cr._ctx,
+      sub.display_name;
+  PrimaryTable: azure_subscription
+  ListOfTables:
+  - azure_role_definition
+  - azure_subscription
+  Parameters: []
 Severity: medium
 Tags:
-    category:
-        - Compliance
-    cis:
-        - "true"
-    cis_item_id:
-        - "1.21"
-    cis_level:
-        - "2"
-    cis_section_id:
-        - "1"
-    cis_type:
-        - automated
-    cis_version:
-        - v1.3.0
-    plugin:
-        - azure
-    service:
-        - Azure/ActiveDirectory
-Connector:
-    - Azure
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "1.21"
+  cis_level:
+  - "2"
+  cis_section_id:
+  - "1"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/ActiveDirectory

@@ -1,17 +1,34 @@
 ID: aws_iam_users_with_console_access_are_requried_to_have_MFA
 Title: "IAM Users with Console Access are requried to have MFA"
 Description: "IAM Users with Console Access are requried to have MFA"
-Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_iam_credential_report
-        - aws_iam_user
-    Parameters: []
-    PrimaryTable: aws_iam_user
-    QueryToExecute: "select \n  user_arn as resource,\n  case \n    when not(mfa_active::bool) then 'alarm'\n    else 'ok'\n  end as status,\n  case \n    when not(mfa_active::bool) then 'MFA is not enabled for ' || user_name\n    else user_name || ' has MFA'\n  end as reason,\n  u.kaytu_resource_id,\n  u.kaytu_account_id,\n  u.account_id\nfrom \n  aws_iam_credential_report cr inner join aws_iam_user u on cr.user_arn = u.arn \nwhere \n  not(login_profile ->> 'UserName' is null)\n"
-Severity: low
 Connector:
-    - AWS
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select 
+      user_arn as resource,
+      case 
+        when not(mfa_active::bool) then 'alarm'
+        else 'ok'
+      end as status,
+      case 
+        when not(mfa_active::bool) then 'MFA is not enabled for ' || user_name
+        else user_name || ' has MFA'
+      end as reason,
+      u.kaytu_resource_id,
+      u.kaytu_account_id,
+      u.account_id
+    from 
+      aws_iam_credential_report cr inner join aws_iam_user u on cr.user_arn = u.arn 
+    where 
+      not(login_profile ->> 'UserName' is null)
+  PrimaryTable: aws_iam_user
+  ListOfTables:
+  - aws_iam_credential_report
+  - aws_iam_user
+  Parameters: []
+Severity: low
+Tags:
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
