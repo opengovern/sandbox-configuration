@@ -1,0 +1,43 @@
+ID: azure_mandatory_sql_resource_group_express_route_circuit_mandatory
+Title: "ExpressRoute circuits should have mandatory tags"
+Description: "Check if ExpressRoute circuits have mandatory tags."
+Connector:
+  - Azure
+Query:
+  Engine: steampipe-v0.5
+  QueryToExecute: |
+    with analysis as (
+      select
+        kaytu_account_id,
+        kaytu_resource_id,
+        id,
+        title,
+        tags ?& '{{.azureMandatoryTags}}'::text[] as has_mandatory_tags,
+        to_jsonb('{{.azureMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
+        resource_group, subscription_id
+      from
+        azure_express_route_circuit
+    )
+    select
+        kaytu_account_id,
+        kaytu_resource_id,
+        id as resource,
+      case
+        when has_mandatory_tags then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when has_mandatory_tags then title || ' has all mandatory tags.'
+        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
+      end as reason,
+      resource_group, subscription_id
+    from
+      analysis;
+  PrimaryTable: azure_express_route_circuit
+  ListOfTables:
+  - azure_express_route_circuit
+  Parameters:
+  - key: "azureMandatoryTags"
+    required: true
+Severity: high
+Tags: {}
