@@ -1,14 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    notification_rule.name as notification_rule,
-    target ->> 'TargetType' as target_type,
-    topic.title as target_topic
-  from
-    aws_codestar_notification_rule as notification_rule cross
-    join jsonb_array_elements(notification_rule.targets) as target
-    left join aws_sns_topic as topic on target ->> 'TargetAddress' = topic.topic_arn;
-  
-Title: "Steampipe Table: aws_codestar_notification_rule - Query AWS CodeStar notification rules using SQL"
+Title: "List all AWS CodeStar Notification Rules with Target Details"
 Description: "Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      notification_rule.name as notification_rule,
+      target ->> 'TargetType' as target_type,
+      topic.title as target_topic
+    from
+      aws_codestar_notification_rule as notification_rule cross
+      join jsonb_array_elements(notification_rule.targets) as target
+      left join aws_sns_topic as topic on target ->> 'TargetAddress' = topic.topic_arn;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CodeStar

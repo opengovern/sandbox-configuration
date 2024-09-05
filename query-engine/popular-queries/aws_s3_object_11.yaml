@@ -1,18 +1,24 @@
-connectors:
-- AWS
-query: |-
-  select
-    key,
-    o.arn as object_arn,
-    bucket_name,
-    last_modified,
-    bucket_key_enabled
-  from
-    aws_s3_object as o,
-    aws_s3_bucket as b
-  where
-    o.bucket_name = b.name
-    and not bucket_key_enabled;
-  
-Title: "Steampipe Table: aws_s3_object - Query AWS S3 Object using SQL"
+Title: "Find all AWS S3 Object Metadata and Details"
 Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      key,
+      o.arn as object_arn,
+      bucket_name,
+      last_modified,
+      bucket_key_enabled
+    from
+      aws_s3_object as o,
+      aws_s3_bucket as b
+    where
+      o.bucket_name = b.name
+      and not bucket_key_enabled;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: S3

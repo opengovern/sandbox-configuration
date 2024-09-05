@@ -1,19 +1,24 @@
-connectors:
-- AWS
-query: |-
-  select
-    cache_cluster_id,
-    timestamp,
-    minimum,
-    maximum,
-    average,
-    sample_count,
-    sum
-  from
-    aws_elasticache_redis_metric_list_based_cmds_hourly
-  order by
-    cache_cluster_id,
-    timestamp;
-  
-Title: "Steampipe Table: aws_elasticache_redis_metric_list_based_cmds_hourly - Query AWS ElastiCache Redis Metrics using SQL"
+Title: "List All ElastiCache Redis List-Based Command Metrics"
 Description: "Allows users to query ElastiCache Redis Metrics on an hourly basis, providing data on list-based commands executed in the ElastiCache Redis environment."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count,
+      sum
+    from
+      aws_elasticache_redis_metric_list_based_cmds_hourly
+    order by
+      cache_cluster_id,
+      timestamp;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: ElastiCache Redis

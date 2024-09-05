@@ -1,13 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    cache_cluster_id,
-    sg ->> 'SecurityGroupId' as security_group_id,
-    sg ->> 'Status' as status
-  from
-    aws_elasticache_cluster,
-    jsonb_array_elements(security_groups) as sg;
-  
-Title: "Steampipe Table: aws_elasticache_cluster - Query Amazon ElastiCache Cluster using SQL"
+Title: "List All Amazon ElastiCache Clusters with Security Details"
 Description: "Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      sg ->> 'SecurityGroupId' as security_group_id,
+      sg ->> 'Status' as status
+    from
+      aws_elasticache_cluster,
+      jsonb_array_elements(security_groups) as sg;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: ElastiCache

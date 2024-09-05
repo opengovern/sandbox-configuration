@@ -1,23 +1,28 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    parent_id,
-    path
-  from
-    aws_organizations_organizational_unit
-  where
-    parent_id =
-    (
-      select
-        parent_id
-      from
-        aws_organizations_organizational_unit
-      where
-        name = 'Punisher'
-    );
-  
-Title: "Steampipe Table: aws_organizations_organizational_unit - Query AWS Organizations Organizational Units using SQL"
+Title: "Find all AWS Organizations Organizational Units"
 Description: "Allows users to query AWS Organizations Organizational Units and provides information about each OU."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      parent_id,
+      path
+    from
+      aws_organizations_organizational_unit
+    where
+      parent_id =
+      (
+        select
+          parent_id
+        from
+          aws_organizations_organizational_unit
+        where
+          name = 'Punisher'
+      );
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Organizations

@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    name,
-    arn,
-    type,
-    aws_managed
-  from
-    aws_organizations_policy
-  where
-    not aws_managed
-    and type = 'TAG_POLICY';
-  
-Title: "Steampipe Table: aws_organizations_policy - Query AWS Organizations Policy using SQL"
+Title: "List all Tag Policies in AWS Organizations"
 Description: "Allows users to query AWS Organizations Policy to retrieve detailed information on policies within AWS Organizations. This table can be utilized to gain insights on policy-specific details, such as policy type, content, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      name,
+      arn,
+      type,
+      aws_managed
+    from
+      aws_organizations_policy
+    where
+      not aws_managed
+      and type = 'TAG_POLICY';
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: AWS
+  cloud_service: Organizations

@@ -1,20 +1,26 @@
-connectors:
-- AWS
-query: |-
-  select
-    title,
-    p as principal,
-    a as action,
-    s ->> 'Effect' as effect,
-    s -> 'Condition' as conditions
-  from
-    aws_api_gateway_rest_api,
-    jsonb_array_elements(policy_std -> 'Statement') as s,
-    jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-    jsonb_array_elements_text(s -> 'Action') as a
-  where
-    p = '*'
-    and s ->> 'Effect' = 'Allow';
-  
-Title: "Steampipe Table: aws_api_gateway_rest_api - Query AWS API Gateway Rest APIs using SQL"
+Title: "List all AWS API Gateway REST APIs and Their Policies"
 Description: "Allows users to query AWS API Gateway Rest APIs to retrieve information about API Gateway REST APIs in an AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      p as principal,
+      a as action,
+      s ->> 'Effect' as effect,
+      s -> 'Condition' as conditions
+    from
+      aws_api_gateway_rest_api,
+      jsonb_array_elements(policy_std -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+      jsonb_array_elements_text(s -> 'Action') as a
+    where
+      p = '*'
+      and s ->> 'Effect' = 'Allow';
+Tags:
+  cloud_identity_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: API Gateway

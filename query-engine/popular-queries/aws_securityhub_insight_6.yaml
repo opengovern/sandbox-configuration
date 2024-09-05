@@ -1,14 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    filters ->> 'ThreatIntelIndicatorType' as threat_intelligence_details
-  from
-    aws_securityhub_insight
-  where
-    filters ->> 'ThreatIntelIndicatorType' = '{"Comparison": "EQUALS", "Value": "IPV4_ADDRESS"}'
-  
-Title: "Steampipe Table: aws_securityhub_insight - Query AWS Security Hub Insights using SQL"
+Title: "List all AWS Security Hub Insights with Filters and Grouping"
 Description: "Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      filters ->> 'ThreatIntelIndicatorType' as threat_intelligence_details
+    from
+      aws_securityhub_insight
+    where
+      filters ->> 'ThreatIntelIndicatorType' = '{"Comparison": "EQUALS", "Value": "IPV4_ADDRESS"}'
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: AWS Security Hub

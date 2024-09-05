@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name as policy_name, 
-    policy_arn, 
-    jsonb_pretty(policy_users) as policy_users
-  from
-    aws_iam_policy p
-    left join aws_iam_policy_attachment a on p.arn = a.policy_arn 
-  where
-    name = 'AdministratorAccess' and a.is_attached;
-  
-Title: "Steampipe Table: aws_iam_policy_attachment - Query AWS IAM Policy Attachments using SQL"
+Title: "Find Relationships Between AWS IAM Policies and Entities"
 Description: "Allows users to query IAM Policy Attachments in AWS to gather information about the relationship between IAM policies and their associated entities (users, groups, and roles)."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name as policy_name, 
+      policy_arn, 
+      jsonb_pretty(policy_users) as policy_users
+    from
+      aws_iam_policy p
+      left join aws_iam_policy_attachment a on p.arn = a.policy_arn 
+    where
+      name = 'AdministratorAccess' and a.is_attached;
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM Policy

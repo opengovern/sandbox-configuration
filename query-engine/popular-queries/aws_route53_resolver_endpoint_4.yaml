@@ -1,14 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    p ->> 'Ip' as ip,
-    p ->> 'Status' as status,
-    p ->> 'SubnetId' as subnet_id
-  from
-    aws_route53_resolver_endpoint,
-    jsonb_array_elements(ip_addresses) as p;
-  
-Title: "Steampipe Table: aws_route53_resolver_endpoint - Query AWS Route 53 Resolver Endpoints using SQL"
+Title: "List All AWS Route 53 Resolver Endpoints and Details"
 Description: "Allows users to query AWS Route 53 Resolver Endpoints, providing detailed information about each endpoint, including its ID, direction, IP addresses, and status, among other details."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      p ->> 'Ip' as ip,
+      p ->> 'Status' as status,
+      p ->> 'SubnetId' as subnet_id
+    from
+      aws_route53_resolver_endpoint,
+      jsonb_array_elements(ip_addresses) as p;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: AWS
+  cloud_service: Route 53

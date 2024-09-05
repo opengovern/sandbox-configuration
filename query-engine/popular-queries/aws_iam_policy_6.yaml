@@ -1,21 +1,27 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    action,
-    s ->> 'Effect' as effect
-  from
-    aws_iam_policy,
-    jsonb_array_elements(policy_std -> 'Statement') as s,
-    jsonb_array_elements_text(s -> 'Action') as action
-  where
-    s ->> 'Effect' = 'Allow'
-    and (
-      action = '*'
-      or action like '%:*'
-    );
-  
-Title: "Steampipe Table: aws_iam_policy - Query AWS IAM Policy using SQL"
+Title: "Find all AWS IAM Policies with Permissions and Metadata"
 Description: "Allows users to query AWS IAM Policies, providing detailed information about each policy, including permissions, attachment, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      action,
+      s ->> 'Effect' as effect
+    from
+      aws_iam_policy,
+      jsonb_array_elements(policy_std -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'Action') as action
+    where
+      s ->> 'Effect' = 'Allow'
+      and (
+        action = '*'
+        or action like '%:*'
+      );
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM

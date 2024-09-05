@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    content ->> 'Version' as policy_version,
-    content ->> 'Statement' as policy_statement
-  from
-    aws_organizations_policy
-  where
-    type = 'SERVICE_CONTROL_POLICY';
-  
-Title: "Steampipe Table: aws_organizations_policy - Query AWS Organizations Policy using SQL"
+Title: "Find AWS Organizations Policy Details"
 Description: "Allows users to query AWS Organizations Policy to retrieve detailed information on policies within AWS Organizations. This table can be utilized to gain insights on policy-specific details, such as policy type, content, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      content ->> 'Version' as policy_version,
+      content ->> 'Statement' as policy_statement
+    from
+      aws_organizations_policy
+    where
+      type = 'SERVICE_CONTROL_POLICY';
+Tags:
+  cloud_identity_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Organizations

@@ -1,18 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    description,
-    arn,
-    ip_address_version,
-    region,
-    address
-  from
-    aws_wafv2_ip_set,
-    jsonb_array_elements_text(addresses) as address
-  where
-    address = '1.2.3.4/32';
-  
-Title: "Steampipe Table: aws_wafv2_ip_set - Query AWS WAFv2 IPSet using SQL"
+Title: "Find AWS WAFv2 IPSet Information including IP Addresses"
 Description: "Allows users to query AWS WAFv2 IPSet information, including IP addresses, IP address version, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      description,
+      arn,
+      ip_address_version,
+      region,
+      address
+    from
+      aws_wafv2_ip_set,
+      jsonb_array_elements_text(addresses) as address
+    where
+      address = '1.2.3.4/32';
+Tags:
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: WAFv2

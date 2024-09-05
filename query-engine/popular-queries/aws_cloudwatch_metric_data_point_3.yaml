@@ -1,36 +1,41 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    label,
-    timestamp,
-    period,
-    round(value::numeric, 2) as avg_cpu,
-    metric_stat
-  from
-    aws_cloudwatch_metric_data_point
-  where
-    id = 'm1'
-    and value > 80
-    and timestamp >= now() - interval '5 day'
-    and metric_stat = '{
-      "Metric": {
-      "Namespace": "AWS/EC2",
-      "MetricName": "CPUUtilization",
-      "Dimensions": [
-        {
-          "Name": "InstanceId",
-          "Value": "i-0353536c53f7c8235"
-        },
-        {
-          "Name": "InstanceId",
-          "Value": "i-0dd7043e0f6f0f36d"
-        }
-      ]},
-      "Stat": "Average"}'
-  order by
-    timestamp;
-  
-Title: "Steampipe Table: aws_cloudwatch_metric_data_point - Query AWS CloudWatch MetricDataPoints using SQL"
+Title: "List All AWS CloudWatch MetricDataPoints"
 Description: "Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      label,
+      timestamp,
+      period,
+      round(value::numeric, 2) as avg_cpu,
+      metric_stat
+    from
+      aws_cloudwatch_metric_data_point
+    where
+      id = 'm1'
+      and value > 80
+      and timestamp >= now() - interval '5 day'
+      and metric_stat = '{
+        "Metric": {
+        "Namespace": "AWS/EC2",
+        "MetricName": "CPUUtilization",
+        "Dimensions": [
+          {
+            "Name": "InstanceId",
+            "Value": "i-0353536c53f7c8235"
+          },
+          {
+            "Name": "InstanceId",
+            "Value": "i-0dd7043e0f6f0f36d"
+          }
+        ]},
+        "Stat": "Average"}'
+    order by
+      timestamp;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: CloudWatch

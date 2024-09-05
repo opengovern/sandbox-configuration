@@ -1,17 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    db_proxy_name,
-    engine_family,
-    a ->> 'AuthScheme' as auth_scheme,
-    a ->> 'Description' as auth_description,
-    a ->> 'IAMAuth' as iam_auth,
-    a ->> 'SecretArn' as secret_arn,
-    a ->> 'UserName' as user_name
-  from
-    aws_rds_db_proxy,
-    jsonb_array_elements(auth) as a;
-  
-Title: "Steampipe Table: aws_rds_db_proxy - Query Amazon RDS DB Proxy using SQL"
+Title: "List all Detailed Information of Amazon RDS DB Proxies"
 Description: "Allows users to query DB Proxies in Amazon RDS to fetch detailed information about each proxy, including its ARN, name, engine family, role ARN, status, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      db_proxy_name,
+      engine_family,
+      a ->> 'AuthScheme' as auth_scheme,
+      a ->> 'Description' as auth_description,
+      a ->> 'IAMAuth' as iam_auth,
+      a ->> 'SecretArn' as secret_arn,
+      a ->> 'UserName' as user_name
+    from
+      aws_rds_db_proxy,
+      jsonb_array_elements(auth) as a;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Amazon RDS

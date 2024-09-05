@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    resource_config ->> 'InstanceType' as instance_type,
-    resource_config ->> 'InstanceCount' as instance_count,
-    resource_config ->> 'VolumeKmsKeyId' as volume_kms_id,
-    resource_config ->> 'VolumeSizeInGB' as volume_size
-  from
-    aws_sagemaker_training_job;
-  
-Title: "Steampipe Table: aws_sagemaker_training_job - Query AWS SageMaker Training Jobs using SQL"
+Title: "List AWS SageMaker Training Jobs via SQL"
 Description: "Allows users to query AWS SageMaker Training Jobs to retrieve information about individual training jobs."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      resource_config ->> 'InstanceType' as instance_type,
+      resource_config ->> 'InstanceCount' as instance_count,
+      resource_config ->> 'VolumeKmsKeyId' as volume_kms_id,
+      resource_config ->> 'VolumeSizeInGB' as volume_size
+    from
+      aws_sagemaker_training_job;
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: SageMaker

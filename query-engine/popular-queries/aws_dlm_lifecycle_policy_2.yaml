@@ -1,17 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    policy_id,
-    arn,
-    date_created,
-    policy_type,
-    s ->> 'ShareRules' as share_rules
-  from
-    aws_dlm_lifecycle_policy,
-    jsonb_array_elements(policy_details -> 'Schedules') s
-  where 
-    s ->> 'ShareRules' is not null;
-  
-Title: "Steampipe Table: aws_dlm_lifecycle_policy - Query AWS DLM Lifecycle Policies using SQL"
+Title: "List All AWS DLM Lifecycle Policies and Details"
 Description: "Allows users to query AWS DLM Lifecycle Policies to retrieve detailed information about each policy, including its configuration, status, and tags."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      policy_id,
+      arn,
+      date_created,
+      policy_type,
+      s ->> 'ShareRules' as share_rules
+    from
+      aws_dlm_lifecycle_policy,
+      jsonb_array_elements(policy_details -> 'Schedules') s
+    where 
+      s ->> 'ShareRules' is not null;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: DLM Lifecycle Policy

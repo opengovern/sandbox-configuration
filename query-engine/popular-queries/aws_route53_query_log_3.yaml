@@ -1,13 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    hosted_zone_id,
-    count(id)
-  from
-    aws_route53_query_log
-  group by
-    hosted_zone_id;
-  
-Title: "Steampipe Table: aws_route53_query_log - Query AWS Route 53 Query Log using SQL"
+Title: "List all DNS Queries from AWS Route 53 Query Log"
 Description: "Allows users to query AWS Route 53 Query Log data, providing insights into DNS queries made to Route 53 hosted zones."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      hosted_zone_id,
+      count(id)
+    from
+      aws_route53_query_log
+    group by
+      hosted_zone_id;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Route 53

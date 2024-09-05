@@ -1,14 +1,19 @@
-connectors:
+Title: "Find AWS Lambda Functions with Specific Tracing Config"
+Description: "Allows users to query AWS Lambda Functions, providing information about each function''s configuration, including runtime, code size, timeout, and associated tags."
+Connectors:
 - AWS
-query: |-
-  select
-    name,
-    arn,
-    jsonb_pretty(tracing_config) as tracing_config
-  from
-    aws_lambda_function
-  where
-    tracing_config ->> 'Mode' = 'PassThrough';
-  
-Title: "Steampipe Table: aws_lambda_function - Query AWS Lambda Function using SQL"
-Description: "Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      jsonb_pretty(tracing_config) as tracing_config
+    from
+      aws_lambda_function
+    where
+      tracing_config ->> 'Mode' = 'PassThrough';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Lambda

@@ -1,17 +1,22 @@
-connectors:
+Title: "List all AWS Security Lake Subscriber details"
+Description: "Allows users to query AWS Security Lake Subscriber data, providing information about each subscriber''s details in the AWS Security Lake service. This includes subscriber status, endpoint type, and subscription creation time."
+Connectors:
 - AWS
-query: |-
-  select
-    subscriber_name,
-    subscription_id,
-    created_at,
-    role_arn,
-    s3_bucket_arn,
-    subscription_endpoint
-  from
-    aws_securitylake_subscriber
-  where
-    created_at <= created_at - interval '30' day;
-  
-Title: "Steampipe Table: aws_securitylake_subscriber - Query AWS Security Lake Subscriber using SQL"
-Description: "Allows users to query AWS Security Lake Subscriber data, providing information about each subscriber's details in the AWS Security Lake service. This includes subscriber status, endpoint type, and subscription creation time."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      subscriber_name,
+      subscription_id,
+      created_at,
+      role_arn,
+      s3_bucket_arn,
+      subscription_endpoint
+    from
+      aws_securitylake_subscriber
+    where
+      created_at <= created_at - interval '30' day;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Security Lake

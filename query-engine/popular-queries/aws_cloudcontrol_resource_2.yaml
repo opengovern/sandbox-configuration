@@ -1,20 +1,25 @@
-connectors:
-- AWS
-query: |-
-  select
-    identifier,
-    properties ->> 'AlpnPolicy' as alpn_policy,
-    properties ->> 'Certificates' as certificates,
-    properties ->> 'Port' as port,
-    properties ->> 'Protocol' as protocol,
-    region,
-    account_id
-  from
-    aws_cloudcontrol_resource
-  where
-    type_name = 'AWS::ElasticLoadBalancingV2::Listener'
-    and resource_model = '{"LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/test-lb/4e695b8755d7003c"}'
-    and region = 'us-east-1';
-  
-Title: "Steampipe Table: aws_cloudcontrol_resource - Query AWS Cloud Control API Resource using SQL"
+Title: "Find AWS Cloud Control API Resource Data"
 Description: "Allows users to query AWS Cloud Control API Resource data, providing detailed insights into resource properties, types, and statuses."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      identifier,
+      properties ->> 'AlpnPolicy' as alpn_policy,
+      properties ->> 'Certificates' as certificates,
+      properties ->> 'Port' as port,
+      properties ->> 'Protocol' as protocol,
+      region,
+      account_id
+    from
+      aws_cloudcontrol_resource
+    where
+      type_name = 'AWS::ElasticLoadBalancingV2::Listener'
+      and resource_model = '{"LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/test-lb/4e695b8755d7003c"}'
+      and region = 'us-east-1';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Cloud Control

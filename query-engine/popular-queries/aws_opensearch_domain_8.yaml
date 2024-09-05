@@ -1,13 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    domain_name,
-    domain_id,
-    log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' as enabled,
-    log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' as cloud_watch_logs_log_group_arn
-  from
-    aws_opensearch_domain;
-  
-Title: "Steampipe Table: aws_opensearch_domain - Query AWS OpenSearch Service Domains using SQL"
+Title: "List all AWS OpenSearch Service Domain Configurations"
 Description: "Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      domain_id,
+      log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' as enabled,
+      log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' as cloud_watch_logs_log_group_arn
+    from
+      aws_opensearch_domain;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: OpenSearch Service

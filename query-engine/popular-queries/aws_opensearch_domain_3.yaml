@@ -1,16 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    domain_name,
-    domain_id,
-    ebs_options ->> 'VolumeSize' as volume_size,
-    ebs_options ->> 'VolumeType' as volume_type,
-    ebs_options ->> 'EBSEnabled' as ebs_enabled
-  from
-    aws_opensearch_domain
-  where
-    ebs_options ->> 'EBSEnabled' = 'true';
-  
-Title: "Steampipe Table: aws_opensearch_domain - Query AWS OpenSearch Service Domains using SQL"
+Title: "List all AWS OpenSearch Service Domains with SQL"
 Description: "Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      domain_id,
+      ebs_options ->> 'VolumeSize' as volume_size,
+      ebs_options ->> 'VolumeType' as volume_type,
+      ebs_options ->> 'EBSEnabled' as ebs_enabled
+    from
+      aws_opensearch_domain
+    where
+      ebs_options ->> 'EBSEnabled' = 'true';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: OpenSearch Service

@@ -1,13 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    db_cluster_identifier,
-    backup_retention_period
-  from
-    aws_docdb_cluster
-  where
-    backup_retention_period > 7;
-  
-Title: "Steampipe Table: aws_docdb_cluster - Query Amazon DocumentDB Cluster using SQL"
+Title: "Find Amazon DocumentDB Cluster Config and Status"
 Description: "Allows users to query Amazon DocumentDB Clusters for detailed information about their configuration, status, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      db_cluster_identifier,
+      backup_retention_period
+    from
+      aws_docdb_cluster
+    where
+      backup_retention_period > 7;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: DocumentDB

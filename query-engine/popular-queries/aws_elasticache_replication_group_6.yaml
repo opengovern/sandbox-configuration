@@ -1,11 +1,16 @@
-connectors:
-- AWS
-query: |-
-  select
-    replication_group_id,
-    jsonb_array_elements_text(member_clusters) as member_clusters
-  from
-    aws_elasticache_replication_group;
-  
-Title: "Steampipe Table: aws_elasticache_replication_group - Query AWS ElastiCache Replication Groups using SQL"
+Title: "Find AWS ElastiCache Replication Groups and Status"
 Description: "Allows users to query AWS ElastiCache Replication Groups to retrieve information related to their configuration, status, and associated resources."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      replication_group_id,
+      jsonb_array_elements_text(member_clusters) as member_clusters
+    from
+      aws_elasticache_replication_group;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: ElastiCache

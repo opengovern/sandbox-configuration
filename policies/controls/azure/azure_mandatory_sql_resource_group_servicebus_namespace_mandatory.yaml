@@ -1,0 +1,43 @@
+ID: azure_mandatory_sql_resource_group_servicebus_namespace_mandatory
+Title: "Service Bus namespaces should have mandatory tags"
+Description: "Check if Service Bus  namespaces have mandatory tags."
+Connector:
+  - Azure
+Query:
+  Engine: steampipe-v0.5
+  QueryToExecute: |
+    with analysis as (
+      select
+        kaytu_account_id,
+        kaytu_resource_id,
+        id,
+        title,
+        tags ?& '{{.azureMandatoryTags}}'::text[] as has_mandatory_tags,
+        to_jsonb('{{.azureMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
+        resource_group, subscription_id
+      from
+        azure_servicebus_namespace
+    )
+    select
+        kaytu_account_id,
+        kaytu_resource_id,
+        id as resource,
+      case
+        when has_mandatory_tags then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when has_mandatory_tags then title || ' has all mandatory tags.'
+        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
+      end as reason,
+      resource_group, subscription_id
+    from
+      analysis;
+  PrimaryTable: azure_servicebus_namespace
+  ListOfTables:
+  - azure_servicebus_namespace
+  Parameters:
+  - key: "azureMandatoryTags"
+    required: true
+Severity: high
+Tags: {}

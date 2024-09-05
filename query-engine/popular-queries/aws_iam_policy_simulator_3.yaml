@@ -1,16 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    u.name,
-    decision
-  from
-    aws_iam_policy_simulator p,
-    aws_iam_user u
-  where
-    action = 'sts:AssumeRole'
-    and resource_arn = '*'
-    and p.principal_arn = u.arn;
-  
-Title: "Steampipe Table: aws_iam_policy_simulator - Query AWS IAM Policy Simulator using SQL"
+Title: "List all AWS IAM Policy Simulator evaluation results"
 Description: "Allows users to query IAM Policy Simulator for evaluating the effects of IAM access control policies. It provides information such as evaluation results, matching resources, and involved actions."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      u.name,
+      decision
+    from
+      aws_iam_policy_simulator p,
+      aws_iam_user u
+    where
+      action = 'sts:AssumeRole'
+      and resource_arn = '*'
+      and p.principal_arn = u.arn;
+Tags:
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM Policy Simulator

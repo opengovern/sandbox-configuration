@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    table_name,
-    arn,
-    retention_properties
-  from
-    aws_timestreamwrite_table
-  where
-    retention_properties ->> 'MemoryStoreRetentionPeriodInHours' = '24'
-    and retention_properties ->> 'MagneticStoreRetentionPeriodInDays' = '7';
-  
-Title: "Steampipe Table: aws_timestreamwrite_table - Query AWS Timestream Tables using SQL"
+Title: "Find AWS Timestream Table Configurations and Statuses"
 Description: "Allows users to query AWS Timestream tables, providing detailed information on table configurations, statuses, and retention properties."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      table_name,
+      arn,
+      retention_properties
+    from
+      aws_timestreamwrite_table
+    where
+      retention_properties ->> 'MemoryStoreRetentionPeriodInHours' = '24'
+      and retention_properties ->> 'MagneticStoreRetentionPeriodInDays' = '7';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Timestream

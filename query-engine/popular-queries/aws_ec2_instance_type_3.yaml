@@ -1,18 +1,24 @@
-connectors:
-- AWS
-query: |-
-  select
-    instance_type,
-    dedicated_hosts_supported,
-    v_cpu_info -> 'DefaultCores' as default_cores,
-    v_cpu_info -> 'DefaultThreadsPerCore' as default_threads_per_core,
-    v_cpu_info -> 'DefaultVCpus' as default_vcpus,
-    v_cpu_info -> 'ValidCores' as valid_cores,
-    v_cpu_info -> 'ValidThreadsPerCore' as valid_threads_per_core
-  from
-    aws_ec2_instance_type
-  where
-    v_cpu_info ->> 'DefaultCores' > '24';
-  
-Title: "Steampipe Table: aws_ec2_instance_type - Query AWS EC2 Instance Type using SQL"
+Title: "Find AWS EC2 Instance Types with Detailed Specs"
 Description: "Allows users to query AWS EC2 Instance Type data, including details about instance type name, current generation, vCPU, memory, storage, and network performance."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_type,
+      dedicated_hosts_supported,
+      v_cpu_info -> 'DefaultCores' as default_cores,
+      v_cpu_info -> 'DefaultThreadsPerCore' as default_threads_per_core,
+      v_cpu_info -> 'DefaultVCpus' as default_vcpus,
+      v_cpu_info -> 'ValidCores' as valid_cores,
+      v_cpu_info -> 'ValidThreadsPerCore' as valid_threads_per_core
+    from
+      aws_ec2_instance_type
+    where
+      v_cpu_info ->> 'DefaultCores' > '24';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: AWS
+  cloud_service: EC2

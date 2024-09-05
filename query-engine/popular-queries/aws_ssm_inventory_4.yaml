@@ -1,16 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    id,
-    type_name,
-    capture_time,
-    schema_version,
-    content
-  from
-    aws_ssm_inventory
-  where
-    capture_time >= now() - interval '10' day;
-  
-Title: "Steampipe Table: aws_ssm_inventory - Query AWS Systems Manager Inventory using SQL"
+Title: "Find all AWS Systems Manager managed instances inventory"
 Description: "Allows users to query AWS Systems Manager Inventory, providing information about managed instances in AWS Systems Manager."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      type_name,
+      capture_time,
+      schema_version,
+      content
+    from
+      aws_ssm_inventory
+    where
+      capture_time >= now() - interval '10' day;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Systems Manager

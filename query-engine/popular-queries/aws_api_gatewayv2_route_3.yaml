@@ -1,16 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    r.route_id,
-    a.name,
-    a.api_id,
-    a.api_endpoint
-  from
-    aws_api_gatewayv2_route as r,
-    aws_api_gatewayv2_api as a
-  where
-    not a.disable_execute_api_endpoint;
-  
-Title: "Steampipe Table: aws_api_gatewayv2_route - Query AWS API Gateway V2 Routes using SQL"
+Title: "Find all AWS API Gateway V2 Routes with Details"
 Description: "Allows users to query AWS API Gateway V2 Routes and obtain detailed information about each route, including the route key, route response selection expression, and target."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r.route_id,
+      a.name,
+      a.api_id,
+      a.api_endpoint
+    from
+      aws_api_gatewayv2_route as r,
+      aws_api_gatewayv2_api as a
+    where
+      not a.disable_execute_api_endpoint;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: API Gateway V2

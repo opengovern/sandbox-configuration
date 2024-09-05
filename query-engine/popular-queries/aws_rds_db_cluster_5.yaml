@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    actions ->> 'ResourceIdentifier' as db_cluster_identifier,
-    details ->> 'Action' as action,
-    details ->> 'OptInStatus' as opt_in_status,
-    details ->> 'ForcedApplyDate' as forced_apply_date,
-    details ->> 'CurrentApplyDate' as current_apply_date,
-    details ->> 'AutoAppliedAfterDate' as auto_applied_after_date
-  from
-    aws_rds_db_cluster,
-    jsonb_array_elements(pending_maintenance_actions) as actions,
-    jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails') as details;
-  
-Title: "Steampipe Table: aws_rds_db_cluster - Query AWS RDS DB Clusters using SQL"
+Title: "Find AWS RDS DB Clusters Status and Configuration"
 Description: "Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      actions ->> 'ResourceIdentifier' as db_cluster_identifier,
+      details ->> 'Action' as action,
+      details ->> 'OptInStatus' as opt_in_status,
+      details ->> 'ForcedApplyDate' as forced_apply_date,
+      details ->> 'CurrentApplyDate' as current_apply_date,
+      details ->> 'AutoAppliedAfterDate' as auto_applied_after_date
+    from
+      aws_rds_db_cluster,
+      jsonb_array_elements(pending_maintenance_actions) as actions,
+      jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails') as details;
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: RDS

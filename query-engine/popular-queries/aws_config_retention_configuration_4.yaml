@@ -1,16 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    c.title as configuration_recorder,
-    r.name as retention_configuration_name,
-    r.retention_period_in_days,
-    r.region
-  from
-    aws_config_retention_configuration as r
-    left join aws_config_configuration_recorder as c
-  on
-    r.region = c.region;
-  
-Title: "Steampipe Table: aws_config_retention_configuration - Query AWS Config Retention Configuration using SQL"
+Title: "Find AWS Config Retention Configuration Using SQL"
 Description: "Allows users to query AWS Config Retention Configuration for information about the retention period that AWS Config uses to retain your configuration items."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.title as configuration_recorder,
+      r.name as retention_configuration_name,
+      r.retention_period_in_days,
+      r.region
+    from
+      aws_config_retention_configuration as r
+      left join aws_config_configuration_recorder as c
+    on
+      r.region = c.region;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Config

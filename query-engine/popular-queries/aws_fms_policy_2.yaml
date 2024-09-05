@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    policy_name,
-    policy_id,
-    arn,
-    policy_description,
-    resource_type,
-    remediation_enabled
-  from
-    aws_fms_policy
-  where
-    remediation_enabled;
-  
-Title: "Steampipe Table: aws_fms_policy - Query AWS Firewall Manager Policies using SQL"
+Title: "Find AWS Firewall Manager Policies with SQL"
 Description: "Allows users to query AWS Firewall Manager Policies using SQL. This table provides information about each AWS Firewall Manager (FMS) policy in an AWS account. It can be used to gain insights into policy details such as the policy name, ID, resource type, security service type, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      policy_name,
+      policy_id,
+      arn,
+      policy_description,
+      resource_type,
+      remediation_enabled
+    from
+      aws_fms_policy
+    where
+      remediation_enabled;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: Firewall Manager

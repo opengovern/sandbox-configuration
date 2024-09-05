@@ -1,16 +1,21 @@
-connectors:
+Title: "Find AWS RDS DB Recommendations and Their Statuses"
+Description: "Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation''s status, impact, and suggested actions."
+Connectors:
 - AWS
-query: |-
-  select
-    recommendation_id,
-    issue_details -> 'PerformanceIssueDetails' ->> 'Analysis' as analysis,
-    issue_details -> 'PerformanceIssueDetails' ->> 'EndTime' as end_time,
-    issue_details -> 'PerformanceIssueDetails' ->> 'StartTime' as start_time,
-    issue_details -> 'PerformanceIssueDetails' -> 'Metrics' as metrics
-  from
-    aws_rds_db_recommendation
-  where
-    issue_details is not null;
-  
-Title: "Steampipe Table: aws_rds_db_recommendation - Query AWS RDS DB Recommendations using SQL"
-Description: "Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation's status, impact, and suggested actions."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      recommendation_id,
+      issue_details -> 'PerformanceIssueDetails' ->> 'Analysis' as analysis,
+      issue_details -> 'PerformanceIssueDetails' ->> 'EndTime' as end_time,
+      issue_details -> 'PerformanceIssueDetails' ->> 'StartTime' as start_time,
+      issue_details -> 'PerformanceIssueDetails' -> 'Metrics' as metrics
+    from
+      aws_rds_db_recommendation
+    where
+      issue_details is not null;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: RDS DB Recommendation

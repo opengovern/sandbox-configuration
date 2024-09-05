@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    f.id,
-    r.title,
-    f.service_attributes ->> 'AssessmentRunArn' as assessment_run_arn,
-    r.assessment_template_arn,
-    r.finding_counts
-  from
-    aws_inspector_finding as f,
-    aws_inspector_assessment_run as r
-  where
-    f.service_attributes ->> 'AssessmentRunArn' = r.arn;
-  
-Title: "Steampipe Table: aws_inspector_finding - Query AWS Inspector Findings using SQL"
+Title: "Find AWS Inspector Findings with Detailed Information"
 Description: "Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      f.id,
+      r.title,
+      f.service_attributes ->> 'AssessmentRunArn' as assessment_run_arn,
+      r.assessment_template_arn,
+      r.finding_counts
+    from
+      aws_inspector_finding as f,
+      aws_inspector_assessment_run as r
+    where
+      f.service_attributes ->> 'AssessmentRunArn' = r.arn;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Amazon Inspector

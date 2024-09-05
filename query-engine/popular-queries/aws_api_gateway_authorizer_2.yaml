@@ -1,15 +1,21 @@
-connectors:
+Title: "List all AWS API Gateway Authorizers with Cognito User Pools"
+Description: "Allows users to query AWS API Gateway Authorizer and access data about API Gateway Authorizers in an AWS account. This data includes the authorizer''s ID, name, type, provider ARNs, and other configuration details."
+Connectors:
 - AWS
-query: |-
-  select
-    id,
-    name,
-    rest_api_id,
-    auth_type
-  from
-    aws_api_gateway_authorizer
-  where
-    auth_type = 'cognito_user_pools';
-  
-Title: "Steampipe Table: aws_api_gateway_authorizer - Query AWS API Gateway Authorizer using SQL"
-Description: "Allows users to query AWS API Gateway Authorizer and access data about API Gateway Authorizers in an AWS account. This data includes the authorizer's ID, name, type, provider ARNs, and other configuration details."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      name,
+      rest_api_id,
+      auth_type
+    from
+      aws_api_gateway_authorizer
+    where
+      auth_type = 'cognito_user_pools';
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: API Gateway

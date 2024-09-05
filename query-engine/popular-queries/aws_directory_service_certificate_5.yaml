@@ -1,13 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    directory_id,
-    certificate_id,
-    common_name,
-    client_cert_auth_settings -> 'OCSPUrl' as ocsp_url
-  from
-    aws_directory_service_certificate;
-  
-Title: "Steampipe Table: aws_directory_service_certificate - Query AWS Directory Service Certificates using SQL"
+Title: "List all AWS Directory Service Certificates' Information"
 Description: "Allows users to query AWS Directory Service Certificates to gather information about the certificates associated with AWS Managed Microsoft AD and Simple AD directories."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      directory_id,
+      certificate_id,
+      common_name,
+      client_cert_auth_settings -> 'OCSPUrl' as ocsp_url
+    from
+      aws_directory_service_certificate;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Directory Service

@@ -1,19 +1,25 @@
-connectors:
-- AWS
-query: |-
-  select
-    domain_name,
-    p as principal,
-    a as action,
-    s ->> 'Effect' as effect
-  from
-    aws_elasticsearch_domain,
-    jsonb_array_elements(policy_std -> 'Statement') as s,
-    jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-    jsonb_array_elements_text(s -> 'Action') as a
-  where
-    p = '*'
-    and s ->> 'Effect' = 'Allow';
-  
-Title: "Steampipe Table: aws_elasticsearch_domain - Query AWS Elasticsearch Service Domain using SQL"
+Title: "Find AWS Elasticsearch Service Domain Config and Status"
 Description: "Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      p as principal,
+      a as action,
+      s ->> 'Effect' as effect
+    from
+      aws_elasticsearch_domain,
+      jsonb_array_elements(policy_std -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+      jsonb_array_elements_text(s -> 'Action') as a
+    where
+      p = '*'
+      and s ->> 'Effect' = 'Allow';
+Tags:
+  cloud_asset_management: true
+  cloud_identity_security: true
+  cloud_provider: AWS
+  cloud_service: Elasticsearch Service

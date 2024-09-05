@@ -1,15 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    jsonb_pretty(statement -> 'Actions') as actions,
-    jsonb_pretty(statement -> 'PrincipalOrgIDs') as principal_org_ids,
-    jsonb_pretty(statement -> 'Principals') as principals,
-    statement ->> 'StatementId' as statement_id
-  from
-    aws_serverlessapplicationrepository_application,
-    jsonb_array_elements(statements) as statement;
-  
-Title: "Steampipe Table: aws_serverlessapplicationrepository_application - Query AWS Serverless Application Repository Applications using SQL"
+Title: "List all AWS Serverless Application Repository Applications"
 Description: "Allows users to query AWS Serverless Application Repository Applications to fetch details like application name, status, author, description, labels, license URL, creation time, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      jsonb_pretty(statement -> 'Actions') as actions,
+      jsonb_pretty(statement -> 'PrincipalOrgIDs') as principal_org_ids,
+      jsonb_pretty(statement -> 'Principals') as principals,
+      statement ->> 'StatementId' as statement_id
+    from
+      aws_serverlessapplicationrepository_application,
+      jsonb_array_elements(statements) as statement;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Serverless Application Repository

@@ -1,18 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    title,
-    topic_arn,
-    region
-  from 
-    aws_sns_topic
-  where
-    application_failure_feedback_role_arn is null and
-    firehose_failure_feedback_role_arn is null and
-    http_failure_feedback_role_arn is null and
-    lambda_failure_feedback_role_arn is null and
-    sqs_failure_feedback_role_arn is null;
-  
-Title: "Steampipe Table: aws_sns_topic - Query AWS SNS Topics using SQL"
+Title: "Find AWS SNS Topics Without Failure Feedback Roles"
 Description: "Allows users to query AWS SNS Topics to gather information about each topic, including its name, owner, ARN, and other related data."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      topic_arn,
+      region
+    from 
+      aws_sns_topic
+    where
+      application_failure_feedback_role_arn is null and
+      firehose_failure_feedback_role_arn is null and
+      http_failure_feedback_role_arn is null and
+      lambda_failure_feedback_role_arn is null and
+      sqs_failure_feedback_role_arn is null;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: SNS

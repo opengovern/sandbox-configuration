@@ -1,15 +1,21 @@
-connectors:
+Title: "List all AWS EBS Snapshot Configurations and Status"
+Description: "Allows users to query AWS EBS snapshots, providing detailed information about each snapshot''s configuration, status, and associated metadata."
+Connectors:
 - AWS
-query: |-
-  select
-    snapshot_id,
-    arn,
-    encrypted,
-    owner_id
-  from
-    aws_ebs_snapshot
-  where
-    owner_alias = 'amazon'
-  
-Title: "Steampipe Table: aws_ebs_snapshot - Query AWS Elastic Block Store (EBS) using SQL"
-Description: "Allows users to query AWS EBS snapshots, providing detailed information about each snapshot's configuration, status, and associated metadata."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      snapshot_id,
+      arn,
+      encrypted,
+      owner_id
+    from
+      aws_ebs_snapshot
+    where
+      owner_alias = 'amazon'
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: Elastic Block Store

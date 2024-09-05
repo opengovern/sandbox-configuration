@@ -1,16 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    volume_id,
-    size,
-    att ->> 'InstanceId' as instance_id
-  from
-    aws_ebs_volume
-    cross join jsonb_array_elements(attachments) as att
-    join aws_ec2_instance as i on i.instance_id = att ->> 'InstanceId'
-  where
-    instance_state = 'stopped';
-  
-Title: "Steampipe Table: aws_ebs_volume - Query AWS Elastic Block Store (EBS) using SQL"
+Title: "List all AWS EBS volumes and their stopped instances"
 Description: "Allows users to query AWS Elastic Block Store (EBS) volumes for detailed information about their configuration, status, and associated tags."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      volume_id,
+      size,
+      att ->> 'InstanceId' as instance_id
+    from
+      aws_ebs_volume
+      cross join jsonb_array_elements(attachments) as att
+      join aws_ec2_instance as i on i.instance_id = att ->> 'InstanceId'
+    where
+      instance_state = 'stopped';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Elastic Block Store (EBS)

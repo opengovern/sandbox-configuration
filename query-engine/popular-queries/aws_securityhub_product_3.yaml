@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    product_arn,
-    company_name
-  from
-    aws_securityhub_product,
-    jsonb_array_elements_text(integration_types) as i
-  where
-    i = 'SEND_FINDINGS_TO_SECURITY_HUB';
-  
-Title: "Steampipe Table: aws_securityhub_product - Query AWS Security Hub Products using SQL"
+Title: "Find AWS Security Hub Products for Security Insights"
 Description: "Allows users to query AWS Security Hub Product details for comprehensive security and compliance insights."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      product_arn,
+      company_name
+    from
+      aws_securityhub_product,
+      jsonb_array_elements_text(integration_types) as i
+    where
+      i = 'SEND_FINDINGS_TO_SECURITY_HUB';
+Tags:
+  cloud_identity_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Security Hub

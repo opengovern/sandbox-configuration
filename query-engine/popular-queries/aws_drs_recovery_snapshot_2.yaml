@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    r.snapshot_id,
-    r.source_server_id,
-    s.arn as source_server_arn,
-    s.recovery_instance_id,
-    s.replication_direction
-  from
-    aws_drs_recovery_snapshot r,
-    aws_drs_source_server as s
-  where
-    r.source_server_id = s.source_server_id;
-  
-Title: "Steampipe Table: aws_drs_recovery_snapshot - Query AWS DRS Recovery Snapshot using SQL"
+Title: "List AWS DRS Recovery Snapshot Details and Metadata"
 Description: "Allows users to query DRS Recovery Snapshot data in AWS. It provides information about recovery snapshots within AWS Disaster Recovery Service (DRS). This table can be used to gather insights on recovery snapshots, including their details, associated metadata, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r.snapshot_id,
+      r.source_server_id,
+      s.arn as source_server_arn,
+      s.recovery_instance_id,
+      s.replication_direction
+    from
+      aws_drs_recovery_snapshot r,
+      aws_drs_source_server as s
+    where
+      r.source_server_id = s.source_server_id;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Disaster Recovery Service

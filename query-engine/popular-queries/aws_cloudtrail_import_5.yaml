@@ -1,16 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    import_id,
-    import_status,
-    import_statistics -> 'EventsCompleted' as events_completed,
-    import_statistics -> 'FailedEntries' as failed_entries,
-    import_statistics -> 'FilesCompleted' as files_completed,
-    import_statistics -> 'FilesCompleted' as prefixes_completed,
-    import_statistics -> 'PrefixesFound' as PrefixesFound
-  from
-    aws_cloudtrail_import;
-  
-Title: "Steampipe Table: aws_cloudtrail_import - Query AWS CloudTrail using SQL"
+Title: "List all AWS CloudTrail import details"
 Description: "Allows users to query AWS CloudTrail imports to extract data about imported trail files such as the file name, import time, hash value, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      import_id,
+      import_status,
+      import_statistics -> 'EventsCompleted' as events_completed,
+      import_statistics -> 'FailedEntries' as failed_entries,
+      import_statistics -> 'FilesCompleted' as files_completed,
+      import_statistics -> 'FilesCompleted' as prefixes_completed,
+      import_statistics -> 'PrefixesFound' as PrefixesFound
+    from
+      aws_cloudtrail_import;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: CloudTrail

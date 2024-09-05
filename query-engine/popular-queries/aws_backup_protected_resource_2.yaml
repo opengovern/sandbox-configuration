@@ -1,14 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    resource_arn,
-    resource_type,
-    last_backup_time
-  from
-    aws_backup_protected_resource
-  where
-    resource_type = 'EBS';
-  
-Title: "Steampipe Table: aws_backup_protected_resource - Query AWS Backup Protected Resources using SQL"
+Title: "Find AWS Backup Protected Resources Information"
 Description: "Allows users to query AWS Backup Protected Resources to retrieve detailed information about the resources that are backed up by AWS Backup service."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      resource_arn,
+      resource_type,
+      last_backup_time
+    from
+      aws_backup_protected_resource
+    where
+      resource_type = 'EBS';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Backup

@@ -1,14 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    arn,
-    expiration
-  from
-    aws_iam_server_certificate
-  where
-    expiration < now()::timestamp;
-  
-Title: "Steampipe Table: aws_iam_server_certificate - Query AWS IAM Server Certificates using SQL"
+Title: "Find AWS IAM Server Certificates with Expiry Info"
 Description: "Allows users to query AWS IAM Server Certificates"
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      expiration
+    from
+      aws_iam_server_certificate
+    where
+      expiration < now()::timestamp;
+Tags:
+  cloud_identity_security: true
+  cloud_provider: aws
+  cloud_service: IAM

@@ -1,17 +1,23 @@
-connectors:
+Title: "List all AWS IoT Fleet Metrics with Details from Last 30 Days"
+Description: "Allows users to query AWS IoT Fleet Metrics to gain insights into each fleet metric''s configuration, including ARN, creation date, and aggregation information."
+Connectors:
 - AWS
-query: |-
-  select
-    metric_name,
-    index_name,
-    creation_date,
-    last_modified_date,
-    query_version,
-    version
-  from
-    aws_iot_fleet_metric
-  where
-    last_modified_date >= now() - interval '30 days';
-  
-Title: "Steampipe Table: aws_iot_fleet_metric - Query AWS IoT Fleet Metrics using SQL"
-Description: "Allows users to query AWS IoT Fleet Metrics to gain insights into each fleet metric's configuration, including ARN, creation date, and aggregation information."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      metric_name,
+      index_name,
+      creation_date,
+      last_modified_date,
+      query_version,
+      version
+    from
+      aws_iot_fleet_metric
+    where
+      last_modified_date >= now() - interval '30 days';
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS IoT Fleet Metrics

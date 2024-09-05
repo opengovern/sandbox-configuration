@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    job_id,
-    recovery_point_arn,
-    backup_vault_arn,
-    status,
-    current_date
-  from
-    aws_backup_job
-  where
-    status != 'COMPLETED'
-    and creation_date > current_date
-  
-Title: "Steampipe Table: aws_backup_job - Query AWS Backup Jobs using SQL"
+Title: "List All Incomplete AWS Backup Jobs"
 Description: "Allows users to query AWS Backup Jobs, providing detailed information about the status of backups jobs."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      job_id,
+      recovery_point_arn,
+      backup_vault_arn,
+      status,
+      current_date
+    from
+      aws_backup_job
+    where
+      status != 'COMPLETED'
+      and creation_date > current_date
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_provider: aws
+  cloud_service: Backup

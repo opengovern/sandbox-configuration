@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    inp ->> 'ParameterName' as parameter_name,
-    inp ->> 'ParameterValue' as parameter_value,
-    title,
-    akas
-  from
-    aws_config_conformance_pack,
-    jsonb_array_elements(input_parameters) as inp;
-  
-Title: "Steampipe Table: aws_config_conformance_pack - Query AWS Config Conformance Packs using SQL"
+Title: "Find all AWS Config Conformance Packs and Parameters"
 Description: "Allows users to query AWS Config Conformance Packs to fetch information about the AWS Config conformance packs deployed on an AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      inp ->> 'ParameterName' as parameter_name,
+      inp ->> 'ParameterValue' as parameter_value,
+      title,
+      akas
+    from
+      aws_config_conformance_pack,
+      jsonb_array_elements(input_parameters) as inp;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: AWS Config

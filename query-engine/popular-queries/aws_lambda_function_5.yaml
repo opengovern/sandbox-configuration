@@ -1,19 +1,25 @@
-connectors:
+Title: "List all AWS Lambda Functions with Configuration Details"
+Description: "Allows users to query AWS Lambda Functions, providing information about each function''s configuration, including runtime, code size, timeout, and associated tags."
+Connectors:
 - AWS
-query: |-
-  select
-    fn.name,
-    fn.region,
-    count (availability_zone) as zone_count
-  from
-    aws_lambda_function as fn
-    cross join jsonb_array_elements_text(vpc_subnet_ids) as vpc_subnet
-    join aws_vpc_subnet as sub on sub.subnet_id = vpc_subnet
-  group by
-    fn.name,
-    fn.region
-  order by
-    zone_count;
-  
-Title: "Steampipe Table: aws_lambda_function - Query AWS Lambda Function using SQL"
-Description: "Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      fn.name,
+      fn.region,
+      count (availability_zone) as zone_count
+    from
+      aws_lambda_function as fn
+      cross join jsonb_array_elements_text(vpc_subnet_ids) as vpc_subnet
+      join aws_vpc_subnet as sub on sub.subnet_id = vpc_subnet
+    group by
+      fn.name,
+      fn.region
+    order by
+      zone_count;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Lambda Function

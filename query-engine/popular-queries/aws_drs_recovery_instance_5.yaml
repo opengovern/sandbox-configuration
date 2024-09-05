@@ -1,18 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    recovery_instance_id,
-    arn,
-    source_server_id,
-    ec2_instance_id,
-    ec2_instance_state,
-    is_drill,
-    job_id
-  from
-    aws_drs_recovery_instance
-  where
-    not is_drill;
-  
-Title: "Steampipe Table: aws_drs_recovery_instance - Query AWS Disaster Recovery Service Recovery Instances using SQL"
+Title: "List all AWS Disaster Recovery Service Recovery Instances"
 Description: "Allows users to query AWS Disaster Recovery Service Recovery Instances to retrieve information about recovery instances, including instance type, recovery instance ARN, and associated tags."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      recovery_instance_id,
+      arn,
+      source_server_id,
+      ec2_instance_id,
+      ec2_instance_state,
+      is_drill,
+      job_id
+    from
+      aws_drs_recovery_instance
+    where
+      not is_drill;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Disaster Recovery Service

@@ -1,22 +1,27 @@
-connectors:
-- AWS
-query: |-
-  select
-    e.endpoint_name,
-    split_part(j, '/', '3') as extra_jars_s3_bucket,
-    b.versioning_enabled,
-    b.policy,
-    b.object_lock_configuration,
-    b.restrict_public_buckets,
-    b.policy
-  from
-    aws_glue_dev_endpoint as e,
-    aws_s3_bucket as b,
-    unnest (string_to_array(e.extra_jars_s3_path, ',')) as j
-  where
-    b.name = split_part(j, '/', '3')
-  and
-    e.endpoint_name = 'test34';
-  
-Title: "Steampipe Table: aws_glue_dev_endpoint - Query AWS Glue Development Endpoints using SQL"
+Title: "Find AWS Glue Development Endpoints Configurations and Metadata"
 Description: "Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      e.endpoint_name,
+      split_part(j, '/', '3') as extra_jars_s3_bucket,
+      b.versioning_enabled,
+      b.policy,
+      b.object_lock_configuration,
+      b.restrict_public_buckets,
+      b.policy
+    from
+      aws_glue_dev_endpoint as e,
+      aws_s3_bucket as b,
+      unnest (string_to_array(e.extra_jars_s3_path, ',')) as j
+    where
+      b.name = split_part(j, '/', '3')
+    and
+      e.endpoint_name = 'test34';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Glue

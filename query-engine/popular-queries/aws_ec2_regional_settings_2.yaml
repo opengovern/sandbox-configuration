@@ -1,15 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    default_ebs_encryption_enabled,
-    default_ebs_encryption_key,
-    title,
-    region
-  from
-    aws_ec2_regional_settings
-  where
-    region = 'ap-south-1';
-  
-Title: "Steampipe Table: aws_ec2_regional_settings - Query AWS EC2 Regional Settings using SQL"
+Title: "List all AWS EC2 Regional Settings including EBS encryption"
 Description: "Allows users to query AWS EC2 regional settings, including default EBS encryption and default EBS encryption KMS key."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      default_ebs_encryption_enabled,
+      default_ebs_encryption_key,
+      title,
+      region
+    from
+      aws_ec2_regional_settings
+    where
+      region = 'ap-south-1';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: EC2

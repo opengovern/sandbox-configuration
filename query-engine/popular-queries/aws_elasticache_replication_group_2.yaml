@@ -1,14 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    replication_group_id,
-    cache_node_type,
-    at_rest_encryption_enabled
-  from
-    aws_elasticache_replication_group
-  where
-    not at_rest_encryption_enabled;
-  
-Title: "Steampipe Table: aws_elasticache_replication_group - Query AWS ElastiCache Replication Groups using SQL"
+Title: "List AWS ElastiCache Replication Groups Configuration"
 Description: "Allows users to query AWS ElastiCache Replication Groups to retrieve information related to their configuration, status, and associated resources."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      replication_group_id,
+      cache_node_type,
+      at_rest_encryption_enabled
+    from
+      aws_elasticache_replication_group
+    where
+      not at_rest_encryption_enabled;
+Tags:
+  cloud_asset_management: true
+  cloud_data_security: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: ElastiCache

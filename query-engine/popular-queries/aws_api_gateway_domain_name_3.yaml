@@ -1,21 +1,26 @@
-connectors:
+Title: "Find AWS API Gateway Domain Names and Certificates"
+Description: "Allows users to query AWS API Gateway Domain Names and retrieve details about each domain''s configuration, certificate, and associated API."
+Connectors:
 - AWS
-query: |-
-  select
-    d.domain_name,
-    d.regional_certificate_arn,
-    c.certificate,
-    c.certificate_transparency_logging_preference,
-    c.created_at,
-    c.imported_at,
-    c.issuer,
-    c.issued_at,
-    c.key_algorithm
-  from
-    aws_api_gateway_domain_name as d,
-    aws_acm_certificate as c
-  where
-    c.certificate_arn = d.regional_certificate_arn;
-  
-Title: "Steampipe Table: aws_api_gateway_domain_name - Query AWS API Gateway Domain Names using SQL"
-Description: "Allows users to query AWS API Gateway Domain Names and retrieve details about each domain's configuration, certificate, and associated API."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      d.domain_name,
+      d.regional_certificate_arn,
+      c.certificate,
+      c.certificate_transparency_logging_preference,
+      c.created_at,
+      c.imported_at,
+      c.issuer,
+      c.issued_at,
+      c.key_algorithm
+    from
+      aws_api_gateway_domain_name as d,
+      aws_acm_certificate as c
+    where
+      c.certificate_arn = d.regional_certificate_arn;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: API Gateway

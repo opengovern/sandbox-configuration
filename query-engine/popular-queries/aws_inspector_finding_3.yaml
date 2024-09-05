@@ -1,15 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    severity,
-    count(severity)
-  from
-    aws_inspector_finding
-  group by
-    severity
-  order by
-    severity;
-  
-Title: "Steampipe Table: aws_inspector_finding - Query AWS Inspector Findings using SQL"
+Title: "Find AWS Inspector Findings by Severity"
 Description: "Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      severity,
+      count(severity)
+    from
+      aws_inspector_finding
+    group by
+      severity
+    order by
+      severity;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Inspector

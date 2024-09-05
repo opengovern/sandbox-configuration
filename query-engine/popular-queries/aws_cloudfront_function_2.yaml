@@ -1,16 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    function_config ->> 'Comment' as comment,
-    arn,
-    status,
-    e_tag
-  from
-    aws_cloudfront_function
-  where
-    function_metadata ->> 'Stage' = 'LIVE';
-  
-Title: "Steampipe Table: aws_cloudfront_function - Query AWS CloudFront Functions using SQL"
+Title: "List All AWS CloudFront Functions with Detailed Info"
 Description: "Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      function_config ->> 'Comment' as comment,
+      arn,
+      status,
+      e_tag
+    from
+      aws_cloudfront_function
+    where
+      function_metadata ->> 'Stage' = 'LIVE';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: CloudFront

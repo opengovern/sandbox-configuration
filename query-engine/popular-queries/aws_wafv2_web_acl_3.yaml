@@ -1,14 +1,20 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    visibility_config ->> 'SampledRequestsEnabled' as sampled_requests_enabled
-  from
-    aws_wafv2_web_acl
-  where
-    visibility_config ->> 'SampledRequestsEnabled' = 'false';
-  
-Title: "Steampipe Table: aws_wafv2_web_acl - Query AWS WAFv2 WebACLs using SQL"
+Title: "Find all AWS WAFv2 WebACLs with Disabled Sampled Requests"
 Description: "Allows users to query AWS WAFv2 WebACLs to retrieve and manage information about WebACL resources within AWS WAFv2."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      visibility_config ->> 'SampledRequestsEnabled' as sampled_requests_enabled
+    from
+      aws_wafv2_web_acl
+    where
+      visibility_config ->> 'SampledRequestsEnabled' = 'false';
+Tags:
+  cloud_identity_security: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: WAFv2

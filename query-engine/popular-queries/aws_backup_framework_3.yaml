@@ -1,13 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    framework_name
-  from
-    aws_backup_framework,
-    jsonb_array_elements(framework_controls) as controls
-  where
-    controls ->> 'ControlName' = 'BACKUP_RESOURCES_PROTECTED_BY_BACKUP_VAULT_LOCK';
-  
-Title: "Steampipe Table: aws_backup_framework - Query AWS Backup Frameworks using SQL"
+Title: "List AWS Backup Frameworks and Detailed Plans"
 Description: "Allows users to query AWS Backup Frameworks and retrieve comprehensive data about each backup plan, including its unique ARN, version, creation and deletion dates, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      framework_name
+    from
+      aws_backup_framework,
+      jsonb_array_elements(framework_controls) as controls
+    where
+      controls ->> 'ControlName' = 'BACKUP_RESOURCES_PROTECTED_BY_BACKUP_VAULT_LOCK';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS Backup

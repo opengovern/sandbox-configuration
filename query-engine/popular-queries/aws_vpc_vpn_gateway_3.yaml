@@ -1,15 +1,21 @@
-connectors:
-- AWS
-query: |-
-  select
-    vpn_gateway_id,
-    vpc.is_default
-  from
-    aws_vpc_vpn_gateway
-    cross join jsonb_array_elements(vpc_attachments) as i
-    join aws_vpc vpc on i ->> 'VpcId' = vpc.vpc_id
-  where
-    vpc.is_default = true;
-  
-Title: "Steampipe Table: aws_vpc_vpn_gateway - Query AWS VPC VPN Gateway using SQL"
+Title: "List all AWS VPC VPN Gateway Details for Default VPCs"
 Description: "Allows users to query AWS VPC VPN Gateway data, providing details about Virtual Private Cloud (VPC) VPN gateways in an AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      vpn_gateway_id,
+      vpc.is_default
+    from
+      aws_vpc_vpn_gateway
+      cross join jsonb_array_elements(vpc_attachments) as i
+      join aws_vpc vpc on i ->> 'VpcId' = vpc.vpc_id
+    where
+      vpc.is_default = true;
+Tags:
+  cloud_asset_management: true
+  cloud_network_security: true
+  cloud_provider: aws
+  cloud_service: VPC VPN Gateway

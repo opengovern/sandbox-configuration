@@ -1,18 +1,24 @@
-connectors:
-- AWS
-query: |-
-  select
-    recovery_instance_id
-    arn,
-    recovery_instance_properties ->> 'Cpus' as recovery_instance_cpus,
-    recovery_instance_properties ->> 'Disks' as recovery_instance_disks,
-    recovery_instance_properties ->> 'IdentificationHints' as recovery_instance_identification_hints,
-    recovery_instance_properties ->> 'LastUpdatedDateTime' as recovery_instance_last_updated_date_time,
-    recovery_instance_properties ->> 'NetworkInterfaces' as recovery_instance_network_interfaces,
-    recovery_instance_properties ->> 'Os' as recovery_instance_os,
-    recovery_instance_properties ->> 'RamBytes' as recovery_instance_ram_bytes
-  from
-    aws_drs_recovery_instance;
-  
-Title: "Steampipe Table: aws_drs_recovery_instance - Query AWS Disaster Recovery Service Recovery Instances using SQL"
+Title: "Query AWS DRS Recovery Instances for Detailed Information"
 Description: "Allows users to query AWS Disaster Recovery Service Recovery Instances to retrieve information about recovery instances, including instance type, recovery instance ARN, and associated tags."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      recovery_instance_id
+      arn,
+      recovery_instance_properties ->> 'Cpus' as recovery_instance_cpus,
+      recovery_instance_properties ->> 'Disks' as recovery_instance_disks,
+      recovery_instance_properties ->> 'IdentificationHints' as recovery_instance_identification_hints,
+      recovery_instance_properties ->> 'LastUpdatedDateTime' as recovery_instance_last_updated_date_time,
+      recovery_instance_properties ->> 'NetworkInterfaces' as recovery_instance_network_interfaces,
+      recovery_instance_properties ->> 'Os' as recovery_instance_os,
+      recovery_instance_properties ->> 'RamBytes' as recovery_instance_ram_bytes
+    from
+      aws_drs_recovery_instance;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Disaster Recovery Service

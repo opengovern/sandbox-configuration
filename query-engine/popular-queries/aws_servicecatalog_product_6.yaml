@@ -1,17 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    p ->> 'Id' as provisioning_artifact_id,
-    p ->> 'Name' as provisioning_artifact_name,
-    p ->> 'CreatedTime' as provisioning_artifact_created_time,
-    p ->> 'Description' as provisioning_artifact_description,
-    p ->> 'Guidance' as provisioning_artifact_guidance
-  from
-    aws_servicecatalog_product,
-    jsonb_array_elements(provisioning_artifacts) as p;
-  
-Title: "Steampipe Table: aws_servicecatalog_product - Query AWS Service Catalog Product using SQL"
+Title: "List AWS Service Catalog Product Data Including Details and Metadata"
 Description: "Allows users to query AWS Service Catalog Product data including product details, owner, type, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      p ->> 'Id' as provisioning_artifact_id,
+      p ->> 'Name' as provisioning_artifact_name,
+      p ->> 'CreatedTime' as provisioning_artifact_created_time,
+      p ->> 'Description' as provisioning_artifact_description,
+      p ->> 'Guidance' as provisioning_artifact_guidance
+    from
+      aws_servicecatalog_product,
+      jsonb_array_elements(provisioning_artifacts) as p;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Service Catalog

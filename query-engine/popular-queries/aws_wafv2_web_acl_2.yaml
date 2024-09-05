@@ -1,13 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    id,
-    visibility_config ->> 'CloudWatchMetricsEnabled' as cloud_watch_metrics_enabled,
-    visibility_config ->> 'MetricName' as metric_name
-  from
-    aws_wafv2_web_acl;
-  
-Title: "Steampipe Table: aws_wafv2_web_acl - Query AWS WAFv2 WebACLs using SQL"
+Title: "List all AWS WAFv2 WebACLs and their Metric Names"
 Description: "Allows users to query AWS WAFv2 WebACLs to retrieve and manage information about WebACL resources within AWS WAFv2."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      visibility_config ->> 'CloudWatchMetricsEnabled' as cloud_watch_metrics_enabled,
+      visibility_config ->> 'MetricName' as metric_name
+    from
+      aws_wafv2_web_acl;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: AWS WAFv2

@@ -1,26 +1,32 @@
-connectors:
+Title: "Find AWS ElastiCache Pricing Product with Specific Attributes"
+Description: "Allows users to query AWS Pricing Product details such as the product''s description, pricing details, and associated attributes."
+Connectors:
 - AWS
-query: |-
-  select
-    term,
-    purchase_option,
-    lease_contract_length,
-    unit,
-    price_per_unit::numeric::money,
-    currency,
-    attributes ->> 'instanceType',
-    attributes ->> 'vcpu',
-    attributes ->> 'memory',
-    attributes ->> 'cacheEngine'
-  from
-    aws_pricing_product
-  where
-    service_code = 'AmazonElastiCache'
-    and filters = '{
-    "regionCode": "eu-west-3",
-    "locationType": "AWS Region",
-    "instanceType": "cache.m5.xlarge",
-    "cacheEngine": "Redis" }'::jsonb;
-  
-Title: "Steampipe Table: aws_pricing_product - Query AWS Pricing Product using SQL"
-Description: "Allows users to query AWS Pricing Product details such as the product's description, pricing details, and associated attributes."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      term,
+      purchase_option,
+      lease_contract_length,
+      unit,
+      price_per_unit::numeric::money,
+      currency,
+      attributes ->> 'instanceType',
+      attributes ->> 'vcpu',
+      attributes ->> 'memory',
+      attributes ->> 'cacheEngine'
+    from
+      aws_pricing_product
+    where
+      service_code = 'AmazonElastiCache'
+      and filters = '{
+      "regionCode": "eu-west-3",
+      "locationType": "AWS Region",
+      "instanceType": "cache.m5.xlarge",
+      "cacheEngine": "Redis" }'::jsonb;
+Tags:
+  cloud_asset_management: true
+  cloud_finops: true
+  cloud_provider: aws
+  cloud_service: AWS Pricing Product

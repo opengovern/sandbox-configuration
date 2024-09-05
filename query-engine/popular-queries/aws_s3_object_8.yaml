@@ -1,17 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    key,
-    bucket_name,
-    object_lock_retain_until_date,
-    object_lock_mode,
-    object_lock_legal_hold_status
-  from
-    aws_s3_object
-  where
-    bucket_name = 'steampipe-test'
-    and object_lock_mode = 'GOVERNANCE';
-  
-Title: "Steampipe Table: aws_s3_object - Query AWS S3 Object using SQL"
+Title: "List all AWS S3 Object Metadata and Details"
 Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      key,
+      bucket_name,
+      object_lock_retain_until_date,
+      object_lock_mode,
+      object_lock_legal_hold_status
+    from
+      aws_s3_object
+    where
+      bucket_name = 'steampipe-test'
+      and object_lock_mode = 'GOVERNANCE';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: S3

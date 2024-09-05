@@ -1,14 +1,19 @@
-connectors:
-- AWS
-query: |-
-  select
-    table_name,
-    arn,
-    magnetic_store_write_properties
-  from
-    aws_timestreamwrite_table
-  where
-    magnetic_store_write_properties ->> 'EnableMagneticStoreWrites' = 'true';
-  
-Title: "Steampipe Table: aws_timestreamwrite_table - Query AWS Timestream Tables using SQL"
+Title: "List AWS Timestream Tables with Specific Write Properties"
 Description: "Allows users to query AWS Timestream tables, providing detailed information on table configurations, statuses, and retention properties."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      table_name,
+      arn,
+      magnetic_store_write_properties
+    from
+      aws_timestreamwrite_table
+    where
+      magnetic_store_write_properties ->> 'EnableMagneticStoreWrites' = 'true';
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Timestream

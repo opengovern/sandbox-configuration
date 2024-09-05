@@ -1,13 +1,18 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    continuous_backups_status
-  from
-    aws_dynamodb_table
-  where
-    continuous_backups_status = 'DISABLED';
-  
-Title: "Steampipe Table: aws_dynamodb_table - Query AWS DynamoDB Tables using SQL"
+Title: "List all AWS DynamoDB Tables with Disabled Backups"
 Description: "Allows users to query AWS DynamoDB Tables and retrieve detailed information about their configuration, status, and associated attributes."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      continuous_backups_status
+    from
+      aws_dynamodb_table
+    where
+      continuous_backups_status = 'DISABLED';
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: DynamoDB

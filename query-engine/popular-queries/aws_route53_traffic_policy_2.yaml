@@ -1,23 +1,28 @@
-connectors:
+Title: "Find All AWS Route 53 Traffic Policy Versions and Metadata"
+Description: "Allows users to query AWS Route 53 Traffic Policies to retrieve information about each policy''s versions, including the policy identifier, name, type, and document. This table also provides data related to the policy''s associated metadata."
+Connectors:
 - AWS
-query: |-
-  select 
-    name,
-    policy.id,
-    policy.version, 
-    comment 
-  from 
-    aws_route53_traffic_policy policy,
-    (select
-      id,
-      max(version) as version
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      name,
+      policy.id,
+      policy.version, 
+      comment 
     from 
-      aws_route53_traffic_policy 
-    group by 
-      id) as latest
-  where 
-    latest.id = policy.id 
-    and latest.version = policy.version;
-  
-Title: "Steampipe Table: aws_route53_traffic_policy - Query AWS Route 53 Traffic Policies using SQL"
-Description: "Allows users to query AWS Route 53 Traffic Policies to retrieve information about each policy's versions, including the policy identifier, name, type, and document. This table also provides data related to the policy's associated metadata."
+      aws_route53_traffic_policy policy,
+      (select
+        id,
+        max(version) as version
+      from 
+        aws_route53_traffic_policy 
+      group by 
+        id) as latest
+    where 
+      latest.id = policy.id 
+      and latest.version = policy.version;
+Tags:
+  cloud_asset_management: true
+  cloud_provider: aws
+  cloud_service: Route 53

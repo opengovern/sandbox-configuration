@@ -1,16 +1,22 @@
-connectors:
-- AWS
-query: |-
-  select
-    name,
-    application_id,
-    creation_date_time,
-    is_archived,
-    wave_id
-  from
-    aws_mgn_application
-  where
-    creation_date_time >= now() - interval '30' day;
-  
-Title: "Steampipe Table: aws_mgn_application - Query AWS Migration Service Applications using SQL"
+Title: "List AWS Migration Service Applications with Details"
 Description: "Allows users to query AWS Migration Service Applications to retrieve detailed information about each application."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      application_id,
+      creation_date_time,
+      is_archived,
+      wave_id
+    from
+      aws_mgn_application
+    where
+      creation_date_time >= now() - interval '30' day;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Migration Service

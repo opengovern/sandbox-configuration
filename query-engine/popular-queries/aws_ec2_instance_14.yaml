@@ -1,17 +1,23 @@
-connectors:
-- AWS
-query: |-
-  select
-    instance_id,
-    launch_template_data -> 'ImageId' as image_id,
-    launch_template_data -> 'Placement' as placement,
-    launch_template_data -> 'DisableApiStop' as disable_api_stop,
-    launch_template_data -> 'MetadataOptions' as metadata_options,
-    launch_template_data -> 'NetworkInterfaces' as network_interfaces,
-    launch_template_data -> 'BlockDeviceMappings' as block_device_mappings,
-    launch_template_data -> 'CapacityReservationSpecification' as capacity_reservation_specification
-  from
-    aws_ec2_instance;
-  
-Title: "Steampipe Table: aws_ec2_instance - Query AWS EC2 Instances using SQL"
+Title: "List All AWS EC2 Instances with Detailed Information"
 Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_id,
+      launch_template_data -> 'ImageId' as image_id,
+      launch_template_data -> 'Placement' as placement,
+      launch_template_data -> 'DisableApiStop' as disable_api_stop,
+      launch_template_data -> 'MetadataOptions' as metadata_options,
+      launch_template_data -> 'NetworkInterfaces' as network_interfaces,
+      launch_template_data -> 'BlockDeviceMappings' as block_device_mappings,
+      launch_template_data -> 'CapacityReservationSpecification' as capacity_reservation_specification
+    from
+      aws_ec2_instance;
+Tags:
+  cloud_asset_management: true
+  cloud_ops: true
+  cloud_provider: AWS
+  cloud_service: EC2

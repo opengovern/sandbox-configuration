@@ -1,13 +1,18 @@
-connectors:
+Title: "Find AWS Lambda Functions Without KMS Key ARN"
+Description: "Allows users to query AWS Lambda Functions, providing information about each function''s configuration, including runtime, code size, timeout, and associated tags."
+Connectors:
 - AWS
-query: |-
-  select
-    name,
-    kms_key_arn
-  from
-    aws_lambda_function
-  where
-    kms_key_arn is null;
-  
-Title: "Steampipe Table: aws_lambda_function - Query AWS Lambda Function using SQL"
-Description: "Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags."
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      kms_key_arn
+    from
+      aws_lambda_function
+    where
+      kms_key_arn is null;
+Tags:
+  cloud_ops: true
+  cloud_provider: aws
+  cloud_service: Lambda Functions
