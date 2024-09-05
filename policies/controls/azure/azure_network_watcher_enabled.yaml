@@ -1,34 +1,54 @@
 ID: azure_network_watcher_enabled
-Title: "Ensure that Network Watcher is 'Enabled'"
-Description: "Enable Network Watcher for Azure subscriptions."
+Title: Network Watcher should be enabled
+Description: Network Watcher is a regional service that enables you to monitor and diagnose conditions at a network scenario level in, to, and from Azure. Scenario level monitoring enables you to diagnose problems at an end to end network level view. It is required to have a network watcher resource group to be created in every region where a virtual network is present. An alert is enabled if a network watcher resource group is not available in a particular region.
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_location
-        - azure_network_watcher
-        - azure_subscription
-    Parameters: []
-    PrimaryTable: azure_location
-    QueryToExecute: "select\n  loc.id resource,\n  loc.kaytu_account_id as kaytu_account_id,\n  loc.kaytu_resource_id as kaytu_resource_id,\n  case\n    when watcher.id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when watcher.id is null then 'Network watcher not enabled in ' || loc.name || '.'\n    else 'Network watcher enabled in ' || loc.name || '.'\n  end as reason,\n  loc.name\n  \n  \n  , sub.display_name as subscription\nfrom\n  azure_location loc\n  left join azure_network_watcher watcher on watcher.region = loc.name\n  join azure_subscription sub on sub.subscription_id = loc.subscription_id;\n"
-Severity: medium
-Tags:
-    category:
-        - Compliance
-    cis:
-        - "true"
-    cis_item_id:
-        - "6.5"
-    cis_level:
-        - "1"
-    cis_section_id:
-        - "6"
-    cis_type:
-        - manual
-    cis_version:
-        - v1.3.0
-    plugin:
-        - azure
-    service:
-        - Azure/Network
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      loc.id resource,
+      loc.kaytu_account_id as kaytu_account_id,
+      loc.kaytu_resource_id as kaytu_resource_id,
+      case
+        when watcher.id is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when watcher.id is null then 'Network watcher not enabled in ' || loc.name || '.'
+        else 'Network watcher enabled in ' || loc.name || '.'
+      end as reason,
+      loc.name
+      
+      
+      , sub.display_name as subscription
+    from
+      azure_location loc
+      left join azure_network_watcher watcher on watcher.region = loc.name
+      join azure_subscription sub on sub.subscription_id = loc.subscription_id;
+  PrimaryTable: azure_location
+  ListOfTables:
+  - azure_location
+  - azure_network_watcher
+  - azure_subscription
+  Parameters: []
 Connector:
-    - Azure
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - "6.5"
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "6"
+  cis_type:
+  - manual
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/Network
+Severity: medium

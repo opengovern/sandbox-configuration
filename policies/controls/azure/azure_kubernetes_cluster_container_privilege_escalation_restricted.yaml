@@ -1,0 +1,23 @@
+ID: azure_kubernetes_cluster_container_privilege_escalation_restricted
+Title: Kubernetes clusters should not allow container privilege escalation
+Description: Do not allow containers to run with privilege escalation to root in a Kubernetes cluster. This recommendation is part of CIS 5.2.5 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags:
+  manual-verification: true
+Severity: low

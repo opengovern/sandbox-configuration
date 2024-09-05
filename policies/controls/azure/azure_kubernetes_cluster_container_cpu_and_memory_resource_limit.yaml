@@ -1,0 +1,23 @@
+ID: azure_kubernetes_cluster_container_cpu_and_memory_resource_limit
+Title: Kubernetes cluster containers CPU and memory resource limits should not exceed the specified limits
+Description: Enforce container CPU and memory resource limits to prevent resource exhaustion attacks in a Kubernetes cluster. This policy is generally available for Kubernetes Service (AKS), and preview for Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags:
+  manual-verification: true
+Severity: low

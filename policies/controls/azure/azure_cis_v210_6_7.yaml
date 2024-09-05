@@ -1,0 +1,23 @@
+ID: azure_cis_v210_6_7
+Title: 6.7 Ensure that Public IP addresses are Evaluated on a Periodic Basis
+Description: Public IP Addresses provide tenant accounts with Internet connectivity for resources contained within the tenant. During the creation of certain resources in Azure, a Public IP Address may be created. All Public IP Addresses within the tenant should be periodically reviewed for accuracy and necessity.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags:
+  manual-verification: true
+Severity: low

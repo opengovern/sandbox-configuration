@@ -1,19 +1,39 @@
 ID: azure_network_virtual_network_gateway_no_basic_sku
-Title: "Virtual network gateways should use standard SKUs as a minimum"
-Description: "The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads."
+Title: Virtual network gateways should use standard SKUs as a minimum
+Description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_subscription
-        - azure_virtual_network_gateway
-    Parameters: []
-    PrimaryTable: azure_virtual_network_gateway
-    QueryToExecute: "select\n  g.id as resource,\n  g.kaytu_account_id as kaytu_account_id,\n  g.kaytu_resource_id as kaytu_resource_id,\n  case\n    when g.sku_name = 'Basic' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when g.sku_name = 'Basic' then g.title || ' using basic SKU.'\n    else g.title || ' using ' || sku_name || ' SKU.'\n  end as reason\n  \n  , g.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_virtual_network_gateway as g,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = g.subscription_id;\n"
-Severity: medium
-Tags:
-    cis:
-        - "true"
-    service:
-        - Azure/Network
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      g.id as resource,
+      g.kaytu_account_id as kaytu_account_id,
+      g.kaytu_resource_id as kaytu_resource_id,
+      case
+        when g.sku_name = 'Basic' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when g.sku_name = 'Basic' then g.title || ' using basic SKU.'
+        else g.title || ' using ' || sku_name || ' SKU.'
+      end as reason
+      
+      , g.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_virtual_network_gateway as g,
+      azure_subscription as sub
+    where
+      sub.subscription_id = g.subscription_id;
+  PrimaryTable: azure_virtual_network_gateway
+  ListOfTables:
+  - azure_subscription
+  - azure_virtual_network_gateway
+  Parameters: []
 Connector:
-    - Azure
+- azure
+Tags:
+  cis:
+  - "true"
+  service:
+  - Azure/Network
+Severity: medium

@@ -1,0 +1,23 @@
+ID: azure_kubernetes_cluster_https_enabled
+Title: Kubernetes clusters should be accessible only over HTTPS
+Description: Use of HTTPS ensures authentication and protects data in transit from network layer eavesdropping attacks. This capability is currently generally available for Kubernetes Service (AKS), and in preview for Azure Arc enabled Kubernetes. For more info, visit https://aka.ms/kubepolicydoc
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags:
+  manual-verification: true
+Severity: low

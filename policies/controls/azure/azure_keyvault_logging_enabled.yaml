@@ -1,72 +1,72 @@
 ID: azure_keyvault_logging_enabled
-Title: "Ensure that logging for Azure KeyVault is 'Enabled'"
-Description: "Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available."
+Title: Resource logs in Key Vault should be enabled
+Description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes when a security incident occurs or when your network is compromised.
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_key_vault
-        - azure_subscription
-    Parameters: []
-    PrimaryTable: azure_key_vault
-    QueryToExecute: |
-        with logging_details as (
-          select
-            name as key_vault_name
-          from
-            azure_key_vault,
-            jsonb_array_elements(diagnostic_settings) setting,
-            jsonb_array_elements(setting -> 'properties' -> 'logs') log
-          where
-            diagnostic_settings is not null
-            and setting -> 'properties' ->> 'storageAccountId' <> ''
-            and (log ->> 'enabled') :: boolean
-            and log ->> 'category' = 'AuditEvent'
-            and (log -> 'retentionPolicy') :: JSONB ? 'days'
-        )
-        select
-          v.id as resource,
-          v.kaytu_account_id as kaytu_account_id,
-          v.kaytu_resource_id as kaytu_resource_id,
-          case
-            when v.diagnostic_settings is null then 'alarm'
-            when l.key_vault_name not like concat('%', v.name, '%') then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when v.diagnostic_settings is null then v.name || ' logging not enabled.'
-            when l.key_vault_name not like concat('%', v.name, '%') then v.name || ' logging not enabled.'
-            else v.name || ' logging enabled.'
-          end as reason
-
-          , v.resource_group as resource_group
-          , sub.display_name as subscription
-        from
-          azure_key_vault v
-        left join
-          logging_details l ON l.key_vault_name = v.name
-        join
-          azure_subscription sub ON sub.subscription_id = v.subscription_id;
-Severity: high
-Tags:
-    category:
-        - Compliance
-    cis:
-        - "true"
-    cis_item_id:
-        - 5.1.5
-    cis_level:
-        - "1"
-    cis_section_id:
-        - "5.1"
-    cis_type:
-        - automated
-    cis_version:
-        - v1.3.0
-    plugin:
-        - azure
-    score_service_name:
-        - Azure KeyVault
-    score_tags:
-        - Observability
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with logging_details as (
+      select
+        name as key_vault_name
+      from
+        azure_key_vault,
+        jsonb_array_elements(diagnostic_settings) setting,
+        jsonb_array_elements(setting -> 'properties' -> 'logs') log
+      where
+        diagnostic_settings is not null
+        and setting -> 'properties' ->> 'storageAccountId' <> ''
+        and (log ->> 'enabled') :: boolean
+        and log ->> 'category' = 'AuditEvent'
+        and (log -> 'retentionPolicy') :: JSONB ? 'days'
+    )
+    select
+      v.id as resource,
+      v.kaytu_account_id as kaytu_account_id,
+      v.kaytu_resource_id as kaytu_resource_id,
+      case
+        when v.diagnostic_settings is null then 'alarm'
+        when l.key_vault_name not like concat('%', v.name, '%') then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when v.diagnostic_settings is null then v.name || ' logging not enabled.'
+        when l.key_vault_name not like concat('%', v.name, '%') then v.name || ' logging not enabled.'
+        else v.name || ' logging enabled.'
+      end as reason
+    
+      , v.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_key_vault v
+    left join
+      logging_details l ON l.key_vault_name = v.name
+    join
+      azure_subscription sub ON sub.subscription_id = v.subscription_id;
+  PrimaryTable: azure_key_vault
+  ListOfTables:
+  - azure_key_vault
+  - azure_subscription
+  Parameters: []
 Connector:
-    - Azure
+- azure
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 5.1.5
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "5.1"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  score_service_name:
+  - Azure KeyVault
+  score_tags:
+  - Observability
+Severity: high

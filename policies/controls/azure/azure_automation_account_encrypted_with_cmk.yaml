@@ -1,0 +1,23 @@
+ID: azure_automation_account_encrypted_with_cmk
+Title: Azure Automation accounts should use customer-managed keys to encrypt data at rest
+Description: Use customer-managed keys to manage the encryption at rest of your Azure Automation Accounts. By default, customer data is encrypted with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management. Learn more at https://aka.ms/automation-cmk.
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Connector:
+- azure
+Tags:
+  manual-verification: true
+Severity: low
