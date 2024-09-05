@@ -1,19 +1,36 @@
 ID: aws_account_alternate_contacts
 Title: "Account Alternate Contacts"
 Description: "Ensure alternate contacts are set to improve the security of your AWS account."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_account
-        - aws_account_alternate_contact
-    Parameters: []
-    PrimaryTable: aws_account
-    QueryToExecute: "select\n  a.account_id as resource,\n  a.kaytu_account_id,\n  a.kaytu_resource_id,\n  case\n    when c.name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when c.name is null then 'account does not have any alternate contact'\n    else 'account has an alternate contact'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_account as a\n  left join aws_account_alternate_contact as c on a.account_id = c.account_id\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      a.account_id as resource,
+      a.kaytu_account_id,
+      a.kaytu_resource_id,
+      case
+        when c.name is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when c.name is null then 'account does not have any alternate contact'
+        else 'account has an alternate contact'
+      end as reason,
+      a.region, 
+      a.account_id
+    from
+      aws_account as a
+      left join aws_account_alternate_contact as c on a.account_id = c.account_id
+  PrimaryTable: aws_account
+  ListOfTables:
+  - aws_account
+  - aws_account_alternate_contact
+  Parameters: []
 Severity: medium
 Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-    score_tags:
-        - Problem Identities
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

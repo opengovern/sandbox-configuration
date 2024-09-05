@@ -1,21 +1,57 @@
 ID: azure_check_for_azure_key_vault_keys_expiration_date
 Title: "Check for Azure Key Vault Keys Expiration Date"
 Description: "Ensure that your Azure Key Vault encryption keys are renewed prior to their expiration date."
+Connector:
+- Azure
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - azure_key_vault_key
-        - azure_subscription
-    Parameters:
-        - Key: azureKeyVaultKeyExpirationDateDays
-          Required: true
-    PrimaryTable: azure_key_vault_key
-    QueryToExecute: "select\n  name as resource,\n  k.kaytu_resource_id,\n  k.kaytu_account_id,\n  case\n    when expires_at is null then 'skip'\n    when '{{.azureKeyVaultKeyExpirationDateDays}}' = '' then\n      case \n        when expires_at - now() > '30 days'::interval then 'ok'\n        else 'alarm'\n      end\n    else\n      case\n        when expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval then 'ok'\n        else 'alarm'\n      end\n  end as status,\n  case\n    when expires_at is null then 'expires at is not specified'\n    when expires_at < now() then 'key has been expired'\n    when '{{.azureKeyVaultKeyExpirationDateDays}}' = '' then\n      case\n        when expires_at - now() > '30 days'::interval then 'key does not expire soon'\n        else 'key expires soon'\n      end\n    else\n      case\n        when expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval then 'key does not expire soon'\n        else 'key expires soon'\n      end\n  end as reason,\n  resource_group as resource_group,\n  sub.display_name as subscription\nfrom\n  azure_key_vault_key as k\n  left join azure_subscription as sub on k.subscription_id = sub.subscription_id\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      name as resource,
+      k.kaytu_resource_id,
+      k.kaytu_account_id,
+      case
+        when expires_at is null then 'skip'
+        when '{{.azureKeyVaultKeyExpirationDateDays}}' = '' then
+          case 
+            when expires_at - now() > '30 days'::interval then 'ok'
+            else 'alarm'
+          end
+        else
+          case
+            when expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval then 'ok'
+            else 'alarm'
+          end
+      end as status,
+      case
+        when expires_at is null then 'expires at is not specified'
+        when expires_at < now() then 'key has been expired'
+        when '{{.azureKeyVaultKeyExpirationDateDays}}' = '' then
+          case
+            when expires_at - now() > '30 days'::interval then 'key does not expire soon'
+            else 'key expires soon'
+          end
+        else
+          case
+            when expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval then 'key does not expire soon'
+            else 'key expires soon'
+          end
+      end as reason,
+      resource_group as resource_group,
+      sub.display_name as subscription
+    from
+      azure_key_vault_key as k
+      left join azure_subscription as sub on k.subscription_id = sub.subscription_id
+  PrimaryTable: azure_key_vault_key
+  ListOfTables:
+  - azure_key_vault_key
+  - azure_subscription
+  Parameters:
+  - key: ""
+    required: false
 Severity: medium
 Tags:
-    score_service_name:
-        - Azure KeyVault
-    score_tags:
-        - Problem Identities
-Connector:
-    - Azure
+  score_service_name:
+  - Azure KeyVault
+  score_tags:
+  - Problem Identities

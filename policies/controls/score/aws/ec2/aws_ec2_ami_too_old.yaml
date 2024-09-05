@@ -1,22 +1,51 @@
 ID: aws_ec2_ami_too_old
 Title: "EC2 AMI Too Old"
 Description: "Ensure EC2 Amazon Machine Images (AMIs) aren't too old"
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_backup_managed
-        - aws_ebs_snapshot
-        - aws_ec2_ami
-    Parameters:
-        - Key: awsEbsAmiAgeMaxDays
-          Required: true
-    PrimaryTable: aws_ec2_ami
-    QueryToExecute: "SELECT \n  image_id as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN is_aws_backup_managed THEN 'skip'\n    WHEN root_device_type <> 'ebs' THEN 'skip'\n    WHEN now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN is_aws_backup_managed THEN name || ' is managed by aws'\n    WHEN root_device_type <> 'ebs' THEN name || ' is not stored in ebs'\n    WHEN now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN name || ' needs to be restarted' \n    ELSE name || ' launch time was not much time ago'\n  END AS reason,\n  case\n    when is_aws_backup_managed then 0\n    when root_device_type <> 'ebs' then 0\n    when now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' \n         AND es.resource_id = s.arn))\n         FROM jsonb_array_elements(block_device_mappings) AS bdm\n         LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')\n    else 0\n  end as cost_optimization,\n  region,\n  account_id\nFROM \n  aws_ec2_ami\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      image_id as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN is_aws_backup_managed THEN 'skip'
+        WHEN root_device_type <> 'ebs' THEN 'skip'
+        WHEN now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN is_aws_backup_managed THEN name || ' is managed by aws'
+        WHEN root_device_type <> 'ebs' THEN name || ' is not stored in ebs'
+        WHEN now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN name || ' needs to be restarted' 
+        ELSE name || ' launch time was not much time ago'
+      END AS reason,
+      case
+        when is_aws_backup_managed then 0
+        when root_device_type <> 'ebs' then 0
+        when now() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' 
+             AND es.resource_id = s.arn))
+             FROM jsonb_array_elements(block_device_mappings) AS bdm
+             LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')
+        else 0
+      end as cost_optimization,
+      region,
+      account_id
+    FROM 
+      aws_ec2_ami
+  PrimaryTable: aws_ec2_ami
+  ListOfTables:
+  - aws_backup_managed
+  - aws_ebs_snapshot
+  - aws_ec2_ami
+  Parameters:
+  - key: ""
+    required: false
 Severity: high
 Tags:
-    score_service_name:
-        - AWS EC2
-    score_tags:
-        - Lacking High Availability
-Connector:
-    - AWS
+  score_service_name:
+  - AWS EC2
+  score_tags:
+  - Lacking High Availability

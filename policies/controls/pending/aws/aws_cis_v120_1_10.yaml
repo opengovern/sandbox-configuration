@@ -1,28 +1,28 @@
 ID: aws_cis_v120_1_10
-Title: 1.10 Ensure IAM password policy prevents password reuse
-Description: IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords.
+Title: "1.10 Ensure IAM password policy prevents password reuse"
+Description: "IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords."
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          'arn:' || a.partition || ':::' || a.account_id as resource,
-          case
-            when password_reuse_prevention >= 24 then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when minimum_password_length is null then 'No password policy set.'
-            when password_reuse_prevention is null then 'Password reuse prevention not set.'
-            else 'Password reuse prevention set to ' || password_reuse_prevention || '.'
-          end as reason
-          
-        from
-          aws_account as a
-          left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
+    select
+      'arn:' || a.partition || ':::' || a.account_id as resource,
+      case
+        when password_reuse_prevention >= 24 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when minimum_password_length is null then 'No password policy set.'
+        when password_reuse_prevention is null then 'Password reuse prevention not set.'
+        else 'Password reuse prevention set to ' || password_reuse_prevention || '.'
+      end as reason
+      
+    from
+      aws_account as a
+      left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
-Connector:
-- aws
-Tags: {}
 Severity: low
+Tags: {}

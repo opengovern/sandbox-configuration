@@ -1,34 +1,34 @@
 ID: azure_mariadb_server_private_link_used
-Title: Private endpoint should be enabled for MariaDB servers
-Description: Private endpoint connections enforce secure communication by enabling private connectivity to Azure Database for MariaDB. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure.
+Title: "Private endpoint should be enabled for MariaDB servers"
+Description: "Private endpoint connections enforce secure communication by enabling private connectivity to Azure Database for MariaDB. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure."
+Connector:
+- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          a.id as resource,
-          case
-            -- Only applicable to standard tier
-            when sku_tier = 'Basic' then 'skip'
-            when private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when sku_tier = 'Basic' then a.name || ' is of ' || sku_tier || ' tier.'
-            when private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb then a.name || ' using private link.'
-            else a.name || ' not using private link.'
-          end as reason
-          
-          
-          
-        from
-          azure_mariadb_server a,
-          azure_subscription sub
-        where
-          sub.subscription_id = a.subscription_id;
+    select
+      a.id as resource,
+      case
+        -- Only applicable to standard tier
+        when sku_tier = 'Basic' then 'skip'
+        when private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when sku_tier = 'Basic' then a.name || ' is of ' || sku_tier || ' tier.'
+        when private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb then a.name || ' using private link.'
+        else a.name || ' not using private link.'
+      end as reason
+      
+      
+      
+    from
+      azure_mariadb_server a,
+      azure_subscription sub
+    where
+      sub.subscription_id = a.subscription_id;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
-Connector:
-- azure
-Tags: {}
 Severity: low
+Tags: {}

@@ -1,18 +1,38 @@
 ID: aws_ami_encryption
 Title: "AWS AMI Encryption"
 Description: "Ensure that your existing AMIs are encrypted to meet security and compliance requirements."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_ec2_ami
-    Parameters: []
-    PrimaryTable: aws_ec2_ami
-    QueryToExecute: "SELECT \n  name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(block_device_mappings) AS b WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = False\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(block_device_mappings) AS b WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = False\n    ) THEN name || ' has unencrypted data' \n    ELSE name || ' data is encrypted'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_ami\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      name as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(block_device_mappings) AS b WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = False
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(block_device_mappings) AS b WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = False
+        ) THEN name || ' has unencrypted data' 
+        ELSE name || ' data is encrypted'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_ec2_ami
+  PrimaryTable: aws_ec2_ami
+  ListOfTables:
+  - aws_ec2_ami
+  Parameters: []
 Severity: high
 Tags:
-    score_service_name:
-        - AWS EC2
-    score_tags:
-        - Unencrypted Storage
-Connector:
-    - AWS
+  score_service_name:
+  - AWS EC2
+  score_tags:
+  - Unencrypted Storage

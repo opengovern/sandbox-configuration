@@ -1,86 +1,86 @@
 ID: aws_cis_v130_5_1
-Title: 5.1 Ensure no Network ACLs allow ingress from 0.0.0.0/0 to remote server administration ports
-Description: The Network Access Control List (NACL) function provide stateless filtering of ingress and egress network traffic to AWS resources. It is recommended that no NACL allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389.
+Title: "5.1 Ensure no Network ACLs allow ingress from 0.0.0.0/0 to remote server administration ports"
+Description: "The Network Access Control List (NACL) function provide stateless filtering of ingress and egress network traffic to AWS resources. It is recommended that no NACL allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389."
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        with bad_rules as (
-          select
-            network_acl_id,
-            count(*) as num_bad_rules,
-            tags,
-            region,
-            account_id
-          from
-            aws_vpc_network_acl,
-            jsonb_array_elements(entries) as att
-          where
-            att ->> 'Egress' = 'false' -- as per aws egress = false indicates the ingress
-            and (
-              att ->> 'CidrBlock' = '0.0.0.0/0'
-              or att ->> 'Ipv6CidrBlock' =  '::/0'
-            )
-            and att ->> 'RuleAction' = 'allow'
-            and (
-              (
-                att ->> 'Protocol' = '-1' -- all traffic
-                and att ->> 'PortRange' is null
-              )
-              or (
-                (att -> 'PortRange' ->> 'From') :: int <= 22
-                and (att -> 'PortRange' ->> 'To') :: int >= 22
-                and att ->> 'Protocol' in('6', '17')  -- TCP or UDP
-              )
-              or (
-                (att -> 'PortRange' ->> 'From') :: int <= 3389
-                and (att -> 'PortRange' ->> 'To') :: int >= 3389
-                and att ->> 'Protocol' in('6', '17')  -- TCP or UDP
-            )
-          )
-          group by
-            network_acl_id,
-            region,
-            account_id,
-            tags
-          order by
-            network_acl_id,
-            region,
-            account_id,
-            tags
-        ),
-        aws_vpc_network_acls as (
-          select
-            network_acl_id,
-            tags,
-            partition,
-            region,
-            account_id
-          from
-            aws_vpc_network_acl
-          order by
-            network_acl_id,
-            region,
-            account_id
+    with bad_rules as (
+      select
+        network_acl_id,
+        count(*) as num_bad_rules,
+        tags,
+        region,
+        account_id
+      from
+        aws_vpc_network_acl,
+        jsonb_array_elements(entries) as att
+      where
+        att ->> 'Egress' = 'false' -- as per aws egress = false indicates the ingress
+        and (
+          att ->> 'CidrBlock' = '0.0.0.0/0'
+          or att ->> 'Ipv6CidrBlock' =  '::/0'
         )
-        select
-          'arn:' || acl.partition || ':ec2:' || acl.region || ':' || acl.account_id || ':network-acl/' || acl.network_acl_id  as resource,
-          case
-            when bad_rules.network_acl_id is null then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when bad_rules.network_acl_id is null then acl.network_acl_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-            else acl.network_acl_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) allowing ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-          end as reason
-          
-          
-        from
-          aws_vpc_network_acls as acl
-          left join bad_rules on bad_rules.network_acl_id = acl.network_acl_id;
+        and att ->> 'RuleAction' = 'allow'
+        and (
+          (
+            att ->> 'Protocol' = '-1' -- all traffic
+            and att ->> 'PortRange' is null
+          )
+          or (
+            (att -> 'PortRange' ->> 'From') :: int <= 22
+            and (att -> 'PortRange' ->> 'To') :: int >= 22
+            and att ->> 'Protocol' in('6', '17')  -- TCP or UDP
+          )
+          or (
+            (att -> 'PortRange' ->> 'From') :: int <= 3389
+            and (att -> 'PortRange' ->> 'To') :: int >= 3389
+            and att ->> 'Protocol' in('6', '17')  -- TCP or UDP
+        )
+      )
+      group by
+        network_acl_id,
+        region,
+        account_id,
+        tags
+      order by
+        network_acl_id,
+        region,
+        account_id,
+        tags
+    ),
+    aws_vpc_network_acls as (
+      select
+        network_acl_id,
+        tags,
+        partition,
+        region,
+        account_id
+      from
+        aws_vpc_network_acl
+      order by
+        network_acl_id,
+        region,
+        account_id
+    )
+    select
+      'arn:' || acl.partition || ':ec2:' || acl.region || ':' || acl.account_id || ':network-acl/' || acl.network_acl_id  as resource,
+      case
+        when bad_rules.network_acl_id is null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when bad_rules.network_acl_id is null then acl.network_acl_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+        else acl.network_acl_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) allowing ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+      end as reason
+      
+      
+    from
+      aws_vpc_network_acls as acl
+      left join bad_rules on bad_rules.network_acl_id = acl.network_acl_id;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
-Connector:
-- aws
-Tags: {}
 Severity: low
+Tags: {}

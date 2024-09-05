@@ -1,20 +1,36 @@
 ID: aws_opensearch_version
 Title: "OpenSearch Version"
 Description: "Ensure that the latest version of OpenSearch engine is used for your OpenSearch domains."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_opensearch_domain
-    Parameters:
-        - Key: awsOpensearchLatestVersion
-          Required: true
-    PrimaryTable: aws_opensearch_domain
-    QueryToExecute: "SELECT \n  domain_name as resource,\n  kaytu_resource_id,\n  kaytu_account_id,\n  CASE\n    WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN domain_name || ' is using the latest engine version' \n    ELSE domain_name || ' is not using the latest engine version'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      domain_name as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN domain_name || ' is using the latest engine version' 
+        ELSE domain_name || ' is not using the latest engine version'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_opensearch_domain
+  PrimaryTable: aws_opensearch_domain
+  ListOfTables:
+  - aws_opensearch_domain
+  Parameters:
+  - key: ""
+    required: false
 Severity: high
 Tags:
-    score_service_name:
-        - AWS OpenSearch Service
-    score_tags:
-        - General Efficiency
-Connector:
-    - AWS
+  score_service_name:
+  - AWS OpenSearch Service
+  score_tags:
+  - General Efficiency

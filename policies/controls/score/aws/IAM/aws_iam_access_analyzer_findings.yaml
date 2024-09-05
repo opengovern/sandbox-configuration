@@ -1,18 +1,38 @@
 ID: aws_iam_access_analyzer_findings
 Title: "IAM Access Analyzer Findings"
 Description: "Ensure that IAM Access Analyzer findings are reviewed and resolved to maintain access security to your AWS resources."
-Tags:
-    score_service_name:
-        - AWS Identity and Access Management (IAM)
-    score_tags:
-        - Problem Identities
-Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_accessanalyzer_analyzer
-    Parameters: []
-    PrimaryTable: aws_accessanalyzer_analyzer
-    QueryToExecute: "select\n  a.name as resource,\n  a.kaytu_account_id,\n  a.kaytu_resource_id,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'There are unresolved findings in this analyzer'\n    else 'There is no unresolved findings in this analyzer'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_accessanalyzer_analyzer as a\n"
-Severity: medium
 Connector:
-    - AWS
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      a.name as resource,
+      a.kaytu_account_id,
+      a.kaytu_resource_id,
+      case
+        when exists (
+          select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'
+        ) then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when exists (
+          select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'
+        ) then 'There are unresolved findings in this analyzer'
+        else 'There is no unresolved findings in this analyzer'
+      end as reason,
+      a.region, 
+      a.account_id
+    from
+      aws_accessanalyzer_analyzer as a
+  PrimaryTable: aws_accessanalyzer_analyzer
+  ListOfTables:
+  - aws_accessanalyzer_analyzer
+  Parameters: []
+Severity: medium
+Tags:
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

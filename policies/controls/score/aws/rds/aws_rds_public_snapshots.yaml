@@ -1,18 +1,54 @@
 ID: aws_rds_public_snapshots
 Title: "Amazon RDS Public Snapshots"
 Description: "Ensure that your Amazon RDS database snapshots are not accessible to all AWS accounts."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_rds_db_snapshot
-    Parameters: []
-    PrimaryTable: aws_rds_db_snapshot
-    QueryToExecute: "WITH restore_values AS (\n  SELECT \n    db_snapshot_identifier,\n    \n    attr ->> 'AttributeValues' AS attrValues \n  FROM \n    aws_rds_db_snapshot,\n    \n    jsonb_array_elements(db_snapshot_attributes) attr \n  WHERE \n    attr ->>\n    'AttributeName' = 'restore'\n)\nSELECT \n  s.db_snapshot_identifier AS resource,\n\n    s.kaytu_account_id AS kaytu_account_id,\n  s.kaytu_resource_id AS kaytu_resource_id,\n\n    CASE\n    WHEN rv.attrValues LIKE '%all%'\n      THEN 'alarm'\n    ELSE 'ok'\n\n    END AS status,\n  CASE\n    WHEN rv.attrValues LIKE '%all%'\n      THEN s.db_snapshot_identifier\n    || ' is open to all accounts'\n    ELSE s.db_snapshot_identifier || ' is not open\n    to all accounts'\n  END AS reason\nFROM\n  aws_rds_db_snapshot AS s\n  LEFT JOIN\n    restore_values AS rv ON s.db_snapshot_identifier = rv.db_snapshot_identifier\n"
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    WITH restore_values AS (
+      SELECT 
+        db_snapshot_identifier,
+        
+        attr ->> 'AttributeValues' AS attrValues 
+      FROM 
+        aws_rds_db_snapshot,
+        
+        jsonb_array_elements(db_snapshot_attributes) attr 
+      WHERE 
+        attr ->>
+        'AttributeName' = 'restore'
+    )
+    SELECT 
+      s.db_snapshot_identifier AS resource,
+    
+        s.kaytu_account_id AS kaytu_account_id,
+      s.kaytu_resource_id AS kaytu_resource_id,
+    
+        CASE
+        WHEN rv.attrValues LIKE '%all%'
+          THEN 'alarm'
+        ELSE 'ok'
+    
+        END AS status,
+      CASE
+        WHEN rv.attrValues LIKE '%all%'
+          THEN s.db_snapshot_identifier
+        || ' is open to all accounts'
+        ELSE s.db_snapshot_identifier || ' is not open
+        to all accounts'
+      END AS reason
+    FROM
+      aws_rds_db_snapshot AS s
+      LEFT JOIN
+        restore_values AS rv ON s.db_snapshot_identifier = rv.db_snapshot_identifier
+  PrimaryTable: aws_rds_db_snapshot
+  ListOfTables:
+  - aws_rds_db_snapshot
+  Parameters: []
 Severity: high
 Tags:
-    score_service_name:
-        - AWS Relational Database Service (RDS)
-    score_tags:
-        - Exposed Endpoints
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Relational Database Service (RDS)
+  score_tags:
+  - Exposed Endpoints

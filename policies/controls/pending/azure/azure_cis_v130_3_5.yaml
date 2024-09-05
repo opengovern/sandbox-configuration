@@ -1,31 +1,31 @@
 ID: azure_cis_v130_3_5
-Title: 3.5 Ensure that 'Public access level' is set to Private for blob containers
-Description: Disable anonymous access to blob containers and disallow blob public access on storage account.
+Title: "3.5 Ensure that 'Public access level' is set to Private for blob containers"
+Description: "Disable anonymous access to blob containers and disallow blob public access on storage account."
+Connector:
+- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-        select
-          container.id as resource,
-          case
-            when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when not account.allow_blob_public_access and container.public_access = 'None'
-              then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
-            else account.name || ' container ' || container.name || ' allows anonymous access.'
-          end as reason
-          
-          
-          
-        from
-          azure_storage_container container
-          join azure_storage_account account on container.account_name = account.name
-          join azure_subscription sub on sub.subscription_id = account.subscription_id;
+    select
+      container.id as resource,
+      case
+        when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when not account.allow_blob_public_access and container.public_access = 'None'
+          then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+        else account.name || ' container ' || container.name || ' allows anonymous access.'
+      end as reason
+      
+      
+      
+    from
+      azure_storage_container container
+      join azure_storage_account account on container.account_name = account.name
+      join azure_subscription sub on sub.subscription_id = account.subscription_id;
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
-Connector:
-- azure
-Tags: {}
 Severity: low
+Tags: {}

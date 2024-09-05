@@ -1,37 +1,37 @@
 ID: aws_kubernetes_cluster_version
 Title: "Kubernetes Cluster Version"
 Description: "Ensure that the latest version of Kubernetes is installed on your Amazon EKS clusters."
+Connector:
+- AWS
 Query:
-    Engine: odysseus-v0.0.1
-    ListOfTables:
-        - aws_eks_cluster
-    Parameters:
-        - Key: awsEksClusterLatestVersion
-          Required: true
-    PrimaryTable: aws_eks_cluster
-    QueryToExecute: |+
-        select
-          arn as resource,
-          kaytu_account_id,
-          kaytu_resource_id,
-          case
-            when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then title || ' runs on a supported kubernetes version.'
-            else title || ' is running on version ' || version || ' which is not supported. supported versions are >= ' || '{{.awsEksClusterLatestVersion}}' :: decimal
-          end as reason,
-          region,
-          account_id
-        from
-          aws_eks_cluster;
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |+
+    select
+      arn as resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      case
+        when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then title || ' runs on a supported kubernetes version.'
+        else title || ' is running on version ' || version || ' which is not supported. supported versions are >= ' || '{{.awsEksClusterLatestVersion}}' :: decimal
+      end as reason,
+      region,
+      account_id
+    from
+      aws_eks_cluster;
 
+  PrimaryTable: aws_eks_cluster
+  ListOfTables:
+  - aws_eks_cluster
+  Parameters:
+  - key: ""
+    required: false
 Severity: low
 Tags:
-    score_service_name:
-        - AWS Elastic Kubernetes Service (EKS)
-    score_tags:
-        - Lacking High Availability
-Connector:
-    - AWS
+  score_service_name:
+  - AWS Elastic Kubernetes Service (EKS)
+  score_tags:
+  - Lacking High Availability
