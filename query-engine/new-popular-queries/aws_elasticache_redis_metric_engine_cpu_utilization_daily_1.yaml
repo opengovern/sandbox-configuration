@@ -1,0 +1,28 @@
+Title: "List all AWS ElastiCache Redis Engine CPU Utilization Metrics"
+Description: "Allows users to query ElastiCache Redis Metrics and provides daily statistics for Engine CPU Utilization."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    from
+      aws_elasticache_redis_metric_engine_cpu_utilization_daily
+    order by
+      cache_cluster_id,
+      timestamp;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ElastiCache Redis

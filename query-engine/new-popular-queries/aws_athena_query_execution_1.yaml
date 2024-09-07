@@ -1,0 +1,23 @@
+Title: "List AWS Athena Queries with Errors"
+Description: "Allows users to query AWS Athena Query Executions to retrieve detailed information about each individual query execution."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      query,
+      error_message,
+      error_type
+    from
+      aws_athena_query_execution
+    where
+      error_message is not null;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Athena

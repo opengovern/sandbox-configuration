@@ -1,0 +1,24 @@
+Title: "Find AWS Lambda Layer Version Details"
+Description: "Allows users to query AWS Lambda Layer Versions, providing detailed information about each layer version, including its ARN, description, license info, compatible runtimes, created date, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      layer_arn,
+      layer_name,
+      layer_version_arn,
+      created_date,
+      jsonb_pretty(policy) as policy,
+      jsonb_pretty(policy_std) as policy_std,
+      version
+    from
+      aws_lambda_layer_version;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Lambda

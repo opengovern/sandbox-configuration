@@ -1,0 +1,24 @@
+Title: "List all AWS KMS Key Rotation Data"
+Description: "Allows users to query AWS KMS Key Rotation data including the rotation schedule, type, and associated key details."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      key_id,
+      key_arn,
+      rotation_date
+    from
+      aws_kms_key_rotation
+    where
+      rotation_date >= current_date - interval '30 days';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS KMS

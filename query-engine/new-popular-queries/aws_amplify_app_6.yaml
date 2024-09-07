@@ -1,0 +1,26 @@
+Title: "Find AWS Amplify Apps with Detailed Information"
+Description: "Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      redirects_array ->> 'Condition' as country_code,
+      redirects_array ->> 'Source' as source_address,
+      redirects_array ->> 'Status' as redirect_type,
+      redirects_array ->> 'Target' as destination_address
+    from
+      aws_amplify_app,
+      jsonb_array_elements(custom_rules) as redirects_array
+    where
+      redirects_array ->> 'Status' = '200'
+      and name = 'amplify_app_name';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amplify

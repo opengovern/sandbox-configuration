@@ -1,0 +1,25 @@
+Title: "List all AWS RDS DB Recommendations and Details"
+Description: "Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation''s status, impact, and suggested actions."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      recommendation_id,
+      title,
+      created_time,
+      description
+    from
+      aws_rds_db_recommendation
+    where
+      created_time >= now() - interval '30 days';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - RDS

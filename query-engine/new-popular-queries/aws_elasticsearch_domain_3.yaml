@@ -1,0 +1,26 @@
+Title: "List all AWS Elasticsearch Service Domains with Configuration"
+Description: "Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      domain_id,
+      ebs_options ->> 'VolumeSize' as volume_size,
+      ebs_options ->> 'VolumeType' as volume_type,
+      ebs_options ->> 'EBSEnabled' as ebs_enabled
+    from
+      aws_elasticsearch_domain
+    where
+      ebs_options ->> 'EBSEnabled' = 'true';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elasticsearch Service

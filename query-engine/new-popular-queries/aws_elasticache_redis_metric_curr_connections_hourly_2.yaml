@@ -1,0 +1,29 @@
+Title: "Find ElastiCache Redis Current Hourly Connections"
+Description: "Allows users to query ElastiCache Redis current connections metrics on an hourly basis."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      round(minimum::numeric,2) as min_currconnections,
+      round(maximum::numeric,2) as max_currconnections,
+      round(average::numeric,2) as avg_currconnections,
+      sample_count
+    from
+      aws_elasticache_redis_metric_curr_connections_hourly
+    where average > 100
+    order by
+      cache_cluster_id,
+      timestamp;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ElastiCache

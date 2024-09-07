@@ -1,0 +1,22 @@
+Title: "List all AWS S3 Multi-Region Access Points and Configuration"
+Description: "Allows users to query AWS S3 Multi-Region Access Points to retrieve information about their configuration, status, and associated policies."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r ->> 'Bucket' as bucket_name,
+      count(name) access_point_count
+    from
+      aws_s3_multi_region_access_point,
+      jsonb_array_elements(regions) as r
+    group by
+      bucket_name;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS S3

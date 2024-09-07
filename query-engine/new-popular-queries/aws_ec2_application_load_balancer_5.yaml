@@ -1,0 +1,28 @@
+Title: "List all AWS EC2 Application Load Balancer Details"
+Description: "Allows users to query AWS EC2 Application Load Balancer, providing detailed information about each load balancer within an AWS account. This includes its current state, availability zones, security groups, and other important attributes."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      lb ->> 'Key' as deletion_protection_key,
+      lb ->> 'Value' as deletion_protection_value
+    from
+      aws_ec2_application_load_balancer
+      cross join jsonb_array_elements(load_balancer_attributes) as lb
+    where
+      lb ->> 'Key' = 'deletion_protection.enabled'
+      and lb ->> 'Value' = 'false';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2 Application Load Balancer

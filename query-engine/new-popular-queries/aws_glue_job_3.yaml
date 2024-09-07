@@ -1,0 +1,27 @@
+Title: "List all AWS Glue Jobs with detailed properties"
+Description: "Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      arn,
+      created_on,
+      job_bookmark ->> 'Attempt' as total_attempts,
+      job_bookmark ->> 'Run' as total_runs,
+      job_bookmark ->> 'RunId' as run_id
+    from
+      aws_glue_job
+    where
+      job_bookmark is not null;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Glue

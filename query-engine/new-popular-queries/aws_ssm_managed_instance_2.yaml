@@ -1,0 +1,23 @@
+Title: "Find AWS SSM Managed Instances with Config and Status"
+Description: "Allows users to query AWS SSM Managed Instances to retrieve their configuration and status information."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_id,
+      arn,
+      resource_type,
+      association_status
+    from
+      aws_ssm_managed_instance
+    where
+      association_status is null;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - SSM Managed Instances

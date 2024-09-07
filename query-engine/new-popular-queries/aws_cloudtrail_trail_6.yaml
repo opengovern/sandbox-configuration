@@ -1,0 +1,22 @@
+Title: "List all AWS CloudTrail Trails and their Status"
+Description: "Allows users to query AWS CloudTrail Trails for information about the AWS CloudTrail service''s trail records. This includes trail configuration details, status, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      log_file_validation_enabled
+    from
+      aws_cloudtrail_trail
+    where
+      not log_file_validation_enabled;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

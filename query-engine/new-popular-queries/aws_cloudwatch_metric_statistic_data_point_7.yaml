@@ -1,0 +1,14 @@
+Title: "List AWS CloudWatch Metric Statistics for S3 Buckets"
+Description: "Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n  minimum\nfrom\n  aws_cloudwatch_metric_statistic_data_point\nwhere\n  namespace = 'AWS/S3'\n  and metric_name = 'BucketSizeBytes'\n  and timestamp between '2023-03-6T00:00:00Z' and '2023-03-15T00:00:00Z'\n  and period = 86400\n  and dimensions = '[\n    {\"Name\": \"BucketName\", \"Value\": \"steampipe-test\"},\n    {\"Name\": \"StorageType\", \"Value\": \"StandardStorage\"}\n    ]'\norder by\n  timestamp;"
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

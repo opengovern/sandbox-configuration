@@ -1,0 +1,38 @@
+Title: "List AWS Well-Architected Tool milestone details"
+Description: "Allows users to query AWS Well-Architected Tool Milestones for detailed information about the milestones of a workload."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with latest_milestones as 
+    (
+      select
+        max(milestone_number) as milestone_number,
+        workload_id
+      from
+        aws_wellarchitected_milestone
+      group by
+        workload_id
+    ) 
+    select
+      m.workload_id,
+      m.milestone_name,
+      m.milestone_number as latest_milestone_number,
+      m.recorded_at,
+      m.region
+    from
+      aws_wellarchitected_milestone m,
+      latest_milestones l
+    where
+      m.milestone_number = l.milestone_number
+      and m.workload_id = l.workload_id;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Well-Architected Tool

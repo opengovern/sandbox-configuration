@@ -1,0 +1,27 @@
+Title: "Find Daily AWS Redshift Cluster High CPU Utilization"
+Description: "Allows users to query AWS Redshift Cluster CPU Utilization Metrics on a daily basis."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cluster_identifier,
+      timestamp,
+      round(minimum::numeric,2) as min_cpu,
+      round(maximum::numeric,2) as max_cpu,
+      round(average::numeric,2) as avg_cpu,
+      sample_count
+    from
+      aws_redshift_cluster_metric_cpu_utilization_daily
+    where average > 80
+    order by
+      cluster_identifier,
+      timestamp;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Redshift

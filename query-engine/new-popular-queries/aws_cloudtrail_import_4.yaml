@@ -1,0 +1,22 @@
+Title: "Find all AWS CloudTrail import details using SQL"
+Description: "Allows users to query AWS CloudTrail imports to extract data about imported trail files such as the file name, import time, hash value, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      import_id,
+      import_status,
+      import_source ->> 'S3BucketAccessRoleArn' as s3_bucket_access_role_arn,
+      import_source ->> 'S3BucketRegion' as s3_bucket_region,
+      import_source ->> 'S3LocationUri' as s3_location_uri
+    from
+      aws_cloudtrail_import;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

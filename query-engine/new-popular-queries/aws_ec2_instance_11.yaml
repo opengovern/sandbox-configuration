@@ -1,0 +1,23 @@
+Title: "List all AWS EC2 Instances with Group Details"
+Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_id,
+      sg ->> 'GroupId' as group_id,
+      sg ->> 'GroupName' as group_name
+    from
+      aws_ec2_instance
+      cross join jsonb_array_elements(security_groups) as sg
+    where
+      sg ->> 'GroupName' = 'default';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

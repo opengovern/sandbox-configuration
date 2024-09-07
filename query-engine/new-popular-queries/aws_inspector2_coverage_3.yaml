@@ -1,0 +1,27 @@
+Title: "Find AWS Inspector Coverage and Assessment Templates"
+Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      source_account_id,
+      scan_type,
+      resource_id as ec2_instance_id,
+      resource_type,
+      ec2_ami_id,
+      ec2_platform
+    from
+      aws_inspector2_coverage
+    where
+      resource_type = `aws_EC2_INSTANCE';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Inspector

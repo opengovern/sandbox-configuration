@@ -1,0 +1,14 @@
+Title: "List all details for AWS SNS Topics"
+Description: "Allows users to query AWS SNS Topics to gather information about each topic, including its name, owner, ARN, and other related data."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: "select\n  title\nfrom\n  aws_sns_topic\nwhere\n  title not in (\n    select\n      title\n    from\n      aws_sns_topic,\n      jsonb_array_elements(policy_std -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,\n      jsonb_array_elements_text(s -> 'Action') as a,\n      jsonb_array_elements_text(\n        s -> 'Condition' -> 'Bool' -> 'aws:securetransport'\n      ) as ssl\n    where\n      p = '*'\n      and s ->> 'Effect' = 'Deny'\n      and ssl :: bool = false\n  );"
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - SNS

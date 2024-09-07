@@ -1,0 +1,26 @@
+Title: "Query AWS Glue Data Catalog Encryption Settings"
+Description: "Allows users to query AWS Glue Data Catalog Encryption Settings."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      encryption_at_rest ->> 'SseAwsKmsKeyId' as key_arn,
+      k.key_manager as key_manager,
+      k.creation_date as key_creation_date,
+      s.region,
+      s.account_id
+    from
+      aws_glue_data_catalog_encryption_settings s
+      join aws_kms_key k on s.encryption_at_rest ->> 'SseAwsKmsKeyId' = k.arn
+      and s.region = k.region;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue Data Catalog

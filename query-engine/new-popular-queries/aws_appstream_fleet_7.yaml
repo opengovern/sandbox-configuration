@@ -1,0 +1,22 @@
+Title: "Find AWS AppStream Fleet Details Including State and Instance Type"
+Description: "Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      e ->> 'ErrorCode' as error_code,
+      e ->> 'ErrorMessage' as error_message
+    from
+      aws_appstream_fleet,
+      jsonb_array_elements(fleet_errors) as e;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - AWS
+  cloud_service:
+  - AppStream

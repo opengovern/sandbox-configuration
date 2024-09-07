@@ -1,0 +1,28 @@
+Title: "List AWS Organizations Policy Targets with SQL Query"
+Description: "Allows users to query AWS Organizations Policy Targets to retrieve detailed information about the application of policies to roots, organizational units (OUs), and accounts."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      name,
+      arn,
+      type,
+      aws_managed 
+    from
+      aws_organizations_policy_target 
+    where
+      not aws_managed 
+      and type = 'TAG_POLICY' 
+      and target_id = 'ou-jsdhkek';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Organizations

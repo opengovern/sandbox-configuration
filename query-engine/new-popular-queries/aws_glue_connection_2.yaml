@@ -1,0 +1,24 @@
+Title: "List all SQL Queryable AWS Glue Connections"
+Description: "Allows users to query AWS Glue Connections to retrieve detailed information about each connection."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      connection_type,
+      connection_properties ->> 'JDBC_CONNECTION_URL' as connection_url,
+      connection_properties ->> 'JDBC_ENFORCE_SSL' as ssl_enabled,
+      creation_time
+    from
+      aws_glue_connection
+    where
+      connection_type = 'JDBC';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue

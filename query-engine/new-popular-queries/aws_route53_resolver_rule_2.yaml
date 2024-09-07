@@ -1,0 +1,25 @@
+Title: "Find Route 53 Resolver Rules Configured in AWS Account"
+Description: "Allows users to query AWS Route 53 Resolver Rule to obtain data on DNS resolver rules configured in an AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      arn,
+      resolver_rule_associations
+    from
+      aws_route53_resolver_rule
+    Where
+      resolver_rule_associations = '[]';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Route 53

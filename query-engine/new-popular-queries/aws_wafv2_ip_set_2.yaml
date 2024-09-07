@@ -1,0 +1,27 @@
+Title: "List all AWS WAFv2 IPSet Information with Metadata"
+Description: "Allows users to query AWS WAFv2 IPSet information, including IP addresses, IP address version, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      description,
+      arn,
+      id,
+      scope,
+      addresses,
+      ip_address_version,
+      region
+    from
+      aws_wafv2_ip_set
+    where
+      scope = 'CLOUDFRONT';
+Tags:
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - WAFv2

@@ -1,0 +1,30 @@
+Title: "Find ECS Cluster CPU Utilization Metrics Over Period"
+Description: "Allows users to query ECS Cluster CPU Utilization Metrics for a specified period."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cluster_name,
+      timestamp,
+      round(minimum::numeric,2) as min_cpu,
+      round(maximum::numeric,2) as max_cpu,
+      round(average::numeric,2) as avg_cpu,
+      sample_count
+    from
+      aws_ecs_cluster_metric_cpu_utilization
+    where
+      average > 80
+    order by
+      cluster_name,
+      timestamp;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ECS

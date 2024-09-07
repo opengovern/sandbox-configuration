@@ -1,0 +1,21 @@
+Title: "List Amazon DocumentDB Cluster Snapshots and their Details"
+Description: "Allows users to query Amazon DocumentDB Cluster Snapshots for detailed information about their configuration, status, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      db_cluster_identifier,
+      count(db_cluster_snapshot_identifier) as snapshot_count
+    from
+      aws_docdb_cluster_snapshot
+    group by
+      db_cluster_identifier;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amazon DocumentDB

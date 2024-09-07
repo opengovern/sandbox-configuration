@@ -1,0 +1,25 @@
+Title: "Find Failed Logs in AWS VPC Flow"
+Description: "Allows users to query AWS VPC Flow Logs, providing detailed information about IP traffic going to and from network interfaces in a VPC."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      flow_log_id,
+      resource_id,
+      deliver_logs_error_message,
+      deliver_logs_status
+    from
+      aws_vpc_flow_log
+    where
+      deliver_logs_status = 'FAILED';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC Flow Logs

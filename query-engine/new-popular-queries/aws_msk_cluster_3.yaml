@@ -1,0 +1,25 @@
+Title: "Find AWS MSK Clusters and Their Details"
+Description: "Allows users to query AWS Managed Streaming for Apache Kafka (MSK) clusters."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      cluster_name,
+      state,
+      creation_time
+    from
+      aws_msk_cluster
+    where
+      provisioned -> 'BrokerNodeGroupInfo' -> 'ConnectivityInfo' -> 'PublicAccess' ->> 'Type' <> 'DISABLED';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Managed Streaming for Apache Kafka (MSK)

@@ -1,0 +1,35 @@
+Title: "List AWS Systems Manager Inventory Managed Instances"
+Description: "Allows users to query AWS Systems Manager Inventory, providing information about managed instances in AWS Systems Manager."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      v.id,
+      i.instance_state,
+      i.instance_type,
+      c ->> 'AgentType' as agent_type,
+      c ->> 'IpAddress' as ip_address,
+      c ->> 'AgentVersion' as agent_version,
+      c ->> 'ComputerName' as computer_name,
+      c ->> 'PlatformName' as platform_name,
+      c ->> 'PlatformType' as platform_type,
+      c ->> 'ResourceType' as resource_type,
+      c ->> 'InstanceStatus' as instance_status,
+      c ->> 'PlatformVersion' as platform_version
+    from
+      aws_ssm_inventory as v,
+      aws_ec2_instance as i,
+      jsonb_array_elements(content) as c
+    where
+      v.id = i.instance_id
+    and
+      i.instance_state = 'running';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Systems Manager

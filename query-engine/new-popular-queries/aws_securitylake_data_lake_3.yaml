@@ -1,0 +1,26 @@
+Title: "List AWS Lake Formation Data Lakes with Key Details"
+Description: "Allows users to query AWS Lake Formation Data Lakes for information such as the Data Lake name, creation time, last modified time, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      l.encryption_key,
+      l.replication_role_arn,
+      l.s3_bucket_arn,
+      l.status,
+      r ->> 'RetentionPeriod' as retention_period,
+      r ->> 'StorageClass' as storage_class
+    from
+      aws_securitylake_data_lake as l,
+      jsonb_array_elements(retention_settings) as r;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Lake Formation

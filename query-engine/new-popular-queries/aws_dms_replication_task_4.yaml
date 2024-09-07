@@ -1,0 +1,30 @@
+Title: "Find AWS DMS Replication Task Details for Data Migration"
+Description: "Enables users to query AWS DMS Replication Tasks to retrieve detailed information on data migration activities between source and target databases."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      replication_task_identifier,
+      status,
+      replication_task_stats -> 'ElapsedTimeMillis' as elapsed_time_millis,
+      replication_task_stats -> 'FreshStartDate' as fresh_start_date,
+      replication_task_stats -> 'FullLoadFinishDate' as full_load_finish_date,
+      replication_task_stats -> 'FullLoadProgressPercent' as full_load_progress_percent,
+      replication_task_stats -> 'FullLoadStartDate' as full_load_start_date,
+      replication_task_stats -> 'StartDate' as start_date,
+      replication_task_stats -> 'StopDate' as stop_date,
+      replication_task_stats -> 'TablesErrored' as tables_errored,
+      replication_task_stats -> 'TablesLoaded' as tables_loaded,
+      replication_task_stats -> 'TablesLoading' as tables_loading,
+      replication_task_stats -> 'TablesQueued' as tables_queued
+    from
+      aws_dms_replication_task;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DMS

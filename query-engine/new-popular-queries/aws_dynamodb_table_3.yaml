@@ -1,0 +1,21 @@
+Title: "List all AWS DynamoDB Tables and retrieve their status"
+Description: "Allows users to query AWS DynamoDB Tables and retrieve detailed information about their configuration, status, and associated attributes."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      point_in_time_recovery_description ->> 'EarliestRestorableDateTime' as earliest_restorable_date_time,
+      point_in_time_recovery_description ->> 'LatestRestorableDateTime' as latest_restorable_date_time,
+      point_in_time_recovery_description ->> 'PointInTimeRecoveryStatus' as point_in_time_recovery_status
+    from
+      aws_dynamodb_table;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DynamoDB

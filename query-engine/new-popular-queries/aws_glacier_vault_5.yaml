@@ -1,0 +1,14 @@
+Title: "List all AWS Glacier Vaults for Detailed Information"
+Description: "Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault''s name, ARN, creation date, number of archives, size of archives, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: "select\n  vault_name,\n  tags\nfrom\n  aws_glacier_vault\nwhere\n  not tags :: JSONB ? 'owner';"
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glacier

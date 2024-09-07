@@ -1,0 +1,27 @@
+Title: "Find AWS S3 Multi-Region Access Points configuration and status"
+Description: "Allows users to query AWS S3 Multi-Region Access Points to retrieve information about their configuration, status, and associated policies."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      public_access_block ->> 'BlockPublicAcls' as block_public_acls,
+      public_access_block ->> 'BlockPublicPolicy' as block_public_policy,
+      public_access_block ->> 'IgnorePublicAcls' as ignore_public_acls,
+      public_access_block ->> 'RestrictPublicBuckets' as restrict_public_buckets 
+    from
+      aws_s3_multi_region_access_point 
+    where
+      public_access_block ->> 'BlockPublicAcls'::text = 'true' 
+      and public_access_block ->> 'BlockPublicPolicy'::text = 'true' 
+      and public_access_block ->> 'IgnorePublicAcls'::text = 'true' 
+      and public_access_block ->> 'RestrictPublicBuckets'::text = 'true';
+Tags:
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - S3

@@ -1,0 +1,29 @@
+Title: "List all AWS CloudWatch Log Events within 1 Day"
+Description: "Allows users to query AWS CloudWatch Log Events to retrieve information about log events from a specified log group. Users can utilize this table to monitor and troubleshoot systems and applications using their existing log data."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      log_group_name,
+      log_stream_name,
+      event_id,
+      timestamp,
+      ingestion_time,
+      message
+    from
+      aws_cloudwatch_log_event
+    where
+      log_group_name = 'cloudwatch-log-event-group-name'
+      and filter = '{$.userIdentity.sessionContext.sessionIssuer.userName="turbot_superuser"}'
+      and timestamp >= now() - interval '1 day';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

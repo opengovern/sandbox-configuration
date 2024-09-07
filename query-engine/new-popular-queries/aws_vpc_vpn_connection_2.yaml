@@ -1,0 +1,28 @@
+Title: "Find VPN Connections in AWS VPC"
+Description: "Allows users to query VPN connections in an AWS VPC."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      vpn_connection_id,
+      options -> 'EnableAcceleration' as enable_acceleration,
+      options ->> 'LocalIpv4NetworkCidr' as local_ipv4_network_cidr,
+      options ->> 'LocalIpv6NetworkCidr' as local_ipv6_network_cidr,
+      options ->> 'RemoteIpv4NetworkCidr' as remote_ipv4_network_cidr,
+      options ->> 'RemoteIpv6NetworkCidr' as remote_ipv6_network_cidr,
+      options -> 'StaticRoutesOnly' as static_routes_only,
+      options ->> 'TunnelInsideIpVersion' as tunnel_inside_ip_version,
+      options ->> 'TunnelOptions' as tunnel_options
+    from
+      aws_vpc_vpn_connection;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC VPN

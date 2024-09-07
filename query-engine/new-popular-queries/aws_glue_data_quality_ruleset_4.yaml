@@ -1,0 +1,29 @@
+Title: "List all Glue Data Quality Rulesets in AWS"
+Description: "Allows users to query AWS Glue Data Quality Ruleset to obtain information about the rulesets used for data quality checks in AWS Glue."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r.name,
+      r.database_name,
+      d.catalog_id,
+      d.create_time as databse_create_time,
+      d.location_uri
+    from
+      aws_glue_data_quality_ruleset as r,
+      aws_glue_catalog_database as d
+    where
+      r.database_name = d.name
+    and
+      r.name = 'ruleset1';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue

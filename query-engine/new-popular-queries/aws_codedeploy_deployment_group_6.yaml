@@ -1,0 +1,27 @@
+Title: "Find AWS CodeDeploy Deployment Group Details"
+Description: "Allows users to query AWS CodeDeploy Deployment Group details including deployment configurations, target revisions, and associated alarm configurations."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as group_arn,
+      deployment_group_id,
+      deployment_group_name,
+      auto_scaling_groups ->> 'Hook' as auto_scaling_group_hook,
+      auto_scaling_groups ->> 'Name' as auto_scaling_group_name
+    from
+      aws_codedeploy_deployment_group
+    where
+      application_name = 'abc'
+      and deployment_group_name = 'def';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeDeploy

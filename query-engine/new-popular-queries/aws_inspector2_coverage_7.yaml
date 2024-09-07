@@ -1,0 +1,30 @@
+Title: "List all AWS Inspector Coverage Data Details"
+Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.resource_id,
+      c.resource_type,
+      c.ecr_repository_name,
+      r.registry_id,
+      r.repository_uri,
+      r.encryption_configuration
+    from
+      aws_inspector2_coverage as c,
+      aws_ecr_repository as r
+    where
+      r.repository_name = c.ecr_repository_name
+    and
+      c.resource_type = `AWS_ECR_REPOSITORY';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Inspector

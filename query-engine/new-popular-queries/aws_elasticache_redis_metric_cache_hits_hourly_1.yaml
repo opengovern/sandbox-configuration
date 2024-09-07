@@ -1,0 +1,27 @@
+Title: "List All AWS ElastiCache Redis Cache Hits Hourly"
+Description: "Allows users to query Amazon ElastiCache Redis Cache Hits on an hourly basis."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    from
+      aws_elasticache_redis_metric_cache_hits_hourly
+    order by
+      cache_cluster_id,
+      timestamp;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ElastiCache

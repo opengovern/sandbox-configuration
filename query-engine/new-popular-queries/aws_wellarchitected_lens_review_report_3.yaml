@@ -1,0 +1,26 @@
+Title: "List all AWS Well-Architected Tool Lens Review Reports"
+Description: "Allows users to query Lens Review Reports in the AWS Well-Architected Tool."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r.lens_alias,
+      r.lens_arn,
+      r.base64_string,
+      l.lens_type
+    from
+      aws_wellarchitected_lens_review_report as r,
+      aws_wellarchitected_lens as l
+    where
+      l.lens_type <> `aws_OFFICIAL';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Well-Architected Tool

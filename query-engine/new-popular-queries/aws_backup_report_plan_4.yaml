@@ -1,0 +1,30 @@
+Title: "List AWS Backup Report Plan Data Details"
+Description: "Allows users to query AWS Backup Report Plan data, including details about backup jobs, recovery points, and backup vaults."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      description,
+      creation_time,
+      report_setting ->> 'ReportTemplate' as report_template,
+      report_setting ->> 'Accounts' as accounts,
+      report_setting ->> 'FrameworkArns' as framework_arns,
+      report_setting ->> 'NumberOfFrameworks' as number_of_frameworks,
+      report_setting ->> 'OrganizationUnits' as organization_units,
+      report_setting ->> 'Regions' as regions
+    from
+      aws_backup_report_plan
+    where
+      title = 'backup_jobs_report_12_07_2023';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Backup

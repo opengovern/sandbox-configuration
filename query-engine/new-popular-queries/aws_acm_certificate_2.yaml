@@ -1,0 +1,22 @@
+Title: "List all AWS Certificate Manager certificates status"
+Description: "Allows users to query AWS Certificate Manager certificates. This table provides information about each certificate, including the domain name, status, issuer, and more. It can be used to monitor certificate details, validity, and expiration data."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      certificate_arn,
+      domain_name,
+      status
+    from
+      aws_acm_certificate
+    where
+      status = 'EXPIRED';
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Certificate Manager

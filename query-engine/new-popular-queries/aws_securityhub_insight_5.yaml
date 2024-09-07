@@ -1,0 +1,16 @@
+Title: "Find AWS Security Hub Insights with Critical Severity"
+Description: "Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: "select\n  name,\n  arn,\n  filters ->> 'SeverityLabel' as severity\nfrom\n  aws_securityhub_insight\nwhere\n  filters ->> 'SeverityLabel' = '{\"Comparison\": \"EQUALS\", \"Value\": \"CRITICAL\"}'"
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Security Hub

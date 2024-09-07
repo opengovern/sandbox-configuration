@@ -1,0 +1,27 @@
+Title: "List AWS Security Hub Standards Control Data Details"
+Description: "Allows users to query AWS Security Hub Standards Control data including details about each security standard control available in an AWS account."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      severity_rating,
+      count(severity_rating)
+    from
+      aws_securityhub_standards_control
+    group by
+      severity_rating
+    order by
+      severity_rating;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Security Hub

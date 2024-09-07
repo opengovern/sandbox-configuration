@@ -1,0 +1,22 @@
+Title: "Find all AWS S3 Buckets Configuration and Permissions"
+Description: "Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      b.name,
+      r ->> 'ObjectOwnership' as object_ownership
+    from
+      aws_s3_bucket as b,
+      jsonb_array_elements(object_ownership_controls -> 'Rules') as r;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - S3

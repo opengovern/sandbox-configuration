@@ -1,0 +1,28 @@
+Title: "Find AWS EKS Fargate Profile Details with SQL"
+Description: "Allows users to query AWS EKS Fargate Profiles and retrieve data such as the Fargate profile name, ARN, status, and more."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      f.fargate_profile_name,
+      f.cluster_name,
+      f.status as fargate_profile_status,
+      s.availability_zone,
+      s.available_ip_address_count,
+      s.cidr_block,
+      s.vpc_id
+    from
+      aws_eks_fargate_profile as f,
+      aws_vpc_subnet as s,
+      jsonb_array_elements(f.subnets) as subnet_id
+    where
+      s.subnet_id = subnet_id;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EKS

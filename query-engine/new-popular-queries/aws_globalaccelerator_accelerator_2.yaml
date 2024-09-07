@@ -1,0 +1,28 @@
+Title: "Find all AWS Global Accelerator accelerators"
+Description: "Allows users to query AWS Global Accelerator''s accelerators."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      created_time,
+      dns_name,
+      enabled,
+      ip_address_type,
+      last_modified_time,
+      status,
+      anycast_ip
+    from
+     aws_globalaccelerator_accelerator,
+     jsonb_array_elements(ip_sets -> 0 -> 'IpAddresses') as anycast_ip;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Global Accelerator

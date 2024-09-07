@@ -1,0 +1,21 @@
+Title: "List all AWS Elastic Beanstalk Application Configurations"
+Description: "Allows users to query AWS Elastic Beanstalk Applications to obtain details about their configurations, versions, environment, and other metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      resource_lifecycle_config ->> 'ServiceRole' as role,
+      resource_lifecycle_config -> 'VersionLifecycleConfig' ->> 'MaxAgeRule' as max_age_rule,
+      resource_lifecycle_config -> 'VersionLifecycleConfig' ->> 'MaxCountRule' as max_count_rule
+    from
+      aws_elastic_beanstalk_application;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elastic Beanstalk

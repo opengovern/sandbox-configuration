@@ -1,0 +1,24 @@
+Title: "List all AWS ECS services in clusters"
+Description: "Allows users to query AWS Elastic Container Service (ECS) to retrieve information about the services within the ECS clusters."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      service_name,
+      arn,
+      launch_type,
+      platform_version
+    from
+      aws_ecs_service
+    where
+      launch_type = 'FARGATE'
+      and platform_version is not null;
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elastic Container Service

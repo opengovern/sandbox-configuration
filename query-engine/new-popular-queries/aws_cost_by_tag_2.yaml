@@ -1,0 +1,26 @@
+Title: "Find AWS Cost Explorer Tag Allocations and Costs"
+Description: "Allows users to query AWS Cost Explorer to obtain cost allocation tags and associated costs."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      tag_key_1,
+      tag_value_1,
+      min(unblended_cost_amount)::numeric::money as min,
+      max(unblended_cost_amount)::numeric::money as max,
+      avg(unblended_cost_amount)::numeric::money as average
+    from
+      aws_cost_by_tag
+    where
+      granularity = 'DAILY'
+    and
+      tag_key_1 = 'Name'
+    group by
+      tag_key_1, tag_value_1;
+Tags:
+  cloud_finops:
+  - "true"
+  cloud_provider:
+  - aws

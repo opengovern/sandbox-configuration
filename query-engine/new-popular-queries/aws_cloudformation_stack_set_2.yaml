@@ -1,0 +1,26 @@
+Title: "List all AWS CloudFormation StackSets and Associated Resources"
+Description: "Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet''s configuration, status, and associated AWS resources."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      stack_set_id,
+      stack_set_name,
+      status,
+      permission_model,
+      auto_deployment
+    from
+      aws_cloudformation_stack_set
+    where
+      status = 'ACTIVE';
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudFormation

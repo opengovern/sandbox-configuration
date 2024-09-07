@@ -1,0 +1,23 @@
+Title: "List All AWS SSO Managed Policy Attachments"
+Description: "Allows users to query AWS SSO Managed Policy Attachments, providing information about the managed policy attachments of AWS SSO permission sets."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      mpa.managed_policy_arn,
+      mpa.name
+    from
+      aws_ssoadmin_managed_policy_attachment as mpa
+    join
+      aws_ssoadmin_permission_set as ps on mpa.permission_set_arn = ps.arn;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS SSO

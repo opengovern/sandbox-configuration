@@ -1,0 +1,21 @@
+Title: "List all AWS CloudTrail Channel Data and Metadata"
+Description: "Allows users to query AWS CloudTrail Channel data, including trail configurations, status, and associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      a ->> 'Name' as advanced_event_selector_name,
+      a ->> 'FieldSelectors' as field_selectors
+    from
+      aws_cloudtrail_channel,
+      jsonb_array_elements(advanced_event_selectors) as a;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

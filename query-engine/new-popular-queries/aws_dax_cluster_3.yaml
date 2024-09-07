@@ -1,0 +1,26 @@
+Title: "List all AWS DAX Clusters with Configuration and Status"
+Description: "Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cluster_name,
+      node_type,
+      count(*) as count
+    from
+      aws_dax_cluster
+    where
+      node_type not in ('cache.m5.large', 'cache.m4.4xlarge')
+    group by
+      cluster_name, node_type;
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DAX

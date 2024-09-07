@@ -1,0 +1,29 @@
+Title: "List all AWS costs by record type on a daily basis"
+Description: "Allows users to query daily AWS cost data by record type. This table provides information about AWS costs incurred per record type on a daily basis."
+Connectors:
+- AWS
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      linked_account_id,
+      record_type,
+      min(unblended_cost_amount)::numeric::money as min,
+      max(unblended_cost_amount)::numeric::money as max,
+      avg(unblended_cost_amount)::numeric::money as average
+    from 
+      aws_cost_by_record_type_daily
+    group by
+      linked_account_id,
+      record_type
+    order by
+      linked_account_id;
+Tags:
+  cloud_finops:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Cost and Usage Report
