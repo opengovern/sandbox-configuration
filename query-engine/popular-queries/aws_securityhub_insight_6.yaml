@@ -4,7 +4,15 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  name,\n  arn,\n  filters ->> 'ThreatIntelIndicatorType' as threat_intelligence_details\nfrom\n  aws_securityhub_insight\nwhere\n  filters ->> 'ThreatIntelIndicatorType' = '{\"Comparison\": \"EQUALS\", \"Value\": \"IPV4_ADDRESS\"}'"
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      filters ->> 'ThreatIntelIndicatorType' as threat_intelligence_details
+    from
+      aws_securityhub_insight
+    where
+      filters ->> 'ThreatIntelIndicatorType' = '{"Comparison": "EQUALS", "Value": "IPV4_ADDRESS"}'
 Tags:
   cloud_asset_management:
   - "true"

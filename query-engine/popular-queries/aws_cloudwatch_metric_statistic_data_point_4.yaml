@@ -4,7 +4,23 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n  sum\nfrom\n  aws_cloudwatch_metric_statistic_data_point\nwhere\n  namespace = 'AWS/ElastiCache'\n  and metric_name = 'CacheHits'\n  and sum < 10\n  and timestamp >= now() - interval '7 day'\n  and dimensions = '[\n    {\"Name\": \"CacheClusterId\", \"Value\": \"cluster-delete-001\"}\n    ]'\norder by\n  timestamp;"
+  QueryToExecute: |-
+    select
+      jsonb_pretty(dimensions) as dimensions,
+      timestamp,
+      sum
+    from
+      aws_cloudwatch_metric_statistic_data_point
+    where
+      namespace = 'AWS/ElastiCache'
+      and metric_name = 'CacheHits'
+      and sum < 10
+      and timestamp >= now() - interval '7 day'
+      and dimensions = '[
+        {"Name": "CacheClusterId", "Value": "cluster-delete-001"}
+        ]'
+    order by
+      timestamp;
 Tags:
   cloud_ops:
   - "true"

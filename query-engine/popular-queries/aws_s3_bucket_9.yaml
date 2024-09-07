@@ -4,7 +4,28 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  name\nfrom\n  aws_s3_bucket\nwhere\n  name not in (\n    select\n      name\n    from\n      aws_s3_bucket,\n      jsonb_array_elements(policy_std -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,\n      jsonb_array_elements_text(s -> 'Action') as a,\n      jsonb_array_elements_text(\n        s -> 'Condition' -> 'Bool' -> 'aws:securetransport'\n      ) as ssl\n    where\n      p = '*'\n      and s ->> 'Effect' = 'Deny'\n      and ssl :: bool = false\n  );"
+  QueryToExecute: |-
+    select
+      name
+    from
+      aws_s3_bucket
+    where
+      name not in (
+        select
+          name
+        from
+          aws_s3_bucket,
+          jsonb_array_elements(policy_std -> 'Statement') as s,
+          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
+          jsonb_array_elements_text(s -> 'Action') as a,
+          jsonb_array_elements_text(
+            s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+          ) as ssl
+        where
+          p = '*'
+          and s ->> 'Effect' = 'Deny'
+          and ssl :: bool = false
+      );
 Tags:
   cloud_asset_management:
   - "true"

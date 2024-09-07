@@ -4,7 +4,15 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  name,\n  user_data\nfrom\n  aws_ec2_launch_configuration\nwhere\n  user_data like any (array ['%pass%', '%secret%','%token%','%key%'])\n  or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]';"
+  QueryToExecute: |-
+    select
+      name,
+      user_data
+    from
+      aws_ec2_launch_configuration
+    where
+      user_data like any (array ['%pass%', '%secret%','%token%','%key%'])
+      or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]';
 Tags:
   cloud_asset_management:
   - "true"

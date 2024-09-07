@@ -4,7 +4,17 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  metric_name,\n  namespace,\n  dimensions\nfrom\n  aws_cloudwatch_metric\nwhere\n  dimensions_filter = '[\n    {\"Name\": \"ClusterIdentifier\", \"Value\": \"my-cluster-1\"}\n  ]'::jsonb;"
+  QueryToExecute: |-
+    select
+      metric_name,
+      namespace,
+      dimensions
+    from
+      aws_cloudwatch_metric
+    where
+      dimensions_filter = '[
+        {"Name": "ClusterIdentifier", "Value": "my-cluster-1"}
+      ]'::jsonb;
 Tags:
   cloud_asset_management:
   - "true"

@@ -4,7 +4,35 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  term,\n  purchase_option,\n  lease_contract_length,\n  unit,\n  price_per_unit::numeric::money,\n  currency,\n  begin_range,\n  end_range,\n  effective_date,\n  description,\n  attributes ->> 'instanceType',\n  attributes ->> 'vcpu',\n  attributes ->> 'memory',\n  attributes ->> 'operatingSystem',\n  attributes ->> 'preInstalledSw'\nfrom\n  aws_pricing_product\nwhere\n  service_code = 'AmazonEC2'\n  and filters = '{\n  \"regionCode\": \"eu-west-3\",\n  \"locationType\": \"AWS Region\",\n  \"instanceType\": \"c5.2xlarge\",\n  \"operatingSystem\": \"Linux\",\n  \"tenancy\": \"Shared\",\n  \"preInstalledSw\": \"NA\",\n  \"capacityStatus\": \"Used\" }'::jsonb;"
+  QueryToExecute: |-
+    select
+      term,
+      purchase_option,
+      lease_contract_length,
+      unit,
+      price_per_unit::numeric::money,
+      currency,
+      begin_range,
+      end_range,
+      effective_date,
+      description,
+      attributes ->> 'instanceType',
+      attributes ->> 'vcpu',
+      attributes ->> 'memory',
+      attributes ->> 'operatingSystem',
+      attributes ->> 'preInstalledSw'
+    from
+      aws_pricing_product
+    where
+      service_code = 'AmazonEC2'
+      and filters = '{
+      "regionCode": "eu-west-3",
+      "locationType": "AWS Region",
+      "instanceType": "c5.2xlarge",
+      "operatingSystem": "Linux",
+      "tenancy": "Shared",
+      "preInstalledSw": "NA",
+      "capacityStatus": "Used" }'::jsonb;
 Tags:
   cloud_finops:
   - "true"

@@ -4,7 +4,21 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  identifier,\n  properties ->> 'AlpnPolicy' as alpn_policy,\n  properties ->> 'Certificates' as certificates,\n  properties ->> 'Port' as port,\n  properties ->> 'Protocol' as protocol,\n  region,\n  account_id\nfrom\n  aws_cloudcontrol_resource\nwhere\n  type_name = 'AWS::ElasticLoadBalancingV2::Listener'\n  and resource_model = '{\"LoadBalancerArn\": \"arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/test-lb/4e695b8755d7003c\"}'\n  and region = 'us-east-1';"
+  QueryToExecute: |-
+    select
+      identifier,
+      properties ->> 'AlpnPolicy' as alpn_policy,
+      properties ->> 'Certificates' as certificates,
+      properties ->> 'Port' as port,
+      properties ->> 'Protocol' as protocol,
+      region,
+      account_id
+    from
+      aws_cloudcontrol_resource
+    where
+      type_name = 'AWS::ElasticLoadBalancingV2::Listener'
+      and resource_model = '{"LoadBalancerArn": "arn:aws:elasticloadbalancing:us-east-1:123456789012:loadbalancer/app/test-lb/4e695b8755d7003c"}'
+      and region = 'us-east-1';
 Tags:
   cloud_asset_management:
   - "true"

@@ -4,7 +4,14 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  subnet_id,\n  cidr_block,\n  available_ip_address_count,\n  power(2, 32 - masklen(cidr_block :: cidr)) -1 as raw_size\nfrom\n  aws_vpc_subnet;"
+  QueryToExecute: |-
+    select
+      subnet_id,
+      cidr_block,
+      available_ip_address_count,
+      power(2, 32 - masklen(cidr_block :: cidr)) -1 as raw_size
+    from
+      aws_vpc_subnet;
 Tags:
   cloud_asset_management:
   - "true"

@@ -4,7 +4,15 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  instance_id,\n  user_data\nfrom\n  aws_ec2_instance\nwhere\n  user_data like any (array ['%pass%', '%secret%','%token%','%key%'])\n  or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]';"
+  QueryToExecute: |-
+    select
+      instance_id,
+      user_data
+    from
+      aws_ec2_instance
+    where
+      user_data like any (array ['%pass%', '%secret%','%token%','%key%'])
+      or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]';
 Tags:
   cloud_data_security:
   - "true"
