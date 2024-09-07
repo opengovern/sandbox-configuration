@@ -4,26 +4,11 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      jsonb_pretty(dimensions) as dimensions,
-      timestamp,
-      maximum
-    from
-      aws_cloudwatch_metric_statistic_data_point
-    where
-      namespace = 'AWS/Lambda'
-      and metric_name = 'Duration'
-      and maximum > 100
-      and timestamp >= '2023-02-15T00:00:00Z'
-      and timestamp <= '2023-03-15T00:00:00Z'
-      and period = 86400
-      and dimensions = '[
-        {"Name": "FunctionName", "Value": "test"}
-        ]'
-    order by
-      timestamp;
+  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n  maximum\nfrom\n  aws_cloudwatch_metric_statistic_data_point\nwhere\n  namespace = 'AWS/Lambda'\n  and metric_name = 'Duration'\n  and maximum > 100\n  and timestamp >= '2023-02-15T00:00:00Z'\n  and timestamp <= '2023-03-15T00:00:00Z'\n  and period = 86400\n  and dimensions = '[\n    {\"Name\": \"FunctionName\", \"Value\": \"test\"}\n    ]'\norder by\n  timestamp;"
 Tags:
-  cloud_ops: true
-  cloud_provider: aws
-  cloud_service: CloudWatch
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

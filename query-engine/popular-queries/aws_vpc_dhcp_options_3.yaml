@@ -4,16 +4,11 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      dhcp_options_id,
-      netbios_node_type
-    from
-      aws_vpc_dhcp_options
-      cross join jsonb_array_elements_text(netbios_node_type) as i
-    where
-      not i.value :: int in (2);
+  QueryToExecute: "select\n  dhcp_options_id,\n  netbios_node_type\nfrom\n  aws_vpc_dhcp_options\n  cross join jsonb_array_elements_text(netbios_node_type) as i\nwhere\n  not i.value :: int in (2);"
 Tags:
-  cloud_network_security: true
-  cloud_provider: aws
-  cloud_service: VPC DHCP Options
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC DHCP Options

@@ -4,34 +4,13 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      id,
-      label,
-      timestamp,
-      value,
-      metric_stat
-    from
-      aws_cloudwatch_metric_data_point
-    where
-      id = 'm1'
-      and value > 1000
-      and period = 86400
-      and scan_by = 'TimestampDescending'
-      and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
-      and metric_stat = '{
-        "Metric": {
-        "Namespace": "AWS/EBS",
-        "MetricName": "VolumeReadOps",
-        "Dimensions": [
-          {
-            "Name": "VolumeId",
-            "Value": "vol-00607053b218c6d74"
-          }
-        ]},
-        "Stat": "Average"}';
+  QueryToExecute: "select\n  id,\n  label,\n  timestamp,\n  value,\n  metric_stat\nfrom\n  aws_cloudwatch_metric_data_point\nwhere\n  id = 'm1'\n  and value > 1000\n  and period = 86400\n  and scan_by = 'TimestampDescending'\n  and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'\n  and metric_stat = '{\n    \"Metric\": {\n    \"Namespace\": \"AWS/EBS\",\n    \"MetricName\": \"VolumeReadOps\",\n    \"Dimensions\": [\n      {\n        \"Name\": \"VolumeId\",\n        \"Value\": \"vol-00607053b218c6d74\"\n      }\n    ]},\n    \"Stat\": \"Average\"}';"
 Tags:
-  cloud_asset_management: true
-  cloud_ops: true
-  cloud_provider: AWS
-  cloud_service: CloudWatch
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - AWS
+  cloud_service:
+  - CloudWatch

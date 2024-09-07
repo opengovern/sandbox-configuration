@@ -4,24 +4,11 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      jsonb_pretty(dimensions) as dimensions,
-      timestamp,
-      round(average::numeric, 2) as avg_cpu
-    from
-      aws_cloudwatch_metric_statistic_data_point
-    where
-      namespace = 'AWS/EC2'
-      and metric_name = 'CPUUtilization'
-      and average > 80
-      and timestamp >= now() - interval '5 day'
-      and dimensions = '[
-        {"Name": "InstanceId", "Value": "i-0dd7043e0f6f0f36d"}
-        ]'
-    order by
-      timestamp;
+  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n  round(average::numeric, 2) as avg_cpu\nfrom\n  aws_cloudwatch_metric_statistic_data_point\nwhere\n  namespace = 'AWS/EC2'\n  and metric_name = 'CPUUtilization'\n  and average > 80\n  and timestamp >= now() - interval '5 day'\n  and dimensions = '[\n    {\"Name\": \"InstanceId\", \"Value\": \"i-0dd7043e0f6f0f36d\"}\n    ]'\norder by\n  timestamp;"
 Tags:
-  cloud_ops: true
-  cloud_provider: aws
-  cloud_service: CloudWatch
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

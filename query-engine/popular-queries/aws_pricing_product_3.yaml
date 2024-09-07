@@ -4,29 +4,13 @@ Connectors:
 - AWS
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      term,
-      purchase_option,
-      lease_contract_length,
-      unit,
-      price_per_unit::numeric::money,
-      currency,
-      attributes ->> 'instanceType',
-      attributes ->> 'vcpu',
-      attributes ->> 'memory',
-      attributes ->> 'cacheEngine'
-    from
-      aws_pricing_product
-    where
-      service_code = 'AmazonElastiCache'
-      and filters = '{
-      "regionCode": "eu-west-3",
-      "locationType": "AWS Region",
-      "instanceType": "cache.m5.xlarge",
-      "cacheEngine": "Redis" }'::jsonb;
+  QueryToExecute: "select\n  term,\n  purchase_option,\n  lease_contract_length,\n  unit,\n  price_per_unit::numeric::money,\n  currency,\n  attributes ->> 'instanceType',\n  attributes ->> 'vcpu',\n  attributes ->> 'memory',\n  attributes ->> 'cacheEngine'\nfrom\n  aws_pricing_product\nwhere\n  service_code = 'AmazonElastiCache'\n  and filters = '{\n  \"regionCode\": \"eu-west-3\",\n  \"locationType\": \"AWS Region\",\n  \"instanceType\": \"cache.m5.xlarge\",\n  \"cacheEngine\": \"Redis\" }'::jsonb;"
 Tags:
-  cloud_asset_management: true
-  cloud_finops: true
-  cloud_provider: aws
-  cloud_service: AWS Pricing Product
+  cloud_asset_management:
+  - "true"
+  cloud_finops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Pricing Product
