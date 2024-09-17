@@ -1,0 +1,31 @@
+ID: aws_ssm_document_3
+Title: "Find AWS SSM Documents with Various Attributes"
+Description: "Allows users to query AWS SSM Documents and retrieve detailed information about each document, including its name, version, owner, status, and permissions, among others."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      owner,
+      document_version,
+      status,
+      document_format,
+      document_type
+    from
+      aws_ssm_document
+    where
+      owner_type != 'Amazon';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - SSM

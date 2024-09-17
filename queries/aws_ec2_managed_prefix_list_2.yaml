@@ -1,0 +1,30 @@
+ID: aws_ec2_managed_prefix_list_2
+Title: "List all AWS EC2 Managed Prefix Lists with SQL"
+Description: "Allows users to query AWS EC2 Managed Prefix Lists, providing information about IP address ranges (CIDRs), permissions, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      id,
+      arn,
+      state,
+      owner_id
+    from
+      aws_ec2_managed_prefix_list
+    where
+      owner_id <> 'AWS';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

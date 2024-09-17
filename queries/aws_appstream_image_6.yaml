@@ -1,0 +1,40 @@
+ID: aws_appstream_image_6
+Title: "List AWS AppStream Images and Metadata"
+Description: "Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      a ->> 'AppBlockArn' as app_block_arn,
+      a ->> 'Arn' as app_arn,
+      a ->> 'CreatedTime' as app_created_time,
+      a ->> 'Description' as app_description,
+      a ->> 'DisplayName' as app_display_name,
+      a ->> 'Enabled' as app_enabled,
+      a ->> 'IconS3Location' as app_icon_s3_location,
+      a ->> 'IconURL' as app_icon_url,
+      a ->> 'InstanceFamilies' as app_instance_families,
+      a ->> 'LaunchParameters' as app_launch_parameters,
+      a ->> 'LaunchPath' as app_launch_path,
+      a ->> 'Name' as app_name,
+      a ->> 'Platforms' as app_platforms,
+      a ->> 'WorkingDirectory' as app_WorkingDirectory
+    from
+      aws_appstream_image,
+      jsonb_array_elements(applications) as a;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AppStream

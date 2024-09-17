@@ -1,0 +1,30 @@
+ID: aws_redshift_cluster_metric_cpu_utilization_daily_1
+Title: "List AWS Redshift CPU Utilization Metrics by day"
+Description: "Allows users to query AWS Redshift Cluster CPU Utilization Metrics on a daily basis."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cluster_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    from
+      aws_redshift_cluster_metric_cpu_utilization_daily
+    order by
+      cluster_identifier,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Redshift

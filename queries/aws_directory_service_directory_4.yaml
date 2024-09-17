@@ -1,0 +1,28 @@
+ID: aws_directory_service_directory_4
+Title: "List all AWS Directory Service Directories"
+Description: "Allows users to query AWS Directory Service Directories for information about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      directory_id,
+      snapshot_limit ->> 'ManualSnapshotsCurrentCount' as manual_snapshots_current_count,
+      snapshot_limit ->> 'ManualSnapshotsLimit' as manual_snapshots_limit,
+      snapshot_limit ->> 'ManualSnapshotsLimitReached' as manual_snapshots_limit_reached
+    from
+      aws_directory_service_directory;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Directory Service

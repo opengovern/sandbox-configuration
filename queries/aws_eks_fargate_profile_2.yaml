@@ -1,0 +1,30 @@
+ID: aws_eks_fargate_profile_2
+Title: "List all AWS EKS Fargate Profiles by name, ARN, and status"
+Description: "Allows users to query AWS EKS Fargate Profiles and retrieve data such as the Fargate profile name, ARN, status, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      fargate_profile_name,
+      fargate_profile_arn,
+      cluster_name,
+      created_at,
+      status
+    from
+      aws_eks_fargate_profile
+    where
+      status <> 'ACTIVE';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EKS

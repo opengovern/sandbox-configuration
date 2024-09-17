@@ -1,0 +1,29 @@
+ID: aws_ram_resource_association_2
+Title: "List AWS RAM Resource Associations and Permissions"
+Description: "Allows users to query AWS RAM Resource Associations to retrieve information about the associations between resources and resource shares."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      resource_share_name,
+      resource_share_arn,
+      associated_entity,
+      p ->> 'Arn' as resource_share_permission_arn,
+      p ->> 'Status' as resource_share_permission_status
+    from
+      aws_ram_resource_association,
+      jsonb_array_elements(resource_share_permission) p;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS RAM Resource Association

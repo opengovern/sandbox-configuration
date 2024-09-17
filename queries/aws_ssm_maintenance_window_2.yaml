@@ -1,0 +1,28 @@
+ID: aws_ssm_maintenance_window_2
+Title: "Find AWS Systems Manager Maintenance Windows Details"
+Description: "Allows users to query AWS Systems Manager Maintenance Windows to retrieve details about scheduled maintenance tasks for AWS resources."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      p ->> 'WindowTargetId' as window_target_id,
+      p ->> 'ResourceType' as resource_type,
+      p ->> 'Name' as target_name
+    from
+      aws_ssm_maintenance_window,
+      jsonb_array_elements(targets) as p;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Systems Manager

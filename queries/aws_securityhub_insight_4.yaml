@@ -1,0 +1,24 @@
+ID: aws_securityhub_insight_4
+Title: "Find AWS Security Hub Insights with Severity Filters"
+Description: "Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      filters ->> 'SeverityLabel' as severity_label
+    from
+      aws_securityhub_insight;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Security Hub

@@ -1,0 +1,27 @@
+ID: aws_macie2_classification_job_2
+Title: "List AWS Macie2 Classification Jobs and Details"
+Description: "Allows users to query AWS Macie2 Classification Jobs and retrieve detailed information about each job''s settings, status, and results."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      job_id,
+      detail -> 'AccountId' as account_id,
+      detail -> 'Buckets' as buckets
+    from
+      aws_macie2_classification_job,
+      jsonb_array_elements(s3_job_definition -> 'BucketDefinitions') as detail;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Macie2

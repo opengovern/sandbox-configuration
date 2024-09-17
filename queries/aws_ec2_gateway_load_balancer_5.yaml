@@ -1,0 +1,28 @@
+ID: aws_ec2_gateway_load_balancer_5
+Title: "Find AWS EC2 Gateway Load Balancer Configuration Details"
+Description: "Allows users to query AWS EC2 Gateway Load Balancer details, including its configuration, state, type, and associated tags."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      lb ->> 'Key' as load_balancing_cross_zone_key,
+      lb ->> 'Value' as load_balancing_cross_zone_value
+    from
+      aws_ec2_gateway_load_balancer,
+      jsonb_array_elements(load_balancer_attributes) as lb
+    where
+      lb ->> 'Key' = 'load_balancing.cross_zone.enabled'
+      and lb ->> 'Value' = 'true';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2 Gateway Load Balancer

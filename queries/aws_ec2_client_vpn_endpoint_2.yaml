@@ -1,0 +1,30 @@
+ID: aws_ec2_client_vpn_endpoint_2
+Title: "Find AWS EC2 Client VPN Endpoint Network Details"
+Description: "Allows users to query AWS EC2 Client VPN Endpoints to retrieve detailed information about the configuration, status, and associated network details of each endpoint."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      status,
+      client_vpn_endpoint_id,
+      transport_protocol,
+      tags
+    from
+      aws_ec2_client_vpn_endpoint
+    where
+      status ->> 'Code' <> 'available';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2 Client VPN

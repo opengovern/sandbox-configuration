@@ -1,0 +1,36 @@
+ID: aws_glue_dev_endpoint_5
+Title: "Find AWS Glue Development Endpoints and Subnet Details"
+Description: "Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      e.endpoint_name,
+      s.availability_zone,
+      s.available_ip_address_count,
+      s.cidr_block,
+      s.default_for_az,
+      s.map_customer_owned_ip_on_launch,
+      s.map_public_ip_on_launch,
+      s.state
+    from
+      aws_glue_dev_endpoint as e,
+      aws_vpc_subnet as s
+    where
+      e.endpoint_name = 'test5'
+    and
+      e.subnet_id = s.subnet_id;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue

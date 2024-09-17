@@ -1,0 +1,28 @@
+ID: aws_acm_certificate_3
+Title: "Find all AWS Certificate Manager certificates details"
+Description: "Allows users to query AWS Certificate Manager certificates. This table provides information about each certificate, including the domain name, status, issuer, and more. It can be used to monitor certificate details, validity, and expiration data."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      certificate_arn,
+      domain_name,
+      status
+    from
+      aws_acm_certificate
+    where
+      certificate_transparency_logging_preference <> 'ENABLED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Certificate Manager

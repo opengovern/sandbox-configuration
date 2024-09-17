@@ -1,0 +1,29 @@
+ID: aws_cloudfront_distribution_2
+Title: "Find Disabled AWS CloudFront Distribution Logging"
+Description: "Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      logging ->> 'Bucket' as bucket,
+      logging ->> 'Enabled' as logging_enabled,
+      logging ->> 'IncludeCookies' as include_cookies
+    from
+      aws_cloudfront_distribution
+    where
+      logging ->> 'Enabled' = 'false';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudFront

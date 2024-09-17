@@ -1,0 +1,29 @@
+ID: aws_sfn_state_machine_execution_2
+Title: "Find AWS Step Functions Execution Status and Details"
+Description: "Allows users to query AWS Step Functions State Machine Execution data, including execution status, start and end times, and associated state machine details."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      execution_arn,
+      status,
+      state_machine_arn
+    from
+      aws_sfn_state_machine_execution
+    where
+      status = 'FAILED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Step Functions

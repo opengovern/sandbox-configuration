@@ -1,0 +1,24 @@
+ID: aws_s3_multi_region_access_point_3
+Title: "Find AWS S3 Multi-Region Access Point Configuration and Policies"
+Description: "Allows users to query AWS S3 Multi-Region Access Points to retrieve information about their configuration, status, and associated policies."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      policy -> 'Established' -> 'Policy' as established_policy,
+      policy -> 'Proposed' -> 'Policy' as proposed_policy
+    from
+      aws_s3_multi_region_access_point;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - S3

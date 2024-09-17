@@ -1,0 +1,25 @@
+ID: aws_lightsail_instance_4
+Title: "List all AWS Lightsail Instances and Their Details"
+Description: "Allows users to query AWS Lightsail Instances and retrieve detailed information about each instance such as instance state, type, associated bundles, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      tags
+    from
+      aws_lightsail_instance
+    where
+      not tags :: JSONB ? 'application';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Lightsail

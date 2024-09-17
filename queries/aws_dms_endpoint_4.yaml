@@ -1,0 +1,32 @@
+ID: aws_dms_endpoint_4
+Title: "List All AWS DMS Endpoints for Database Migrations"
+Description: "Query AWS DMS Endpoints to retrieve connection information for source or target databases in database migration activities."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      endpoint_identifier,
+      kms_key_id,
+      server_name,
+      service_access_role_arn,
+      ssl_mode
+    from
+      aws_dms_endpoint
+    where
+      ssl_mode <> 'none';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Database Migration Service

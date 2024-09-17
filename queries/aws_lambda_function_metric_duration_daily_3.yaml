@@ -1,0 +1,31 @@
+ID: aws_lambda_function_metric_duration_daily_3
+Title: "Find AWS Lambda Function Daily Duration Metrics"
+Description: "Allows users to query AWS Lambda Function daily duration metrics."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      timestamp,
+      round(minimum::numeric,2) as min_duration,
+      round(maximum::numeric,2) as max_duration,
+      round(average::numeric,2) as avg_duration,
+      sample_count
+    from
+      aws_lambda_function_metric_duration_daily
+    where average < 5
+    order by
+      name,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Lambda

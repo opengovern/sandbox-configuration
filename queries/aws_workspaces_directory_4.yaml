@@ -1,0 +1,31 @@
+ID: aws_workspaces_directory_4
+Title: "Find all AWS WorkSpaces Directory Information"
+Description: "Allows users to query AWS WorkSpaces Directory information to retrieve details such as directory ID, directory type, workspace creation properties, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      directory_id,
+      arn,
+      saml_properties ->> 'RelayStateParameterName' as saml_relay_state_parameter_name,
+      saml_properties ->> 'Status' as saml_status,
+      saml_properties ->> 'UserAccessUrl' as saml_user_access_url
+    from
+      aws_workspaces_directory
+    where
+      directory_id = 'd-96676995ea';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - WorkSpaces

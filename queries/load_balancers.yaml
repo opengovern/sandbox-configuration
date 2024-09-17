@@ -1,0 +1,40 @@
+ID: load_balancers
+Title: "Load Balancers"
+Description: ""
+Connector:
+- aws
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      case
+        when resource_type like 'aws::%' then 'AWS'
+        else 'Azure'
+      end as provider, 
+      c.name as cloud_account_name, 
+      c.id as _discovered_provider_id,
+      r.name as name, 
+      r.region as location, 
+      r.connection_id as _kaytu_connection_id,
+      r.resource_id as _resource_id,
+      r.resource_type as _resource_type,
+      r.created_at as _last_discovered,
+      r.description -> 'LoadBalancer' -> 'Scheme' as scheme
+    from 
+      kaytu_resources r inner join kaytu_connections c on r.connection_id = c.kaytu_id
+    where 
+      resource_type IN ('aws::elasticloadbalancing::loadbalancer', 'microsoft.network/loadbalancers', 'microsoft.network/applicationgateways')
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  - azure
+  cloud_service:
+  - Elastic Load Balancing
+  - Azure Load Balancer
+  - Azure Application Gateway

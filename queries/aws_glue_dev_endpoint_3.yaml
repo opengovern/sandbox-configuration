@@ -1,0 +1,30 @@
+ID: aws_glue_dev_endpoint_3
+Title: "List all AWS Glue Development Endpoints with Metadata"
+Description: "Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      arn,
+      status,
+      glue_version,
+      last_modified_timestamp
+    from
+      aws_glue_dev_endpoint
+    where
+       last_modified_timestamp >= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue Development Endpoint

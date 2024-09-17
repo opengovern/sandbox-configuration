@@ -1,0 +1,41 @@
+ID: aws_backup_recovery_point_3
+Title: "List all AWS Backup Recovery Points in a Vault"
+Description: "Allows users to query AWS Backup Recovery Points to gather comprehensive information about each recovery point within an AWS Backup vault."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      r.backup_vault_name as backup_vault_name,
+      r.recovery_point_arn as recovery_point_arn,
+      r.resource_type as resource_type,
+    case
+        when r.resource_type = 'EBS' then (
+          select tags from aws_ebs_snapshot where arn = concat(
+            (string_to_array(r.recovery_point_arn, '::'))[1],
+            ':',
+            r.account_id,
+            ':',
+            (string_to_array(r.recovery_point_arn, '::'))[2]
+          )
+        )
+        when r.resource_type = 'EC2' then (
+          select tags from aws_ec2_ami where image_id = (string_to_array(r.recovery_point_arn, '::image/'))[2]
+        )
+        when r.resource_type in ('S3', 'EFS') then r.tags
+    end as tags,
+      r.region,
+      r.account_id
+    from
+      aws_backup_recovery_point as r;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Backup

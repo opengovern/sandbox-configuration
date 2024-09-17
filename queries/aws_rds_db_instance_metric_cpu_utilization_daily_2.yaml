@@ -1,0 +1,31 @@
+ID: aws_rds_db_instance_metric_cpu_utilization_daily_2
+Title: "Find AWS RDS DB Instances with High CPU Utilization"
+Description: "Allows users to query AWS RDS DB Instances to retrieve daily CPU utilization metrics."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      db_instance_identifier,
+      timestamp,
+      round(minimum::numeric,2) as min_cpu,
+      round(maximum::numeric,2) as max_cpu,
+      round(average::numeric,2) as avg_cpu,
+      sample_count
+    from
+      aws_rds_db_instance_metric_cpu_utilization_daily
+    where average > 80
+    order by
+      db_instance_identifier,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - RDS

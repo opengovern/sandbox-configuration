@@ -1,0 +1,28 @@
+ID: aws_ecs_container_instance_4
+Title: "Find AWS ECS Container Instances with Specific AMI IDs"
+Description: "Allows users to query AWS ECS Container Instance to retrieve data about the Amazon Elastic Container Service (ECS) container instances. This includes information about the container instance ARN, status, running tasks count, pending tasks count, agent connected status, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      setting ->> 'Name' as name,
+      setting ->> 'Value' as value
+    from
+      aws_ecs_container_instance,
+      jsonb_array_elements(attributes) as setting
+    where
+      setting ->> 'Name' = 'ecs.ami-id' and
+      setting ->> 'Value' = 'ami-0babb0c4a4e5769b8';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amazon Elastic Container Service

@@ -1,0 +1,26 @@
+ID: aws_glacier_vault_6
+Title: "Find all AWS Glacier Vaults and Notification Configs"
+Description: "Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault''s name, ARN, creation date, number of archives, size of archives, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      vault_name,
+      vault_notification_config ->> 'SNSTopic' as sns_topic,
+      vault_notification_config ->> 'Events' as notification_events
+    from
+      aws_glacier_vault
+    where
+      vault_notification_config is not null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glacier

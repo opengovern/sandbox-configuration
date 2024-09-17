@@ -1,0 +1,28 @@
+ID: aws_cloudwatch_metric_4
+Title: "Find AWS CloudWatch Metrics for Resource Performance"
+Description: "Allows users to query AWS CloudWatch Metrics to gather information about the performance of their AWS resources and applications."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      metric_name,
+      namespace,
+      dimensions
+    from
+      aws_cloudwatch_metric
+    where
+      dimensions_filter = '[
+        {"Name": "ClusterIdentifier", "Value": "my-cluster-1"}
+      ]'::jsonb;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch Metrics

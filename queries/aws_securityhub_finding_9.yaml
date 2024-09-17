@@ -1,0 +1,29 @@
+ID: aws_securityhub_finding_9
+Title: "Find all Security Hub Findings within AWS Resources"
+Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      product_arn,
+      product_name,
+      updated_at
+    from
+      aws_securityhub_finding
+    where
+       updated_at >= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Security Hub

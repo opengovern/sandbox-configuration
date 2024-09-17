@@ -1,0 +1,37 @@
+ID: aws_cloudtrail_trail_event_6
+Title: "Find AWS CloudTrail Events within AWS CloudTrail"
+Description: "Allows users to query AWS CloudTrail Events, providing information about each trail event within AWS CloudTrail. The table can be used to retrieve details such as the event time, event name, resources involved, and much more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      event_name,
+      event_source,
+      event_time,
+      user_type,
+      username,
+      user_identifier,
+      jsonb_pretty(request_parameters) as request_parameters,
+      jsonb_pretty(response_elements) as response_elements
+    from
+      aws_cloudtrail_trail_event
+    where
+      log_group_name = 'aws-cloudtrail-log-group-name'
+      and user_type = 'IAMUser'
+      and timestamp >= now() - interval '1 hour'
+    order by
+      event_time asc;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

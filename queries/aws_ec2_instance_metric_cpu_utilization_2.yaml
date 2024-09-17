@@ -1,0 +1,31 @@
+ID: aws_ec2_instance_metric_cpu_utilization_2
+Title: "Find AWS EC2 Instances with High CPU Utilization"
+Description: "Allows users to query EC2 Instance CPU Utilization metrics from AWS CloudWatch."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_id,
+      timestamp,
+      round(minimum::numeric,2) as min_cpu,
+      round(maximum::numeric,2) as max_cpu,
+      round(average::numeric,2) as avg_cpu,
+      sample_count
+    from
+      aws_ec2_instance_metric_cpu_utilization
+    where average > 80
+    order by
+      instance_id,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

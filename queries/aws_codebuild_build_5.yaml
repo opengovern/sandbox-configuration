@@ -1,0 +1,29 @@
+ID: aws_codebuild_build_5
+Title: "Find all AWS CodeBuild Build Project Details"
+Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      arn,
+      artifacts ->> 'ArtifactIdentifier' as artifact_id,
+      artifacts ->> 'BucketOwnerAccess' as bucket_owner_access,
+      artifacts ->> 'EncryptionDisabled' as encryption_disabled,
+      artifacts ->> 'OverrideArtifactName' as override_artifact_name
+    from
+      aws_codebuild_build;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeBuild

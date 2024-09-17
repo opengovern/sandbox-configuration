@@ -1,0 +1,29 @@
+ID: aws_cloudtrail_query_2
+Title: "Find failed AWS CloudTrail queries using SQL"
+Description: "Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      query_id,
+      event_data_store_arn,
+      query_status,
+      creation_time,
+      query_string,
+      execution_time_in_millis
+    from
+      aws_cloudtrail_query
+    where
+      query_status = 'FAILED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

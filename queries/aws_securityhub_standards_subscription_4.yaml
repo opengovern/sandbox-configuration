@@ -1,0 +1,26 @@
+ID: aws_securityhub_standards_subscription_4
+Title: "Find all AWS Security Hub Standards Subscriptions"
+Description: "Allows users to query AWS Security Hub Standards Subscriptions, providing detailed information about each standard subscription in AWS Security Hub."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      standards_arn,
+      standards_managed_by ->> 'Company' as standards_managed_by_company
+    from
+      aws_securityhub_standards_subscription
+    where
+      standards_managed_by ->> 'Company' <> 'AWS';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Security Hub

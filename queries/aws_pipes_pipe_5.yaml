@@ -1,0 +1,29 @@
+ID: aws_pipes_pipe_5
+Title: "List AWS Pipes and Their Details Using SQL"
+Description: "Allows users to query AWS Pipes to obtain detailed information about individual pipes."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      creation_time,
+      current_state,
+      desired_state,
+      enrichment,
+      target
+    from
+      aws_pipes_pipe
+    where
+      creation_time >= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Pipes

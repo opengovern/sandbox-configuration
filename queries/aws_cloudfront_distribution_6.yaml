@@ -1,0 +1,30 @@
+ID: aws_cloudfront_distribution_6
+Title: "Find AWS CloudFront Distributions Configuration & Status"
+Description: "Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      arn,
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Items' as items,
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Quantity' as quantity
+    from
+      aws_cloudfront_distribution,
+      jsonb_array_elements(origins) as p
+    where
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Items' ?& array['SSLv3'];
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudFront

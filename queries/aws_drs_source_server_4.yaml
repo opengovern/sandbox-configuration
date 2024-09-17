@@ -1,0 +1,30 @@
+ID: aws_drs_source_server_4
+Title: "List all AWS DMS Source Servers with Replication Info"
+Description: "Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      title,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'StartDateTime' as data_replication_start_date_time,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' as data_replication_next_attempt_date_time,
+      data_replication_info ->> 'DataReplicationError' as data_replication_error,
+      data_replication_info ->> 'DataReplicationState' as data_replication_state,
+      data_replication_info ->> 'ReplicatedDisks' as data_replication_replicated_disks
+    from
+      aws_drs_source_server;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Database Migration Service

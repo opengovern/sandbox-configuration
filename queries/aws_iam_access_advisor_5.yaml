@@ -1,0 +1,36 @@
+ID: aws_iam_access_advisor_5
+Title: "Find All AWS IAM Access Advisor Last Access Data"
+Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select 
+      principal_arn,
+      service_name,
+      last_authenticated,
+      age(last_authenticated::date),
+      a ->> 'ActionName' as action_name,
+      a ->> 'LastAccessedEntity' as action_last_accessed_entity,
+      a ->> 'LastAccessedRegion' as action_last_accessed_region,
+      a ->> 'LastAccessedTime' as action_last_accessed_time
+    from 
+      aws_iam_access_advisor,
+      jsonb_array_elements(tracked_actions_last_accessed) as a
+    where
+      principal_arn = 'arn:aws:iam::123456789123:user/jane'
+      and last_authenticated is not null
+      and service_namespace = 's3'
+    order by 
+      age asc;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - IAM Access Advisor

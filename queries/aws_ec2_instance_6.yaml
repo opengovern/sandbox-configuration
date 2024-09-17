@@ -1,0 +1,27 @@
+ID: aws_ec2_instance_6
+Title: "Find all EC2 Instances with Detailed Information"
+Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      instance_id,
+      instance_state,
+      launch_time,
+      maintenance_options ->> 'AutoRecovery' as auto_recovery
+    from
+      aws_ec2_instance;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

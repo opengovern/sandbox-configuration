@@ -1,0 +1,30 @@
+ID: aws_cloudtrail_channel_2
+Title: "List all AWS CloudTrail Channel data and configurations"
+Description: "Allows users to query AWS CloudTrail Channel data, including trail configurations, status, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      source,
+      apply_to_all_regions,
+      advanced_event_selectors
+    from
+      aws_cloudtrail_channel
+    where
+      not apply_to_all_regions;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

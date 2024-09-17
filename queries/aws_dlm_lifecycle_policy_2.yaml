@@ -1,0 +1,29 @@
+ID: aws_dlm_lifecycle_policy_2
+Title: "List All AWS DLM Lifecycle Policies and Details"
+Description: "Allows users to query AWS DLM Lifecycle Policies to retrieve detailed information about each policy, including its configuration, status, and tags."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      policy_id,
+      arn,
+      date_created,
+      policy_type,
+      s ->> 'ShareRules' as share_rules
+    from
+      aws_dlm_lifecycle_policy,
+      jsonb_array_elements(policy_details -> 'Schedules') s
+    where 
+      s ->> 'ShareRules' is not null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DLM Lifecycle Policy

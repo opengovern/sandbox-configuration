@@ -1,0 +1,27 @@
+ID: aws_eventbridge_rule_2
+Title: "Find all AWS EventBridge Rules not enabled"
+Description: "Allows users to query AWS EventBridge Rule to access information regarding the EventBridge rules defined within an AWS account."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      state,
+      created_by
+    from
+      aws_eventbridge_rule
+    where
+      state != 'ENABLED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EventBridge

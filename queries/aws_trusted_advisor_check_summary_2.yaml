@@ -1,0 +1,33 @@
+ID: aws_trusted_advisor_check_summary_2
+Title: "List Trusted Advisor Check Summaries with Errors in AWS"
+Description: "A Trusted Advisor check is a specific evaluation or assessment performed by Trusted Advisor in different categories. These checks cover various areas, including cost optimization, security, performance, and fault tolerance. Each check examines a specific aspect of your AWS resources and provides recommendations for improvement."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      check_id,
+      category,
+      status
+    from
+      aws_trusted_advisor_check_summary
+    where
+      language = 'en'
+    and
+      status = 'error';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_finops:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Trusted Advisor

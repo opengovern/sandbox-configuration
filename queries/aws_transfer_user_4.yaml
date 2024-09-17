@@ -1,0 +1,29 @@
+ID: aws_transfer_user_4
+Title: "List all AWS Transfer users in a server"
+Description: "Allows users to query AWS Transfer for users in a server, equivalent to list/describe user functions."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      count(*) as total_users,
+      server_id
+    from
+      aws_transfer_user
+    group by
+      server_id
+    order by
+      total_users desc;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Transfer

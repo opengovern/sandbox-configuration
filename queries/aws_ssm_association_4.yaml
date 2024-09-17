@@ -1,0 +1,29 @@
+ID: aws_ssm_association_4
+Title: "Find AWS SSM Associations and Their Details"
+Description: "Allows users to query AWS SSM Associations for detailed information about the AWS Systems Manager associations, including their status, targets, and parameters."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      association_id,
+      association_name,
+      targets,
+      document_name
+    from
+      aws_ssm_association
+    where
+      compliance_severity = 'CRITICAL';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Systems Manager

@@ -1,0 +1,30 @@
+ID: aws_wellarchitected_lens_share_2
+Title: "Find AWS Well-Architected Tool Lens Shares Details"
+Description: "Allows users to query Lens Shares in AWS Well-Architected Tool, providing details about shared lenses including the share ARN, share status, and the AWS account ID of the lens owner."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      s.lens_name,
+      l.arn,
+      l.lens_status,
+      l.lens_type,
+      l.owner,
+      l.share_invitation_id
+    from
+      aws_wellarchitected_lens_share as s,
+      aws_wellarchitected_lens as l
+    where
+      s.lens_arn = l.arn;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Well-Architected Tool

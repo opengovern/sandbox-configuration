@@ -1,0 +1,29 @@
+ID: aws_drs_recovery_snapshot_4
+Title: "List AWS DRS Recovery Snapshots with Metadata Details"
+Description: "Allows users to query DRS Recovery Snapshot data in AWS. It provides information about recovery snapshots within AWS Disaster Recovery Service (DRS). This table can be used to gather insights on recovery snapshots, including their details, associated metadata, and more."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      snapshot_id,
+      source_server_id,
+      expected_timestamp,
+      timestamp
+    from
+      aws_drs_recovery_snapshot
+    where
+      timestamp <= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Disaster Recovery Service

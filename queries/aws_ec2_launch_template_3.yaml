@@ -1,0 +1,26 @@
+ID: aws_ec2_launch_template_3
+Title: "List all AWS EC2 Launch Templates with Details"
+Description: "Allows users to query AWS EC2 Launch Templates to retrieve detailed information, including the associated AMI, instance type, key pair, security groups, and user data."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      launch_template_name,
+      launch_template_id,
+      create_time
+    from
+      aws_ec2_launch_template
+    where
+      create_time >= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

@@ -1,0 +1,30 @@
+ID: aws_vpc_route_1
+Title: "List all AWS VPC Routes Information using SQL"
+Description: "Allows users to query AWS VPC Routes to retrieve detailed information about each route in a route table within a VPC."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      route_table_id,
+      gateway_id
+    from
+      aws_vpc_route
+    where
+      gateway_id ilike 'igw%'
+      and destination_cidr_block = '0.0.0.0/0';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC

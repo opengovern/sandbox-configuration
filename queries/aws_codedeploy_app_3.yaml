@@ -1,0 +1,28 @@
+ID: aws_codedeploy_app_3
+Title: "List all AWS CodeDeploy Apps Linked to GitHub"
+Description: "Allows users to query AWS CodeDeploy Applications to return detailed information about each application, including application name, ID, and associated deployment groups."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      application_id,
+      compute_platform,
+      create_time,
+      github_account_name
+    from
+      aws_codedeploy_app
+    where
+      linked_to_github;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeDeploy

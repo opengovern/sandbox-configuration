@@ -1,0 +1,45 @@
+ID: aws_cloudwatch_metric_data_point_4
+Title: "Find AWS CloudWatch MetricDataPoints for defined metric"
+Description: "Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      label,
+      timestamp,
+      value,
+      metric_stat
+    from
+      aws_cloudwatch_metric_data_point
+    where
+      id = 'm1'
+      and value > 1000
+      and period = 86400
+      and scan_by = 'TimestampDescending'
+      and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'
+      and metric_stat = '{
+        "Metric": {
+        "Namespace": "AWS/EBS",
+        "MetricName": "VolumeReadOps",
+        "Dimensions": [
+          {
+            "Name": "VolumeId",
+            "Value": "vol-00607053b218c6d74"
+          }
+        ]},
+        "Stat": "Average"}';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

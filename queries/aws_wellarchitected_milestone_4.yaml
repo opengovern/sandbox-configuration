@@ -1,0 +1,35 @@
+ID: aws_wellarchitected_milestone_4
+Title: "Find All AWS Well-Architected Tool Milestones"
+Description: "Allows users to query AWS Well-Architected Tool Milestones for detailed information about the milestones of a workload."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      m.milestone_name,
+      m.milestone_number,
+      w.workload_name,
+      w.workload_id,
+      w.environment,
+      w.industry,
+      w.owner
+    from
+      aws_wellarchitected_workload w,
+      aws_wellarchitected_milestone m
+    where
+      w.workload_id = m.workload_id
+      and milestone_number = 1
+      and w.workload_id = 'abcdec851ac1d8d9d5b9938615da016ce';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Well-Architected Tool

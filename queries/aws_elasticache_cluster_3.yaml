@@ -1,0 +1,28 @@
+ID: aws_elasticache_cluster_3
+Title: "Query Amazon ElastiCache Cluster Data with SQL"
+Description: "Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      cache_node_type,
+      transit_encryption_enabled
+    from
+      aws_elasticache_cluster
+    where
+      not transit_encryption_enabled;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amazon ElastiCache

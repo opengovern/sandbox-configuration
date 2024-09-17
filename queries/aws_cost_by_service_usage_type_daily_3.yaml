@@ -1,0 +1,25 @@
+ID: aws_cost_by_service_usage_type_daily_3
+Title: ""
+Description: "Allows users to query AWS Cost Explorer Service daily usage type to fetch detailed data about AWS service usage and costs."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      service,
+      usage_type,
+      sum(unblended_cost_amount)::numeric::money as sum,
+      avg(unblended_cost_amount)::numeric::money as average
+    from 
+      aws_cost_by_service_usage_type_daily
+    group by
+      service,
+      usage_type
+    order by
+      average desc
+    limit 10;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags: {}
