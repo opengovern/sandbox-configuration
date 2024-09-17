@@ -1,0 +1,24 @@
+ID: azure_insight_cosmosdb_account_which_allows_traffic_from_all_networks_and_internet
+Title: "Database Accounts with Public access"
+Description: "List of database accounts which allows traffic from all networks, including the public Internet."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      region,
+      virtual_network_rules, subscription_id, kaytu_account_id, kaytu_resource_id
+    from
+      azure_cosmosdb_account
+    where
+      virtual_network_rules = '[]';
+  PrimaryTable: azure_cosmosdb_account
+  ListOfTables:
+  - azure_cosmosdb_account
+  Parameters: []
+Tags:
+  category:
+  - Security
+  - Technical Debt

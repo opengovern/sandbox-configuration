@@ -1,0 +1,29 @@
+ID: aws_insight_vpc_with_public_cidr
+Title: "VPCs with Public IP Range"
+Description: "List VPCs with public CIDR blocks"
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      vpc_id,
+      cidr_block,
+      state,
+      region, account_id, kaytu_account_id, kaytu_resource_id
+    from
+      aws_vpc
+    where
+      (not cidr_block <<= '10.0.0.0/8'
+      and not cidr_block <<= '192.168.0.0/16'
+      and not cidr_block <<= '172.16.0.0/12');
+  PrimaryTable: aws_vpc
+  ListOfTables:
+  - aws_vpc
+  Parameters: []
+Tags:
+  category:
+  - Security
+  - Technical Debt
+  - Resiliency
+  - Cost Management

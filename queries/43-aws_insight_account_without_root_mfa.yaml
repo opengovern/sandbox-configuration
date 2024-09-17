@@ -1,0 +1,20 @@
+ID: aws_insight_account_without_root_mfa
+Title: "AWS Account without Root MFA"
+Description: "AWS account whose root user does not have MFA enabled."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: select user_arn, account_id, kaytu_account_id, kaytu_resource_id from aws_iam_credential_report where (user_name = '<root_account>' AND mfa_active = false)
+  PrimaryTable: aws_iam_credential_report
+  ListOfTables:
+  - aws_iam_credential_report
+  Parameters: []
+Tags:
+  category:
+  - Security
+  persona:
+  - DevOps
+  - Security
+  - Executive
+  - Product
