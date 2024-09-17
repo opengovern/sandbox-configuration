@@ -1,7 +1,8 @@
+ID: aws_msk_cluster_7
 Title: "Find Total Storage of AWS MSK Clusters"
 Description: "Allows users to query AWS Managed Streaming for Apache Kafka (MSK) clusters."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -9,6 +10,9 @@ Query:
       sum((provisioned -> 'BrokerNodeGroupInfo' -> 'StorageInfo' -> 'EbsStorageInfo' ->> 'VolumeSize')::int) as total_storage
     from
       aws_msk_cluster;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_ops:
   - "true"

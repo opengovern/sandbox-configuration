@@ -1,7 +1,8 @@
+ID: aws_cost_by_account_monthly_3
 Title: "List all Monthly AWS Costs Per Account"
 Description: "Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -12,6 +13,9 @@ Query:
       rank() over(partition by linked_account_id order by unblended_cost_amount desc)
     from 
       aws_cost_by_account_monthly;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"

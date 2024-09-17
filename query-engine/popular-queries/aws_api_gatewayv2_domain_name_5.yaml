@@ -1,7 +1,8 @@
+ID: aws_api_gatewayv2_domain_name_5
 Title: "List AWS API Gateway Domain Name Details with Certificate Info"
 Description: "Allows users to query AWS API Gateway Domain Names and provides information about each domain name within the AWS API Gateway Service. This table can be used to query domain name details, including associated API mappings, security policy, and associated tags."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -19,6 +20,9 @@ Query:
       aws_api_gatewayv2_domain_name AS d
       cross join jsonb_array_elements(d.domain_name_configurations) AS config
       left join aws_acm_certificate AS c ON c.certificate_arn = config ->> 'CertificateArn';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"

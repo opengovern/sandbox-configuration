@@ -1,7 +1,8 @@
+ID: aws_codestar_notification_rule_4
 Title: "List all AWS CodeStar Notification Rules with Target Details"
 Description: "Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -13,6 +14,9 @@ Query:
       aws_codestar_notification_rule as notification_rule cross
       join jsonb_array_elements(notification_rule.targets) as target
       left join aws_sns_topic as topic on target ->> 'TargetAddress' = topic.topic_arn;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"

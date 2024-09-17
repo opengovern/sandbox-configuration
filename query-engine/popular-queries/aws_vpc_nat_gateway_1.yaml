@@ -1,7 +1,8 @@
+ID: aws_vpc_nat_gateway_1
 Title: "List all details of AWS VPC NAT Gateways with SQL"
 Description: "Allows users to query NAT Gateways within Amazon Virtual Private Cloud (VPC). The `aws_vpc_nat_gateway` table in Steampipe provides information about each NAT Gateway within a VPC. This table can be used to gather insights on NAT Gateways, such as their state, subnet association, and associated Elastic IP addresses."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -14,6 +15,9 @@ Query:
     from
       aws_vpc_nat_gateway
       cross join jsonb_array_elements(nat_gateway_addresses) as address;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"

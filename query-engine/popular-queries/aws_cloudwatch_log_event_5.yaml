@@ -1,7 +1,8 @@
+ID: aws_cloudwatch_log_event_5
 Title: "Find All AWS CloudWatch Log Events for Security Groups"
 Description: "Allows users to query AWS CloudWatch Log Events to retrieve information about log events from a specified log group. Users can utilize this table to monitor and troubleshoot systems and applications using their existing log data."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -19,6 +20,9 @@ Query:
       and filter = '{($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup)}'
       and region = 'us-east-1'
       and timestamp >= now() - interval '1 hour';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_network_security:
   - "true"

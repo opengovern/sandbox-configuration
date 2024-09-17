@@ -1,7 +1,8 @@
+ID: aws_glacier_vault_4
 Title: "Find AWS Glacier Vault Details including Name, ARN, and Archives"
 Description: "Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault''s name, ARN, creation date, number of archives, size of archives, and more."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -14,6 +15,9 @@ Query:
       aws_glacier_vault,
       jsonb_array_elements(vault_lock_policy_std -> 'Statement') as s,
       jsonb_array_elements_text(s -> 'Action') as a;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"

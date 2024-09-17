@@ -1,7 +1,8 @@
+ID: aws_ec2_instance_13
 Title: "Find EC2 Instances with Sensitive Data in User Data"
 Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -13,6 +14,9 @@ Query:
     where
       user_data like any (array ['%pass%', '%secret%','%token%','%key%'])
       or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_data_security:
   - "true"

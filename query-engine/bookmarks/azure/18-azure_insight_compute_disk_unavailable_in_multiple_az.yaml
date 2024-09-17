@@ -1,6 +1,10 @@
-ID: 18
+ID: azure_insight_compute_disk_unavailable_in_multiple_az
+Title: "Non-Resiliency Azure Disks"
+Description: "List of compute disks which are not available in multiple az"
+Connector:
+- azure
 Query:
-  ID: azure_insight_compute_disk_unavailable_in_multiple_az
+  ID: ""
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
     select
@@ -12,22 +16,12 @@ Query:
       cross join jsonb_array_elements(zones) az
     where
       zones is not null;
-  Connector:
-  - Azure
   PrimaryTable: azure_compute_disk
   ListOfTables:
   - azure_compute_disk
   Parameters: []
-Connector: Azure
-ShortTitle: Non-Resiliency Azure Disks
-LongTitle: List of compute disks which are not available in multiple az
-Description: List of compute disks which are not available in multiple az
-LogoURL: ""
 Tags:
   category:
   - Security
   - Technical Debt
   - Resiliency
-Links: []
-Enabled: true
-Internal: false

@@ -1,7 +1,8 @@
+ID: aws_networkfirewall_rule_group_5
 Title: "List AWS Network Firewall Rule Group Details"
 Description: "Allows users to query AWS Network Firewall Rule Group details, including rule group ARN, capacity, rule group name, and associated tags."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -14,6 +15,9 @@ Query:
     where
       type = 'STATELESS' and jsonb_array_length(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') = 0
       or type = 'STATEFUL' and jsonb_array_length(rules_source -> 'StatefulRules') = 0;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_network_security:
   - "true"

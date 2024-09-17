@@ -1,7 +1,8 @@
+ID: aws_vpc_subnet_4
 Title: "Find AWS VPC Subnets with Configuration Details"
 Description: "Allows users to query AWS VPC Subnets and obtain detailed information about each subnet, including its configuration, associated VPC, availability zone, and CIDR block."
-Connectors:
-- AWS
+Connector:
+- aws
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
@@ -12,6 +13,9 @@ Query:
       aws_vpc_route_table as rt
       cross join jsonb_array_elements(associations) as associations_detail
       join aws_vpc_subnet as sub on sub.subnet_id = associations_detail ->> 'SubnetId';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
 Tags:
   cloud_asset_management:
   - "true"
