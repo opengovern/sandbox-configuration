@@ -11,7 +11,9 @@ Query:
         _ctx,
         account_id,
         region,
-        count(*) as count
+        count(*) as count,
+        kaytu_account_id as kaytu_account_id,
+        kaytu_resource_id as kaytu_resource_id
       from
         aws_organizations_policy
       where
@@ -19,7 +21,9 @@ Query:
       group by
         _ctx,
         region,
-        account_id
+        account_id,
+        kaytu_account_id,
+        kaytu_resource_id
     )
     select
       case
@@ -30,8 +34,8 @@ Query:
         when count > 0 then 'Organizational tag policies are enabled.'
         else 'Organizational tag policies are disabled.'
       end as reason,
-      _ctx.kaytu_account_id as kaytu_account_id,
-      _ctx.kaytu_resource_id as kaytu_resource_id
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id
     from
       tag_policy_enabled;
   PrimaryTable: aws_organizations_policy

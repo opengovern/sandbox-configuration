@@ -6,18 +6,55 @@ Connector:
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
+    with iam_roles as (
+      select
+        r.arn as role_arn,
+        i.arn as intance_arn,
+        i.kaytu_account_id as kaytu_account_id,
+        i.kaytu_account_id as kaytu_account_id
+      from
+        aws_iam_role as r,
+        jsonb_array_elements_text(instance_profile_arns) as p
+        left join aws_ec2_instance as i on p = i.iam_instance_profile_arn
+      where
+        i.arn is not null
+    ),
+    iam_role_with_permission as (
+      select
+        arn
+      from
+        aws_iam_role,
+        jsonb_array_elements(assume_role_policy_std -> 'Statement') as s,
+        jsonb_array_elements_text(s -> 'Principal' -> 'Service') as service,
+        jsonb_array_elements_text(s -> 'Action') as action
+      where
+        arn in (
+          select
+            role_arn
+          from
+            iam_roles
+        )
+      and s ->> 'Effect' = 'Allow'
+      and service = 'ec2.amazonaws.com'
+      and action in (
+        'srds-data:ExecuteStatement',
+        'rds-data:BatchExecuteStatement',
+        '*:*'
+      )
+    )
     select
       i.arn as resource,
       i.kaytu_account_id as kaytu_account_id,
-      i.kaytu_resource_id as kaytu_resource_id,
+      i.kaytu_account_id as kaytu_account_id,
       case
         when p.arn is null then 'ok'
         else 'alarm'
       end status,
       case
-        when p.arn is null then title || ' has no IAM role with cloud log tampering access.'
-        else title || ' has IAM role with cloud log tampering access.'
-      end as reason
+        when p.arn is null then title || ' has no IAM role with destruction RDS permission.'
+        else title || ' has IAM role with destruction RDS permission.'
+      end as reason,
+      i.account_id
     from
       aws_ec2_instance as i
       left join iam_roles as r on r.intance_arn = i.arn
