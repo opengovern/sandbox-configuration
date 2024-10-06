@@ -1,0 +1,49 @@
+ID: azuread_user_should_have_mfa_enabled_with_azure_subscription_role_assignment
+Title: "AzureAD Users should have MFA Enabled with Azure subscription role assignment"
+Description: "AzureAD Users should have MFA Enabled with Azure subscription role assignment"
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    with users_with_roles as (
+      SELECT distinct u.id as id, 
+        u.kaytu_account_id as kaytu_account_id, 
+        u.kaytu_resource_id as kaytu_resource_id, 
+        u.display_name as display_name, 
+        u.subscription_id as subscription_id,
+        u.account_enabled as account_enabled,
+        u.tenant_id as tenant_id
+      FROM (azuread_user AS u JOIN azure_user_effective_access AS ea ON u.id = ea.principal_id)
+    )
+    select 
+      u.id as resource, 
+      u.kaytu_account_id as kaytu_account_id,
+      u.kaytu_resource_id as kaytu_resource_id,
+      case
+        when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'skip'
+        when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'User is not included'
+        when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then u.display_name || ' does not have MFA enbabled'
+        else u.display_name || ' has MFA'
+      end as reason, 
+      u.tenant_id
+    from 
+      users_with_roles as u 
+      left join azuread_user_registration_details as rd on u.id = rd.id
+    where exists (select 1 from azure_user_effective_access AS ea where u.id = ea.principal_id)
+  PrimaryTable: azuread_user
+  ListOfTables:
+  - azure_user_effective_access
+  - azuread_user
+  - azuread_user_registration_details
+  Parameters:
+    - Key: azureadAccountStatusInclude
+      Required: false
+Severity: high
+Tags:
+  score_service_name:
+  - Azure Active Directory (Azure AD)

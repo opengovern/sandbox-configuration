@@ -1,0 +1,27 @@
+ID: azure_securitycenter_pricing_standard
+Title: "Security center pricing should be set to standard"
+Description: "This control checks whether Security center pricing is set to standard. This control is non-compliant if pricing is set to free."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      sub_pricing.id as resource,
+      sub_pricing.kaytu_account_id as kaytu_account_id,
+      sub_pricing.kaytu_resource_id as kaytu_resource_id,
+      case
+        when pricing_tier = 'Standard' then 'ok'
+        else 'alarm'
+      end as status,
+      sub_pricing.name || ' is using ' || pricing_tier || ' pricing tier.' as reason
+    from
+      azure_security_center_subscription_pricing sub_pricing
+      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id;
+  PrimaryTable: azure_security_center_subscription_pricing
+  ListOfTables:
+  - azure_security_center_subscription_pricing
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

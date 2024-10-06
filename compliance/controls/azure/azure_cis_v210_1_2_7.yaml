@@ -1,0 +1,44 @@
+ID: azure_cis_v210_1_2_7
+Title: "1.2.7 Ensure Multifactor Authentication is Required to access Microsoft Admin Portals"
+Description: "This recommendation ensures that users accessing Microsoft Admin Portals (i.e. Microsoft 365 Admin, Microsoft 365 Defender, Exchange Admin Center, Azure Portal, etc.) are required to use multifactor authentication (MFA) credentials when logging into an Admin Portal."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with distinct_tenant as (
+      select
+        u.id,
+        tenant_id
+      from
+        azuread_user as u
+        left join azure_role_assignment as a on a.principal_id = u.id
+        left join azure_role_definition as d on d.id = a.role_definition_id
+      where role_type = 'BuiltInRole' and (role_name like '%Administrator%' or role_name = 'Owner')
+    )
+    select
+      p.id as resource,
+    p.kaytu_account_id as kaytu_account_id,
+    p.kaytu_resource_id as kaytu_resource_id,
+      case
+        when p.built_in_controls @> '["mfa"]' then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when p.built_in_controls @> '["mfa"]' then p.display_name || ' MFA enabled.'
+        else p.display_name || ' MFA disabled.'
+      end as reason,
+      t.tenant_id
+      
+    from
+      distinct_tenant as t,
+      azuread_conditional_access_policy as p;
+  PrimaryTable: azuread_conditional_access_policy
+  ListOfTables:
+  - azuread_user
+  - azure_role_assignment
+  - azure_role_definition
+  - azuread_conditional_access_policy
+  Parameters: []
+Severity: low
+Tags: {}

@@ -1,0 +1,30 @@
+ID: aws_foundational_security_efs_4
+Title: "4 EFS access points should enforce a user identity"
+Description: "This control checks whether Amazon EFS access points are configured to enforce a user identity. This control fails if a POSIX user identity is not defined while creating the EFS access point."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      access_point_arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when posix_user is null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when posix_user is null then title || ' does not enforce a user identity.'
+        else title || ' enforces a user identity.'
+      end as reason
+      
+      
+    from
+      aws_efs_access_point;
+  PrimaryTable: aws_efs_access_point
+  ListOfTables:
+  - aws_efs_access_point
+  Parameters: []
+Severity: medium
+Tags: {}

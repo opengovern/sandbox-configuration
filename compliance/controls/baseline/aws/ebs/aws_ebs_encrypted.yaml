@@ -1,0 +1,40 @@
+ID: aws_ebs_encrypted
+Title: "EBS Volumes need to be encrypted"
+Description: "Ensure EBS volumes are encrypted to meet security and encryption compliance requirements. Encryption is a key mechanism for you to ensure that you are in full control over who has access to your data."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      case
+        when encrypted then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when encrypted then volume_id || ' encrypted.'
+        else volume_id || ' not encrypted.'
+      end as reason,
+      region,
+      account_id
+    from
+      aws_ebs_volume
+    where
+      state = 'in-use'
+  PrimaryTable: aws_ebs_volume
+  ListOfTables:
+  - aws_ebs_volume
+  Parameters: []
+Severity: high
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Elastic Block Store (EBS)
+  platform_score_use_case:
+  - Unencrypted Storage
+  score_service_name:
+  - AWS Elastic Block Store (EBS)
+  score_tags:
+  - Unencrypted Storage

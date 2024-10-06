@@ -1,0 +1,32 @@
+ID: aws_foundational_security_emr_1
+Title: "1 Amazon EMR cluster primary nodes should not have public IP addresses"
+Description: "This control checks whether master nodes on Amazon EMR clusters have public IP addresses. The control fails if the master node has public IP addresses that are associated with any of its instances. Public IP addresses are designated in the PublicIp field of the NetworkInterfaces configuration for the instance. This control only checks Amazon EMR clusters that are in a RUNNING or WAITING state."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      c.cluster_arn as resource,
+      c.kaytu_account_id as kaytu_account_id,
+      c.kaytu_resource_id as kaytu_resource_id,
+      case
+        when c.status ->> 'State' not in ('RUNNING', 'WAITING') then 'skip'
+        when s.map_public_ip_on_launch then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when c.status ->> 'State' not in ('RUNNING', 'WAITING') then c.title || ' is in ' || (c.status ->> 'State') || ' state.'
+        when s.map_public_ip_on_launch then c.title || ' master nodes assigned with public IP.'
+        else c.title || ' master nodes not assigned with public IP.'
+      end as reason
+    from
+      aws_emr_cluster as c
+      left join aws_vpc_subnet as s on c.ec2_instance_attributes ->> 'Ec2SubnetId' = s.subnet_id;
+  PrimaryTable: aws_emr_cluster
+  ListOfTables:
+  - aws_emr_cluster
+  - aws_vpc_subnet
+  Parameters: []
+Severity: high
+Tags: {}

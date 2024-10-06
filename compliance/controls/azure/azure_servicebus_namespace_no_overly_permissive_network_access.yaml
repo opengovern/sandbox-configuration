@@ -1,0 +1,36 @@
+ID: azure_servicebus_namespace_no_overly_permissive_network_access
+Title: "Service bus namespace should not be configured with overly permissive network access"
+Description: "This policy identifies Azure Service bus namespaces configured with overly permissive network access. By default, Service Bus namespaces are accessible from the internet as long as the request comes with valid authentication and authorization. With an IP firewall, you can restrict it further to only a set of IPv4 addresses or IPv4 address ranges. With Virtual Networks, the network traffic path is secured on both ends. It is recommended to configure the Service bus namespace with an IP firewall or by Virtual Network; so that the Service bus namespace is accessible only to restricted entities."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when status = 'Active'
+        and sku_tier = 'Premium'
+        and network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
+        and network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when status = 'Active'
+        and sku_tier = 'Premium'
+        and network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
+        and network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled' then a.name || ' namespace configured with overly permissive network access.'
+        else a.name || ' namespace not configured with overly permissive network access.'
+      end as reason
+    from
+      azure_servicebus_namespace a,
+      azure_subscription sub;
+  PrimaryTable: azure_servicebus_namespace
+  ListOfTables:
+  - azure_servicebus_namespace
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

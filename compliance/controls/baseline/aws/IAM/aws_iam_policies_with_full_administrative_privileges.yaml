@@ -1,0 +1,39 @@
+ID: aws_iam_policies_with_full_administrative_privileges
+Title: "IAM Policies With Full Administrative Privileges"
+Description: "Ensure IAM policies that allow full '*:*' administrative privileges aren't created."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      case
+        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'policy allows full administrative privileges'
+        else 'policy does not allow full administrative privileges'
+      end as reason,
+      region, 
+      account_id
+    from
+      aws_iam_policy as p,
+      jsonb_array_elements(p.policy_std -> 'Statement') as stmt
+  PrimaryTable: aws_iam_policy
+  ListOfTables:
+  - aws_iam_policy
+  Parameters: []
+Severity: high
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Identity and Access Management (IAM)
+  platform_score_use_case:
+  - Problem Identities
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

@@ -1,0 +1,54 @@
+ID: azure_sql_database_transparent_data_encryption_enabled
+Title: "SQL databases transparent data encryption should be enabled"
+Description: "Transparent data encryption should be enabled to protect data-at-rest and meet compliance requirements."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      s.database_id resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then 'ok'
+          else 'alarm'
+      end as status,
+      case
+        when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then s.title || ' transparent data encryption enabled.'
+          else s.title || ' transparent data encryption disabled.'
+      end as reason
+      
+      , s.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_sql_database as s,
+      azure_subscription as sub
+    where
+      sub.subscription_id = s.subscription_id
+      and s.name <> 'master';
+  PrimaryTable: azure_sql_database
+  ListOfTables:
+  - azure_sql_database
+  - azure_subscription
+  Parameters: []
+Severity: The text does not provide information about a specific Azure Control to determine its suggested severity.
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 4.1.2
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "4.1"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/SQL

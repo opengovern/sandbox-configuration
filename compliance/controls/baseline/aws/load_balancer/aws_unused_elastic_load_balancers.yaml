@@ -1,0 +1,42 @@
+ID: aws_unused_elastic_load_balancers
+Title: "Unused Elastic Load Balancers"
+Description: "Identify unused Elastic Load Balancers, and delete them to help lower the cost of your monthly AWS bill."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      arn as resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      case
+        when jsonb_array_length(instances) > 0 then 0
+        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancing::loadbalancer' and resource_id = lb.kaytu_resource_id)
+      end as cost_optimization,
+      case
+        when jsonb_array_length(instances) > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when jsonb_array_length(instances) > 0 then title || ' has registered instances.'
+        else title || ' has no instances registered.'
+      end as reason,
+      region,
+      account_id
+    from
+      aws_ec2_classic_load_balancer as lb
+  PrimaryTable: aws_ec2_classic_load_balancer
+  ListOfTables:
+  - aws_ec2_classic_load_balancer
+  Parameters: []
+Severity: low
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Elastic Load Balancing V2 (ELBv2)
+  platform_score_use_case:
+  - Orphaned Resources
+  score_service_name:
+  - AWS Elastic Load Balancing V2 (ELBv2)
+  score_tags:
+  - Orphaned Resources

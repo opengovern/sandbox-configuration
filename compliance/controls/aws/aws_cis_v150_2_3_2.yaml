@@ -1,0 +1,28 @@
+ID: aws_cis_v150_2_3_2
+Title: "2.3.2 Ensure Auto Minor Version Upgrade feature is Enabled for RDS Instances"
+Description: "Ensure that RDS database instances have the Auto Minor Version Upgrade flag enabled in order to receive automatically minor engine upgrades during the specified maintenance window. So, RDS instances can get the new features, bug fixes, and security patches for their database engines."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when auto_minor_version_upgrade then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when auto_minor_version_upgrade then title || ' automatic minor version upgrades enabled.'
+        else title || ' automatic minor version upgrades not enabled.'
+      end as reason
+    from
+      aws_rds_db_instance;
+  PrimaryTable: aws_rds_db_instance
+  ListOfTables:
+  - aws_rds_db_instance
+  Parameters: []
+Severity: low
+Tags: {}

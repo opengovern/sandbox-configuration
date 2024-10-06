@@ -1,0 +1,55 @@
+ID: azure_iam_user_no_built_in_contributor_role
+Title: "IAM users should not have built in contributor role"
+Description: "Ensure that IAM user does not have built in contributor role. This rule is non-compliant if IAM user have built in contributor role."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with all_contributor_permission_users as (
+      select
+        distinct
+        u.display_name,
+        d.role_name,
+        u.account_enabled,
+        u.user_principal_name,
+        d.subscription_id
+      from
+        azuread_user as u
+        left join azure_role_assignment as a on a.principal_id = u.id
+        left join azure_role_definition as d on d.id = a.role_definition_id
+      where
+        d.role_name = 'Contributor'
+    ), distinct_tenant as (
+      select
+        distinct tenant_id,
+        subscription_id,
+        _ctx
+      from
+        azure_tenant
+    )
+    select
+      u.user_principal_name as resource,
+      u.kaytu_account_id as kaytu_account_id,
+      u.kaytu_resource_id as kaytu_resource_id,
+      case
+        when c.user_principal_name is not null then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when c.user_principal_name is not null then u.display_name || ' has contributor role assigned.'
+        else u.display_name || ' does not have contributor role assigned.'
+      end as reason,
+      t.tenant_id
+    from
+      distinct_tenant as t,
+      azuread_user as u left join all_contributor_permission_users as c on c.user_principal_name = u.user_principal_name;
+  PrimaryTable: azuread_user
+  ListOfTables:
+  - azuread_user
+  - azure_role_assignment
+  - azure_role_definition
+  - azure_tenant
+  Parameters: []
+Severity: low
+Tags: {}

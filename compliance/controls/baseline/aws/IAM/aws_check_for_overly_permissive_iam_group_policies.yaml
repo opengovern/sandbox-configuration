@@ -1,0 +1,73 @@
+ID: aws_check_for_overly_permissive_iam_group_policies
+Title: "Check for Overly Permissive IAM Group Policies"
+Description: "Ensure that Amazon IAM policies attached to IAM groups aren't too permissive."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    WITH too_permissive_policies AS (
+      SELECT
+        arn
+      FROM
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE
+        action IN ('*', '*:*')
+        AND s ->> 'Effect' = 'Allow'
+    )
+    
+    SELECT
+      name AS resource,
+      kaytu_account_id,
+      kaytu_resource_id,
+      CASE
+        WHEN EXISTS(
+          select 1 from jsonb_array_elements_text(attached_policy_arns) as parn
+            LEFT JOIN too_permissive_policies AS tp ON parn = tp.arn where tp.arn is not null
+        ) THEN 'alarm'
+        WHEN EXISTS(
+          SELECT 1 
+          FROM jsonb_array_elements(inline_policies_std) AS p, jsonb_array_elements(p -> 'PolicyDocument' -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            action IN ('*', '*:*')
+            AND s ->> 'Effect' = 'Allow'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS(
+          select 1 from jsonb_array_elements_text(attached_policy_arns) as parn
+            LEFT JOIN too_permissive_policies AS tp ON parn = tp.arn where tp.arn is not null
+        ) THEN ' there is too permissive attached policy'
+        WHEN EXISTS(
+          SELECT 1 
+          FROM jsonb_array_elements(inline_policies_std) AS p, jsonb_array_elements(p -> 'PolicyDocument' -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            action IN ('*', '*:*')
+            AND s ->> 'Effect' = 'Allow'
+        ) THEN ' there is too permissive inline policy'
+        ELSE 'there is no too permissive policy'
+      END AS reason,
+      region, 
+      account_id
+    FROM
+      aws_iam_group AS g
+  PrimaryTable: aws_iam_group
+  ListOfTables:
+  - aws_iam_group
+  - aws_iam_policy
+  Parameters: []
+Severity: medium
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Identity and Access Management (IAM)
+  platform_score_use_case:
+  - Problem Identities
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

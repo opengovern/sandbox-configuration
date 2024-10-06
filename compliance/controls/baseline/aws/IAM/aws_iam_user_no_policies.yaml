@@ -1,0 +1,38 @@
+ID: aws_iam_user_no_policies
+Title: "Receive Permissions via IAM Groups Only"
+Description: "Ensure that IAM users receive permissions only through IAM groups."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      name as resource,
+      kaytu_resource_id,
+      kaytu_account_id,
+      CASE
+        WHEN attached_policy_arns is null and inline_policies is null THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN attached_policy_arns is null and inline_policies is null THEN name || ' does not receive access permissions through IAM groups only.' 
+        ELSE name || ' does receive access permissions through IAM groups only.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_iam_user
+  PrimaryTable: aws_iam_user
+  ListOfTables:
+  - aws_iam_user
+  Parameters: []
+Severity: high
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Identity and Access Management (IAM)
+  platform_score_use_case:
+  - Problem Identities
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

@@ -1,0 +1,47 @@
+ID: aws_mandatory_sql_elastic_beanstalk_environment_mandatory
+Title: "Elastic beanstalk environments should have mandatory tags"
+Description: "Check if Elastic beanstalk environments have mandatory tags."
+Connector:
+- aws
+Query:
+  Engine: steampipe-v0.5
+  QueryToExecute: |
+    with analysis as (
+      select
+        kaytu_account_id,
+        kaytu_resource_id,
+        arn,
+        title,
+        tags ?& '{{.awsMandatoryTags}}'::text[] as has_mandatory_tags,
+        to_jsonb('{{.awsMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
+        region,
+        account_id,
+        tags,
+        _ctx
+      from
+        aws_elastic_beanstalk_environment
+    )
+    select
+        kaytu_account_id,
+        kaytu_resource_id,
+        arn as resource,
+      case
+        when has_mandatory_tags then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when has_mandatory_tags then title || ' has all mandatory tags.'
+        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
+      end as reason
+      
+      , region, account_id
+    from
+      analysis;
+  PrimaryTable: aws_elastic_beanstalk_environment
+  ListOfTables:
+  - aws_elastic_beanstalk_environment
+  Parameters:
+  - key: awsMandatoryTags
+    required: true
+Severity: high
+Tags: {}

@@ -1,0 +1,23 @@
+ID: aws_cis_compute_service_v100_3_11
+Title: "3.11 Ensure your Windows Server based lightsail instances are updated with the latest security patches"
+Description: "Windows server based Lightsail instances are still managed by the consumer and any security updates or patches have to be installed and maintained by the user."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      'arn:' || partition || ':::' || account_id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason
+      
+    from
+      aws_account;
+  PrimaryTable: aws_account
+  ListOfTables:
+  - aws_account
+  Parameters: []
+Severity: low
+Tags: {}

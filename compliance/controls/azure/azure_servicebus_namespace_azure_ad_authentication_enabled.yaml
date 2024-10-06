@@ -1,0 +1,32 @@
+ID: azure_servicebus_namespace_azure_ad_authentication_enabled
+Title: "Service bus namespace should be configured with Azure Active Directory (Azure AD) authentication"
+Description: "This policy identifies Service bus namespaces that are not configured with Azure Active Directory (Azure AD) authentication and are enabled with local authentication. Azure AD provides superior security and ease of use over shared access signatures (SAS). With Azure AD, there's no need to store the tokens in your code and risk potential security vulnerabilities. It is recommended to configure the Service bus namespaces with Azure AD authentication so that all actions are strongly authenticated."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when status = 'Active'
+        and not disable_local_auth then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when status = 'Active'
+        and not disable_local_auth then a.name || ' namespace not configured with Azure AD authentication.'
+        else a.name || ' namespace configured with Azure AD authentication.'
+      end as reason
+    from
+      azure_servicebus_namespace a,
+      azure_subscription sub;
+  PrimaryTable: azure_servicebus_namespace
+  ListOfTables:
+  - azure_servicebus_namespace
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

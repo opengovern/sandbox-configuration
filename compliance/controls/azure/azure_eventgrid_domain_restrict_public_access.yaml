@@ -1,0 +1,30 @@
+ID: azure_eventgrid_domain_restrict_public_access
+Title: "Event Grid domains should restrict public network access"
+Description: "Ensure that Event Grid Domain public network access is disabled. This control is non-compliant if Event Grid domains have public network access enabled."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      a.id as resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when public_network_access = 'Enabled' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when public_network_access = 'Enabled' then a.name || ' publicly accessible.'
+        else a.name || ' not publicly accessible.'
+      end as reason
+    from
+      azure_eventgrid_domain a,
+      azure_subscription sub;
+  PrimaryTable: azure_eventgrid_domain
+  ListOfTables:
+  - azure_eventgrid_domain
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

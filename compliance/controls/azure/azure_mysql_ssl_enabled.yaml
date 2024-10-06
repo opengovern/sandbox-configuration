@@ -1,0 +1,53 @@
+ID: azure_mysql_ssl_enabled
+Title: "Enforce SSL connection should be enabled for MySQL database servers"
+Description: "Azure Database for MySQL supports connecting your Azure Database for MySQL server to client applications using Secure Sockets Layer (SSL). Enforcing SSL connections between your database server and your client applications helps protect against 'man in the middle' attacks by encrypting the data stream between the server and your application. This configuration enforces that SSL is always enabled for accessing your database server."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      s.id as resource,
+      s.kaytu_account_id as kaytu_account_id,
+      s.kaytu_resource_id as kaytu_resource_id,
+      case
+        when ssl_enforcement = 'Disabled' then 'alarm'
+        else 'ok'
+      end as status,
+      case
+        when ssl_enforcement = 'Disabled' then s.name || ' SSL connection disabled.'
+        else s.name || ' SSL connection enabled.'
+      end as reason
+      
+      , s.resource_group as resource_group
+      , sub.display_name as subscription
+    from
+      azure_mysql_server as s,
+      azure_subscription as sub
+    where
+      sub.subscription_id = s.subscription_id;
+  PrimaryTable: azure_mysql_server
+  ListOfTables:
+  - azure_mysql_server
+  - azure_subscription
+  Parameters: []
+Severity: medium
+Tags:
+  category:
+  - Compliance
+  cis:
+  - "true"
+  cis_item_id:
+  - 4.3.2
+  cis_level:
+  - "1"
+  cis_section_id:
+  - "4.3"
+  cis_type:
+  - automated
+  cis_version:
+  - v1.3.0
+  plugin:
+  - azure
+  service:
+  - Azure/MySQL

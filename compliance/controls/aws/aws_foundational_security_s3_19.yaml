@@ -1,0 +1,43 @@
+ID: aws_foundational_security_s3_19
+Title: "19 S3 access points should have block public access settings enabled"
+Description: "This control checks whether an Amazon S3 access point has block public access settings enabled. The control fails if block public access settings aren't enabled for the access point."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      access_point_arn as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      case
+        when block_public_acls
+          and block_public_policy
+          and ignore_public_acls
+          and restrict_public_buckets
+          then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when block_public_acls
+          and block_public_policy
+          and ignore_public_acls
+          and restrict_public_buckets
+          then name || ' all public access blocks enabled.'
+        else name || ' not enabled for: ' ||
+          concat_ws(', ',
+            case when not block_public_acls then 'block_public_acls' end,
+            case when not block_public_policy then 'block_public_policy' end,
+            case when not ignore_public_acls then 'ignore_public_acls' end,
+            case when not restrict_public_buckets then 'restrict_public_buckets' end
+          ) || '.'
+      end as reason
+    
+    from
+      aws_s3_access_point;
+  PrimaryTable: aws_s3_access_point
+  ListOfTables:
+  - aws_s3_access_point
+  Parameters: []
+Severity: critical
+Tags: {}

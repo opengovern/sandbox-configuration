@@ -1,0 +1,34 @@
+ID: aws_emr_cluster_local_disk_encryption_enabled
+Title: "EMR clusters local disk encryption should be enabled"
+Description: "This control checks whether EMR cluster have local disk encryption enabled. This control fails if an EMR cluster local disk isn't encrypted."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select
+      cluster_arn as resource,
+      case
+        when s.name is null then 'alarm'
+        when s.name is not null
+          and (encryption_configuration -> 'EnableAtRestEncryption')::bool
+          and (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') is not null then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when s.name is null then c.title || ' security configuration disabled.'
+        when s.name is not null
+          and (encryption_configuration -> 'EnableAtRestEncryption')::bool
+          and (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') is not null then c.title || ' local disk encryption enabled.'
+        else c.title || ' local disk encryption disabled.'
+      end as reason
+      
+      
+    from
+      aws_emr_cluster as c
+      left join aws_emr_security_configuration as s on c.security_configuration = s.name and s.region = s.region and s.account_id = c.account_id;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Severity: low
+Tags: {}

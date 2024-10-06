@@ -1,0 +1,40 @@
+ID: azure_cis_v140_2_14
+Title: "2.14 Ensure that 'Notify about alerts with the following severity' is set to 'High'"
+Description: "Enables emailing security alerts to the subscription owner or other designated security contact."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with contact_info as (
+      select
+        count(*) filter (where alert_notifications = 'On') as notification_alert_count,
+        subscription_id
+      from
+        azure_security_center_contact
+      group by
+        subscription_id
+      limit 1
+    )
+    select
+      sub.subscription_id as resource,
+      sub.kaytu_account_id as kaytu_account_id,
+      sub.kaytu_resource_id as kaytu_resource_id,
+      case
+        when notification_alert_count > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when notification_alert_count > 0 then '"Notify about alerts with the following severity" set to High.'
+        else '"Notify about alerts with the following severity" not set to High.'
+      end as reason
+    from
+      azure_subscription sub
+      left join contact_info ci on sub.subscription_id = ci.subscription_id;
+  PrimaryTable: azure_subscription
+  ListOfTables:
+  - azure_security_center_contact
+  - azure_subscription
+  Parameters: []
+Severity: low
+Tags: {}

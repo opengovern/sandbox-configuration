@@ -1,0 +1,41 @@
+ID: aws_foundational_security_dms_8
+Title: "8 DMS replication tasks for the source database should have logging enabled"
+Description: "This control checks whether logging is enabled with the minimum severity level of LOGGER_SEVERITY_DEFAULT for DMS replication tasks SOURCE_CAPTURE and SOURCE_UNLOAD. The control fails if logging isn't enabled for these tasks or if the minimum severity level is less than LOGGER_SEVERITY_DEFAULT."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with replication_task_logging as (
+      select
+        arn,
+        bool_or(o ->> 'Id' = 'SOURCE_CAPTURE' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as capture_logging_enabled,
+        bool_or(o ->> 'Id' = 'SOURCE_UNLOAD' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as unload_logging_enabled
+      from
+        aws_dms_replication_task,
+        jsonb_array_elements(replication_task_settings -> 'Logging' -> 'LogComponents') as o
+      group by
+        arn
+    )
+    select
+      t.arn as resource,
+      t.kaytu_account_id as kaytu_account_id,
+      t.kaytu_resource_id as kaytu_resource_id,
+      (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool as logging_enabled,
+      case
+        when (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool and l.capture_logging_enabled and l.unload_logging_enabled then 'ok'
+        else 'alarm'
+        end as status,
+      case
+        when (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool and l.capture_logging_enabled and l.unload_logging_enabled then title || ' source database logging enabled.'
+        else title || ' source database logging disabled.'
+        end as reason
+    from
+      aws_dms_replication_task as t
+      left join replication_task_logging as l on l.arn = t.arn;
+  PrimaryTable: aws_dms_replication_task
+  ListOfTables:
+  - aws_dms_replication_task
+  Parameters: []
+Severity: medium
+Tags: {}

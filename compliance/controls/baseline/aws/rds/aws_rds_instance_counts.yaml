@@ -1,0 +1,39 @@
+ID: aws_rds_instance_counts
+Title: "RDS Instance Counts"
+Description: "Ensure fewer Amazon RDS instances than the established limit in your AWS account."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    select 
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      count(*) RDS_Instances_Count,
+        case
+        when count(*) > 10 then 'alarm'
+        else 'ok'
+      end status,
+      case
+          when count(*) > 10 then 'The limit the number of RDS instances exceeded'
+          else 'The limit the number of RDS instances not exceeded'
+      end reason,
+        account_id
+    from 
+      aws_rds_db_instance 
+    group by 
+      kaytu_account_id, kaytu_resource_id, account_id;
+  PrimaryTable: aws_rds_db_instance
+  ListOfTables:
+  - aws_rds_db_instance
+  Parameters: []
+Severity: medium
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Relational Database Service (RDS)
+  platform_score_use_case:
+  - Problem Identities
+  score_service_name:
+  - AWS Relational Database Service (RDS)
+  score_tags:
+  - Problem Identities

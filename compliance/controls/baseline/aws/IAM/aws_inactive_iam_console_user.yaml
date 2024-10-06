@@ -1,0 +1,46 @@
+ID: aws_inactive_iam_console_user
+Title: "Inactive IAM Console User"
+Description: "Ensure no AWS IAM users have been inactive for a long (specified) period of time."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |
+    SELECT 
+      name as resource,
+      u.kaytu_resource_id,
+      u.kaytu_account_id,
+      CASE
+        WHEN (k.access_key_id is null and 
+          (password_last_used is null or
+          password_last_used::timestamp < now() - '90 days'::interval)
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (k.access_key_id is null and 
+          (password_last_used is null or
+          password_last_used::timestamp < now() - '90 days'::interval)
+        ) THEN 'certificate has been expired'
+        ELSE 'certificate is not expired'
+      END AS reason,
+      u.region,
+      u.account_id
+    FROM 
+      aws_iam_user AS u
+      LEFT JOIN aws_iam_access_key AS k ON u.name = k.user_name
+  PrimaryTable: aws_iam_user
+  ListOfTables:
+  - aws_iam_access_key
+  - aws_iam_user
+  Parameters: []
+Severity: medium
+Tags:
+  platform_score_cloud_service_name:
+  - AWS Identity and Access Management (IAM)
+  platform_score_use_case:
+  - Problem Identities
+  score_service_name:
+  - AWS Identity and Access Management (IAM)
+  score_tags:
+  - Problem Identities

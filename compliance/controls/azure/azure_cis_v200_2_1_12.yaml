@@ -1,0 +1,24 @@
+ID: azure_cis_v200_2_1_12
+Title: "2.1.12 Ensure That Microsoft Defender for Resource Manager Is Set To 'On'"
+Description: "Microsoft Defender for Resource Manager scans incoming administrative requests to change your infrastructure from both CLI and the Azure portal."
+Connector:
+- azure
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    select
+      id as resource,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
+      'info' as status,
+      'Manual verification required.' as reason,
+      display_name as subscription
+    from
+      azure_subscription;
+  PrimaryTable: ""
+  ListOfTables: []
+  Parameters: []
+Severity: low
+Tags:
+  manual-verification:
+  - "true"

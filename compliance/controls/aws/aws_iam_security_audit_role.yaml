@@ -1,0 +1,47 @@
+ID: aws_iam_security_audit_role
+Title: "IAM Security Audit role should be created to conduct security audits"
+Description: "Ensure IAM Security Audit role is created. By creating an IAM role with a security audit policy, a distinct segregation of responsibilities is established between the security team and other teams within the organization."
+Connector:
+- aws
+Query:
+  Engine: odysseus-v0.0.1
+  QueryToExecute: |-
+    with security_audit_role_count as(
+      select
+        'arn:' || a.partition || ':::' || a.account_id as resource,
+        count(policy_arn),
+        a.account_id,
+        a._ctx
+      from
+        aws_account as a
+        left join aws_iam_role as r on r.account_id = a.account_id
+        left join jsonb_array_elements_text(attached_policy_arns) as policy_arn on true
+      where
+        policy_arn = 'arn:aws:iam::aws:policy/SecurityAudit'
+      group by
+        a.account_id,
+        a.partition,
+        a._ctx
+    )
+    select
+      resource,
+      a.kaytu_account_id as kaytu_account_id,
+      a.kaytu_resource_id as kaytu_resource_id,
+      case
+        when count > 0 then 'ok'
+        else 'alarm'
+      end as status,
+      case
+        when count = 1 then 'SecurityAudit policy attached to 1 role.'
+        when count > 1 then 'SecurityAudit policy attached to ' || count || ' roles.'
+        else 'SecurityAudit policy not attached to any role.'
+      end as reason
+    from
+      security_audit_role_count;
+  PrimaryTable: aws_iam_role
+  ListOfTables:
+  - aws_account
+  - aws_iam_role
+  Parameters: []
+Severity: low
+Tags: {}
