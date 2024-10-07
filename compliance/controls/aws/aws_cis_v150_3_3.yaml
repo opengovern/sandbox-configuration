@@ -18,7 +18,9 @@ Query:
       t._ctx,
       count(acl_grant) filter (where acl_grant -> 'Grantee' ->> 'URI' like '%acs.amazonaws.com/groups/global/AllUsers') as all_user_grants,
       count(acl_grant) filter (where acl_grant -> 'Grantee' ->> 'URI' like '%acs.amazonaws.com/groups/global/AuthenticatedUsers') as auth_user_grants,
-      count(s) filter (where s ->> 'Effect' = 'Allow' and  p = '*' ) as anon_statements
+      count(s) filter (where s ->> 'Effect' = 'Allow' and  p = '*' ) as anon_statements,
+      t.kaytu_account_id as kaytu_account_id,
+      t.kaytu_resource_id as kaytu_resource_id
     from
       aws_cloudtrail_trail as t
     left join aws_s3_bucket as b on t.s3_bucket_name = b.name
@@ -31,15 +33,17 @@ Query:
       t.region,
       t.account_id,
       t.tags,
-      t._ctx
+      t._ctx,
+      t.kaytu_account_id,
+      t.kaytu_resource_id
     )
     select
       case
         when arn is null then 'arn:aws:s3::' || name
         else arn
       end as resource,
-      t.kaytu_account_id as kaytu_account_id,
-      t.kaytu_resource_id as kaytu_resource_id,
+      kaytu_account_id as kaytu_account_id,
+      kaytu_resource_id as kaytu_resource_id,
       case
         when arn is null then 'skip'
         when all_user_grants > 0 then 'alarm'
@@ -54,7 +58,7 @@ Query:
         when anon_statements > 0 then name || ' grants access to AWS:*" in bucket policy.'
         else name || ' does not grant anonymous access in ACL or bucket policy.'
       end as reason
-      
+    
     from
       public_bucket_data;
   PrimaryTable: aws_s3_bucket

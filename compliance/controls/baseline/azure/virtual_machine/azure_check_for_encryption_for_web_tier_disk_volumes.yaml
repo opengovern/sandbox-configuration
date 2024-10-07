@@ -25,7 +25,7 @@ Query:
       azure_subscription as sub
     where
       sub.subscription_id = vm.subscription_id and
-      tags::text like '%' || REPLACE(REPLACE((
+      vm.tags::text like '%' || REPLACE(REPLACE((
           SELECT jsonb_object_agg(key, value)::text
           FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
         ), '{', ''), '}', '') || '%'
