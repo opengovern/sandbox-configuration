@@ -6,6 +6,53 @@ Connector:
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |-
+    with iam_roles as (
+      select
+        r.arn as role_arn,
+        i.arn as intance_arn
+      from
+        aws_iam_role as r,
+        jsonb_array_elements_text(instance_profile_arns) as p
+        left join aws_ec2_instance as i on p = i.iam_instance_profile_arn
+      where
+        i.arn is not null
+      ),
+    iam_role_with_permission as (
+      select
+        arn
+      from
+        aws_iam_role,
+        jsonb_array_elements(assume_role_policy_std -> 'Statement') as s,
+        jsonb_array_elements_text(s -> 'Principal' -> 'Service') as service,
+        jsonb_array_elements_text(s -> 'Action') as action
+      where
+        arn in (
+          select
+            role_arn
+          from
+            iam_roles
+        )
+        and s ->> 'Effect' = 'Allow'
+        and service = 'ec2.amazonaws.com'
+        and action in (
+          'rds:createdbsecuritygroup',
+          'rds:deletedbsecuritygroup',
+          'rds:revokedbsecuritygroupingress',
+          'ec2:authorizesecuritygroupegress',
+          'ec2:authorizesecuritygroupingress',
+          'ec2:createsecuritygroup',
+          'ec2:deletesecuritygroup',
+          'ec2:modifysecuritygrouprules',
+          'ec2:revokesecuritygroupegress',
+          'ec2:revokesecuritygroupingress',
+          'elasticloadbalancing:applysecuritygroupsToLoadbalancer',
+          'elasticloadbalancing:setsecuritygroups',
+          'redshift:authorizeclustersecuritygroupingress',
+          'redshift:createclustersecuritygroup',
+          'redshift:deleteclustersecuritygroup',
+          '*:*'
+        )
+      )
     select
       i.arn as resource,
       i.kaytu_account_id as kaytu_account_id,
@@ -15,9 +62,10 @@ Query:
         else 'alarm'
       end status,
       case
-        when p.arn is null then title || ' has no IAM role with write permission on critical s3 configuration.'
-        else title || ' has IAM role with write permission on critical s3 configuration.'
-      end as reason
+        when p.arn is null then title || ' has no IAM role with security group write access.'
+        else title || ' has IAM role with security group write access.'
+      end as reason,
+      i.account_id
     from
       aws_ec2_instance as i
       left join iam_roles as r on r.intance_arn = i.arn

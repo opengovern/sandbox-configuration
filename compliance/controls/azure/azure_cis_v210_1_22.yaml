@@ -13,7 +13,9 @@ Query:
         title,
         action,
         _ctx,
-        subscription_id
+        subscription_id,
+        kaytu_account_id,
+        kaytu_resource_id
       from
         azure_role_definition,
         jsonb_array_elements(permissions) as s,
@@ -43,7 +45,9 @@ Query:
     group by
       cr.subscription_id,
       cr._ctx,
-      sub.display_name;
+      sub.display_name,
+      cr.kaytu_account_id,
+      cr.kaytu_resource_id;
   PrimaryTable: azure_role_definition
   ListOfTables:
   - azure_role_definition

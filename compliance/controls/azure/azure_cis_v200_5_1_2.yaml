@@ -18,7 +18,9 @@ Query:
         ) as valid_category_count,
         string_agg(l ->> 'category', ', ') filter (where l ->> 'enabled' = 'true'
           and l ->> 'category' in ('Administrative', 'Security', 'Alert', 'Policy')
-        ) as valid_categories
+        ) as valid_categories,
+        kaytu_account_id,
+        kaytu_resource_id
       from
         azure_diagnostic_setting,
         jsonb_array_elements(logs) as l
@@ -27,7 +29,9 @@ Query:
         id,
         _ctx,
         resource_group,
-        subscription_id
+        subscription_id,
+        kaytu_account_id,
+        kaytu_resource_id
     )
     select
       sett.id as resource,

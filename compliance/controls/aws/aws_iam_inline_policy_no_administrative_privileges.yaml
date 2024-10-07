@@ -14,7 +14,9 @@ Query:
         account_id,
         region,
         _ctx,
-        'iam_user' as type
+        'iam_user' as type,
+        kaytu_account_id,
+        kaytu_resource_id
       from
         aws_iam_user
       union
@@ -25,7 +27,9 @@ Query:
         account_id,
         region,
         _ctx,
-        'iam_role' as type
+        'iam_role' as type,
+        kaytu_account_id,
+        kaytu_resource_id
       from
         aws_iam_role
       union
@@ -36,7 +40,9 @@ Query:
         account_id,
         region,
         _ctx,
-        'iam_group' as type
+        'iam_group' as type,
+        kaytu_account_id,
+        kaytu_resource_id
       from
         aws_iam_group
     ),
@@ -71,7 +77,7 @@ Query:
       end status,
       p.name || ' contains ' || coalesce(bad.statements_num,0)  ||
         ' statements that allow action "*" on resource "*".' as reason
-      
+    
     from
       full_administrative_privilege_policies as p
       left join bad_policies as bad on p.arn = bad.arn;
