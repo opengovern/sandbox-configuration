@@ -4,7 +4,7 @@ Description: "Identify and remove old virtual machine disk snapshots in order to
 Connector:
 - azure
 Query:
-  Engine: CloudQL-v0.0.1
+  Engine: odysseus-v0.0.1
   QueryToExecute: |
     select
       s.name as resource,
@@ -20,7 +20,7 @@ Query:
         else s.name || ' snapshot is not old'
       end as reason,
       case
-        when now() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = s.kaytu_resource_id)
+        when now() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = s.kaytu_resource_id limit 1)
         else 0
       end as cost_optimization,
       s.resource_group,

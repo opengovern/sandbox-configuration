@@ -29,7 +29,7 @@ Query:
         when is_aws_backup_managed then 0
         when ami.root_device_type <> 'ebs' then 0
         when i.arn is null then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' 
-             AND es.resource_id = s.arn))
+             AND es.resource_id = s.arn limit 1))
              FROM jsonb_array_elements(ami.block_device_mappings) AS bdm
              LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')
         else 0

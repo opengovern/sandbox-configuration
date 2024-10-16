@@ -4,7 +4,7 @@ Description: "Identify and remove unused load balancers from your Microsoft Azur
 Connector:
 - azure
 Query:
-  Engine: CloudQL-v0.0.1
+  Engine: odysseus-v0.0.1
   QueryToExecute: |
     select
       lb.name as resource,
@@ -29,7 +29,7 @@ Query:
           SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
           WHERE p -> 'properties' ->> 'backendIPConfigurations' is not null
         ) then 0
-        else (SELECT COALESCE(cost, 0) from pennywise_cost_estimate where resource_type = 'microsoft.network/loadbalancers' AND resource_id = lb.kaytu_resource_id)
+        else (SELECT COALESCE(cost, 0) from pennywise_cost_estimate where resource_type = 'microsoft.network/loadbalancers' AND resource_id = lb.kaytu_resource_id limit 1)
       end as cost_optimization,
       lb.resource_group as resource_group,
       sub.display_name as subscription
