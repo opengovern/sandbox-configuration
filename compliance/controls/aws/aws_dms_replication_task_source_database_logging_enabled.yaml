@@ -9,13 +9,17 @@ Query:
     with replication_task_logging as (
       select
         arn,
+        kaytu_account_id,
+        kaytu_resource_id,
         bool_or(o ->> 'Id' = 'SOURCE_CAPTURE' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as capture_logging_enabled,
         bool_or(o ->> 'Id' = 'SOURCE_UNLOAD' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as unload_logging_enabled
       from
         aws_dms_replication_task,
         jsonb_array_elements(replication_task_settings -> 'Logging' -> 'LogComponents') as o
       group by
-        arn
+        arn,
+        kaytu_account_id,
+        kaytu_resource_id
     )
     select
       t.arn as resource,
