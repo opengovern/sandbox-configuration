@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       vm.id as resource,
-      vm.kaytu_account_id,
-      vm.kaytu_resource_id,
+      vm.og_account_id,
+      vm.og_resource_id,
       case
-        when (vm.kaytu_description -> 'VirtualMachine' ->> 'Identity') is null then 'alarm'
+        when (vm.og_description -> 'VirtualMachine' ->> 'Identity') is null then 'alarm'
         else 'ok'
       end as status,
       case
-        when (vm.kaytu_description -> 'VirtualMachine' ->> 'Identity') is null then 'system-assigned managed identity is not enabled'
+        when (vm.og_description -> 'VirtualMachine' ->> 'Identity') is null then 'system-assigned managed identity is not enabled'
         else 'system-assigned managed identity is enabled'
       end as reason,
       vm.resource_group,

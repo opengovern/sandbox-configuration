@@ -44,9 +44,9 @@ Query:
     )
     select
       i.arn as resource,
-      i.kaytu_account_id as kaytu_account_id,
-      i.kaytu_resource_id as kaytu_resource_id,
-      'aws_iam_user' as kaytu_table_name,
+      i.og_account_id as og_account_id,
+      i.og_resource_id as og_resource_id,
+      'aws_iam_user' as og_table_name,
       case
         when d.arn is null then 'ok'
         else 'alarm'
@@ -63,9 +63,9 @@ Query:
     union
     select
       r.arn as resource,
-      r.kaytu_account_id as kaytu_account_id,
-      r.kaytu_resource_id as kaytu_resource_id,
-      'aws_iam_role' as kaytu_table_name,
+      r.og_account_id as og_account_id,
+      r.og_resource_id as og_resource_id,
+      'aws_iam_role' as og_table_name,
       case
         when d.arn is null then 'ok'
         else 'alarm'
@@ -84,9 +84,9 @@ Query:
     union
     select
       g.arn as resource,
-      g.kaytu_account_id as kaytu_account_id,
-      g.kaytu_resource_id as kaytu_resource_id,
-      'aws_iam_group' as kaytu_table_name,
+      g.og_account_id as og_account_id,
+      g.og_resource_id as og_resource_id,
+      'aws_iam_group' as og_table_name,
       case
         when d.arn is null then 'ok'
         else 'alarm'

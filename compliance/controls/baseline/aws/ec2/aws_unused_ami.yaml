@@ -7,12 +7,12 @@ Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
     with dlm_managed as (
-      select kaytu_resource_id from aws_ec2_ami CROSS JOIN jsonb_each(tags) where (key like 'aws:dlm%' or key = 'dlm:managed') limit 1
+      select og_resource_id from aws_ec2_ami CROSS JOIN jsonb_each(tags) where (key like 'aws:dlm%' or key = 'dlm:managed') limit 1
     )
     select
       ami.name as resource,
-      ami.kaytu_resource_id,
-      ami.kaytu_account_id,
+      ami.og_resource_id,
+      ami.og_account_id,
       case
         when is_aws_backup_managed then 'skip'
         when ami.root_device_type <> 'ebs' then 'skip'
@@ -40,7 +40,7 @@ Query:
       aws_ec2_ami AS ami
       LEFT JOIN aws_ec2_instance AS i ON ami.image_id = i.image_id
     where 
-      not(exists(select * from dlm_managed dl where dl.kaytu_resource_id = ami.kaytu_resource_id)) 
+      not(exists(select * from dlm_managed dl where dl.og_resource_id = ami.og_resource_id)) 
   PrimaryTable: aws_ec2_ami
   ListOfTables:
   - aws_backup_managed

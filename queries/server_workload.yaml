@@ -17,12 +17,12 @@ Query:
       jsonb_path_query(r.description, '$.Instance.PlatformDetails') as platform,
       jsonb_path_query(r.description, '$.InstanceStatus.InstanceState.Name') as state,
       jsonb_path_query(r.description, '$.Instance.Tags') as _tags,
-      r.connection_id as _kaytu_connection_id,
+      r.connection_id as _og_connection_id,
       r.resource_id as _resource_id,
       r.resource_type as _resource_type,
       r.created_at as _last_discovered
     from 
-      kaytu_resources r
+      og_resources r
     where 
       resource_type = 'aws::ec2::instance') 
     
@@ -37,16 +37,16 @@ Query:
       jsonb_path_query(r.description, '$.VirtualMachineInstanceView.OSName') as platform,
       jsonb_path_query(r.description, '$.VirtualMachineInstanceView.Statuses') as state,
       jsonb_path_query(r.description, '$.VirtualMachine.Tags') as _tags,
-      r.connection_id as _kaytu_connection_id,
+      r.connection_id as _og_connection_id,
       r.resource_id as _resource_id,
       r.resource_type as _resource_type,
       r.created_at as _last_discovered
     from 
-      kaytu_resources r 
+      og_resources r 
     where 
       resource_type = 'microsoft.compute/virtualmachines')
     
-    ) as t inner join kaytu_connections c on t._kaytu_connection_id = c.kaytu_id 
+    ) as t inner join og_connections c on t._og_connection_id = c.og_id 
   PrimaryTable: null
   ListOfTables: []
   Parameters: []

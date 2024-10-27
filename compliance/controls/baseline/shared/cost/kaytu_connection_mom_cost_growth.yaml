@@ -1,4 +1,4 @@
-ID: kaytu_connection_mom_cost_growth
+ID: og_connection_mom_cost_growth
 Title: "MoM growth for a connection that has a cost more than a certain amount cannot grow more than a certain percentage"
 Description: "MoM growth for a connection that has a cost more than a certain amount cannot grow more than a certain percentage"
 Connector:
@@ -9,13 +9,13 @@ Query:
   QueryToExecute: |
     with last30 as (
       SELECT connection_id, SUM(cost_value) as cost_value
-      FROM kaytu_cost
+      FROM og_cost
       WHERE period_start::timestamp >= NOW() - interval '31 days' and period_end::timestamp <= NOW()
       GROUP BY connection_id
     ),
     last60to30 as (
       SELECT connection_id, SUM(cost_value) as cost_value
-      FROM kaytu_cost
+      FROM og_cost
       WHERE period_start::timestamp >= NOW() - interval '62 days' and period_end::timestamp <= NOW() - interval '31 days'
       GROUP BY connection_id
     ),
@@ -33,17 +33,17 @@ Query:
         when az.subscription_id IS NOT NULL then az.subscription_id
       end as resource,
       case
-        when aw.kaytu_account_id IS NOT NULL then aw.kaytu_account_id
-        when az.kaytu_account_id IS NOT NULL then az.kaytu_account_id
-      end as kaytu_account_id,
+        when aw.og_account_id IS NOT NULL then aw.og_account_id
+        when az.og_account_id IS NOT NULL then az.og_account_id
+      end as og_account_id,
       case
-        when aw.kaytu_resource_id IS NOT NULL then aw.kaytu_resource_id
-        when az.kaytu_resource_id IS NOT NULL then az.kaytu_resource_id
-      end as kaytu_resource_id,
+        when aw.og_resource_id IS NOT NULL then aw.og_resource_id
+        when az.og_resource_id IS NOT NULL then az.og_resource_id
+      end as og_resource_id,
       case
         when aw.account_id IS NOT NULL then 'aws_account'
         when az.subscription_id IS NOT NULL then 'azure_subscription'
-      end as kaytu_table_name, 
+      end as og_table_name, 
       case 
       when (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuConnectionMoMCostGrowthAllowedGrowth}} then 'alarm'
       else 'ok'
@@ -54,8 +54,8 @@ Query:
       else 'Connection did not have more than allowed growth'
       end as reason
     FROM last_valid_60 as l 
-      left join aws_account as aw on aw.kaytu_account_id = l.connection_id
-      left join azure_subscription as az on az.kaytu_account_id = l.connection_id
+      left join aws_account as aw on aw.og_account_id = l.connection_id
+      left join azure_subscription as az on az.og_account_id = l.connection_id
   PrimaryTable: ""
   ListOfTables:
   - aws_account

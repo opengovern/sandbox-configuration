@@ -14,8 +14,8 @@ Query:
         u.account_enabled,
         u.user_principal_name,
         d.subscription_id,
-        u.kaytu_account_id as kaytu_account_id,
-        u.kaytu_resource_id as kaytu_resource_id
+        u.og_account_id as og_account_id,
+        u.og_resource_id as og_resource_id
       from
         azuread_user as u
         left join azure_role_assignment as a on a.principal_id = u.id
@@ -25,8 +25,8 @@ Query:
     )
     select
       a.user_principal_name as resource,
-      a.kaytu_account_id as kaytu_account_id,
-      a.kaytu_resource_id as kaytu_resource_id,
+      a.og_account_id as og_account_id,
+      a.og_resource_id as og_resource_id,
       case
         when a.user_principal_name like '%EXT%' then 'alarm'
         else 'ok'

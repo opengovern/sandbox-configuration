@@ -8,9 +8,9 @@ Query:
   QueryToExecute: |
     SELECT
       name AS resource,
-      kaytu_account_id,
-      kaytu_resource_id,
-     'aws_iam_user' as kaytu_table_name,
+      og_account_id,
+      og_resource_id,
+     'aws_iam_user' as og_table_name,
       CASE
         WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
         ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
@@ -40,9 +40,9 @@ Query:
     
     SELECT
       name AS resource,
-      kaytu_account_id,
-      kaytu_resource_id,
-      'aws_iam_role' as kaytu_table_name,
+      og_account_id,
+      og_resource_id,
+      'aws_iam_role' as og_table_name,
       CASE
         WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
         ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
@@ -72,9 +72,9 @@ Query:
     
     SELECT
       name AS resource,
-      kaytu_account_id,
-      kaytu_resource_id,
-      'aws_iam_group' as kaytu_table_name,
+      og_account_id,
+      og_resource_id,
+      'aws_iam_group' as og_table_name,
       CASE
         WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
         ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'

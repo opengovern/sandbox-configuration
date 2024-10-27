@@ -21,8 +21,8 @@ Query:
     )
     select
       sub.id as resource,
-      sub.kaytu_account_id as kaytu_account_id,
-      sub.kaytu_resource_id as kaytu_resource_id,
+      sub.og_account_id as og_account_id,
+      sub.og_resource_id as og_resource_id,
       case
         when count(value = 'Disabled') > 0 then 'alarm'
         else 'ok'
@@ -38,8 +38,8 @@ Query:
       right join azure_subscription sub on pol_assignment.subscription_id = sub.subscription_id
     group by
       sub.id,
-      sub.kaytu_account_id,
-      sub.kaytu_resource_id,
+      sub.og_account_id,
+      sub.og_resource_id,
       pol_assignment.id,
       sub._ctx,
       sub.subscription_id,

@@ -17,8 +17,8 @@ Query:
     )
     select
       a.arn as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
+      og_resource_id,
+      og_account_id,
       case
         when b.load_balancer_arn is null then 'alarm'
         else 'ok'
@@ -28,7 +28,7 @@ Query:
         else a.title || ' has registered target of type ' || b.target_type || '.'
       end as reason,
       case
-        when b.load_balancer_arn is null then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancingv2::loadbalancer' and resource_id = a.kaytu_resource_id limit 1)
+        when b.load_balancer_arn is null then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancingv2::loadbalancer' and resource_id = a.og_resource_id limit 1)
         else 0
       end as cost_optimization,
       a.region,

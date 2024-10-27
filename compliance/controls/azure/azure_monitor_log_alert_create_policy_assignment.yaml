@@ -10,8 +10,8 @@ Query:
       select
         alert.id as alert_id,
         alert.name as alert_name,
-        alert.kaytu_account_id as kaytu_account_id,
-        alert.kaytu_resource_id as kaytu_resource_id,
+        alert.og_account_id as og_account_id,
+        alert.og_resource_id as og_resource_id,
         alert.enabled,
         alert.location,
         alert.subscription_id
@@ -29,8 +29,8 @@ Query:
     )
     select
       sub.subscription_id as resource,
-      sub.kaytu_account_id as kaytu_account_id,
-      sub.kaytu_resource_id as kaytu_resource_id,
+      sub.og_account_id as og_account_id,
+      sub.og_resource_id as og_resource_id,
       case
         when count(a.subscription_id) > 0 then 'ok'
         else 'alarm'
@@ -46,8 +46,8 @@ Query:
       left join alert_rule a on sub.subscription_id = a.subscription_id
     group by
       sub.subscription_id,
-      sub.kaytu_account_id,
-      sub.kaytu_resource_id,
+      sub.og_account_id,
+      sub.og_resource_id,
       sub._ctx,
       sub.display_name;
   PrimaryTable: azure_log_alert

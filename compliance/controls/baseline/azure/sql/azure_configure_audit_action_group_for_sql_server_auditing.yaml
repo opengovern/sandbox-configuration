@@ -8,8 +8,8 @@ Query:
   QueryToExecute: |
     select
       name as resource,
-      s.kaytu_resource_id,
-      s.kaytu_account_id,
+      s.og_resource_id,
+      s.og_account_id,
       case
         when (select ARRAY_AGG(g) from jsonb_array_elements_text(ap -> 'properties' -> 'auditActionsAndGroups') as g) @> ARRAY['SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP','FAILED_DATABASE_AUTHENTICATION_GROUP','BATCH_COMPLETED_GROUP'] then 'ok'
         else 'alarm'

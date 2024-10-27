@@ -13,8 +13,8 @@ Query:
         title,
         region,
         account_id,
-        kaytu_account_id as kaytu_account_id,
-        kaytu_resource_id as kaytu_resource_id,
+        og_account_id as og_account_id,
+        og_resource_id as og_resource_id,
         _ctx
       from
         aws_backup_plan,
@@ -25,8 +25,8 @@ Query:
       -- Backup plans are composed of one or more backup rules.
       -- https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html
       r.arn as resource,
-      r.kaytu_account_id as kaytu_account_id,
-      r.kaytu_resource_id as kaytu_resource_id,
+      r.og_account_id as og_account_id,
+      r.og_resource_id as og_resource_id,
       case
         when r.Rules is null then 'alarm'
         when r.Rules ->> 'Lifecycle' is null then 'ok'

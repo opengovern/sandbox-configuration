@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       vm.id as resource,
-      vm.kaytu_account_id,
-      vm.kaytu_resource_id,
+      vm.og_account_id,
+      vm.og_resource_id,
       case
-        when COALESCE((vm.kaytu_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) + COALESCE((vm.kaytu_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 then 'alarm'
+        when COALESCE((vm.og_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) + COALESCE((vm.og_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 then 'alarm'
         else 'ok'
       end as status,
       case
-        when COALESCE((vm.kaytu_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) + COALESCE((vm.kaytu_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 then 'There are pending updates in this virtual machine'
+        when COALESCE((vm.og_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) + COALESCE((vm.og_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 then 'There are pending updates in this virtual machine'
         else 'There is no pending updates in this virtual machine'
       end as reason,
       vm.resource_group,

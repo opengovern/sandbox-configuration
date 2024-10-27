@@ -8,13 +8,13 @@ Query:
   QueryToExecute: |
     select
       account_id as resource,
-      kaytu_account_id,
-      kaytu_resource_id,
+      og_account_id,
+      og_resource_id,
       case
         when exists(
           select 1
           from aws_cloudtrail_trail as ct
-          where ct.kaytu_account_id = a.kaytu_account_id and ct.is_logging = 'true'
+          where ct.og_account_id = a.og_account_id and ct.is_logging = 'true'
         ) then 'ok'
         else 'alarm'
       end as status,
@@ -22,7 +22,7 @@ Query:
         when exists(
           select 1
           from aws_cloudtrail_trail as ct
-          where ct.kaytu_account_id = a.kaytu_account_id and ct.is_logging = 'true'
+          where ct.og_account_id = a.og_account_id and ct.is_logging = 'true'
         ) then 'There are active trails'
         else 'There are no active trails'
       end as reason,

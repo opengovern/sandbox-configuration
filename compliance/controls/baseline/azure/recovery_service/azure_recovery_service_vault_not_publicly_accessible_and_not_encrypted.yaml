@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       v.id as resource,
-      v.kaytu_resource_id,
-      v.kaytu_account_id,
+      v.og_resource_id,
+      v.og_account_id,
       case
-        when v.kaytu_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.kaytu_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then 'alarm'
+        when v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then 'alarm'
         else 'ok'
       end as status,
       case
-        when v.kaytu_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.kaytu_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then v.name || ' is not encrypted and publicly accessible.'
+        when v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then v.name || ' is not encrypted and publicly accessible.'
         else v.name || ' is not publicly accessible.'
       end as reason,
       v.resource_group as resource_group,

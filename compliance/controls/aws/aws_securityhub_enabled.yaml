@@ -9,8 +9,8 @@ Query:
     with regions as (
       select
           'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,
-          r.kaytu_account_id as kaytu_account_id,
-          r.kaytu_resource_id as kaytu_resource_id,
+          r.og_account_id as og_account_id,
+          r.og_resource_id as og_resource_id,
           case
             when r.region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) then 1
             when r.opt_in_status = 'not-opted-in' then 1
@@ -31,8 +31,8 @@ Query:
     results as (
       SELECT 
         account_id AS resource,
-        kaytu_account_id as kaytu_account_id,
-        kaytu_account_id as kaytu_resource_id,
+        og_account_id as og_account_id,
+        og_account_id as og_resource_id,
         case
           when max(status) = 2 then 'alarm'
           when max(status) = 1 then 'skip'
@@ -44,15 +44,15 @@ Query:
           when max(status) = 0 then 'SecurityHub is enabled for this account on regions: [' || string_agg(region, ',') || ']'
           end as reason
       FROM regions
-      GROUP BY account_id, kaytu_account_id
+      GROUP BY account_id, og_account_id
     )
     SELECT 
       r.resource AS resource,
-      r.kaytu_account_id as kaytu_account_id,
-      a.kaytu_resource_id as kaytu_resource_id,
+      r.og_account_id as og_account_id,
+      a.og_resource_id as og_resource_id,
       r.status as status,
       r.reason as reason
-    FROM results as r JOIN aws_account as a ON r.kaytu_account_id = a.kaytu_account_id
+    FROM results as r JOIN aws_account as a ON r.og_account_id = a.og_account_id
   PrimaryTable: aws_account
   ListOfTables:
   - aws_account

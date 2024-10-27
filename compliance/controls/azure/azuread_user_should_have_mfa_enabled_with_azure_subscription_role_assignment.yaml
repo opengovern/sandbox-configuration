@@ -8,8 +8,8 @@ Query:
   QueryToExecute: |
     with users_with_roles as (
       SELECT distinct u.id as id, 
-        u.kaytu_account_id as kaytu_account_id, 
-        u.kaytu_resource_id as kaytu_resource_id, 
+        u.og_account_id as og_account_id, 
+        u.og_resource_id as og_resource_id, 
         u.display_name as display_name, 
         u.subscription_id as subscription_id,
         u.account_enabled as account_enabled,
@@ -18,8 +18,8 @@ Query:
     )
     select 
       u.id as resource, 
-      u.kaytu_account_id as kaytu_account_id,
-      u.kaytu_resource_id as kaytu_resource_id,
+      u.og_account_id as og_account_id,
+      u.og_resource_id as og_resource_id,
       case
         when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'skip'
         when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then 'alarm'

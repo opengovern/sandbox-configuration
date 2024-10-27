@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       v.id as resource,
-      v.kaytu_resource_id,
-      v.kaytu_account_id,
+      v.og_resource_id,
+      v.og_account_id,
       case
-        when v.kaytu_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then 'ok'
+        when v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then 'ok'
         else 'alarm'
       end as status,
       case
-        when v.kaytu_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then v.name || ' alert for job failiures is enabled.'
+        when v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then v.name || ' alert for job failiures is enabled.'
         else v.name || ' alert for job failiures is not enabled.'
       end as reason,
       v.resource_group as resource_group,

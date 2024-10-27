@@ -8,10 +8,10 @@ Query:
   QueryToExecute: |
     select
       name as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
+      og_resource_id,
+      og_account_id,
       case
-        when item_count::int = 0 then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::dynamodb::table' and resource_id = t.kaytu_resource_id limit 1)
+        when item_count::int = 0 then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::dynamodb::table' and resource_id = t.og_resource_id limit 1)
         else 0
       end as cost_optimization,
       case

@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       vm.id as resource,
-      vm.kaytu_account_id,
-      vm.kaytu_resource_id,
+      vm.og_account_id,
+      vm.og_resource_id,
       case
-        when vm.kaytu_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'ImageReference' ->> 'ID' is null then 'alarm'
+        when vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'ImageReference' ->> 'ID' is null then 'alarm'
         else 'ok'
       end as status,
       case
-        when vm.kaytu_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'ImageReference' ->> 'ID' is null then 'Virtual Machine instance was launched without using an approved Azure machine image'
+        when vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'ImageReference' ->> 'ID' is null then 'Virtual Machine instance was launched without using an approved Azure machine image'
         else 'Virtual Machine instance was launched using an approved Azure machine image'
       end as reason,
       vm.resource_group,
