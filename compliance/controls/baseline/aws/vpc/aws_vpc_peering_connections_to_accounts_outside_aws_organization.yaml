@@ -8,7 +8,7 @@ Query:
   QueryToExecute: |
     WITH account_org AS (
       SELECT 
-        kaytu_account_id,
+        og_account_id,
         organization_id
       FROM
         aws_account
@@ -18,13 +18,13 @@ Query:
         ao.organization_id as org
       FROM
         aws_vpc AS vpc
-        LEFT JOIN account_org AS ao ON ao.kaytu_account_id = vpc.kaytu_account_id
+        LEFT JOIN account_org AS ao ON ao.og_account_id = vpc.og_account_id
     )
     
     SELECT 
       c.id as resource,
-      kaytu_resource_id,
-      kaytu_account_id,
+      og_resource_id,
+      og_account_id,
       CASE
         WHEN accepter_org.org = requester_org.org THEN 'ok'
         ELSE 'alarm'

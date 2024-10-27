@@ -12,8 +12,8 @@ Query:
         role_type,
         title,
         action,
-        kaytu_account_id as kaytu_account_id,
-        kaytu_resource_id as kaytu_resource_id,
+        og_account_id as og_account_id,
+        og_resource_id as og_resource_id,
         _ctx,
         subscription_id
       from
@@ -26,8 +26,8 @@ Query:
     )
     select
       cr.subscription_id as resource,
-      cr.kaytu_account_id as kaytu_account_id,
-      cr.kaytu_resource_id as kaytu_resource_id,
+      cr.og_account_id as og_account_id,
+      cr.og_resource_id as og_resource_id,
       case
         when count(*) > 0 then 'alarm'
         else 'ok'
@@ -46,8 +46,8 @@ Query:
       sub.subscription_id = cr.subscription_id
     group by
       cr.subscription_id,
-      cr.kaytu_account_id,
-      cr.kaytu_resource_id,
+      cr.og_account_id,
+      cr.og_resource_id,
       cr._ctx,
       sub.display_name;
   PrimaryTable: azure_subscription

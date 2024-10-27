@@ -8,8 +8,8 @@ Query:
   QueryToExecute: |
     select
       r.arn as resource,
-      r.kaytu_account_id,
-      r.kaytu_resource_id,
+      r.og_account_id,
+      r.og_resource_id,
       case
         when (s -> 'Principal' ->>'AWS') is null or not((s -> 'Principal' ->>'AWS') ~ '^arn:aws:iam::[0-9]+:root$') then 'pass'
         when ((s ->> 'Condition') LIKE '%aws:MultiFactorAuthPresent%') or ((s ->> 'Condition') LIKE '%sts:ExternalId%') then 'ok'

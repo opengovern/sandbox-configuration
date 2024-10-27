@@ -23,8 +23,8 @@ Query:
     )
     select
       r.arn as resource,
-      r.kaytu_account_id as kaytu_account_id,
-      r.kaytu_resource_id as kaytu_resource_id,
+      r.og_account_id as og_account_id,
+      r.og_resource_id as og_resource_id,
       case
         when o.arn is not null then 'alarm'
         else 'ok'
@@ -37,7 +37,7 @@ Query:
       aws_ecr_repository as r
       left join open_access_ecr_repo as o on r.arn = o.arn
     group by
-      resource, status, reason, r.region, r.account_id, r.tags, r._ctx, r.kaytu_account_id, r.kaytu_resource_id;
+      resource, status, reason, r.region, r.account_id, r.tags, r._ctx, r.og_account_id, r.og_resource_id;
   PrimaryTable: aws_ecr_repository
   ListOfTables:
   - aws_ecr_repository

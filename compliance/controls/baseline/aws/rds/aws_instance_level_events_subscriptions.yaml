@@ -7,8 +7,8 @@ Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
     select distinct
-      a.kaytu_account_id,
-      a.kaytu_resource_id,
+      a.og_account_id,
+      a.og_resource_id,
       case
         when s.arn
         is null then 'alarm'
@@ -25,8 +25,8 @@ Query:
     from 
       aws_account a
       left join (select * from
-        aws_rds_db_event_subscription where source_type = 'db-instance') s on s.kaytu_account_id
-        = a.kaytu_account_id
+        aws_rds_db_event_subscription where source_type = 'db-instance') s on s.og_account_id
+        = a.og_account_id
   PrimaryTable: aws_account
   ListOfTables:
   - aws_account

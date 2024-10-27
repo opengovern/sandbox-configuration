@@ -8,11 +8,11 @@ Query:
   QueryToExecute: |
     select
       v.volume_id as resource,
-      v.kaytu_resource_id,
-      v.kaytu_account_id,
+      v.og_resource_id,
+      v.og_account_id,
       case
         when i.instance_state = 'running' then 0
-        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.kaytu_resource_id limit 1)
+        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.og_resource_id limit 1)
       end as cost_optimization,
       case
         when i.instance_state = 'running' then 'ok'

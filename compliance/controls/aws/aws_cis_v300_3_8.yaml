@@ -12,8 +12,8 @@ Query:
         name as trail_name,
         is_multi_region_trail,
         bucket_selector,
-        kaytu_account_id,
-        kaytu_resource_id
+        og_account_id,
+        og_resource_id
       from
         aws_cloudtrail_trail,
         jsonb_array_elements(event_selectors) as event_selector,
@@ -30,8 +30,8 @@ Query:
     )
     select
       b.arn as resource,
-      b.kaytu_account_id as kaytu_account_id,
-      b.kaytu_resource_id as kaytu_resource_id,
+      b.og_account_id as og_account_id,
+      b.og_resource_id as og_resource_id,
       case
         when count(bucket_selector) > 0 then 'ok'
         else 'alarm'
@@ -49,7 +49,7 @@ Query:
         on bucket_selector like (b.arn || '%')
         or bucket_selector = 'arn:aws:s3'
     group by
-      b.account_id, b.kaytu_account_id, b.kaytu_resource_id, b.region, b.arn, b.name, b.tags, b._ctx;
+      b.account_id, b.og_account_id, b.og_resource_id, b.region, b.arn, b.name, b.tags, b._ctx;
   PrimaryTable: aws_s3_bucket
   ListOfTables:
   - aws_cloudtrail_trail

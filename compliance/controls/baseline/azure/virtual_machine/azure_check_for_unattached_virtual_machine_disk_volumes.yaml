@@ -8,8 +8,8 @@ Query:
   QueryToExecute: |
     select
       disk.id as resource,
-      disk.kaytu_account_id,
-      disk.kaytu_resource_id,
+      disk.og_account_id,
+      disk.og_resource_id,
       case
         when disk.disk_state = 'Unattached' then 'alarm'
         else 'ok'
@@ -19,7 +19,7 @@ Query:
         else disk.title || ' has attachments.'
       end as reason,
       case
-        when disk.disk_state = 'Unattached' then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/disks' and resource_id = disk.kaytu_resource_id limit 1)
+        when disk.disk_state = 'Unattached' then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/disks' and resource_id = disk.og_resource_id limit 1)
         else 0
       end as cost_optimization,
       disk.resource_group,

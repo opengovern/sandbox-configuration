@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       a.arn as resource,
-      a.kaytu_account_id,
-      a.kaytu_resource_id,
+      a.og_account_id,
+      a.og_resource_id,
       case
-        when kaytu_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' then 'ok'
+        when og_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' then 'ok'
         else 'alarm'
       end as status,
       case
-        when kaytu_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' then a.title || ' Cross-Zone Load Balancing feature is enabled'
+        when og_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' then a.title || ' Cross-Zone Load Balancing feature is enabled'
         else a.title || ' Cross-Zone Load Balancing feature is not enabled'
       end as reason,
       a.region,

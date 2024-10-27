@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       vm.id as resource,
-      vm.kaytu_account_id,
-      vm.kaytu_resource_id,
+      vm.og_account_id,
+      vm.og_resource_id,
       case
-        when vm.kaytu_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' then 'ok'
+        when vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' then 'ok'
         else 'alarm'
       end as status,
       case
-        when vm.kaytu_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' then 'Automatic repairs feature is enabled'
+        when vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' then 'Automatic repairs feature is enabled'
         else 'Automatic repairs feature is not currently enabled'
       end as reason,
       vm.resource_group,

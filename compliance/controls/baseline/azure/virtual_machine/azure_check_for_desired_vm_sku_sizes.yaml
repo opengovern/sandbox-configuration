@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       vm.id as resource,
-      vm.kaytu_account_id,
-      vm.kaytu_resource_id,
+      vm.og_account_id,
+      vm.og_resource_id,
       case
-        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.kaytu_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'alarm'
+        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'alarm'
         else 'ok'
       end as status,
       case
-        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.kaytu_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'the virtual machine vm size is not allowed by your organization'
+        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'the virtual machine vm size is not allowed by your organization'
         else 'the virtual machine vm size is allowed by your organization'
       end as reason,
       vm.resource_group,

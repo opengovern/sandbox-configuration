@@ -8,8 +8,8 @@ Query:
   QueryToExecute: |
     select
       s.name as resource,
-      s.kaytu_account_id,
-      s.kaytu_resource_id,
+      s.og_account_id,
+      s.og_resource_id,
       now() - s.time_created,
       case
         when now() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval then 'alarm'
@@ -20,7 +20,7 @@ Query:
         else s.name || ' snapshot is not old'
       end as reason,
       case
-        when now() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = s.kaytu_resource_id limit 1)
+        when now() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = s.og_resource_id limit 1)
         else 0
       end as cost_optimization,
       s.resource_group,

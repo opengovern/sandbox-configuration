@@ -8,14 +8,14 @@ Query:
   QueryToExecute: |
     select
       a.arn as resource,
-      a.kaytu_account_id,
-      a.kaytu_resource_id,
+      a.og_account_id,
+      a.og_resource_id,
       case
-        when tg.kaytu_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then 'ok'
+        when tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then 'ok'
         else 'alarm'
       end as status,
       case
-        when tg.kaytu_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then a.title || ' is  configured to send requests to targets using the gRPC protocol.'
+        when tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then a.title || ' is  configured to send requests to targets using the gRPC protocol.'
         else a.title || ' is not configured to send requests to targets using the gRPC protocol.'
       end as reason,
       a.region,

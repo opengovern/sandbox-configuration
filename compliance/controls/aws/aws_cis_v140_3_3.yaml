@@ -16,8 +16,8 @@ Query:
       t.account_id,
       t.tags,
       t._ctx,
-      t.kaytu_account_id,
-      t.kaytu_resource_id,
+      t.og_account_id,
+      t.og_resource_id,
       count(acl_grant) filter (where acl_grant -> 'Grantee' ->> 'URI' like '%acs.amazonaws.com/groups/global/AllUsers') as all_user_grants,
       count(acl_grant) filter (where acl_grant -> 'Grantee' ->> 'URI' like '%acs.amazonaws.com/groups/global/AuthenticatedUsers') as auth_user_grants,
       count(s) filter (where s ->> 'Effect' = 'Allow' and  p = '*' ) as anon_statements
@@ -34,16 +34,16 @@ Query:
       t.account_id,
       t.tags,
       t._ctx,
-      t.kaytu_account_id,
-      t.kaytu_resource_id
+      t.og_account_id,
+      t.og_resource_id
     )
     select
       case
         when arn is null then 'arn:aws:s3::' || name
         else arn
       end as resource,
-      kaytu_account_id as kaytu_account_id,
-      kaytu_resource_id as kaytu_resource_id,
+      og_account_id as og_account_id,
+      og_resource_id as og_resource_id,
       case
         when arn is null then 'skip'
         when all_user_grants > 0 then 'alarm'

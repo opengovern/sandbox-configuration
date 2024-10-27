@@ -12,8 +12,8 @@ Query:
         d.role_type,
         d.name,
         d.title,
-        d.kaytu_account_id as kaytu_account_id,
-        d.kaytu_resource_id as kaytu_resource_id,
+        d.og_account_id as og_account_id,
+        d.og_resource_id as og_resource_id,
         d._ctx,
         d.subscription_id
       from
@@ -24,8 +24,8 @@ Query:
     )
     select
       owner.subscription_id as resource,
-      owner.kaytu_account_id as kaytu_account_id,
-      owner.kaytu_resource_id as kaytu_resource_id,
+      owner.og_account_id as og_account_id,
+      owner.og_resource_id as og_resource_id,
       case
         when count(*) <= 3 then 'ok'
         else 'alarm'
@@ -40,8 +40,8 @@ Query:
       sub.subscription_id =owner.subscription_id
     group by
       owner.subscription_id,
-      owner.kaytu_account_id,
-      owner.kaytu_resource_id,
+      owner.og_account_id,
+      owner.og_resource_id,
       owner._ctx,
       sub.display_name;
   PrimaryTable: azure_subscription

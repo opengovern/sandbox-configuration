@@ -14,8 +14,8 @@ Query:
         count(policy_arn),
         a.account_id,
         a._ctx,
-        a.kaytu_account_id,
-        a.kaytu_resource_id
+        a.og_account_id,
+        a.og_resource_id
       from
         aws_account as a
         left join aws_iam_role as r on r.account_id = a.account_id
@@ -27,13 +27,13 @@ Query:
         a.account_id,
         a.partition,
         a._ctx,
-        a.kaytu_account_id,
-        a.kaytu_resource_id
+        a.og_account_id,
+        a.og_resource_id
     )
     select
       resource,
-      kaytu_account_id as kaytu_account_id,
-      kaytu_resource_id as kaytu_resource_id,
+      og_account_id as og_account_id,
+      og_resource_id as og_resource_id,
       case
         when count > 0 then 'ok'
         else 'alarm'

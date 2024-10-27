@@ -8,11 +8,11 @@ Query:
   QueryToExecute: |
     select
       arn as resource,
-      kaytu_account_id,
-      kaytu_resource_id,
+      og_account_id,
+      og_resource_id,
       case
         when jsonb_array_length(instances) > 0 then 0
-        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancing::loadbalancer' and resource_id = lb.kaytu_resource_id limit 1)
+        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancing::loadbalancer' and resource_id = lb.og_resource_id limit 1)
       end as cost_optimization,
       case
         when jsonb_array_length(instances) > 0 then 'ok'
