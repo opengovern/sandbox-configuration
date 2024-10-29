@@ -26,7 +26,42 @@ jobs:
           go-version: '1.22.5'
 
       - name: Run comparison script
+        id: compare_control
         run: |
           cd .github/scripts
           go mod download
           go run .
+      
+      # Conditional step: Bump version and create tag only if the comparison script passes
+      - name: Bump Version and Create Tag
+        if: ${{ success() && steps.compare_control.outcome == 'success' }}
+        id: versioning
+        run: |
+          # Fetch tags from the repository
+          git fetch --tags
+
+          # Get the latest tag and increment based on semantic versioning rules
+          latest_tag=$(git tag --sort=-v:refname | head -n 1)
+          if [ -z "$latest_tag" ]; then
+            # If no tags exist, start at v0.1.0
+            new_tag="v0.1.0"
+          else
+            # Split the latest tag into major, minor, and patch
+            IFS='.' read -r major minor patch <<< "${latest_tag//v/}"
+            # Increment the patch version
+            patch=$((patch + 1))
+            new_tag="v${major}.${minor}.${patch}"
+          fi
+
+          # Create and push the new tag
+          git tag "$new_tag"
+          git push origin "$new_tag"
+
+        # Required to push changes to the repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
+
+      # Output the new tag
+      - name: Display new tag
+        if: ${{ success() && steps.versioning.outcome == 'success' }}
+        run: echo "Created new tag: ${{ steps.versioning.outputs.new_tag }}"
