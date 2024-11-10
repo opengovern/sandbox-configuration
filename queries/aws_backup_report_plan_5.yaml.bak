@@ -1,0 +1,28 @@
+ID: aws_backup_report_plan_5
+Title: "Query AWS Backup Report Plan Details"
+Description: "Allows users to query AWS Backup Report Plan data, including details about backup jobs, recovery points, and backup vaults."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      description,
+      creation_time,
+      last_attempted_execution_time,
+      deployment_status
+    from
+      aws_backup_report_plan
+    where
+      deployment_status = 'COMPLETED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Backup Report Plan

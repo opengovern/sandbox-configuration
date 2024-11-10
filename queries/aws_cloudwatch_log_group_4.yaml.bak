@@ -1,0 +1,32 @@
+ID: aws_cloudwatch_log_group_4
+Title: "Find AWS CloudWatch Log Groups and Retrieve Attributes"
+Description: "Allows users to query AWS CloudWatch Log Groups and retrieve their attributes such as ARN, creation time, stored bytes, metric filter count, and more."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      i as data_identifier,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'S3' -> 'Bucket' as  destination_bucket,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'CloudWatchLogs' -> 'LogGroup'as destination_log_group,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'Firehose' -> 'DeliveryStream'as destination_delivery_stream
+    from
+      aws_cloudwatch_log_group,
+      jsonb_array_elements(data_protection_policy -> 'Statement') as s,
+      jsonb_array_elements_text(s -> 'DataIdentifier') as i
+    where
+      s ->> 'Sid' = 'audit-policy'
+      and name = 'log-group-name';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch Log Groups

@@ -1,0 +1,31 @@
+ID: aws_cognito_identity_pool_4
+Title: "List all AWS Cognito Identity Pools with Detailed Info"
+Description: "Allows users to query AWS Cognito Identity Pools and retrieve detailed information about each identity pool, including its configuration and associated roles."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      identity_pool_id,
+      identity_pool_name,
+      allow_classic_flow,
+      cognito_identity_providers ->> 'ClientId' as identity_provider_client_id,
+      cognito_identity_providers ->> 'ProviderName' as identity_provider_name,
+      cognito_identity_providers ->> 'ServerSideTokenCheck' as server_side_token_enabled
+    from
+      aws_cognito_identity_pool
+    where
+      identity_pool_id = 'eu-west-3:e96205bf-1ef2-4fe6-a748-65e948673960';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Cognito Identity Pools

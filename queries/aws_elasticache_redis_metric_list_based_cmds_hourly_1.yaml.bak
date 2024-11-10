@@ -1,0 +1,31 @@
+ID: aws_elasticache_redis_metric_list_based_cmds_hourly_1
+Title: "List All ElastiCache Redis List-Based Command Metrics"
+Description: "Allows users to query ElastiCache Redis Metrics on an hourly basis, providing data on list-based commands executed in the ElastiCache Redis environment."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count,
+      sum
+    from
+      aws_elasticache_redis_metric_list_based_cmds_hourly
+    order by
+      cache_cluster_id,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ElastiCache Redis

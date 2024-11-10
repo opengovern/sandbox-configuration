@@ -1,0 +1,32 @@
+ID: aws_elasticache_redis_metric_cache_hits_hourly_2
+Title: "List All Amazon ElastiCache Redis Hourly Cache Hits"
+Description: "Allows users to query Amazon ElastiCache Redis Cache Hits on an hourly basis."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      cache_cluster_id,
+      timestamp,
+      round(sum::numeric,2) as sum_cachehits,
+      round(average::numeric,2) as average_cachehits,
+      sample_count
+    from
+      aws_elasticache_redis_metric_cache_hits_hourly
+    where sum < 10
+    order by
+      cache_cluster_id,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amazon ElastiCache

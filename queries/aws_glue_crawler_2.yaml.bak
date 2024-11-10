@@ -1,0 +1,31 @@
+ID: aws_glue_crawler_2
+Title: "List all AWS Glue Crawlers and Retrieve their Metadata"
+Description: "Allows users to query AWS Glue Crawlers and retrieve essential information about the crawler''s configuration, status, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      state,
+      database_name,
+      creation_time,
+      description,
+      recrawl_behavior
+    from
+      aws_glue_crawler
+    where
+      state = 'RUNNING'; 
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Glue

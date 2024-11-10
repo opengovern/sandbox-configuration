@@ -1,0 +1,26 @@
+ID: aws_ecs_cluster_3
+Title: "List all AWS ECS Clusters with detailed configuration and status"
+Description: "Allows users to query AWS ECS Clusters to retrieve detailed information about each cluster''s configuration, status, and associated resources."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      cluster_arn,
+      attachment ->> 'id' as attachment_id,
+      attachment ->> 'status' as attachment_status,
+      attachment ->> 'type' as attachment_type
+    from
+      aws_ecs_cluster,
+      jsonb_array_elements(attachments) as attachment;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ECS

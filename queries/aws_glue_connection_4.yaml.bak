@@ -1,0 +1,31 @@
+ID: aws_glue_connection_4
+Title: "Find AWS Glue Connections Details"
+Description: "Allows users to query AWS Glue Connections to retrieve detailed information about each connection."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      c.name as connection_name,
+      s.vpc_id as vpc_id,
+      s.title as subnet_name,
+      physical_connection_requirements ->> 'SubnetId' as subnet_id,
+      physical_connection_requirements ->> 'AvailabilityZone' as availability_zone,
+      cidr_block,
+      physical_connection_requirements ->> 'SecurityGroupIdList' as security_group_ids
+    from
+      aws_glue_connection c
+      join aws_vpc_subnet s on physical_connection_requirements ->> 'SubnetId' = s.subnet_id;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue

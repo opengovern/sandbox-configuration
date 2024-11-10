@@ -1,0 +1,28 @@
+ID: aws_emr_security_configuration_2
+Title: "List EMR Security Configs from Last 30 Days"
+Description: "Allows users to query AWS EMR (Amazon Elastic MapReduce) Security Configurations. This table provides information about security settings and configurations that can be applied to EMR clusters, managing encryption, authentication, and authorization. These configurations are crucial for ensuring the secure handling of data, protecting sensitive information, and complying with various data security standards and regulations."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      creation_date_time,
+      security_configuration
+    from
+      aws_emr_security_configuration
+    where
+      creation_date_time >= now() - interval '30' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_data_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EMR

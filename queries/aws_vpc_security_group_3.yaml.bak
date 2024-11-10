@@ -1,0 +1,27 @@
+ID: aws_vpc_security_group_3
+Title: "List all AWS VPC Security Groups with Configurations"
+Description: "Allows users to query AWS VPC Security Groups and retrieve data such as group ID, name, description, owner ID, and associated VPC ID. This table can be used to gain insights on security group configurations, policies, and related metadata."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      vpc_id,
+      count(vpc_id) as count
+    from
+      aws_vpc_security_group
+    group by
+      vpc_id;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC Security Group

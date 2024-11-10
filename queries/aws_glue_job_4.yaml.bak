@@ -1,0 +1,32 @@
+ID: aws_glue_job_4
+Title: "Find all AWS Glue Jobs with Query Execution Detail"
+Description: "Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      j.title,
+      j.arn,
+      j.created_on,
+      j.region,
+      j.account_id,
+      cloud_watch_encryption
+    from
+      aws_glue_job j
+      left join aws_glue_security_configuration s on j.security_configuration = s.name
+    where
+      cloud_watch_encryption is null or cloud_watch_encryption ->> 'CloudWatchEncryptionMode' = 'DISABLED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Glue

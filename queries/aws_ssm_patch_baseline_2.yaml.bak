@@ -1,0 +1,30 @@
+ID: aws_ssm_patch_baseline_2
+Title: "Find AWS SSM Patch Baseline details including creation dates"
+Description: "Allows users to query AWS SSM Patch Baseline data to retrieve information about each patch baseline in your AWS account."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      baseline_id,
+      name,
+      description,
+      created_date,
+      region
+    from
+      aws_ssm_patch_baseline
+    where
+      operating_system = 'UBUNTU';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - SSM Patch Baseline

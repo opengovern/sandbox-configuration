@@ -1,0 +1,27 @@
+ID: aws_ec2_instance_1
+Title: "List all AWS EC2 Instances with Type and State Info"
+Description: "Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      placement_availability_zone as az,
+      instance_type,
+      count(*)
+    from
+      aws_ec2_instance
+    group by
+      placement_availability_zone,
+      instance_type;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2

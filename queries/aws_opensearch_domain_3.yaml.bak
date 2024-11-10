@@ -1,0 +1,30 @@
+ID: aws_opensearch_domain_3
+Title: "List all AWS OpenSearch Service Domains with SQL"
+Description: "Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      domain_name,
+      domain_id,
+      ebs_options ->> 'VolumeSize' as volume_size,
+      ebs_options ->> 'VolumeType' as volume_type,
+      ebs_options ->> 'EBSEnabled' as ebs_enabled
+    from
+      aws_opensearch_domain
+    where
+      ebs_options ->> 'EBSEnabled' = 'true';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - OpenSearch Service

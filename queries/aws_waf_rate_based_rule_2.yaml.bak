@@ -1,0 +1,31 @@
+ID: aws_waf_rate_based_rule_2
+Title: "Find rate-based security rules in AWS WAF"
+Description: "Allows users to query AWS WAF RateBasedRule to retrieve information about rate-based security rules that AWS Web Application Firewall (WAF) uses."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      rule_id,
+      p ->> 'DataId' as data_id,
+      p ->> 'Negated' as negated,
+      p ->> 'Type' as type
+    from
+      aws_waf_rate_based_rule,
+      jsonb_array_elements(predicates) as p
+    where
+      p ->> 'Negated' = 'True';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Web Application Firewall (WAF)

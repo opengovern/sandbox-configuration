@@ -1,0 +1,35 @@
+ID: aws_appstream_fleet_5
+Title: "Find AWS AppStream Fleets and Detailed Stack Info"
+Description: "Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      f.name,
+      f.created_time,
+      f.display_name,
+      f.image_arn,
+      i.base_image_arn,
+      i.image_builder_name,
+      i.visibility
+    from
+      aws_appstream_fleet as f,
+      aws_appstream_image as i
+    where
+      i.arn = f.image_arn
+    and
+      i.visibility = 'PRIVATE';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AppStream

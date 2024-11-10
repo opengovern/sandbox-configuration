@@ -1,0 +1,43 @@
+ID: aws_cloudwatch_metric_data_point_5
+Title: "List all AWS CloudWatch Metric Data Points"
+Description: "Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      label,
+      timestamp,
+      value,
+      metric_stat
+    from
+      aws_cloudwatch_metric_data_point
+    where
+      id = 'e1'
+      and value < 10
+      and timestamp >= now() - interval '7 day'
+      and metric_stat = '{
+        "Metric": {
+        "Namespace": "AWS/ElastiCache",
+        "MetricName": "CacheHits",
+        "Dimensions": [
+          {
+            "Name": "CacheClusterId",
+            "Value": "cluster-delete-001"
+          }
+        ]},
+        "Stat": "Sum"}'
+    order by
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudWatch

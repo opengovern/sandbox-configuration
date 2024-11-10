@@ -1,0 +1,28 @@
+ID: aws_elasticache_subnet_group_2
+Title: "List all AWS ElastiCache Subnet Groups and Details"
+Description: "Allows users to query AWS ElastiCache Subnet Groups, providing details about each subnet group within their ElastiCache service, including the associated VPC, subnets, and status."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      vpc_id,
+      sub -> 'SubnetAvailabilityZone' ->> 'Name' as subnet_availability_zone,
+      sub ->> 'SubnetIdentifier' as subnet_identifier,
+      sub ->> 'SubnetOutpost' as subnet_outpost
+    from
+      aws_elasticache_subnet_group,
+      jsonb_array_elements(subnets) as sub;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ElastiCache

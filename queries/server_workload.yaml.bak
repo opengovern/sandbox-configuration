@@ -1,0 +1,61 @@
+ID: server_workload
+Title: "List Cloud VM Workloads for AWS and Azure"
+Description: "List Cloud VM Workloads for AWS and Azure"
+Connector:
+- aws
+- azure
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select c.name as cloud_account_name, c.id as _discovered_provider_id, t.* from (
+    (select 
+      'AWS' as provider, 
+      r.name as vm_name, 
+      r.region as location, 
+      jsonb_path_query(r.description, '$.Instance.InstanceType') as instance_size,
+      jsonb_path_query(r.description, '$.Instance.NetworkInterfaces[*].PrivateIpAddress') as private_ip,
+      jsonb_path_query(r.description, '$.Instance.PlatformDetails') as platform,
+      jsonb_path_query(r.description, '$.InstanceStatus.InstanceState.Name') as state,
+      jsonb_path_query(r.description, '$.Instance.Tags') as _tags,
+      r.connection_id as _og_connection_id,
+      r.resource_id as _resource_id,
+      r.resource_type as _resource_type,
+      r.created_at as _last_discovered
+    from 
+      og_resources r
+    where 
+      resource_type = 'aws::ec2::instance') 
+    
+    union 
+    
+    (select 
+      'Azure' as provider, 
+      r.name as vm_name, 
+      r.region as location, 
+      jsonb_path_query(r.description, '$.VirtualMachine.Properties.HardwareProfile.VMSize') as instance_size,
+      jsonb_path_query(r.description, '$.InterfaceIPConfigurations[*].Properties.PrivateIPAddress') as private_ip,
+      jsonb_path_query(r.description, '$.VirtualMachineInstanceView.OSName') as platform,
+      jsonb_path_query(r.description, '$.VirtualMachineInstanceView.Statuses') as state,
+      jsonb_path_query(r.description, '$.VirtualMachine.Tags') as _tags,
+      r.connection_id as _og_connection_id,
+      r.resource_id as _resource_id,
+      r.resource_type as _resource_type,
+      r.created_at as _last_discovered
+    from 
+      og_resources r 
+    where 
+      resource_type = 'microsoft.compute/virtualmachines')
+    
+    ) as t inner join og_connections c on t._og_connection_id = c.og_id 
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  - azure
+  cloud_service:
+  - EC2
+  - Virtual Machines

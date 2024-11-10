@@ -1,0 +1,29 @@
+ID: aws_ec2_transit_gateway_route_2
+Title: "Find All AWS EC2 Transit Gateway Routes by State"
+Description: "Allows users to query AWS EC2 Transit Gateway Routes for detailed information about each route, including the destination CIDR block, the route''s current state, and the transit gateway attachments."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      transit_gateway_route_table_id,
+      destination_cidr_block,
+      state,
+      type
+    from
+      aws_ec2_transit_gateway_route
+    where
+      state = 'active';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - EC2 Transit Gateway

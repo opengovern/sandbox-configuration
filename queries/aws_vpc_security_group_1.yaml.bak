@@ -1,0 +1,33 @@
+ID: aws_vpc_security_group_1
+Title: "List all AWS VPC Security Groups with SQL Queries"
+Description: "Allows users to query AWS VPC Security Groups and retrieve data such as group ID, name, description, owner ID, and associated VPC ID. This table can be used to gain insights on security group configurations, policies, and related metadata."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      group_name,
+      vpc_id,
+      perm ->> 'FromPort' as from_port,
+      perm ->> 'ToPort' as to_port,
+      perm ->> 'IpProtocol' as ip_protocol,
+      perm ->> 'IpRanges' as ip_ranges,
+      perm ->> 'Ipv6Ranges' as ipv6_ranges,
+      perm ->> 'UserIdGroupPairs' as user_id_group_pairs,
+      perm ->> 'PrefixListIds' as prefix_list_ids
+    from
+      aws_vpc_security_group as sg
+      cross join jsonb_array_elements(ip_permissions) as perm;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - VPC

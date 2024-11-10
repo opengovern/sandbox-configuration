@@ -1,0 +1,30 @@
+ID: aws_appstream_fleet_10
+Title: "List all AWS AppStream Fleets with State and Details"
+Description: "Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      state,
+      created_time,
+      description
+    from
+      aws_appstream_fleet
+    where
+      state = 'RUNNING';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AppStream

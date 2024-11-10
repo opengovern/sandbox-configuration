@@ -1,0 +1,31 @@
+ID: aws_guardduty_publishing_destination_3
+Title: "List All AWS GuardDuty Publishing Destinations"
+Description: "Allows users to query AWS GuardDuty Publishing Destinations to retrieve information about where GuardDuty findings are published."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      destination_id,
+      kms_key_arn,
+      status,
+      destination_type
+    from
+      aws_guardduty_publishing_destination
+    where
+      kms_key_arn is null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - GuardDuty

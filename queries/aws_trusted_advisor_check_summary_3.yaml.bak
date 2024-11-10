@@ -1,0 +1,30 @@
+ID: aws_trusted_advisor_check_summary_3
+Title: "List Trusted Advisor Check Summaries for AWS"
+Description: "A Trusted Advisor check is a specific evaluation or assessment performed by Trusted Advisor in different categories. These checks cover various areas, including cost optimization, security, performance, and fault tolerance. Each check examines a specific aspect of your AWS resources and provides recommendations for improvement."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      check_id,
+      description,
+      status,
+      timestamp
+    from
+      aws_trusted_advisor_check_summary
+    where
+      language = 'en'
+    and
+      timestamp >= now() - interval '5 day';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Trusted Advisor

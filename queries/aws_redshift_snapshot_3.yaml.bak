@@ -1,0 +1,28 @@
+ID: aws_redshift_snapshot_3
+Title: "List All AWS Redshift Snapshots Configuration and Status"
+Description: "Allows users to query Redshift Snapshots, providing details about each snapshot''s configuration, status, and associated metadata."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      snapshot_identifier,
+      cluster_identifier,
+      node_type,
+      number_of_nodes,
+      encrypted
+    from
+      aws_redshift_snapshot
+    where
+      not encrypted;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Redshift

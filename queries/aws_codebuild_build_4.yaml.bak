@@ -1,0 +1,26 @@
+ID: aws_codebuild_build_4
+Title: "List all AWS CodeBuild projects' builds information"
+Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      arn,
+      vpc_config ->> 'SecurityGroupIds' as security_group_id,
+      vpc_config ->> 'Subnets' as subnets,
+      vpc_config ->> 'VpcId' as vpc_id
+    from
+      aws_codebuild_build;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeBuild

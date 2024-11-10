@@ -1,0 +1,33 @@
+ID: aws_codebuild_project_2
+Title: "List all AWS CodeBuild Projects and Details"
+Description: "Allows users to query AWS CodeBuild Projects and retrieve comprehensive information about each project."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      source_version,
+      source ->> 'Auth' as auth,
+      source ->> 'BuildStatusConfig' as build_status_config,
+      source ->> 'Buildspec' as build_spec,
+      source ->> 'GitCloneDepth' as git_clone_depth,
+      source ->> 'GitSubmodulesConfig' as git_submodules_config,
+      source ->> 'InsecureSsl' as insecure_ssl,
+      source ->> 'Location' as location,
+      source ->> 'ReportBuildStatus' as report_build_status,
+      source ->> 'SourceIdentifier' as source_identifier,
+      source ->> 'Type' as type
+    from
+      aws_codebuild_project;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeBuild

@@ -1,0 +1,29 @@
+ID: aws_api_gateway_stage_2
+Title: "List all AWS API Gateway stages with cache enabled"
+Description: "Allows users to query AWS API Gateway Stages for information related to deployment, API, and stage details."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      rest_api_id,
+      cache_cluster_enabled,
+      cache_cluster_size
+    from
+      aws_api_gateway_stage
+    where
+      cache_cluster_enabled;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - API Gateway

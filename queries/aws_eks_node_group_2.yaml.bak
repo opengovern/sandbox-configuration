@@ -1,0 +1,30 @@
+ID: aws_eks_node_group_2
+Title: "List all AWS EKS Node Group data within a cluster"
+Description: "Allows users to query AWS EKS Node Group data, providing information about each node group within an AWS Elastic Kubernetes Service (EKS) cluster."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      nodegroup_name,
+      arn,
+      created_at,
+      cluster_name,
+      status
+    from
+      aws_eks_node_group
+    where
+      status <> 'ACTIVE';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elastic Kubernetes Service (EKS)

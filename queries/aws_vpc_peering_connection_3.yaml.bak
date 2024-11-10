@@ -1,0 +1,31 @@
+ID: aws_vpc_peering_connection_3
+Title: "Query All AWS VPC Peering Connections"
+Description: "Allows users to query VPC Peering Connections in Amazon Virtual Private Cloud (VPC)."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      requester_cidr_block,
+      requester_owner_id,
+      requester_region,
+      requester_vpc_id,
+      jsonb_pretty(requester_cidr_block_set) as requester_cidr_block_set,
+      jsonb_pretty(requester_ipv6_cidr_block_set) as requester_ipv6_cidr_block_set,
+      jsonb_pretty(requester_peering_options) as requester_peering_options
+    from
+      aws_vpc_peering_connection;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Amazon VPC

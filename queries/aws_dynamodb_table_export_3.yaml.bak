@@ -1,0 +1,31 @@
+ID: aws_dynamodb_table_export_3
+Title: "Find AWS DynamoDB Table Exports with Detailed Info"
+Description: "Allows users to query AWS DynamoDB Table Exports, providing detailed information on the exports of DynamoDB tables including the export time, status, and the exported data format."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      end_time,
+      export_format,
+      export_status,
+      export_time,
+      s3_bucket
+    from
+      aws_dynamodb_table_export
+    where
+      export_time >= now() - interval '10' day;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DynamoDB

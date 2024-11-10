@@ -1,0 +1,28 @@
+ID: aws_redshift_event_subscription_4
+Title: "Find AWS Redshift Event Subscriptions with Configuration and Status"
+Description: "Allows users to query AWS Redshift Event Subscriptions, providing insights into the subscription''s configuration, status, and associated Redshift clusters."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      e.cust_subscription_id,
+      e.status,
+      s.kms_master_key_id,
+      s.topic_arn as arn
+    from
+      aws_redshift_event_subscription as e
+      join aws_sns_topic as s on s.topic_arn = e.sns_topic_arn
+    where
+      s.kms_master_key_id is null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Redshift

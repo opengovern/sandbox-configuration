@@ -1,0 +1,25 @@
+ID: aws_ecr_registry_scanning_configuration_3
+Title: "Query AWS ECR Registry Scanning Configuration by Region"
+Description: "Allows users to query AWS ECR Registry Scanning Configuration at the private registry level on a per-region basis."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      registry_id,
+      region
+    from
+      aws_ecr_registry_scanning_configuration
+    where
+      scanning_configuration ->> 'ScanType' = 'ENHANCED'
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - ECR Registry

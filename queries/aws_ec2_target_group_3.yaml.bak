@@ -1,0 +1,29 @@
+ID: aws_ec2_target_group_3
+Title: "List all AWS EC2 Target Groups and Relevant Details"
+Description: "Allows users to query AWS EC2 Target Groups and provides information about each Target Group within an AWS account."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      target_group_name,
+      target_type,
+      target -> 'Target' ->> 'AvailabilityZone' as availability_zone,
+      target -> 'Target' ->> 'Id' as id,
+      target -> 'Target' ->> 'Port' as port
+    from
+      aws_ec2_target_group
+      cross join jsonb_array_elements(target_health_descriptions) as target;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS EC2

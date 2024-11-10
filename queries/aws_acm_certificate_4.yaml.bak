@@ -1,0 +1,27 @@
+ID: aws_acm_certificate_4
+Title: "List all AWS Certificate Manager certificates with SQL"
+Description: "Allows users to query AWS Certificate Manager certificates. This table provides information about each certificate, including the domain name, status, issuer, and more. It can be used to monitor certificate details, validity, and expiration data."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      certificate_arn,
+      tags
+    from
+      aws_acm_certificate
+    where
+      not tags :: JSONB ? 'application';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Certificate Manager

@@ -1,0 +1,29 @@
+ID: aws_servicequotas_service_quota_change_request_2
+Title: "Find AWS Service Quota Change Requests Statuses"
+Description: "Allows users to query AWS Service Quotas change requests."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      id,
+      case_id,
+      status,
+      quota_name,
+      quota_code,
+      desired_value
+    from
+      aws_servicequotas_service_quota_change_request
+    where
+      status = 'DENIED';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Service Quotas

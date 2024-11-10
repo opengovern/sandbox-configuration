@@ -1,0 +1,24 @@
+ID: aws_insight_iam_user_with_mfa_disabled
+Title: "Users with no MFA"
+Description: "List all the users for whom MFA is not enabled"
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      user_id,
+      mfa_enabled, account_id, og_account_id, og_resource_id
+    from
+      aws_iam_user
+    where
+     not mfa_enabled;
+  PrimaryTable: aws_iam_user
+  ListOfTables:
+  - aws_iam_user
+  Parameters: []
+Tags:
+  category:
+  - Security
+  - Technical Debt

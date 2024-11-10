@@ -1,0 +1,27 @@
+ID: aws_s3_bucket_12
+Title: "Find all detailed AWS S3 Bucket Information via SQL"
+Description: "Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      website_configuration -> 'IndexDocument' ->> 'Suffix' as suffix
+    from
+      aws_s3_bucket
+    where
+      website_configuration -> 'IndexDocument' ->> 'Suffix' is not null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - S3

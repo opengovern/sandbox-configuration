@@ -1,0 +1,31 @@
+ID: aws_inspector_exclusion_4
+Title: "List all AWS Inspector Exclusions with Details"
+Description: "Allows users to query AWS Inspector Exclusions and retrieve data about AWS Inspector Exclusions, including their ARNs, descriptions, and recommendations."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      region,
+      title,
+      count(arn)
+    from
+      aws_inspector_exclusion
+    group by
+      arn,
+      region,
+      title
+    order by
+      count desc;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Inspector

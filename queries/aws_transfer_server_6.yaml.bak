@@ -1,0 +1,30 @@
+ID: aws_transfer_server_6
+Title: "Find all SFTP Servers in AWS Transfer"
+Description: "Allows users to query AWS Transfer for SFTP Servers and retrieve detailed information about SFTP servers in their AWS account."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      s.server_id,
+      c.certificate_arn,
+      c.status as certificate_status,
+      c.key_algorithm
+    from
+      aws_transfer_server as s,
+      aws_acm_certificate as c
+    where
+      s.certificate = c.certificate_arn;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Transfer for SFTP

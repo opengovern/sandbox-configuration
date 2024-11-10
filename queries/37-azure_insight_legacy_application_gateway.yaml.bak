@@ -1,0 +1,19 @@
+ID: azure_insight_legacy_application_gateway
+Title: "Legacy Application Gateways"
+Description: "This insight returns all legacy application gateways."
+Connector:
+- azure
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: SELECT name, id, sku->'tier' AS tier, subscription_id, og_account_id, og_resource_id FROM azure_application_gateway WHERE NOT sku IS NULL AND sku->>'tier' = 'Standard_v2';
+  PrimaryTable: azure_application_gateway
+  ListOfTables:
+  - azure_application_gateway
+  Parameters: []
+Tags:
+  category:
+  - Technical Debt
+  persona:
+  - Executive
+  - Product
+  - FinOps

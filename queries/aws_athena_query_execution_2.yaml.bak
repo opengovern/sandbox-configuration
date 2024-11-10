@@ -1,0 +1,25 @@
+ID: aws_athena_query_execution_2
+Title: "Find AWS Athena Query Executions Detailed Information"
+Description: "Allows users to query AWS Athena Query Executions to retrieve detailed information about each individual query execution."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select 
+      workgroup, 
+      sum(data_scanned_in_bytes) 
+    from 
+      aws_athena_query_execution
+    group by 
+      workgroup;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Athena

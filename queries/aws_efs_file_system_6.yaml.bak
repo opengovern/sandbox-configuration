@@ -1,0 +1,27 @@
+ID: aws_efs_file_system_6
+Title: "List AWS EFS file systems with automatic backups enabled"
+Description: "Allows users to query AWS Elastic File System (EFS) file systems, providing detailed information about each file system such as its ID, ARN, creation token, performance mode, and lifecycle state."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      automatic_backups,
+      arn,
+      file_system_id
+    from
+      aws_efs_file_system
+    where
+      automatic_backups = 'enabled';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elastic File System (EFS)

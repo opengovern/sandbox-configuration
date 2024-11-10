@@ -1,0 +1,29 @@
+ID: aws_kinesis_stream_4
+Title: "List AWS Kinesis Stream details including name, status, and tags"
+Description: "Allows users to query AWS Kinesis Stream data, including stream name, status, creation time, and associated tags."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      stream_name,
+      stream_arn,
+      encryption_type,
+      key_id,
+      stream_creation_timestamp,
+      region
+    from
+      aws_kinesis_stream
+    where
+      encryption_type = 'NONE';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Kinesis Stream

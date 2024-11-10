@@ -1,0 +1,34 @@
+ID: aws_cloudtrail_lookup_event_2
+Title: "Find AWS CloudTrail Lookup Events for Specific Trail Events"
+Description: "Allows users to query AWS CloudTrail Lookup Events, providing information about each trail event within AWS CloudTrail. The table can be used to retrieve details such as the event time, event name, resources involved, and much more."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      event_name,
+      event_source,
+      event_time,
+      username,
+      jsonb_pretty(cloud_trail_event) as cloud_trail_event
+    from
+      aws_cloudtrail_lookup_event
+    where
+      start_time = now()
+      and end_time = now() - interval '1 hour'
+      and read_only = 'true'
+    order by
+      event_time asc;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudTrail

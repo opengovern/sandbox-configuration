@@ -1,0 +1,28 @@
+ID: aws_ssmincidents_response_plan_4
+Title: "Find AWS SSM Incident Response Plans with Integrations"
+Description: "Allows users to query AWS SSM Incidents Response Plan data to retrieve information about each resource plan in your AWS account."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      arn,
+      display_name,
+      jsonb_pretty(integrations),
+      title
+    from
+      aws_ssmincidents_response_plan
+    where
+      integrations is not null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - SSM Incidents

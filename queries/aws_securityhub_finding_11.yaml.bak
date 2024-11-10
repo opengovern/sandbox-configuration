@@ -1,0 +1,33 @@
+ID: aws_securityhub_finding_11
+Title: "Find AWS EC2 Security Issues with Severity and Status"
+Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      title,
+      id,
+      network ->> 'DestinationDomain' as network_destination_domain,
+      network ->> 'DestinationIpV4' as network_destination_ip_v4,
+      network ->> 'DestinationIpV6' as network_destination_ip_v6,
+      network ->> 'DestinationPort' as network_destination_port,
+      network ->> 'Protocol' as network_protocol,
+      network ->> 'SourceIpV4' as network_source_ip_v4,
+      network ->> 'SourceIpV6' as network_source_ip_v6,
+      network ->> 'SourcePort' as network_source_port
+    from
+      aws_securityhub_finding
+    where 
+      title = 'EC2 instance involved in SSH brute force attacks.';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_identity_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Security Hub

@@ -1,0 +1,34 @@
+ID: aws_rds_db_instance_metric_connections_2
+Title: "Find All AWS RDS DBInstance Connections Metrics"
+Description: "Allows users to query AWS RDS DBInstance Metrics for a comprehensive view of the number of database connections."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      db_instance_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    from
+      aws_rds_db_instance_metric_connections
+    where 
+      average > 100
+    order by
+      db_instance_identifier,
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - RDS

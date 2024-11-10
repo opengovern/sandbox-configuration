@@ -1,0 +1,32 @@
+ID: aws_dynamodb_metric_account_provisioned_read_capacity_util_2
+Title: "List all AWS DynamoDB Metrics on Read Capacity Utilization"
+Description: "Allows users to query DynamoDB Metrics on account provisioned read capacity utilization."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      account_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    from
+      aws_dynamodb_metric_account_provisioned_read_capacity_util
+    where
+      maximum > 80
+    order by
+      timestamp;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - DynamoDB

@@ -1,0 +1,31 @@
+ID: aws_cloudformation_stack_set_4
+Title: "List all detailed AWS CloudFormation StackSets status"
+Description: "Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet''s configuration, status, and associated AWS resources."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      stack_set_name,
+      stack_set_id,
+      stack_set_drift_detection_details ->> 'DriftDetectionStatus' as drift_detection_status,
+      stack_set_drift_detection_details ->> 'DriftStatus' as drift_status,
+      stack_set_drift_detection_details ->> 'DriftedStackInstancesCount' as drifted_stack_instances_count,
+      stack_set_drift_detection_details ->> 'FailedStackInstancesCount' as failed_stack_instances_count,
+      stack_set_drift_detection_details ->> 'InProgressStackInstancesCount' as in_progress_stack_instances_count,
+      stack_set_drift_detection_details ->> 'InSyncStackInstancesCount' as in_sync_stack_instances_count,
+      stack_set_drift_detection_details ->> 'LastDriftCheckTimestamp' as last_drift_check_timestamp,
+      stack_set_drift_detection_details ->> 'TotalStackInstancesCount' as total_stack_instances_count
+    from
+      aws_cloudformation_stack_set;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CloudFormation

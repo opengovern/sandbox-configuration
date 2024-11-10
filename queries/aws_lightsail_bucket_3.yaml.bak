@@ -1,0 +1,26 @@
+ID: aws_lightsail_bucket_3
+Title: "List all AWS Lightsail Buckets with Public Access"
+Description: "Allows users to query AWS Lightsail Buckets and retrieve detailed information such as bucket configuration, access rules, tags, and more."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      name,
+      region,
+      access_rules ->> 'GetObject' as public_access
+    from
+      aws_lightsail_bucket
+    where
+      access_rules ->> 'GetObject' = 'public';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Lightsail

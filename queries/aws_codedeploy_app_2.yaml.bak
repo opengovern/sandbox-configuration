@@ -1,0 +1,25 @@
+ID: aws_codedeploy_app_2
+Title: "List all AWS CodeDeploy Applications and Deployment Groups"
+Description: "Allows users to query AWS CodeDeploy Applications to return detailed information about each application, including application name, ID, and associated deployment groups."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      count(arn) as application_count,
+      compute_platform
+    from
+      aws_codedeploy_app
+    group by
+      compute_platform;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeDeploy

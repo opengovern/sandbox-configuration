@@ -1,0 +1,26 @@
+ID: aws_networkfirewall_firewall_policy_7
+Title: ""
+Description: ""
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      name as firewall_policy_name,
+      firewall_policy_status,
+      firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionName' as custom_action_name,
+      firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionDefinition' as custom_action_definition
+    from
+      aws_networkfirewall_firewall_policy;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_network_security:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Network Firewall

@@ -1,0 +1,30 @@
+ID: aws_codedeploy_deployment_config_4
+Title: "List all AWS CodeDeploy Deployment Configurations"
+Description: "Allows users to query AWS CodeDeploy Deployment Configurations to retrieve information about the deployment configurations within AWS CodeDeploy service."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      arn,
+      deployment_config_id,
+      deployment_config_name
+      compute_platform,
+      minimum_healthy_hosts ->> 'Type' as host_type,
+      minimum_healthy_hosts ->> 'Value' as host_value,
+      region
+    from
+      aws_codedeploy_deployment_config
+    where
+      create_time is not null;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - CodeDeploy

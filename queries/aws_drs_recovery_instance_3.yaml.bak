@@ -1,0 +1,37 @@
+ID: aws_drs_recovery_instance_3
+Title: "List all AWS Disaster Recovery Recovery Instances"
+Description: "Allows users to query AWS Disaster Recovery Service Recovery Instances to retrieve information about recovery instances, including instance type, recovery instance ARN, and associated tags."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      recovery_instance_id,
+      arn,
+      source_server_id,
+      ec2_instance_id,
+      failback ->> 'AgentLastSeenByServiceDateTime' as agent_last_seen_by_service_date_time,
+      failback ->> 'ElapsedReplicationDuration' as elapsed_replication_duration,
+      failback ->> 'FailbackClientID' as failback_client_id,
+      failback ->> 'FailbackClientLastSeenByServiceDateTime' as failback_client_last_seen_by_service_date_time,
+      failback ->> 'FailbackInitiationTime' as failback_initiation_time,
+      failback -> 'FailbackJobID' as failback_job_id,
+      failback -> 'FailbackLaunchType' as failback_launch_type,
+      failback -> 'FailbackToOriginalServer' as failback_to_original_server,
+      failback -> 'FirstByteDateTime' as failback_first_byte_date_time,
+      failback -> 'State' as failback_state
+    from
+      aws_drs_recovery_instance;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Disaster Recovery Service

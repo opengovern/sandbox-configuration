@@ -1,0 +1,29 @@
+ID: aws_ecr_repository_11
+Title: "List AWS ECR Repositories and their Scan Status"
+Description: "Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      repository_name,
+      r ->> 'RepositoryArn' as repository_arn,
+      r ->> 'ScanOnPush' as scan_on_push
+    from
+      aws_ecr_repository,
+      jsonb_array_elements(repository_scanning_configuration -> 'ScanningConfigurations') as r
+    where
+     r ->> 'ScanOnPush' = 'false';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Elastic Container Registry

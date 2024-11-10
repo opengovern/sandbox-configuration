@@ -1,0 +1,27 @@
+ID: aws_lambda_event_source_mapping_6
+Title: "List all AWS Lambda Event Source Mappings and Configs"
+Description: "Allows users to query AWS Lambda Event Source Mappings, providing a detailed view of each mapping configuration."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      uuid,
+      function_name,
+      destination_config ->> 'OnFailure' as on_failure,
+      destination_config ->> 'OnSuccess' as on_success
+    from
+      aws_lambda_event_source_mapping;
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_asset_management:
+  - "true"
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - Lambda

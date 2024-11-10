@@ -1,0 +1,27 @@
+ID: aws_inspector2_coverage_6
+Title: "Find AWS Inspector Coverage Data for Assessment Targets"
+Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
+Connector:
+- aws
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |-
+    select
+      source_account_id,
+      resource_id,
+      resource_type,
+      scan_type
+    from
+      aws_inspector2_coverage
+    where
+      scan_type = 'PACKAGE';
+  PrimaryTable: null
+  ListOfTables: []
+  Parameters: []
+Tags:
+  cloud_ops:
+  - "true"
+  cloud_provider:
+  - aws
+  cloud_service:
+  - AWS Inspector
