@@ -1,34 +1,25 @@
+Description: Allows users to query AWS Security Hub Findings to gather information
+  about security issues identified within AWS resources. This includes details such
+  as the severity, status, and description of the finding, the resources affected,
+  and any remediation steps recommended.
 ID: aws_securityhub_finding_17
-Title: "Find AWS Security Hub Findings and Severity Details"
-Description: "Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select 
-      f.title,
-      f.id,
-      f.company_name,
-      f.created_at,
-      f.criticality,
-      f.confidence
-    from 
-      aws_securityhub_finding as f,
-      aws_securityhub_standards_control as c
-    where 
-      c.arn = f.standards_control_arn
-    and
-      c.control_id = 'Config.1';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select \n  f.title,\n  f.id,\n  f.company_name,\n  f.created_at,\n\
+    \  f.criticality,\n  f.confidence\nfrom \n  aws_securityhub_finding as f,\n  aws_securityhub_standards_control\
+    \ as c\nwhere \n  c.arn = f.standards_control_arn\nand\n  c.control_id = 'Config.1';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Security Hub
+Title: Find AWS Security Hub Findings and Severity Details

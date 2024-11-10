@@ -1,31 +1,25 @@
+Description: Allows users to query AWS GuardDuty Member data, including member account
+  details, detector ID, invitation status, and relationship status.
 ID: aws_guardduty_member_4
-Title: "Find all AWS GuardDuty Member with details"
-Description: "Allows users to query AWS GuardDuty Member data, including member account details, detector ID, invitation status, and relationship status."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      member_account_id,
-      detector_id,
-      invited_at,
-      relationship_status
-    from
-      aws_guardduty_member
-    where
-      invited_at >= (now() - interval '10' day);
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  member_account_id,\n  detector_id,\n  invited_at,\n \
+    \ relationship_status\nfrom\n  aws_guardduty_member\nwhere\n  invited_at >= (now()\
+    \ - interval '10' day);"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - GuardDuty
+Title: Find all AWS GuardDuty Member with details

@@ -1,41 +1,113 @@
 #!/bin/bash
 
-# Description:
-# This script traverses all subdirectories to find YAML files containing the 'Connector' key
-# and renames the key to 'IntegrationTypeName' while mapping specific values.
+# Script Name: replace_integration_types.sh
+# Description: 
+#   Replaces '- aws' with '- aws_cloud' and '- azure' with '- azure_subscription' 
+#   within the IntegrationTypeName sections of YAML files.
+#
+# Usage: 
+#   ./replace_integration_types.sh [-r] [directory]
+#     -r        : Recursively search through subdirectories
+#     directory : Directory to start from (default: current directory)
 
-# Define the root directory (current directory)
-ROOT_DIR="."
+# Exit immediately if a command exits with a non-zero status
+set -e
 
-# Create or clear the log files
-> processed_files.log
-> error_files.log
-> error_messages.log
-
-# Function to process each file
-process_file() {
-  local file="$1"
-  echo "Processing: $file"
-
-  # Apply the yq transformation
-  if yq eval -i '.IntegrationTypeName = (if (.Connector | type) == "array" then .Connector | map({"aws": "aws_cloud", "azure": "azure_subscription"}[.] // .) else {"aws": "aws_cloud", "azure": "azure_subscription"}[.Connector] // .Connector end) | del(.Connector)' "$file"
-  then
-    echo "$file processed successfully." >> processed_files.log
-  else
-    echo "Error processing $file" >> error_files.log
-    # Capture detailed error messages
-    yq eval '.IntegrationTypeName = (if (.Connector | type) == "array" then .Connector | map({"aws": "aws_cloud", "azure": "azure_subscription"}[.] // .) else {"aws": "aws_cloud", "azure": "azure_subscription"}[.Connector] // .Connector end) | del(.Connector)' "$file" 2>> error_messages.log
-  fi
+# Function to display usage instructions
+usage() {
+    echo "Usage: $0 [-r] [directory]"
+    echo "  -r           Recursively search through subdirectories"
+    echo "  directory    Directory to start from (default: current directory)"
+    exit 1
 }
 
-export -f process_file
+# Initialize variables
+RECURSIVE=false
+START_DIR="."
 
-# Find and process all .yaml and .yml files containing the 'Connector' key
-find "$ROOT_DIR" -type f \( -iname "*.yaml" -o -iname "*.yml" \) -print0 | while IFS= read -r -d '' file; do
-  if grep -q '^Connector:' "$file"; then
-    process_file "$file"
-  fi
+# Parse options
+while getopts "r" opt; do
+    case "$opt" in
+        r)
+            RECURSIVE=true
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG" >&2
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+# If a directory is provided, use it
+if [ "$#" -ge 1 ]; then
+    START_DIR="$1"
+fi
+
+# Check if the starting directory exists and is a directory
+if [ ! -d "$START_DIR" ]; then
+    echo "Error: Directory '$START_DIR' does not exist." >&2
+    exit 1
+fi
+
+# Determine the find command based on the recursive flag
+if [ "$RECURSIVE" = true ]; then
+    FIND_CMD=(find "$START_DIR" -type f)
+else
+    FIND_CMD=(find "$START_DIR" -maxdepth 1 -type f)
+fi
+
+# Find and process each file
+for FILE in "${FIND_CMD[@]}"; do
+    # Check if the file has a .yaml or .yml extension
+    if [[ "$FILE" =~ \.(yaml|yml)$ ]]; then
+        # Output processing message
+        echo "Processing: $FILE"
+
+        # Check if the file contains 'IntegrationTypeName:'
+        if grep -q "^IntegrationTypeName:" "$FILE"; then
+            # Create a temporary file securely
+            TMP_FILE=$(mktemp)
+
+            # Use awk to perform the replacements within the IntegrationTypeName block
+            awk '
+            BEGIN { in_block = 0 }
+            /^IntegrationTypeName:/ {
+                print;
+                in_block = 1;
+                next
+            }
+            # Exit the block if a new top-level key starts (line starts with non-space and not a list item)
+            /^[^[:space:]]/ && !/^[[:space:]]*-/ {
+                in_block = 0
+            }
+            # If within the IntegrationTypeName block and line matches '- aws', replace it
+            in_block == 1 && /^[[:space:]]*-[[:space:]]*aws[[:space:]]*$/ {
+                sub(/- aws[[:space:]]*$/, "- aws_cloud")
+            }
+            # If within the IntegrationTypeName block and line matches '- azure', replace it
+            in_block == 1 && /^[[:space:]]*-[[:space:]]*azure[[:space:]]*$/ {
+                sub(/- azure[[:space:]]*$/, "- azure_subscription")
+            }
+            { print }
+            ' "$FILE" > "$TMP_FILE"
+
+            # Compare the original file with the modified file
+            if ! cmp -s "$FILE" "$TMP_FILE"; then
+                # Replace the original file with the modified file
+                mv "$TMP_FILE" "$FILE"
+                echo "Modified: $FILE"
+            else
+                # No changes made; remove the temporary file
+                rm "$TMP_FILE"
+            fi
+        else
+            echo "No IntegrationTypeName section found in: $FILE"
+        fi
+    else
+        # Non-YAML files are ignored, but still output processing message
+        echo "Processing: $FILE (skipped, not a YAML file)"
+    fi
 done
 
-echo "Bulk update completed. Check 'processed_files.log' for details."
-echo "Any errors are logged in 'error_files.log' and 'error_messages.log'."
+echo "Replacement process complete."

@@ -1,31 +1,24 @@
+Description: Allows users to query AWS Backup Plan data, providing detailed information
+  about each backup plan created within an AWS account. Useful for DevOps engineers
+  to monitor and manage backup strategies and ensure data recovery processes are in
+  place.
 ID: aws_backup_plan_3
-Title: "List all AWS Backup Plans with Details"
-Description: "Allows users to query AWS Backup Plan data, providing detailed information about each backup plan created within an AWS account. Useful for DevOps engineers to monitor and manage backup strategies and ensure data recovery processes are in place."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      creation_date,
-      deletion_date
-    from
-      aws_backup_plan
-    where
-      deletion_date > current_date - 7
-    order by
-      deletion_date;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  creation_date,\n  deletion_date\nfrom\n\
+    \  aws_backup_plan\nwhere\n  deletion_date > current_date - 7\norder by\n  deletion_date;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Backup
+Title: List all AWS Backup Plans with Details

@@ -1,32 +1,23 @@
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
+  and retrieve detailed information about each repository.
 ID: aws_ecr_repository_8
-Title: "Find AWS ECR Repositories Details with SQL Query"
-Description: "Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      title,
-      p as principal,
-      a as action,
-      s ->> 'Effect' as effect,
-      s -> 'Condition' as conditions
-    from
-      aws_ecr_repository,
-      jsonb_array_elements(policy -> 'Statement') as s,
-      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-      jsonb_array_elements_text(s -> 'Action') as a
-    where
-      s ->> 'Effect' = 'Allow'
-      and a in ('*', 'ecr:*');
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  title,\n  p as principal,\n  a as action,\n  s ->> 'Effect'\
+    \ as effect,\n  s -> 'Condition' as conditions\nfrom\n  aws_ecr_repository,\n\
+    \  jsonb_array_elements(policy -> 'Statement') as s,\n  jsonb_array_elements_text(s\
+    \ -> 'Principal' -> 'AWS') as p,\n  jsonb_array_elements_text(s -> 'Action') as\
+    \ a\nwhere\n  s ->> 'Effect' = 'Allow'\n  and a in ('*', 'ecr:*');"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Elastic Container Registry
+Title: Find AWS ECR Repositories Details with SQL Query

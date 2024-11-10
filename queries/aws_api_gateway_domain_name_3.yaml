@@ -1,33 +1,22 @@
+Description: Allows users to query AWS API Gateway Domain Names and retrieve details
+  about each domain''s configuration, certificate, and associated API.
 ID: aws_api_gateway_domain_name_3
-Title: "Find AWS API Gateway Domain Names and Certificates"
-Description: "Allows users to query AWS API Gateway Domain Names and retrieve details about each domain''s configuration, certificate, and associated API."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      d.domain_name,
-      d.regional_certificate_arn,
-      c.certificate,
-      c.certificate_transparency_logging_preference,
-      c.created_at,
-      c.imported_at,
-      c.issuer,
-      c.issued_at,
-      c.key_algorithm
-    from
-      aws_api_gateway_domain_name as d,
-      aws_acm_certificate as c
-    where
-      c.certificate_arn = d.regional_certificate_arn;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  d.domain_name,\n  d.regional_certificate_arn,\n  c.certificate,\n\
+    \  c.certificate_transparency_logging_preference,\n  c.created_at,\n  c.imported_at,\n\
+    \  c.issuer,\n  c.issued_at,\n  c.key_algorithm\nfrom\n  aws_api_gateway_domain_name\
+    \ as d,\n  aws_acm_certificate as c\nwhere\n  c.certificate_arn = d.regional_certificate_arn;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - API Gateway
+Title: Find AWS API Gateway Domain Names and Certificates

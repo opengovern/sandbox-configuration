@@ -1,30 +1,25 @@
+Description: Allows users to query AWS RDS DB Instances for detailed information about
+  the configuration, status, and other metadata associated with each database instance.
 ID: aws_rds_db_instance_11
-Title: "Query AWS RDS DB Instances for Configuration and Status"
-Description: "Allows users to query AWS RDS DB Instances for detailed information about the configuration, status, and other metadata associated with each database instance."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      certificate ->> 'CertificateArn' as certificate_arn,
-      certificate ->> 'CertificateType' as certificate_type,
-      certificate ->> 'ValidFrom' as valid_from,
-      certificate ->> 'ValidTill' as valid_till
-    from
-      aws_rds_db_instance
-    where
-      (certificate ->> 'ValidTill')::timestamp <= (current_date - interval '90' day);
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  certificate ->> 'CertificateArn' as certificate_arn,\n\
+    \  certificate ->> 'CertificateType' as certificate_type,\n  certificate ->> 'ValidFrom'\
+    \ as valid_from,\n  certificate ->> 'ValidTill' as valid_till\nfrom\n  aws_rds_db_instance\n\
+    where\n  (certificate ->> 'ValidTill')::timestamp <= (current_date - interval\
+    \ '90' day);"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - RDS
+Title: Query AWS RDS DB Instances for Configuration and Status

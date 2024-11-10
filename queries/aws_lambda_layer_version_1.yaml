@@ -1,28 +1,22 @@
+Description: Allows users to query AWS Lambda Layer Versions, providing detailed information
+  about each layer version, including its ARN, description, license info, compatible
+  runtimes, created date, and more.
 ID: aws_lambda_layer_version_1
-Title: "Find AWS Lambda Layer Version Details"
-Description: "Allows users to query AWS Lambda Layer Versions, providing detailed information about each layer version, including its ARN, description, license info, compatible runtimes, created date, and more."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      layer_arn,
-      layer_name,
-      layer_version_arn,
-      created_date,
-      jsonb_pretty(policy) as policy,
-      jsonb_pretty(policy_std) as policy_std,
-      version
-    from
-      aws_lambda_layer_version;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  layer_arn,\n  layer_name,\n  layer_version_arn,\n  created_date,\n\
+    \  jsonb_pretty(policy) as policy,\n  jsonb_pretty(policy_std) as policy_std,\n\
+    \  version\nfrom\n  aws_lambda_layer_version;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Lambda
+Title: Find AWS Lambda Layer Version Details

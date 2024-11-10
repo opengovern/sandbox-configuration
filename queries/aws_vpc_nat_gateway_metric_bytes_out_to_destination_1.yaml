@@ -1,32 +1,24 @@
+Description: Allows users to query AWS NAT Gateway metrics for bytes sent to the destination
+  from the NAT gateway. The table provides information about the number of bytes sent
+  out to the destination per NAT gateway in a VPC.
 ID: aws_vpc_nat_gateway_metric_bytes_out_to_destination_1
-Title: "List all AWS NAT Gateway Metrics for Bytes Sent Out"
-Description: "Allows users to query AWS NAT Gateway metrics for bytes sent to the destination from the NAT gateway. The table provides information about the number of bytes sent out to the destination per NAT gateway in a VPC."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      nat_gateway_id,
-      timestamp,
-      minimum,
-      maximum,
-      average,
-      sample_count
-    from
-      aws_vpc_nat_gateway_metric_bytes_out_to_destination
-    order by
-      nat_gateway_id,
-      timestamp;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  nat_gateway_id,\n  timestamp,\n  minimum,\n  maximum,\n\
+    \  average,\n  sample_count\nfrom\n  aws_vpc_nat_gateway_metric_bytes_out_to_destination\n\
+    order by\n  nat_gateway_id,\n  timestamp;"
 Tags:
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - NAT Gateway
+Title: List all AWS NAT Gateway Metrics for Bytes Sent Out

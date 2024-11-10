@@ -1,30 +1,25 @@
+Description: Allows users to query AWS Well-Architected Tool Lens Reviews to obtain
+  detailed information about each review, including its associated workload, lens,
+  and milestone information.
 ID: aws_wellarchitected_lens_review_5
-Title: "List AWS Well-Architected Tool Lens Reviews with SQL"
-Description: "Allows users to query AWS Well-Architected Tool Lens Reviews to obtain detailed information about each review, including its associated workload, lens, and milestone information."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      lens_name,
-      lens_arn,
-      s ->> 'Notes' as pillar_review_summary_note,
-      s ->> 'PillarId' as pillar_id,
-      s ->> 'PillarName' as pillar_name,
-      s ->> 'RiskCounts' as RiskCounts
-    from
-      aws_wellarchitected_lens_review,
-      jsonb_array_elements(pillar_review_summaries) as s;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  lens_name,\n  lens_arn,\n  s ->> 'Notes' as pillar_review_summary_note,\n\
+    \  s ->> 'PillarId' as pillar_id,\n  s ->> 'PillarName' as pillar_name,\n  s ->>\
+    \ 'RiskCounts' as RiskCounts\nfrom\n  aws_wellarchitected_lens_review,\n  jsonb_array_elements(pillar_review_summaries)\
+    \ as s;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Well-Architected Tool
+Title: List AWS Well-Architected Tool Lens Reviews with SQL

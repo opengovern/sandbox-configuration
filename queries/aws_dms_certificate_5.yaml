@@ -1,28 +1,24 @@
+Description: Allows users to query AWS DMS (Database Migration Service) Certificates.
+  This table provides information about SSL/TLS certificates used in AWS DMS for encrypting
+  data during database migration tasks. Certificates play a crucial role in ensuring
+  the security and integrity of data transferred between source and target databases.
 ID: aws_dms_certificate_5
-Title: "Find all AWS DMS Certificates with Details"
-Description: "Allows users to query AWS DMS (Database Migration Service) Certificates. This table provides information about SSL/TLS certificates used in AWS DMS for encrypting data during database migration tasks. Certificates play a crucial role in ensuring the security and integrity of data transferred between source and target databases."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      certificate_identifier,
-      arn,
-      certificate_owner,
-      (valid_to_date - current_date) as days_left,
-      region
-    from
-      aws_dms_certificate;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  certificate_identifier,\n  arn,\n  certificate_owner,\n\
+    \  (valid_to_date - current_date) as days_left,\n  region\nfrom\n  aws_dms_certificate;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Database Migration Service
+Title: Find all AWS DMS Certificates with Details

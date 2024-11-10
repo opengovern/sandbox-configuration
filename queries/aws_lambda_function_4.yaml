@@ -1,32 +1,25 @@
+Description: Allows users to query AWS Lambda Functions, providing information about
+  each function''s configuration, including runtime, code size, timeout, and associated
+  tags.
 ID: aws_lambda_function_4
-Title: "List AWS Lambda Functions with Logs Retention Less Than 30 Days"
-Description: "Allows users to query AWS Lambda Functions, providing information about each function''s configuration, including runtime, code size, timeout, and associated tags."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      fn.name,
-      lg.name,
-      lg.retention_in_days
-    from
-      aws_lambda_function as fn
-      inner join aws_cloudwatch_log_group as lg on (
-        (lg.name = '/aws/lambda/')
-        or (lg.name = fn.name)
-      )
-    where
-      lg.retention_in_days < 30;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  fn.name,\n  lg.name,\n  lg.retention_in_days\nfrom\n\
+    \  aws_lambda_function as fn\n  inner join aws_cloudwatch_log_group as lg on (\n\
+    \    (lg.name = '/aws/lambda/')\n    or (lg.name = fn.name)\n  )\nwhere\n  lg.retention_in_days\
+    \ < 30;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Lambda
+Title: List AWS Lambda Functions with Logs Retention Less Than 30 Days

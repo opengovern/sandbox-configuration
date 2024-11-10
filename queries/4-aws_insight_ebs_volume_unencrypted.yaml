@@ -1,19 +1,15 @@
+Description: List of unencrypted EBS volumes
 ID: aws_insight_ebs_volume_unencrypted
-Title: "Unencrypted EBS Disks"
-Description: "List of unencrypted EBS volumes"
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select volume_id, encrypted, account_id, og_account_id, og_resource_id from
-      aws_ebs_volume
-    where
-      not encrypted;
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
   - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: "select volume_id, encrypted, account_id, og_account_id, og_resource_id\
+    \ from\n  aws_ebs_volume\nwhere\n  not encrypted;"
 Tags:
   category:
   - Security
@@ -22,3 +18,4 @@ Tags:
   - Security
   - DevOps
   - Product
+Title: Unencrypted EBS Disks

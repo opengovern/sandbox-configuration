@@ -1,31 +1,24 @@
+Description: Allows users to query AWS S3 Objects and retrieve metadata and details
+  about each object stored in S3 buckets.
 ID: aws_s3_object_13
-Title: "List all AWS S3 Object Metadata and Details"
-Description: "Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.key,
-      b ->> 'awsAccountId' as account_id,
-      b ->> 'digestEndTime' as digest_end_time,
-      b ->> 'digestPublicKeyFingerprint' as digest_public_key_fingerprint,
-      b ->> 'digestS3Bucket' as digest_s3_bucket,
-      b ->> 'digestStartTime' as digest_start_time
-    from
-      aws_s3_object as s,
-      jsonb_array_elements(body::jsonb) as b
-    where
-      bucket_name = 'steampipe-test'
-      and prefix = 'test1/log_text.txt';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  s.key,\n  b ->> 'awsAccountId' as account_id,\n  b ->>\
+    \ 'digestEndTime' as digest_end_time,\n  b ->> 'digestPublicKeyFingerprint' as\
+    \ digest_public_key_fingerprint,\n  b ->> 'digestS3Bucket' as digest_s3_bucket,\n\
+    \  b ->> 'digestStartTime' as digest_start_time\nfrom\n  aws_s3_object as s,\n\
+    \  jsonb_array_elements(body::jsonb) as b\nwhere\n  bucket_name = 'steampipe-test'\n\
+    \  and prefix = 'test1/log_text.txt';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - S3
+Title: List all AWS S3 Object Metadata and Details

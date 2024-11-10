@@ -1,35 +1,29 @@
+Description: Allows users to query AWS CloudTrail events for a detailed view of account
+  activity, including actions taken through the AWS Management Console, AWS SDKs,
+  command line tools, and other AWS services.
 ID: aws_cloudtrail_query_3
-Title: "Find all AWS CloudTrail events account activity"
-Description: "Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      q.query_id as query_id,
-      q.event_data_store_arn as event_data_store_arn,
-      s.name as event_data_store_name,
-      s.status as event_data_store_status,
-      s.multi_region_enabled as multi_region_enabled,
-      s.termination_protection_enabled as termination_protection_enabled,
-      s.updated_timestamp as event_data_store_updated_timestamp
-    from
-      aws_cloudtrail_query as q,
-      aws_cloudtrail_event_data_store as s
-    where
-     s.arn = q.event_data_store_arn;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  q.query_id as query_id,\n  q.event_data_store_arn as\
+    \ event_data_store_arn,\n  s.name as event_data_store_name,\n  s.status as event_data_store_status,\n\
+    \  s.multi_region_enabled as multi_region_enabled,\n  s.termination_protection_enabled\
+    \ as termination_protection_enabled,\n  s.updated_timestamp as event_data_store_updated_timestamp\n\
+    from\n  aws_cloudtrail_query as q,\n  aws_cloudtrail_event_data_store as s\nwhere\n\
+    \ s.arn = q.event_data_store_arn;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudTrail
+Title: Find all AWS CloudTrail events account activity

@@ -1,21 +1,19 @@
+Description: List certificates for which transparency logging is disabled
 ID: aws_insight_acm_certificate_transparency_logging_disabled
-Title: "Certificates with no Logging"
-Description: "List certificates for which transparency logging is disabled"
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select certificate_arn, domain_name, status, account_id, og_account_id, og_resource_id from
-      aws_acm_certificate
-    where
-      certificate_transparency_logging_preference <> 'ENABLED';
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
   - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: "select certificate_arn, domain_name, status, account_id, og_account_id,\
+    \ og_resource_id from\n  aws_acm_certificate\nwhere\n  certificate_transparency_logging_preference\
+    \ <> 'ENABLED';"
 Tags:
   category:
   - Security
   - Technical Debt
   - Resiliency
+Title: Certificates with no Logging

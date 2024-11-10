@@ -1,24 +1,17 @@
+Description: List of database accounts where automatic failover is not enabled
 ID: azure_insight_cosmosdb_account_with_disabled_automatic_failover
-Title: "Database with no Auto Failover"
-Description: "List of database accounts where automatic failover is not enabled"
-Connector:
-- azure
+IntegrationTypeName:
+- azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      region,
-      enable_automatic_failover,
-      resource_group, subscription_id, og_account_id, og_resource_id
-    from
-      azure_cosmosdb_account
-    where
-      not enable_automatic_failover;
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
   - azure_cosmosdb_account
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: "select\n  name,\n  region,\n  enable_automatic_failover,\n  resource_group,\
+    \ subscription_id, og_account_id, og_resource_id\nfrom\n  azure_cosmosdb_account\n\
+    where\n  not enable_automatic_failover;"
 Tags:
   category:
   - Resiliency
+Title: Database with no Auto Failover

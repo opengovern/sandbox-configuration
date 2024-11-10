@@ -1,31 +1,25 @@
+Description: Allows users to query AWS Database Migration Service Source Servers for
+  detailed information about the replication servers used in database migrations.
 ID: aws_drs_source_server_3
-Title: "Query AWS DMS Source Servers for Replication Details"
-Description: "Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      title,
-      source_properties ->> 'Cpus' as source_cpus,
-      source_properties ->> 'Disks' as source_disks,
-      source_properties -> 'IdentificationHints' ->> 'Hostname' as source_hostname,
-      source_properties ->> 'NetworkInterfaces' as source_network_interfaces,
-      source_properties -> 'Os' ->> 'FullString' as source_os,
-      source_properties -> 'RamBytes' as source_ram_bytes,
-      source_properties -> 'RecommendedInstanceType' as source_recommended_instance_type,
-      source_properties -> 'LastUpdatedDateTime' as source_last_updated_date_time
-    from
-      aws_drs_source_server;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  title,\n  source_properties ->> 'Cpus' as source_cpus,\n\
+    \  source_properties ->> 'Disks' as source_disks,\n  source_properties -> 'IdentificationHints'\
+    \ ->> 'Hostname' as source_hostname,\n  source_properties ->> 'NetworkInterfaces'\
+    \ as source_network_interfaces,\n  source_properties -> 'Os' ->> 'FullString'\
+    \ as source_os,\n  source_properties -> 'RamBytes' as source_ram_bytes,\n  source_properties\
+    \ -> 'RecommendedInstanceType' as source_recommended_instance_type,\n  source_properties\
+    \ -> 'LastUpdatedDateTime' as source_last_updated_date_time\nfrom\n  aws_drs_source_server;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Database Migration Service
+Title: Query AWS DMS Source Servers for Replication Details

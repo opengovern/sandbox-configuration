@@ -1,31 +1,23 @@
+Description: Allows users to query AWS Inspector Assessment Runs to get detailed information
+  about each assessment run, including its state, duration, findings, and more.
 ID: aws_inspector_assessment_run_6
-Title: "List all AWS Inspector Assessment Runs in Last Week"
-Description: "Allows users to query AWS Inspector Assessment Runs to get detailed information about each assessment run, including its state, duration, findings, and more."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      assessment_template_arn,
-      created_at,
-      state,
-      region
-    from
-      aws_inspector_assessment_run
-    where
-      created_at >= (now() - interval '7' day);
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  assessment_template_arn,\n  created_at,\n\
+    \  state,\n  region\nfrom\n  aws_inspector_assessment_run\nwhere\n  created_at\
+    \ >= (now() - interval '7' day);"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: List all AWS Inspector Assessment Runs in Last Week

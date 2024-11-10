@@ -1,33 +1,24 @@
+Description: Allows users to query daily AWS costs by account. This table provides
+  an overview of AWS usage and cost data for each AWS account on a daily basis.
 ID: aws_cost_by_account_daily_1
-Title: "Find AWS Cost and Usage By Account Daily"
-Description: "Allows users to query daily AWS costs by account. This table provides an overview of AWS usage and cost data for each AWS account on a daily basis."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      linked_account_id,
-      period_start,
-      blended_cost_amount::numeric::money,
-      unblended_cost_amount::numeric::money,
-      amortized_cost_amount::numeric::money,
-      net_unblended_cost_amount::numeric::money,
-      net_amortized_cost_amount::numeric::money
-    from 
-      aws_cost_by_account_daily
-    order by
-      linked_account_id,
-      period_start;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  linked_account_id,\n  period_start,\n  blended_cost_amount::numeric::money,\n\
+    \  unblended_cost_amount::numeric::money,\n  amortized_cost_amount::numeric::money,\n\
+    \  net_unblended_cost_amount::numeric::money,\n  net_amortized_cost_amount::numeric::money\n\
+    from \n  aws_cost_by_account_daily\norder by\n  linked_account_id,\n  period_start;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Cost Explorer
+Title: Find AWS Cost and Usage By Account Daily

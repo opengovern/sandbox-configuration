@@ -1,32 +1,24 @@
+Description: Allows users to query AWS DAX Subnet Group details, such as the subnet
+  group name, description, VPC ID, and the subnets in the group.
 ID: aws_dax_subnet_group_2
-Title: "Find AWS DAX Subnet Group details including VPC info"
-Description: "Allows users to query AWS DAX Subnet Group details, such as the subnet group name, description, VPC ID, and the subnets in the group."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      subnet_group_name,
-      v.vpc_id,
-      v.arn as vpc_arn,
-      v.cidr_block as vpc_cidr_block,
-      v.state as vpc_state,
-      v.is_default as is_default_vpc,
-      v.region
-    from
-      aws_dax_subnet_group g
-    join aws_vpc v
-      on v.vpc_id = g.vpc_id;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  subnet_group_name,\n  v.vpc_id,\n  v.arn as vpc_arn,\n\
+    \  v.cidr_block as vpc_cidr_block,\n  v.state as vpc_state,\n  v.is_default as\
+    \ is_default_vpc,\n  v.region\nfrom\n  aws_dax_subnet_group g\njoin aws_vpc v\n\
+    \  on v.vpc_id = g.vpc_id;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - DAX
+Title: Find AWS DAX Subnet Group details including VPC info

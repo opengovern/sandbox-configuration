@@ -1,29 +1,23 @@
+Description: Allows users to query AWS Firewall Manager Applications to obtain comprehensive
+  details about each application, including application ID, protocol, source and destination
+  IP ranges, and source and destination ports.
 ID: aws_fms_app_list_2
-Title: "Find AWS Firewall Manager Application Details in Last 30 Days"
-Description: "Allows users to query AWS Firewall Manager Applications to obtain comprehensive details about each application, including application ID, protocol, source and destination IP ranges, and source and destination ports."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      list_name,
-      list_id,
-      arn,
-      create_time
-    from
-      aws_fms_app_list
-    where
-      create_time >= now() - interval '30' day;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  list_name,\n  list_id,\n  arn,\n  create_time\nfrom\n\
+    \  aws_fms_app_list\nwhere\n  create_time >= now() - interval '30' day;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Firewall Manager
+Title: Find AWS Firewall Manager Application Details in Last 30 Days

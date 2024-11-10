@@ -1,29 +1,22 @@
+Description: Allows users to query AWS CloudFormation Stack Resources, providing details
+  about each resource within the stack, including its status, type, and associated
+  metadata. This table is useful for managing and analyzing AWS CloudFormation resources.
 ID: aws_cloudformation_stack_resource_2
-Title: "Find AWS CloudFormation Stack Resource Details and Status"
-Description: "Allows users to query AWS CloudFormation Stack Resources, providing details about each resource within the stack, including its status, type, and associated metadata. This table is useful for managing and analyzing AWS CloudFormation resources."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.name,
-      s.disable_rollback,
-      r.logical_resource_id,
-      r.resource_status
-    from
-      aws_cloudformation_stack_resource as r,
-      aws_cloudformation_stack as s
-    where
-      r.stack_id = s.id
-      and s.disable_rollback;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  s.name,\n  s.disable_rollback,\n  r.logical_resource_id,\n\
+    \  r.resource_status\nfrom\n  aws_cloudformation_stack_resource as r,\n  aws_cloudformation_stack\
+    \ as s\nwhere\n  r.stack_id = s.id\n  and s.disable_rollback;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudFormation
+Title: Find AWS CloudFormation Stack Resource Details and Status

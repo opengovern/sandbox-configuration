@@ -1,27 +1,20 @@
+Description: Allows users to query AWS GuardDuty Publishing Destinations to retrieve
+  information about where GuardDuty findings are published.
 ID: aws_guardduty_publishing_destination_4
-Title: "List all AWS GuardDuty Publishing Destination Types"
-Description: "Allows users to query AWS GuardDuty Publishing Destinations to retrieve information about where GuardDuty findings are published."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      destination_type,
-      count(destination_id)
-    from
-      aws_guardduty_publishing_destination
-    group by 
-      destination_type
-    order by
-      count desc;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  destination_type,\n  count(destination_id)\nfrom\n  aws_guardduty_publishing_destination\n\
+    group by \n  destination_type\norder by\n  count desc;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - GuardDuty
+Title: List all AWS GuardDuty Publishing Destination Types

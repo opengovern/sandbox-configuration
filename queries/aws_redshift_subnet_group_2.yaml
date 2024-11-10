@@ -1,29 +1,26 @@
+Description: Allows users to query AWS Redshift Subnet Groups and get detailed information
+  about each subnet group, including its name, description, VPC ID, subnet IDs, and
+  status.
 ID: aws_redshift_subnet_group_2
-Title: "Find AWS Redshift Subnet Group Details and Status"
-Description: "Allows users to query AWS Redshift Subnet Groups and get detailed information about each subnet group, including its name, description, VPC ID, subnet IDs, and status."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      cluster_subnet_group_name,
-      subnet -> 'SubnetAvailabilityZone' ->> 'Name' as subnet_availability_zone,
-      subnet -> 'SubnetAvailabilityZone' ->> 'SupportedPlatforms' as supported_platforms,
-      subnet ->> 'SubnetIdentifier' as subnet_identifier,
-      subnet ->> 'SubnetStatus' as subnet_status
-    from
-      aws_redshift_subnet_group,
-      jsonb_array_elements(subnets) as subnet;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  cluster_subnet_group_name,\n  subnet -> 'SubnetAvailabilityZone'\
+    \ ->> 'Name' as subnet_availability_zone,\n  subnet -> 'SubnetAvailabilityZone'\
+    \ ->> 'SupportedPlatforms' as supported_platforms,\n  subnet ->> 'SubnetIdentifier'\
+    \ as subnet_identifier,\n  subnet ->> 'SubnetStatus' as subnet_status\nfrom\n\
+    \  aws_redshift_subnet_group,\n  jsonb_array_elements(subnets) as subnet;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Redshift
+Title: Find AWS Redshift Subnet Group Details and Status

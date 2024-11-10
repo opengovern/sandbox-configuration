@@ -1,31 +1,26 @@
+Description: Allows users to query AWS EC2 AMIs (Amazon Machine Images) to retrieve
+  detailed information about each AMI available in the AWS account.
 ID: aws_ec2_ami_4
-Title: "List all AWS EC2 AMIs with Detailed Information"
-Description: "Allows users to query AWS EC2 AMIs (Amazon Machine Images) to retrieve detailed information about each AMI available in the AWS account."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      image_id,
-      mapping -> 'Ebs' ->> 'VolumeSize' as volume_size,
-      mapping -> 'Ebs' ->> 'VolumeType' as volume_type,
-      mapping -> 'Ebs' ->> 'Encrypted' as encryption_status,
-      mapping -> 'Ebs' ->> 'KmsKeyId' as kms_key,
-      mapping -> 'Ebs' ->> 'DeleteOnTermination' as delete_on_termination
-    from
-      aws_ec2_ami
-      cross join jsonb_array_elements(block_device_mappings) as mapping;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  image_id,\n  mapping -> 'Ebs' ->> 'VolumeSize'\
+    \ as volume_size,\n  mapping -> 'Ebs' ->> 'VolumeType' as volume_type,\n  mapping\
+    \ -> 'Ebs' ->> 'Encrypted' as encryption_status,\n  mapping -> 'Ebs' ->> 'KmsKeyId'\
+    \ as kms_key,\n  mapping -> 'Ebs' ->> 'DeleteOnTermination' as delete_on_termination\n\
+    from\n  aws_ec2_ami\n  cross join jsonb_array_elements(block_device_mappings)\
+    \ as mapping;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - EC2 AMI
+Title: List all AWS EC2 AMIs with Detailed Information

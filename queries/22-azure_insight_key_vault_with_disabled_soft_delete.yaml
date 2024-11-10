@@ -1,26 +1,19 @@
+Description: List of key vaults where soft deletion is not enabled
 ID: azure_insight_key_vault_with_disabled_soft_delete
-Title: "Key Vaults with no Deletion Protection"
-Description: "List of key vaults where soft deletion is not enabled"
-Connector:
-- azure
+IntegrationTypeName:
+- azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      id,
-      soft_delete_enabled,
-      soft_delete_retention_in_days, subscription_id, og_account_id, og_resource_id
-    from
-      azure_key_vault
-    where
-      not soft_delete_enabled;
-  PrimaryTable: azure_key_vault
   ListOfTables:
   - azure_key_vault
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: "select\n  name,\n  id,\n  soft_delete_enabled,\n  soft_delete_retention_in_days,\
+    \ subscription_id, og_account_id, og_resource_id\nfrom\n  azure_key_vault\nwhere\n\
+    \  not soft_delete_enabled;"
 Tags:
   category:
   - Security
   - Technical Debt
   - Resiliency
+Title: Key Vaults with no Deletion Protection

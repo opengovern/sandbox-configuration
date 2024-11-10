@@ -1,28 +1,23 @@
+Description: Allows users to query AWS IAM User data, providing details such as user
+  ID, name, path, creation date, and more. This table is useful for security audits,
+  policy enforcement, and operational troubleshooting.
 ID: aws_iam_user_4
-Title: "Find all non-MFA enabled AWS IAM Users with SQL"
-Description: "Allows users to query AWS IAM User data, providing details such as user ID, name, path, creation date, and more. This table is useful for security audits, policy enforcement, and operational troubleshooting."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      user_id,
-      mfa_enabled
-    from
-      aws_iam_user
-    where
-      not mfa_enabled;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  user_id,\n  mfa_enabled\nfrom\n  aws_iam_user\n\
+    where\n  not mfa_enabled;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - IAM
+Title: Find all non-MFA enabled AWS IAM Users with SQL

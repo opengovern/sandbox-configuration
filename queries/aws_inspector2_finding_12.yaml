@@ -1,32 +1,32 @@
+Description: Allows users to query AWS Inspector findings to gain insights into potential
+  security issues and vulnerabilities within their AWS resources. The table provides
+  detailed information about each finding, including its severity, status, and associated
+  resources.
 ID: aws_inspector2_finding_12
-Title: "Find AWS Inspector findings and security issues"
-Description: "Allows users to query AWS Inspector findings to gain insights into potential security issues and vulnerabilities within their AWS resources. The table provides detailed information about each finding, including its severity, status, and associated resources."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      inspector_score_details -> 'AdjustedCvss' ->> 'Score' as adjusted_cvss_score,
-      inspector_score_details -> 'AdjustedCvss' ->> 'ScScoreSourceore' as adjusted_cvss_source_score,
-      inspector_score_details -> 'AdjustedCvss' ->> 'ScoScoringVectorre' as adjusted_cvss_scoring_vector,
-      inspector_score_details -> 'AdjustedCvss' ->> 'Version' as adjusted_cvss_version,
-      inspector_score_details -> 'AdjustedCvss' -> 'Adjustments' as adjusted_cvss_adjustments,
-      inspector_score_details -> 'AdjustedCvss' ->> 'CvssSource' as adjusted_cvss_cvss_source
-    from
-      aws_inspector2_finding;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  inspector_score_details -> 'AdjustedCvss' ->>\
+    \ 'Score' as adjusted_cvss_score,\n  inspector_score_details -> 'AdjustedCvss'\
+    \ ->> 'ScScoreSourceore' as adjusted_cvss_source_score,\n  inspector_score_details\
+    \ -> 'AdjustedCvss' ->> 'ScoScoringVectorre' as adjusted_cvss_scoring_vector,\n\
+    \  inspector_score_details -> 'AdjustedCvss' ->> 'Version' as adjusted_cvss_version,\n\
+    \  inspector_score_details -> 'AdjustedCvss' -> 'Adjustments' as adjusted_cvss_adjustments,\n\
+    \  inspector_score_details -> 'AdjustedCvss' ->> 'CvssSource' as adjusted_cvss_cvss_source\n\
+    from\n  aws_inspector2_finding;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: Find AWS Inspector findings and security issues

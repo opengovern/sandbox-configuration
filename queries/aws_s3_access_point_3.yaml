@@ -1,33 +1,24 @@
+Description: Allows users to query AWS S3 Access Point details such as name, bucket,
+  network origin, policy status, creation time, and more.
 ID: aws_s3_access_point_3
-Title: "Find AWS S3 Access Point details with public policies"
-Description: "Allows users to query AWS S3 Access Point details such as name, bucket, network origin, policy status, creation time, and more."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      block_public_acls,
-      block_public_policy,
-      ignore_public_acls,
-      restrict_public_buckets
-    from
-      aws_s3_access_point
-    where
-      not block_public_acls
-      or not block_public_policy
-      or not ignore_public_acls
-      or not restrict_public_buckets;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  block_public_acls,\n  block_public_policy,\n\
+    \  ignore_public_acls,\n  restrict_public_buckets\nfrom\n  aws_s3_access_point\n\
+    where\n  not block_public_acls\n  or not block_public_policy\n  or not ignore_public_acls\n\
+    \  or not restrict_public_buckets;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - S3
+Title: Find AWS S3 Access Point details with public policies

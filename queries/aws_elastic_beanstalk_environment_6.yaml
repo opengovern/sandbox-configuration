@@ -1,37 +1,29 @@
+Description: Allows users to query AWS Elastic Beanstalk Environments to gain insights
+  into their configuration, status, health, related applications, and other metadata.
 ID: aws_elastic_beanstalk_environment_6
-Title: "List all AWS Elastic Beanstalk Environments with Metadata"
-Description: "Allows users to query AWS Elastic Beanstalk Environments to gain insights into their configuration, status, health, related applications, and other metadata."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      environment_name,
-      application_name,
-      c ->> 'DateCreated' as date_created,
-      c ->> 'DateUpdated' as date_updated,
-      c ->> 'DeploymentStatus' as deployment_status,
-      c ->> 'Description' as description,
-      c -> 'OptionSettings' ->> 'Namespace' as option_settings_namespace,
-      c -> 'OptionSettings' ->> 'OptionName' as option_name,
-      c -> 'OptionSettings' ->> 'ResourceName' as option_resource_name,
-      c -> 'OptionSettings' ->> 'Value' as option_value,
-      c ->> 'PlatformArn' as platform_arn,
-      c ->> 'SolutionStackName' as solution_stack_name,
-      c ->> 'TemplateName' as template_name
-    from
-      aws_elastic_beanstalk_environment,
-      jsonb_array_elements(configuration_settings) as c;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  environment_name,\n  application_name,\n  c ->> 'DateCreated'\
+    \ as date_created,\n  c ->> 'DateUpdated' as date_updated,\n  c ->> 'DeploymentStatus'\
+    \ as deployment_status,\n  c ->> 'Description' as description,\n  c -> 'OptionSettings'\
+    \ ->> 'Namespace' as option_settings_namespace,\n  c -> 'OptionSettings' ->> 'OptionName'\
+    \ as option_name,\n  c -> 'OptionSettings' ->> 'ResourceName' as option_resource_name,\n\
+    \  c -> 'OptionSettings' ->> 'Value' as option_value,\n  c ->> 'PlatformArn' as\
+    \ platform_arn,\n  c ->> 'SolutionStackName' as solution_stack_name,\n  c ->>\
+    \ 'TemplateName' as template_name\nfrom\n  aws_elastic_beanstalk_environment,\n\
+    \  jsonb_array_elements(configuration_settings) as c;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Elastic Beanstalk
+Title: List all AWS Elastic Beanstalk Environments with Metadata

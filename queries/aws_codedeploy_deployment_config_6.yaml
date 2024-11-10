@@ -1,30 +1,25 @@
+Description: Allows users to query AWS CodeDeploy Deployment Configurations to retrieve
+  information about the deployment configurations within AWS CodeDeploy service.
 ID: aws_codedeploy_deployment_config_6
-Title: "Find AWS CodeDeploy deployment configurations"
-Description: "Allows users to query AWS CodeDeploy Deployment Configurations to retrieve information about the deployment configurations within AWS CodeDeploy service."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      deployment_config_id,
-      deployment_config_name,
-      traffic_routing_config -> 'TimeBasedLinear' ->> 'LinearInterval' as linear_interval,
-      traffic_routing_config -> 'TimeBasedLinear' ->> 'LinearPercentage' as linear_percentage
-    from
-      aws_codedeploy_deployment_config
-    where
-      traffic_routing_config ->> 'Type' = 'TimeBasedLinear';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  deployment_config_id,\n  deployment_config_name,\n\
+    \  traffic_routing_config -> 'TimeBasedLinear' ->> 'LinearInterval' as linear_interval,\n\
+    \  traffic_routing_config -> 'TimeBasedLinear' ->> 'LinearPercentage' as linear_percentage\n\
+    from\n  aws_codedeploy_deployment_config\nwhere\n  traffic_routing_config ->>\
+    \ 'Type' = 'TimeBasedLinear';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CodeDeploy
+Title: Find AWS CodeDeploy deployment configurations

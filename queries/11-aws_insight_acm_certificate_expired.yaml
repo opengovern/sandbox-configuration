@@ -1,22 +1,19 @@
+Description: List of expired certificates
 ID: aws_insight_acm_certificate_expired
-Title: "Expired Certificates"
-Description: "List of expired certificates"
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select certificate_arn, domain_name, status, account_id, og_account_id, og_resource_id from
-      aws_acm_certificate
-    where
-      status = 'EXPIRED';
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
   - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: "select certificate_arn, domain_name, status, account_id, og_account_id,\
+    \ og_resource_id from\n  aws_acm_certificate\nwhere\n  status = 'EXPIRED';"
 Tags:
   category:
   - Security
   - Technical Debt
   - Resiliency
   - Cost Management
+Title: Expired Certificates

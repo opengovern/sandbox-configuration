@@ -1,29 +1,21 @@
+Description: Allows users to query AWS CloudWatch Metrics to gather information about
+  the performance of their AWS resources and applications.
 ID: aws_cloudwatch_metric_5
-Title: "Find AWS CloudWatch Metrics for Performance Information"
-Description: "Allows users to query AWS CloudWatch Metrics to gather information about the performance of their AWS resources and applications."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      metric_name,
-      namespace,
-      dimensions
-    from
-      aws_cloudwatch_metric
-    where
-      dimensions_filter = '[
-        {"Name": "Type", "Value": "API"},
-        {"Name": "Service", "Value": "EC2"}
-      ]'::jsonb;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  metric_name,\n  namespace,\n  dimensions\nfrom\n  aws_cloudwatch_metric\n\
+    where\n  dimensions_filter = '[\n    {\"Name\": \"Type\", \"Value\": \"API\"},\n\
+    \    {\"Name\": \"Service\", \"Value\": \"EC2\"}\n  ]'::jsonb;"
 Tags:
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudWatch
+Title: Find AWS CloudWatch Metrics for Performance Information

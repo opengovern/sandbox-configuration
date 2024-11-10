@@ -1,31 +1,26 @@
+Description: Allows users to query AWS Database Migration Service Source Servers for
+  detailed information about the replication servers used in database migrations.
 ID: aws_drs_source_server_5
-Title: "List AWS DMS Source Servers with Detailed Information"
-Description: "Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      title,
-      launch_configuration ->> 'Name' as launch_configuration_name,
-      launch_configuration ->> 'CopyPrivateIp' as launch_configuration_copy_private_ip,
-      launch_configuration ->> 'CopyTags' as launch_configuration_copy_tags,
-      launch_configuration ->> 'Ec2LaunchTemplateID' as launch_configuration_ec2_launch_template_id,
-      launch_configuration ->> 'LaunchDisposition' as launch_configuration_disposition,
-      launch_configuration ->> 'TargetInstanceTypeRightSizingMethod' as launch_configuration_target_instance_type_right_sizing_method,
-      launch_configuration -> 'Licensing' as launch_configuration_licensing,
-      launch_configuration -> 'ResultMetadata' as launch_configuration_result_metadata
-    from
-      aws_drs_source_server;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  title,\n  launch_configuration ->> 'Name' as\
+    \ launch_configuration_name,\n  launch_configuration ->> 'CopyPrivateIp' as launch_configuration_copy_private_ip,\n\
+    \  launch_configuration ->> 'CopyTags' as launch_configuration_copy_tags,\n  launch_configuration\
+    \ ->> 'Ec2LaunchTemplateID' as launch_configuration_ec2_launch_template_id,\n\
+    \  launch_configuration ->> 'LaunchDisposition' as launch_configuration_disposition,\n\
+    \  launch_configuration ->> 'TargetInstanceTypeRightSizingMethod' as launch_configuration_target_instance_type_right_sizing_method,\n\
+    \  launch_configuration -> 'Licensing' as launch_configuration_licensing,\n  launch_configuration\
+    \ -> 'ResultMetadata' as launch_configuration_result_metadata\nfrom\n  aws_drs_source_server;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Database Migration Service
+Title: List AWS DMS Source Servers with Detailed Information

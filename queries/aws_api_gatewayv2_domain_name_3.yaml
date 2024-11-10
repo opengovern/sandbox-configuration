@@ -1,37 +1,33 @@
+Description: Allows users to query AWS API Gateway Domain Names and provides information
+  about each domain name within the AWS API Gateway Service. This table can be used
+  to query domain name details, including associated API mappings, security policy,
+  and associated tags.
 ID: aws_api_gatewayv2_domain_name_3
-Title: "List all AWS API Gateway Domain Names and Details"
-Description: "Allows users to query AWS API Gateway Domain Names and provides information about each domain name within the AWS API Gateway Service. This table can be used to query domain name details, including associated API mappings, security policy, and associated tags."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      domain_name,
-      config ->> 'EndpointType' as endpoint_type,
-      config ->> 'CertificateName' as certificate_name,
-      config ->> 'CertificateArn' as certificate_arn,
-      config ->> 'CertificateUploadDate' as certificate_upload_date,
-      config ->> 'DomainNameStatus' as domain_name_status,
-      config ->> 'DomainNameStatusMessage' as domain_name_status_message,
-      config ->> 'ApiGatewayDomainName' as api_gateway_domain_name,
-      config ->> 'HostedZoneId' as hosted_zone_id,
-      config ->> 'OwnershipVerificationCertificateArn' as ownership_verification_certificate_arn,
-      config -> 'SecurityPolicy' as security_policy
-    from
-      aws_api_gatewayv2_domain_name
-      cross join jsonb_array_elements(domain_name_configurations) as config;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  domain_name,\n  config ->> 'EndpointType' as endpoint_type,\n\
+    \  config ->> 'CertificateName' as certificate_name,\n  config ->> 'CertificateArn'\
+    \ as certificate_arn,\n  config ->> 'CertificateUploadDate' as certificate_upload_date,\n\
+    \  config ->> 'DomainNameStatus' as domain_name_status,\n  config ->> 'DomainNameStatusMessage'\
+    \ as domain_name_status_message,\n  config ->> 'ApiGatewayDomainName' as api_gateway_domain_name,\n\
+    \  config ->> 'HostedZoneId' as hosted_zone_id,\n  config ->> 'OwnershipVerificationCertificateArn'\
+    \ as ownership_verification_certificate_arn,\n  config -> 'SecurityPolicy' as\
+    \ security_policy\nfrom\n  aws_api_gatewayv2_domain_name\n  cross join jsonb_array_elements(domain_name_configurations)\
+    \ as config;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - API Gateway
+Title: List all AWS API Gateway Domain Names and Details

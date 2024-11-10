@@ -1,41 +1,30 @@
+Description: AI Workload
 ID: ai_workload
-Title: "AI Workload"
-Description: "AI Workload"
-Connector:
-- aws
-- azure
+IntegrationTypeName:
+- aws_cloud
+- azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select 
-      case
-        when resource_type like 'aws::%' then 'AWS'
-        else 'Azure'
-      end as provider, 
-      c.name as cloud_account_name, 
-      c.id as _discovered_provider_id,
-      r.name as name, 
-      r.region as location, 
-      r.connection_id as _og_connection_id,
-      r.resource_id as _resource_id,
-      r.resource_type as _resource_type,
-      r.created_at as _last_discovered
-    from 
-      og_resources r inner join og_connections c on r.connection_id = c.og_id
-    where 
-      resource_type IN ('microsoft.cognitiveservices/accounts')
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select \n  case\n    when resource_type like 'aws::%' then 'AWS'\n\
+    \    else 'Azure'\n  end as provider, \n  c.name as cloud_account_name, \n  c.id\
+    \ as _discovered_provider_id,\n  r.name as name, \n  r.region as location, \n\
+    \  r.connection_id as _og_connection_id,\n  r.resource_id as _resource_id,\n \
+    \ r.resource_type as _resource_type,\n  r.created_at as _last_discovered\nfrom\
+    \ \n  og_resources r inner join og_connections c on r.connection_id = c.og_id\n\
+    where \n  resource_type IN ('microsoft.cognitiveservices/accounts')"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   - azure
   cloud_service:
   - Cognitive Services
   platform_queries_bookmark:
-  - "true"
+  - 'true'
+Title: AI Workload

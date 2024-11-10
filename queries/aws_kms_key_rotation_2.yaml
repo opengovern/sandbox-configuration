@@ -1,28 +1,22 @@
+Description: Allows users to query AWS KMS Key Rotation data including the rotation
+  schedule, type, and associated key details.
 ID: aws_kms_key_rotation_2
-Title: "List all AWS KMS Key Rotation Data"
-Description: "Allows users to query AWS KMS Key Rotation data including the rotation schedule, type, and associated key details."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      key_id,
-      key_arn,
-      rotation_date
-    from
-      aws_kms_key_rotation
-    where
-      rotation_date >= current_date - interval '30 days';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  key_id,\n  key_arn,\n  rotation_date\nfrom\n  aws_kms_key_rotation\n\
+    where\n  rotation_date >= current_date - interval '30 days';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS KMS
+Title: List all AWS KMS Key Rotation Data

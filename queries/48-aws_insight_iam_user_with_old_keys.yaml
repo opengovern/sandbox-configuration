@@ -1,15 +1,19 @@
+Description: IAM users with access keys older than 90 days
 ID: aws_insight_iam_user_with_old_keys
-Title: "IAM Users with old access keys"
-Description: "IAM users with access keys older than 90 days"
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: select access_key_1_active, access_key_1_last_rotated, access_key_2_active, access_key_2_last_rotated, user_arn, account_id, og_account_id, og_resource_id from aws_iam_credential_report where ((access_key_1_active = true AND (access_key_1_last_rotated IS NULL OR (current_date - DATE(access_key_1_last_rotated)) > 90)) OR (access_key_2_active = true AND (access_key_2_last_rotated IS NULL OR (current_date - DATE(access_key_2_last_rotated)) > 90)))
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
   - aws_iam_credential_report
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: select access_key_1_active, access_key_1_last_rotated, access_key_2_active,
+    access_key_2_last_rotated, user_arn, account_id, og_account_id, og_resource_id
+    from aws_iam_credential_report where ((access_key_1_active = true AND (access_key_1_last_rotated
+    IS NULL OR (current_date - DATE(access_key_1_last_rotated)) > 90)) OR (access_key_2_active
+    = true AND (access_key_2_last_rotated IS NULL OR (current_date - DATE(access_key_2_last_rotated))
+    > 90)))
 Tags:
   category:
   - Security
@@ -17,3 +21,4 @@ Tags:
   - DevOps
   - Security
   - Executive
+Title: IAM Users with old access keys

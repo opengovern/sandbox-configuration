@@ -1,30 +1,26 @@
+Description: Allows users to query AWS VPC Endpoint Services to retrieve detailed
+  information about each service, including service name, service type, and whether
+  or not the service is private.
 ID: aws_vpc_endpoint_service_7
-Title: "List all AWS VPC Endpoint Services Information"
-Description: "Allows users to query AWS VPC Endpoint Services to retrieve detailed information about each service, including service name, service type, and whether or not the service is private."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      service_name,
-      service_id,
-      c ->> 'VpcEndpointId' as vpc_endpoint_id,
-      c ->> 'VpcEndpointOwner' as vpc_endpoint_owner,
-      c ->> 'VpcEndpointState' as vpc_endpoint_state,
-      jsonb_array_elements_text(c -> 'NetworkLoadBalancerArns') as network_loadBalancer_arns
-    from
-      aws_vpc_endpoint_service,
-      jsonb_array_elements(vpc_endpoint_connections) as c
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  service_name,\n  service_id,\n  c ->> 'VpcEndpointId'\
+    \ as vpc_endpoint_id,\n  c ->> 'VpcEndpointOwner' as vpc_endpoint_owner,\n  c\
+    \ ->> 'VpcEndpointState' as vpc_endpoint_state,\n  jsonb_array_elements_text(c\
+    \ -> 'NetworkLoadBalancerArns') as network_loadBalancer_arns\nfrom\n  aws_vpc_endpoint_service,\n\
+    \  jsonb_array_elements(vpc_endpoint_connections) as c"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - VPC Endpoint Service
+Title: List all AWS VPC Endpoint Services Information

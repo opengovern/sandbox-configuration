@@ -1,38 +1,27 @@
+Description: Allows users to query DRS Recovery Snapshot data in AWS. It provides
+  information about recovery snapshots within AWS Disaster Recovery Service (DRS).
+  This table can be used to gather insights on recovery snapshots, including their
+  details, associated metadata, and more.
 ID: aws_drs_recovery_snapshot_5
-Title: "List all AWS DRS Recovery Snapshot Data"
-Description: "Allows users to query DRS Recovery Snapshot data in AWS. It provides information about recovery snapshots within AWS Disaster Recovery Service (DRS). This table can be used to gather insights on recovery snapshots, including their details, associated metadata, and more."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      r.snapshot_id,
-      r.source_server_id,
-      s as ebs_snapshot_id,
-      e.state as snapshot_state,
-      e.volume_size,
-      e.volume_id,
-      e.encrypted,
-      e.kms_key_id,
-      e.data_encryption_key_id
-    from
-      aws_drs_recovery_snapshot as r,
-      jsonb_array_elements_text(ebs_snapshots) as s,
-      aws_ebs_snapshot as e
-    where
-      r.snapshot_id = 'pit-3367d3f930778a9c3'
-    and
-      s = e.snapshot_id;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  r.snapshot_id,\n  r.source_server_id,\n  s as ebs_snapshot_id,\n\
+    \  e.state as snapshot_state,\n  e.volume_size,\n  e.volume_id,\n  e.encrypted,\n\
+    \  e.kms_key_id,\n  e.data_encryption_key_id\nfrom\n  aws_drs_recovery_snapshot\
+    \ as r,\n  jsonb_array_elements_text(ebs_snapshots) as s,\n  aws_ebs_snapshot\
+    \ as e\nwhere\n  r.snapshot_id = 'pit-3367d3f930778a9c3'\nand\n  s = e.snapshot_id;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Disaster Recovery Service
+Title: List all AWS DRS Recovery Snapshot Data

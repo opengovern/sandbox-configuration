@@ -1,26 +1,20 @@
+Description: Allows users to query IAM Actions in AWS Identity and Access Management
+  (IAM).
 ID: aws_iam_action_3
-Title: "Find IAM Actions in AWS Identity and Access Management"
-Description: "Allows users to query IAM Actions in AWS Identity and Access Management (IAM)."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.action,
-      a.description
-    from
-      aws_iam_action as a,
-      glob('s3:d*') as action_name
-    where
-      a.action like action_name;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  a.action,\n  a.description\nfrom\n  aws_iam_action as\
+    \ a,\n  glob('s3:d*') as action_name\nwhere\n  a.action like action_name;"
 Tags:
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Identity and Access Management
+Title: Find IAM Actions in AWS Identity and Access Management

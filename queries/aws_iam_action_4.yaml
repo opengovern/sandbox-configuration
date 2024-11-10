@@ -1,32 +1,23 @@
+Description: Allows users to query IAM Actions in AWS Identity and Access Management
+  (IAM).
 ID: aws_iam_action_4
-Title: "Find IAM Actions in AWS Identity and Access Management"
-Description: "Allows users to query IAM Actions in AWS Identity and Access Management (IAM)."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.action,
-      a.access_level
-    from
-      aws_iam_policy p,
-      jsonb_array_elements(p.policy_std -> 'Statement') as stmt,
-      jsonb_array_elements_text(stmt -> 'Action') as action_glob,
-      glob(action_glob) as action_regex
-      join aws_iam_action a ON a.action LIKE action_regex
-    where
-      p.name = 'AmazonEC2ReadOnlyAccess'
-      and stmt ->> 'Effect' = 'Allow'
-    order by
-      a.action;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  a.action,\n  a.access_level\nfrom\n  aws_iam_policy p,\n\
+    \  jsonb_array_elements(p.policy_std -> 'Statement') as stmt,\n  jsonb_array_elements_text(stmt\
+    \ -> 'Action') as action_glob,\n  glob(action_glob) as action_regex\n  join aws_iam_action\
+    \ a ON a.action LIKE action_regex\nwhere\n  p.name = 'AmazonEC2ReadOnlyAccess'\n\
+    \  and stmt ->> 'Effect' = 'Allow'\norder by\n  a.action;"
 Tags:
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Identity and Access Management (IAM)
+Title: Find IAM Actions in AWS Identity and Access Management

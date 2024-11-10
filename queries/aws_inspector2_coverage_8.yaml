@@ -1,35 +1,25 @@
+Description: Allows users to query AWS Inspector Coverage data that provides details
+  on the assessment targets and the assessment templates that are associated with
+  the AWS Inspector service.
 ID: aws_inspector2_coverage_8
-Title: "Find AWS Inspector Coverage Data on Assessment Targets"
-Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.resource_id,
-      c.resource_type,
-      c.lambda_function_name,
-      f.arn as lambda_function_arn,
-      c.lambda_function_runtime,
-      f.code_sha_256,
-      f.code_size,
-      f.kms_key_arn,
-      f.package_type
-    from
-      aws_inspector2_coverage as c,
-      aws_lambda_function as f
-    where
-      f.name = c.lambda_function_name;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  c.resource_id,\n  c.resource_type,\n  c.lambda_function_name,\n\
+    \  f.arn as lambda_function_arn,\n  c.lambda_function_runtime,\n  f.code_sha_256,\n\
+    \  f.code_size,\n  f.kms_key_arn,\n  f.package_type\nfrom\n  aws_inspector2_coverage\
+    \ as c,\n  aws_lambda_function as f\nwhere\n  f.name = c.lambda_function_name;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: Find AWS Inspector Coverage Data on Assessment Targets

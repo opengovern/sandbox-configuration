@@ -1,41 +1,28 @@
+Description: Allows users to query AWS Global Accelerator Endpoint Groups and obtain
+  detailed information about each group''s configuration, state, and associated endpoints.
 ID: aws_globalaccelerator_endpoint_group_3
-Title: "Find AWS Global Accelerator Endpoint Groups Configuration"
-Description: "Allows users to query AWS Global Accelerator Endpoint Groups and obtain detailed information about each group''s configuration, state, and associated endpoints."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.name as accelerator_name,
-      l.client_affinity as listener_client_affinity,
-      l.port_ranges as listener_port_ranges,
-      l.protocol as listener_protocol,
-      eg.endpoint_descriptions,
-      eg.endpoint_group_region,
-      eg.traffic_dial_percentage,
-      eg.port_overrides,
-      eg.health_check_interval_seconds,
-      eg.health_check_path,
-      eg.health_check_port,
-      eg.health_check_protocol,
-      eg.threshold_count
-    from
-      aws_globalaccelerator_accelerator a,
-      aws_globalaccelerator_listener l,
-      aws_globalaccelerator_endpoint_group eg
-    where
-      eg.listener_arn = l.arn
-      and l.accelerator_arn = a.arn;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  a.name as accelerator_name,\n  l.client_affinity as listener_client_affinity,\n\
+    \  l.port_ranges as listener_port_ranges,\n  l.protocol as listener_protocol,\n\
+    \  eg.endpoint_descriptions,\n  eg.endpoint_group_region,\n  eg.traffic_dial_percentage,\n\
+    \  eg.port_overrides,\n  eg.health_check_interval_seconds,\n  eg.health_check_path,\n\
+    \  eg.health_check_port,\n  eg.health_check_protocol,\n  eg.threshold_count\n\
+    from\n  aws_globalaccelerator_accelerator a,\n  aws_globalaccelerator_listener\
+    \ l,\n  aws_globalaccelerator_endpoint_group eg\nwhere\n  eg.listener_arn = l.arn\n\
+    \  and l.accelerator_arn = a.arn;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Global Accelerator
+Title: Find AWS Global Accelerator Endpoint Groups Configuration

@@ -1,40 +1,28 @@
+Description: Allows users to query IAM Roles to gain insights into their permissions,
+  trust policies, and associated metadata.
 ID: aws_iam_role_6
-Title: "Find All AWS IAM Roles, Permissions, Trust Policies"
-Description: "Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      r.name,
-      a.action,
-      a.access_level,
-      a.description
-    from
-      aws_iam_role as r,
-      jsonb_array_elements_text(r.attached_policy_arns) as pol_arn,
-      aws_iam_policy as p,
-      jsonb_array_elements(p.policy_std -> 'Statement') as stmt,
-      jsonb_array_elements_text(stmt -> 'Action') as action_glob,
-      glob(action_glob) as action_regex
-      join aws_iam_action as a on a.action like action_regex
-    where
-      pol_arn = p.arn
-      and stmt ->> 'Effect' = 'Allow'
-      and r.name = 'AWSServiceRoleForRDS'
-      and access_level not in ('List', 'Read')
-    order by
-      action;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  r.name,\n  a.action,\n  a.access_level,\n  a.description\n\
+    from\n  aws_iam_role as r,\n  jsonb_array_elements_text(r.attached_policy_arns)\
+    \ as pol_arn,\n  aws_iam_policy as p,\n  jsonb_array_elements(p.policy_std ->\
+    \ 'Statement') as stmt,\n  jsonb_array_elements_text(stmt -> 'Action') as action_glob,\n\
+    \  glob(action_glob) as action_regex\n  join aws_iam_action as a on a.action like\
+    \ action_regex\nwhere\n  pol_arn = p.arn\n  and stmt ->> 'Effect' = 'Allow'\n\
+    \  and r.name = 'AWSServiceRoleForRDS'\n  and access_level not in ('List', 'Read')\n\
+    order by\n  action;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - IAM
+Title: Find All AWS IAM Roles, Permissions, Trust Policies

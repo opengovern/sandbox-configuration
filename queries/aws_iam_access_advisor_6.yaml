@@ -1,29 +1,23 @@
+Description: Allows users to query AWS IAM Access Advisor to retrieve information
+  about the service last accessed data for IAM entities (users, groups, and roles).
 ID: aws_iam_access_advisor_6
-Title: "List IAM Access Advisor Data for AWS Entities"
-Description: "Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles)."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select 
-      principal_arn,
-      service_name
-    from
-      aws_iam_user as u,
-      aws_iam_access_advisor as adv
-    where
-      adv.principal_arn = u.arn
-      and last_authenticated is null;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select \n  principal_arn,\n  service_name\nfrom\n  aws_iam_user\
+    \ as u,\n  aws_iam_access_advisor as adv\nwhere\n  adv.principal_arn = u.arn\n\
+    \  and last_authenticated is null;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - IAM Access Advisor
+Title: List IAM Access Advisor Data for AWS Entities

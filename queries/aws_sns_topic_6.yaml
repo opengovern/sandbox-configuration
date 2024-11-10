@@ -1,39 +1,25 @@
+Description: Allows users to query AWS SNS Topics to gather information about each
+  topic, including its name, owner, ARN, and other related data.
 ID: aws_sns_topic_6
-Title: "List all details for AWS SNS Topics"
-Description: "Allows users to query AWS SNS Topics to gather information about each topic, including its name, owner, ARN, and other related data."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      title
-    from
-      aws_sns_topic
-    where
-      title not in (
-        select
-          title
-        from
-          aws_sns_topic,
-          jsonb_array_elements(policy_std -> 'Statement') as s,
-          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-          jsonb_array_elements_text(s -> 'Action') as a,
-          jsonb_array_elements_text(
-            s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
-          ) as ssl
-        where
-          p = '*'
-          and s ->> 'Effect' = 'Deny'
-          and ssl :: bool = false
-      );
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  title\nfrom\n  aws_sns_topic\nwhere\n  title not in (\n\
+    \    select\n      title\n    from\n      aws_sns_topic,\n      jsonb_array_elements(policy_std\
+    \ -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Principal' -> 'AWS')\
+    \ as p,\n      jsonb_array_elements_text(s -> 'Action') as a,\n      jsonb_array_elements_text(\n\
+    \        s -> 'Condition' -> 'Bool' -> 'aws:securetransport'\n      ) as ssl\n\
+    \    where\n      p = '*'\n      and s ->> 'Effect' = 'Deny'\n      and ssl ::\
+    \ bool = false\n  );"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - SNS
+Title: List all details for AWS SNS Topics

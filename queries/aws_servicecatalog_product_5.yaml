@@ -1,28 +1,21 @@
+Description: Allows users to query AWS Service Catalog Product data including product
+  details, owner, type, and associated metadata.
 ID: aws_servicecatalog_product_5
-Title: "List all AWS Service Catalog Product Details"
-Description: "Allows users to query AWS Service Catalog Product data including product details, owner, type, and associated metadata."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      id,
-      owner,
-      short_description,
-      l ->> 'Id' as launch_path_id,
-      l ->> 'Name' as launch_path_name
-    from
-      aws_servicecatalog_product,
-      jsonb_array_elements(launch_paths) as l;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  id,\n  owner,\n  short_description,\n  l ->>\
+    \ 'Id' as launch_path_id,\n  l ->> 'Name' as launch_path_name\nfrom\n  aws_servicecatalog_product,\n\
+    \  jsonb_array_elements(launch_paths) as l;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Service Catalog
+Title: List all AWS Service Catalog Product Details

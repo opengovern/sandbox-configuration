@@ -1,25 +1,23 @@
+Description: Allows users to query AWS VPC Endpoints and retrieve information about
+  each endpoint''s configuration, type, status, and related resources such as network
+  interfaces, DNS entries, and security groups.
 ID: aws_vpc_endpoint_2
-Title: "List all AWS VPC Endpoints and retrieve configuration details"
-Description: "Allows users to query AWS VPC Endpoints and retrieve information about each endpoint''s configuration, type, status, and related resources such as network interfaces, DNS entries, and security groups."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      vpc_endpoint_id,
-      jsonb_array_length(subnet_ids) as subnet_id_count
-    from
-      aws_vpc_endpoint;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  vpc_endpoint_id,\n  jsonb_array_length(subnet_ids) as\
+    \ subnet_id_count\nfrom\n  aws_vpc_endpoint;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - VPC Endpoint
+Title: List all AWS VPC Endpoints and retrieve configuration details

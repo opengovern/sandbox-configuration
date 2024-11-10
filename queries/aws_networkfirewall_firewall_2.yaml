@@ -1,29 +1,23 @@
+Description: Allows users to query AWS Network Firewalls for detailed information
+  about each firewall''s properties and settings.
 ID: aws_networkfirewall_firewall_2
-Title: "Find AWS Network Firewall details including encryption"
-Description: "Allows users to query AWS Network Firewalls for detailed information about each firewall''s properties and settings."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      name,
-      description,
-      encryption_configuration
-    from
-      aws_networkfirewall_firewall
-    where
-      encryption_configuration ->> 'Type' = `AWS_OWNED_KMS_KEY';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  name,\n  description,\n  encryption_configuration\n\
+    from\n  aws_networkfirewall_firewall\nwhere\n  encryption_configuration ->> 'Type'\
+    \ = `AWS_OWNED_KMS_KEY';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Network Firewall
+Title: Find AWS Network Firewall details including encryption

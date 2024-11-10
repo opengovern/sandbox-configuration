@@ -1,30 +1,23 @@
+Description: Allows users to query AWS Config Retention Configuration for information
+  about the retention period that AWS Config uses to retain your configuration items.
 ID: aws_config_retention_configuration_4
-Title: "Find AWS Config Retention Configuration Using SQL"
-Description: "Allows users to query AWS Config Retention Configuration for information about the retention period that AWS Config uses to retain your configuration items."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.title as configuration_recorder,
-      r.name as retention_configuration_name,
-      r.retention_period_in_days,
-      r.region
-    from
-      aws_config_retention_configuration as r
-      left join aws_config_configuration_recorder as c
-    on
-      r.region = c.region;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  c.title as configuration_recorder,\n  r.name as retention_configuration_name,\n\
+    \  r.retention_period_in_days,\n  r.region\nfrom\n  aws_config_retention_configuration\
+    \ as r\n  left join aws_config_configuration_recorder as c\non\n  r.region = c.region;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Config
+Title: Find AWS Config Retention Configuration Using SQL

@@ -1,36 +1,24 @@
+Description: Allows users to query AWS API Gateway Rest APIs to retrieve information
+  about API Gateway REST APIs in an AWS account.
 ID: aws_api_gateway_rest_api_4
-Title: "Find AWS API Gateway REST APIs Information"
-Description: "Allows users to query AWS API Gateway Rest APIs to retrieve information about API Gateway REST APIs in an AWS account."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      p as principal,
-      a as action,
-      s ->> 'Effect' as effect,
-      s -> 'Condition' as conditions
-    from
-      aws_api_gateway_rest_api,
-      jsonb_array_elements(policy_std -> 'Statement') as s,
-      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-      string_to_array(p, ':') as pa,
-      jsonb_array_elements_text(s -> 'Action') as a
-    where
-      s ->> 'Effect' = 'Allow'
-      and (
-        pa [5] != account_id
-        or p = '*'
-      );
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  p as principal,\n  a as action,\n  s ->> 'Effect'\
+    \ as effect,\n  s -> 'Condition' as conditions\nfrom\n  aws_api_gateway_rest_api,\n\
+    \  jsonb_array_elements(policy_std -> 'Statement') as s,\n  jsonb_array_elements_text(s\
+    \ -> 'Principal' -> 'AWS') as p,\n  string_to_array(p, ':') as pa,\n  jsonb_array_elements_text(s\
+    \ -> 'Action') as a\nwhere\n  s ->> 'Effect' = 'Allow'\n  and (\n    pa [5] !=\
+    \ account_id\n    or p = '*'\n  );"
 Tags:
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - API Gateway
+Title: Find AWS API Gateway REST APIs Information

@@ -1,22 +1,15 @@
+Description: List of compute disks which are not encrypted with customer key
 ID: azure_insight_compute_disk_not_encrypted_with_customer_key
-Title: "Unecrypted Disks"
-Description: "List of compute disks which are not encrypted with customer key"
-Connector:
-- azure
+IntegrationTypeName:
+- azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      encryption_type, subscription_id, og_account_id, og_resource_id
-    from
-      azure_compute_disk
-    where
-      encryption_type <> 'EncryptionAtRestWithCustomerKey';
-  PrimaryTable: azure_compute_disk
   ListOfTables:
   - azure_compute_disk
   Parameters: []
+  PrimaryTable: azure_compute_disk
+  QueryToExecute: "select\n  name,\n  encryption_type, subscription_id, og_account_id,\
+    \ og_resource_id\nfrom\n  azure_compute_disk\nwhere\n  encryption_type <> 'EncryptionAtRestWithCustomerKey';"
 Tags:
   category:
   - Security
@@ -25,3 +18,4 @@ Tags:
   - Security
   - DevOps
   - Product
+Title: Unecrypted Disks

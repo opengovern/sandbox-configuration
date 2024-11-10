@@ -1,27 +1,24 @@
+Description: Allows users to query AWS API Gateway Domain Names and retrieve details
+  about each domain''s configuration, certificate, and associated API.
 ID: aws_api_gateway_domain_name_5
-Title: "Find AWS API Gateway Domain Configuration and Certificates"
-Description: "Allows users to query AWS API Gateway Domain Names and retrieve details about each domain''s configuration, certificate, and associated API."
-Connector:
-- aws
+IntegrationTypeName:
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      domain_name,
-      mutual_tls_authentication ->> 'TruststoreUri' as truststore_uri,
-      mutual_tls_authentication ->> 'TruststoreVersion' as truststore_version,
-      mutual_tls_authentication ->> 'TruststoreWarnings' as truststore_warnings
-    from
-      aws_api_gateway_domain_name;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  domain_name,\n  mutual_tls_authentication ->> 'TruststoreUri'\
+    \ as truststore_uri,\n  mutual_tls_authentication ->> 'TruststoreVersion' as truststore_version,\n\
+    \  mutual_tls_authentication ->> 'TruststoreWarnings' as truststore_warnings\n\
+    from\n  aws_api_gateway_domain_name;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - API Gateway
+Title: Find AWS API Gateway Domain Configuration and Certificates
