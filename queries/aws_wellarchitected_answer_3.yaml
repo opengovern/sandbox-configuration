@@ -1,34 +1,26 @@
+Description: Allows users to query AWS Well-Architected Tool Answer data, including
+  information about the workloads, lens, and questions associated with each answer.
 ID: aws_wellarchitected_answer_3
-Title: "Find AWS Well-Architected Tool Answer Data"
-Description: "Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.question_id,
-      a.lens_alias,
-      a.workload_id,
-      a.question_title,
-      a.question_description,
-      c ->> 'Title' as choice_title,
-      c ->> 'ChoiceId' as choice_id,
-      c ->> 'Description' as choice_description,
-      c ->> 'HelpfulResource' as choice_helpful_resource,
-      c ->> 'ImprovementPlan' as choice_improvement_plan
-    from
-      aws_wellarchitected_answer a,
-      jsonb_array_elements(choices) c;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  a.question_id,\n  a.lens_alias,\n  a.workload_id,\n \
+    \ a.question_title,\n  a.question_description,\n  c ->> 'Title' as choice_title,\n\
+    \  c ->> 'ChoiceId' as choice_id,\n  c ->> 'Description' as choice_description,\n\
+    \  c ->> 'HelpfulResource' as choice_helpful_resource,\n  c ->> 'ImprovementPlan'\
+    \ as choice_improvement_plan\nfrom\n  aws_wellarchitected_answer a,\n  jsonb_array_elements(choices)\
+    \ c;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Well-Architected Tool
+Title: Find AWS Well-Architected Tool Answer Data

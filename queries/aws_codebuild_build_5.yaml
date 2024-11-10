@@ -1,29 +1,24 @@
+Description: Allows users to query AWS CodeBuild Build to retrieve information about
+  AWS CodeBuild projects'' builds.
 ID: aws_codebuild_build_5
-Title: "Find all AWS CodeBuild Build Project Details"
-Description: "Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id,
-      arn,
-      artifacts ->> 'ArtifactIdentifier' as artifact_id,
-      artifacts ->> 'BucketOwnerAccess' as bucket_owner_access,
-      artifacts ->> 'EncryptionDisabled' as encryption_disabled,
-      artifacts ->> 'OverrideArtifactName' as override_artifact_name
-    from
-      aws_codebuild_build;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  id,\n  arn,\n  artifacts ->> 'ArtifactIdentifier' as\
+    \ artifact_id,\n  artifacts ->> 'BucketOwnerAccess' as bucket_owner_access,\n\
+    \  artifacts ->> 'EncryptionDisabled' as encryption_disabled,\n  artifacts ->>\
+    \ 'OverrideArtifactName' as override_artifact_name\nfrom\n  aws_codebuild_build;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CodeBuild
+Title: Find all AWS CodeBuild Build Project Details

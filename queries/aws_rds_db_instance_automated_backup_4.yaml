@@ -1,31 +1,23 @@
+Description: Allows users to query AWS RDS DB Instance Automated Backups and retrieve
+  data about automated backups for RDS DB instances.
 ID: aws_rds_db_instance_automated_backup_4
-Title: "List all Automated Backups for RDS DB Instances"
-Description: "Allows users to query AWS RDS DB Instance Automated Backups and retrieve data about automated backups for RDS DB instances."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      b.arn,
-      b.vpc_id,
-      v.cidr_block,
-      v.is_default,
-      v.instance_tenancy
-    from
-      aws_rds_db_instance_automated_backup as b,
-      aws_vpc as v
-    where
-      v.vpc_id = b.vpc_id;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  b.arn,\n  b.vpc_id,\n  v.cidr_block,\n  v.is_default,\n\
+    \  v.instance_tenancy\nfrom\n  aws_rds_db_instance_automated_backup as b,\n  aws_vpc\
+    \ as v\nwhere\n  v.vpc_id = b.vpc_id;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - RDS
+Title: List all Automated Backups for RDS DB Instances

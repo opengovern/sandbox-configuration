@@ -1,35 +1,25 @@
+Description: Allows users to query daily CPU utilization metrics of AWS EC2 instances.
 ID: aws_ec2_instance_metric_cpu_utilization_daily_2
-Title: "Find AWS EC2 Instances with High Daily CPU Utilization"
-Description: "Allows users to query daily CPU utilization metrics of AWS EC2 instances."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      instance_id,
-      timestamp,
-      round(minimum::numeric,2) as min_cpu,
-      round(maximum::numeric,2) as max_cpu,
-      round(average::numeric,2) as avg_cpu,
-      sample_count
-    from
-      aws_ec2_instance_metric_cpu_utilization_daily
-    where average > 80
-    order by
-      instance_id,
-      timestamp;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  instance_id,\n  timestamp,\n  round(minimum::numeric,2)\
+    \ as min_cpu,\n  round(maximum::numeric,2) as max_cpu,\n  round(average::numeric,2)\
+    \ as avg_cpu,\n  sample_count\nfrom\n  aws_ec2_instance_metric_cpu_utilization_daily\n\
+    where average > 80\norder by\n  instance_id,\n  timestamp;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - EC2
+Title: Find AWS EC2 Instances with High Daily CPU Utilization

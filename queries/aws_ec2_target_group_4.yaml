@@ -1,29 +1,24 @@
+Description: Allows users to query AWS EC2 Target Groups and provides information
+  about each Target Group within an AWS account.
 ID: aws_ec2_target_group_4
-Title: "Find all AWS EC2 Target Groups and their states"
-Description: "Allows users to query AWS EC2 Target Groups and provides information about each Target Group within an AWS account."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      target_group_name,
-      target_type,
-      target -> 'TargetHealth' ->> 'Description' as description,
-      target -> 'TargetHealth' ->> 'Reason' reason,
-      target -> 'TargetHealth' ->> 'State' as state
-    from
-      aws_ec2_target_group
-      cross join jsonb_array_elements(target_health_descriptions) as target;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  target_group_name,\n  target_type,\n  target -> 'TargetHealth'\
+    \ ->> 'Description' as description,\n  target -> 'TargetHealth' ->> 'Reason' reason,\n\
+    \  target -> 'TargetHealth' ->> 'State' as state\nfrom\n  aws_ec2_target_group\n\
+    \  cross join jsonb_array_elements(target_health_descriptions) as target;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - EC2
+Title: Find all AWS EC2 Target Groups and their states

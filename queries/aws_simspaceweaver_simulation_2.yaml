@@ -1,29 +1,24 @@
+Description: Allows users to query AWS SimSpace Simulation data. This table provides
+  information about simulations within AWS SimSpace. Engineers can use it to query
+  simulation-specific details, including simulation status, configuration, and associated
+  metadata.
 ID: aws_simspaceweaver_simulation_2
-Title: "List all AWS SimSpace Simulations from the past 30 days"
-Description: "Allows users to query AWS SimSpace Simulation data. This table provides information about simulations within AWS SimSpace. Engineers can use it to query simulation-specific details, including simulation status, configuration, and associated metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      creation_time,
-      status
-    from
-      aws_simspaceweaver_simulation
-    where
-      creation_time >= now() - interval '30' day;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  creation_time,\n  status\nfrom\n  aws_simspaceweaver_simulation\n\
+    where\n  creation_time >= now() - interval '30' day;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - SimSpace
+Title: List all AWS SimSpace Simulations from the past 30 days

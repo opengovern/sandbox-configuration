@@ -1,32 +1,25 @@
+Description: Allows users to query AWS CloudWatch Log Events to retrieve information
+  about log events from a specified log group. Users can utilize this table to monitor
+  and troubleshoot systems and applications using their existing log data.
 ID: aws_cloudwatch_log_event_1
-Title: "List AWS CloudWatch Log Events for Monitoring"
-Description: "Allows users to query AWS CloudWatch Log Events to retrieve information about log events from a specified log group. Users can utilize this table to monitor and troubleshoot systems and applications using their existing log data."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      log_group_name,
-      log_stream_name,
-      event_id,
-      timestamp,
-      ingestion_time,
-      message
-    from
-      aws_cloudwatch_log_event
-    where
-      log_group_name = 'cloudwatch-log-event-group-name'
-      and timestamp >= now() - interval '5 minutes';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  log_group_name,\n  log_stream_name,\n  event_id,\n  timestamp,\n\
+    \  ingestion_time,\n  message\nfrom\n  aws_cloudwatch_log_event\nwhere\n  log_group_name\
+    \ = 'cloudwatch-log-event-group-name'\n  and timestamp >= now() - interval '5\
+    \ minutes';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudWatch
+Title: List AWS CloudWatch Log Events for Monitoring

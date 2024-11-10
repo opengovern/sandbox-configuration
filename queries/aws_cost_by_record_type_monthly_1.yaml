@@ -1,34 +1,25 @@
+Description: Allows users to query AWS Cost and Usage Report Records on a monthly
+  basis.
 ID: aws_cost_by_record_type_monthly_1
-Title: "Find AWS Cost and Usage Report Records Monthly"
-Description: "Allows users to query AWS Cost and Usage Report Records on a monthly basis."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      linked_account_id,
-      record_type,
-      period_start,
-      blended_cost_amount::numeric::money,
-      unblended_cost_amount::numeric::money,
-      amortized_cost_amount::numeric::money,
-      net_unblended_cost_amount::numeric::money,
-      net_amortized_cost_amount::numeric::money
-    from 
-      aws_cost_by_record_type_monthly
-    order by
-      linked_account_id,
-      period_start;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  linked_account_id,\n  record_type,\n  period_start,\n\
+    \  blended_cost_amount::numeric::money,\n  unblended_cost_amount::numeric::money,\n\
+    \  amortized_cost_amount::numeric::money,\n  net_unblended_cost_amount::numeric::money,\n\
+    \  net_amortized_cost_amount::numeric::money\nfrom \n  aws_cost_by_record_type_monthly\n\
+    order by\n  linked_account_id,\n  period_start;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Cost and Usage Report
+Title: Find AWS Cost and Usage Report Records Monthly

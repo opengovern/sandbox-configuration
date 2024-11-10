@@ -1,29 +1,23 @@
+Description: Allows users to query daily AWS cost data by record type. This table
+  provides information about AWS costs incurred per record type on a daily basis.
 ID: aws_cost_by_record_type_daily_3
-Title: "List All Daily AWS Costs by Record Type"
-Description: "Allows users to query daily AWS cost data by record type. This table provides information about AWS costs incurred per record type on a daily basis."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with ranked_costs as (
-      select
-        linked_account_id,
-        record_type,
-        period_start,
-        unblended_cost_amount::numeric::money,
-        rank() over(partition by linked_account_id, record_type order by unblended_cost_amount desc)
-      from 
-        aws_cost_by_record_type_daily
-    )
-    select * from ranked_costs where rank <= 10;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "with ranked_costs as (\n  select\n    linked_account_id,\n    record_type,\n\
+    \    period_start,\n    unblended_cost_amount::numeric::money,\n    rank() over(partition\
+    \ by linked_account_id, record_type order by unblended_cost_amount desc)\n  from\
+    \ \n    aws_cost_by_record_type_daily\n)\nselect * from ranked_costs where rank\
+    \ <= 10;"
 Tags:
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Cost and Usage Report
+Title: List All Daily AWS Costs by Record Type

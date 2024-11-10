@@ -1,31 +1,21 @@
+Description: Allows users to query AWS Lambda Function daily duration metrics.
 ID: aws_lambda_function_metric_duration_daily_2
-Title: "Find AWS Lambda Function Daily Duration Metrics"
-Description: "Allows users to query AWS Lambda Function daily duration metrics."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      timestamp,
-      round(minimum::numeric,2) as min_duration,
-      round(maximum::numeric,2) as max_duration,
-      round(average::numeric,2) as avg_duration,
-      sample_count
-    from
-      aws_lambda_function_metric_duration_daily
-    where maximum > 100
-    order by
-      name,
-      timestamp;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  timestamp,\n  round(minimum::numeric,2) as min_duration,\n\
+    \  round(maximum::numeric,2) as max_duration,\n  round(average::numeric,2) as\
+    \ avg_duration,\n  sample_count\nfrom\n  aws_lambda_function_metric_duration_daily\n\
+    where maximum > 100\norder by\n  name,\n  timestamp;"
 Tags:
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Lambda
+Title: Find AWS Lambda Function Daily Duration Metrics

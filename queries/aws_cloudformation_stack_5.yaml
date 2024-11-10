@@ -1,25 +1,22 @@
+Description: Allows users to query AWS CloudFormation Stack data, including stack
+  name, status, creation time, and associated tags.
 ID: aws_cloudformation_stack_5
-Title: "List all AWS CloudFormation Stacks and Resource ARNs"
-Description: "Allows users to query AWS CloudFormation Stack data, including stack name, status, creation time, and associated tags."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      jsonb_array_elements_text(notification_arns) as resource_arns
-    from
-      aws_cloudformation_stack;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  jsonb_array_elements_text(notification_arns)\
+    \ as resource_arns\nfrom\n  aws_cloudformation_stack;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudFormation
+Title: List all AWS CloudFormation Stacks and Resource ARNs

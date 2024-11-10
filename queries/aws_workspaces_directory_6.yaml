@@ -1,32 +1,27 @@
+Description: Allows users to query AWS WorkSpaces Directory information to retrieve
+  details such as directory ID, directory type, workspace creation properties, and
+  more.
 ID: aws_workspaces_directory_6
-Title: "Find AWS WorkSpaces Directory Details Including IDs and Properties"
-Description: "Allows users to query AWS WorkSpaces Directory information to retrieve details such as directory ID, directory type, workspace creation properties, and more."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      directory_id,
-      arn,
-      workspace_creation_properties ->> 'CustomSecurityGroupId' as custom_security_group_id,
-      workspace_creation_properties ->> 'DefaultOu' as default_ou,
-      workspace_creation_properties ->> 'EnableInternetAccess' as enable_internet_access,
-      workspace_creation_properties ->> 'EnableMaintenanceMode' as enable_maintenance_mode,
-      workspace_creation_properties ->> 'EnableWorkDocs' as enable_work_docs,
-      workspace_creation_properties ->> 'UserEnabledAsLocalAdministrator' as user_enabled_as_local_administrator
-    from
-      aws_workspaces_directory
-    where
-      directory_id = 'd-96676995ea';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  directory_id,\n  arn,\n  workspace_creation_properties\
+    \ ->> 'CustomSecurityGroupId' as custom_security_group_id,\n  workspace_creation_properties\
+    \ ->> 'DefaultOu' as default_ou,\n  workspace_creation_properties ->> 'EnableInternetAccess'\
+    \ as enable_internet_access,\n  workspace_creation_properties ->> 'EnableMaintenanceMode'\
+    \ as enable_maintenance_mode,\n  workspace_creation_properties ->> 'EnableWorkDocs'\
+    \ as enable_work_docs,\n  workspace_creation_properties ->> 'UserEnabledAsLocalAdministrator'\
+    \ as user_enabled_as_local_administrator\nfrom\n  aws_workspaces_directory\nwhere\n\
+    \  directory_id = 'd-96676995ea';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS WorkSpaces
+Title: Find AWS WorkSpaces Directory Details Including IDs and Properties

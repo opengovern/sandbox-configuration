@@ -1,27 +1,22 @@
+Description: Allows users to query AWS WAF Regional Rules for detailed information
+  about each rule, including its ID, metric name, name, and the predicates associated
+  with it.
 ID: aws_wafregional_rule_2
-Title: "List all AWS WAF Regional Rules with Details"
-Description: "Allows users to query AWS WAF Regional Rules for detailed information about each rule, including its ID, metric name, name, and the predicates associated with it."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      rule_id,
-      p ->> 'DataId' as data_id,
-      p ->> 'Negated' as negated,
-      p ->> 'Type' as type
-    from
-      aws_wafregional_rule,
-      jsonb_array_elements(predicates) as p;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  rule_id,\n  p ->> 'DataId' as data_id,\n  p\
+    \ ->> 'Negated' as negated,\n  p ->> 'Type' as type\nfrom\n  aws_wafregional_rule,\n\
+    \  jsonb_array_elements(predicates) as p;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - WAF
+Title: List all AWS WAF Regional Rules with Details

@@ -1,29 +1,21 @@
+Description: Allows users to query AWS Pipes to obtain detailed information about
+  individual pipes.
 ID: aws_pipes_pipe_5
-Title: "List AWS Pipes and Their Details Using SQL"
-Description: "Allows users to query AWS Pipes to obtain detailed information about individual pipes."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      creation_time,
-      current_state,
-      desired_state,
-      enrichment,
-      target
-    from
-      aws_pipes_pipe
-    where
-      creation_time >= now() - interval '30' day;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  creation_time,\n  current_state,\n  desired_state,\n\
+    \  enrichment,\n  target\nfrom\n  aws_pipes_pipe\nwhere\n  creation_time >= now()\
+    \ - interval '30' day;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Pipes
+Title: List AWS Pipes and Their Details Using SQL

@@ -1,26 +1,21 @@
+Description: Allows users to query AWS Lambda Functions, providing information about
+  each function''s configuration, including runtime, code size, timeout, and associated
+  tags.
 ID: aws_lambda_function_10
-Title: "Find AWS Lambda Functions with Specific Tracing Config"
-Description: "Allows users to query AWS Lambda Functions, providing information about each function''s configuration, including runtime, code size, timeout, and associated tags."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      jsonb_pretty(tracing_config) as tracing_config
-    from
-      aws_lambda_function
-    where
-      tracing_config ->> 'Mode' = 'PassThrough';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  jsonb_pretty(tracing_config) as tracing_config\n\
+    from\n  aws_lambda_function\nwhere\n  tracing_config ->> 'Mode' = 'PassThrough';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Lambda
+Title: Find AWS Lambda Functions with Specific Tracing Config

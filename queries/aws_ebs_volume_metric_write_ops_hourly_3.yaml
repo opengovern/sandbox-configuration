@@ -1,33 +1,20 @@
+Description: Allows users to query AWS EBS Volume Metrics on hourly write operations.
 ID: aws_ebs_volume_metric_write_ops_hourly_3
-Title: "List all AWS EBS Volume Metrics on Hourly Write Ops"
-Description: "Allows users to query AWS EBS Volume Metrics on hourly write operations."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      volume_id,
-      timestamp,
-      minimum,
-      maximum,
-      average,
-      sum,
-      sample_count
-    from
-      aws_ebs_volume_metric_write_ops_hourly
-    where
-      maximum > 8000
-    order by
-      volume_id,
-      timestamp;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  volume_id,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n\
+    \  sum,\n  sample_count\nfrom\n  aws_ebs_volume_metric_write_ops_hourly\nwhere\n\
+    \  maximum > 8000\norder by\n  volume_id,\n  timestamp;"
 Tags:
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS EBS
+Title: List all AWS EBS Volume Metrics on Hourly Write Ops

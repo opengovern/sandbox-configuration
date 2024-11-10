@@ -1,29 +1,24 @@
+Description: Allows users to query AWS Network Firewall Rule Group details, including
+  rule group ARN, capacity, rule group name, and associated tags.
 ID: aws_networkfirewall_rule_group_4
-Title: "List all AWS Network Firewall Rule Group Details"
-Description: "Allows users to query AWS Network Firewall Rule Group details, including rule group ARN, capacity, rule group name, and associated tags."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      rule_group_name,
-      rule_group_status,
-      jsonb_pretty(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') as stateless_rules,
-      jsonb_pretty(rules_source -> 'StatelessRulesAndCustomActions' -> 'CustomActions') as custom_actions
-    from
-      aws_networkfirewall_rule_group
-    where
-      type = 'STATELESS';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  rule_group_name,\n  rule_group_status,\n  jsonb_pretty(rules_source\
+    \ -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') as stateless_rules,\n\
+    \  jsonb_pretty(rules_source -> 'StatelessRulesAndCustomActions' -> 'CustomActions')\
+    \ as custom_actions\nfrom\n  aws_networkfirewall_rule_group\nwhere\n  type = 'STATELESS';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Network Firewall
+Title: List all AWS Network Firewall Rule Group Details

@@ -1,28 +1,21 @@
+Description: Allows users to query AWS CloudTrail imports to extract data about imported
+  trail files such as the file name, import time, hash value, and more.
 ID: aws_cloudtrail_import_3
-Title: "List all AWS CloudTrail Import Details"
-Description: "Allows users to query AWS CloudTrail imports to extract data about imported trail files such as the file name, import time, hash value, and more."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      import_id,
-      created_timestamp,
-      import_status,
-      start_event_time,
-      end_event_time
-    from
-      aws_cloudtrail_import
-    where
-      created_timestamp >= now() - interval '30' day;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  import_id,\n  created_timestamp,\n  import_status,\n\
+    \  start_event_time,\n  end_event_time\nfrom\n  aws_cloudtrail_import\nwhere\n\
+    \  created_timestamp >= now() - interval '30' day;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - CloudTrail
+Title: List all AWS CloudTrail Import Details

@@ -1,30 +1,22 @@
+Description: Allows users to query AWS Inspector Assessment Templates to gain insights
+  into each template''s configuration, including ARN, duration, rules package ARNs,
+  and user attributes for findings.
 ID: aws_inspector_assessment_template_5
-Title: "Find all AWS Inspector Assessment Templates with No Runs"
-Description: "Allows users to query AWS Inspector Assessment Templates to gain insights into each template''s configuration, including ARN, duration, rules package ARNs, and user attributes for findings."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      assessment_run_count,
-      created_at,
-      assessment_target_arn,
-      user_attributes_for_findings,
-      region
-    from
-      aws_inspector_assessment_template
-    where
-      assessment_run_count = 0;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  assessment_run_count,\n  created_at,\n\
+    \  assessment_target_arn,\n  user_attributes_for_findings,\n  region\nfrom\n \
+    \ aws_inspector_assessment_template\nwhere\n  assessment_run_count = 0;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: Find all AWS Inspector Assessment Templates with No Runs

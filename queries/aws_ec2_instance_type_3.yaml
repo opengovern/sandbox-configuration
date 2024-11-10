@@ -1,32 +1,26 @@
+Description: Allows users to query AWS EC2 Instance Type data, including details about
+  instance type name, current generation, vCPU, memory, storage, and network performance.
 ID: aws_ec2_instance_type_3
-Title: "Find AWS EC2 Instance Types with Detailed Specs"
-Description: "Allows users to query AWS EC2 Instance Type data, including details about instance type name, current generation, vCPU, memory, storage, and network performance."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      instance_type,
-      dedicated_hosts_supported,
-      v_cpu_info -> 'DefaultCores' as default_cores,
-      v_cpu_info -> 'DefaultThreadsPerCore' as default_threads_per_core,
-      v_cpu_info -> 'DefaultVCpus' as default_vcpus,
-      v_cpu_info -> 'ValidCores' as valid_cores,
-      v_cpu_info -> 'ValidThreadsPerCore' as valid_threads_per_core
-    from
-      aws_ec2_instance_type
-    where
-      v_cpu_info ->> 'DefaultCores' > '24';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  instance_type,\n  dedicated_hosts_supported,\n  v_cpu_info\
+    \ -> 'DefaultCores' as default_cores,\n  v_cpu_info -> 'DefaultThreadsPerCore'\
+    \ as default_threads_per_core,\n  v_cpu_info -> 'DefaultVCpus' as default_vcpus,\n\
+    \  v_cpu_info -> 'ValidCores' as valid_cores,\n  v_cpu_info -> 'ValidThreadsPerCore'\
+    \ as valid_threads_per_core\nfrom\n  aws_ec2_instance_type\nwhere\n  v_cpu_info\
+    \ ->> 'DefaultCores' > '24';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - EC2
+Title: Find AWS EC2 Instance Types with Detailed Specs

@@ -1,26 +1,24 @@
+Description: Allows users to query AWS VPC Internet Gateway data. This table can be
+  used to gain insights into the Internet Gateways attached to your VPCs, including
+  their state, attached VPCs, and associated tags.
 ID: aws_vpc_internet_gateway_2
-Title: "Find AWS VPC Internet Gateway Details and States"
-Description: "Allows users to query AWS VPC Internet Gateway data. This table can be used to gain insights into the Internet Gateways attached to your VPCs, including their state, attached VPCs, and associated tags."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      internet_gateway_id,
-      att ->> 'VpcId' as vpc_id
-    from
-      aws_vpc_internet_gateway
-      cross join jsonb_array_elements(attachments) as att;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  internet_gateway_id,\n  att ->> 'VpcId' as vpc_id\nfrom\n\
+    \  aws_vpc_internet_gateway\n  cross join jsonb_array_elements(attachments) as\
+    \ att;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - VPC Internet Gateway
+Title: Find AWS VPC Internet Gateway Details and States

@@ -1,33 +1,24 @@
+Description: Allows users to query AWS EC2 Network Interfaces and provides comprehensive
+  details about each interface, including its associated instances, security groups,
+  and subnet information.
 ID: aws_ec2_network_interface_5
-Title: "Find AWS EC2 Network Interfaces and Details"
-Description: "Allows users to query AWS EC2 Network Interfaces and provides comprehensive details about each interface, including its associated instances, security groups, and subnet information."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      e.network_interface_id,
-      v.vpc_id,
-      v.is_default,
-      v.cidr_block,
-      v.state,
-      v.account_id,
-      v.region
-    from
-      aws_ec2_network_interface e,
-      aws_vpc v
-    where 
-      e.vpc_id = v.vpc_id;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  e.network_interface_id,\n  v.vpc_id,\n  v.is_default,\n\
+    \  v.cidr_block,\n  v.state,\n  v.account_id,\n  v.region\nfrom\n  aws_ec2_network_interface\
+    \ e,\n  aws_vpc v\nwhere \n  e.vpc_id = v.vpc_id;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - EC2
+Title: Find AWS EC2 Network Interfaces and Details

@@ -1,26 +1,21 @@
+Description: Allows users to query AWS MQ Brokers.
 ID: aws_mq_broker_5
-Title: "Find all AWS MQ Brokers with Maintenance Window Info"
-Description: "Allows users to query AWS MQ Brokers."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      broker_name,
-      maintenance_window_start_time -> 'DayOfWeek' as day_of_week,
-      maintenance_window_start_time -> 'TimeOfDay' as time_of_day,
-      maintenance_window_start_time -> 'TimeZone' as time_zone
-    from
-      aws_mq_broker;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  broker_name,\n  maintenance_window_start_time\
+    \ -> 'DayOfWeek' as day_of_week,\n  maintenance_window_start_time -> 'TimeOfDay'\
+    \ as time_of_day,\n  maintenance_window_start_time -> 'TimeZone' as time_zone\n\
+    from\n  aws_mq_broker;"
 Tags:
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - MQ
+Title: Find all AWS MQ Brokers with Maintenance Window Info

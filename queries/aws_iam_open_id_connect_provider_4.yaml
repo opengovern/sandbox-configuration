@@ -1,29 +1,21 @@
+Description: Allows users to query AWS IAM OpenID Connect Providers and retrieve details
+  about the OpenID Connect (OIDC) identity providers in their AWS account.
 ID: aws_iam_open_id_connect_provider_4
-Title: "Find all AWS IAM OpenID Connect Providers with Details"
-Description: "Allows users to query AWS IAM OpenID Connect Providers and retrieve details about the OpenID Connect (OIDC) identity providers in their AWS account."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn,
-      create_date,
-      client_id_list,
-      thumbprint_list,
-      tags,
-      url,
-      account_id
-    from
-      aws_iam_open_id_connect_provider
-    where
-      client_id_list @> '["sts.amazonaws.com"]'::jsonb
-      and not thumbprint_list @> '["1c58a3a8518e8759bf075b76b750d4f2df264fcd", "6938fd4d98bab03faadb97b34396831e3780aea1"]'::jsonb
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  arn,\n  create_date,\n  client_id_list,\n  thumbprint_list,\n\
+    \  tags,\n  url,\n  account_id\nfrom\n  aws_iam_open_id_connect_provider\nwhere\n\
+    \  client_id_list @> '[\"sts.amazonaws.com\"]'::jsonb\n  and not thumbprint_list\
+    \ @> '[\"1c58a3a8518e8759bf075b76b750d4f2df264fcd\", \"6938fd4d98bab03faadb97b34396831e3780aea1\"\
+    ]'::jsonb"
 Tags:
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
+Title: Find all AWS IAM OpenID Connect Providers with Details

@@ -1,27 +1,24 @@
+Description: Allows users to query AWS VPC Verified Access Endpoint data, including
+  details about the endpoint configuration, service name, and VPC ID. This information
+  can be used to manage and secure network access to services within an AWS Virtual
+  Private Cloud.
 ID: aws_vpc_verified_access_endpoint_6
-Title: "List all AWS VPC Verified Access Endpoints configuration"
-Description: "Allows users to query AWS VPC Verified Access Endpoint data, including details about the endpoint configuration, service name, and VPC ID. This information can be used to manage and secure network access to services within an AWS Virtual Private Cloud."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      verified_access_instance_id,
-      count(verified_access_endpoint_id) as instance_count
-    from
-      aws_vpc_verified_access_endpoint
-    group by
-      verified_access_instance_id;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  verified_access_instance_id,\n  count(verified_access_endpoint_id)\
+    \ as instance_count\nfrom\n  aws_vpc_verified_access_endpoint\ngroup by\n  verified_access_instance_id;"
 Tags:
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - VPC Verified Access Endpoint
+Title: List all AWS VPC Verified Access Endpoints configuration

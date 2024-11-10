@@ -1,15 +1,16 @@
+Description: List of Instances which are not of the desired type.
 ID: aws_insight_ec2_instance_of_undesired_type
-Title: "Legacy Instance Types"
-Description: "List of Instances which are not of the desired type."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: SELECT instance_id, arn, instance_type, instance_state, account_id, og_account_id, og_resource_id FROM aws_ec2_instance WHERE instance_type LIKE ANY(array['m1.%', 'm2.%', 'm3.%', 'c1.%', 'c3.%', 'g2.%', 'cr1.%', 'r3.%', 'i2.%', 'hs1.%', 't1.%']);
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
   - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: SELECT instance_id, arn, instance_type, instance_state, account_id,
+    og_account_id, og_resource_id FROM aws_ec2_instance WHERE instance_type LIKE ANY(array['m1.%',
+    'm2.%', 'm3.%', 'c1.%', 'c3.%', 'g2.%', 'cr1.%', 'r3.%', 'i2.%', 'hs1.%', 't1.%']);
 Tags:
   category:
   - Technical Debt
@@ -17,3 +18,4 @@ Tags:
   - Executive
   - Product
   - FinOps
+Title: Legacy Instance Types

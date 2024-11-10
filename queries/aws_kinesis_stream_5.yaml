@@ -1,32 +1,23 @@
+Description: Allows users to query AWS Kinesis Stream data, including stream name,
+  status, creation time, and associated tags.
 ID: aws_kinesis_stream_5
-Title: "List all AWS Kinesis Stream Data Including Creation Time"
-Description: "Allows users to query AWS Kinesis Stream data, including stream name, status, creation time, and associated tags."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      stream_name,
-      stream_arn,
-      encryption_type,
-      key_id,
-      stream_creation_timestamp,
-      region
-    from
-      aws_kinesis_stream
-    where
-      encryption_type != 'NONE'
-      and key_id = 'alias/aws/kinesis';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  stream_name,\n  stream_arn,\n  encryption_type,\n  key_id,\n\
+    \  stream_creation_timestamp,\n  region\nfrom\n  aws_kinesis_stream\nwhere\n \
+    \ encryption_type != 'NONE'\n  and key_id = 'alias/aws/kinesis';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Kinesis Stream
+Title: List all AWS Kinesis Stream Data Including Creation Time

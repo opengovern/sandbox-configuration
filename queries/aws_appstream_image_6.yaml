@@ -1,40 +1,29 @@
+Description: Allows users to query AWS AppStream Images to gain insights into their
+  properties, states, and associated metadata.
 ID: aws_appstream_image_6
-Title: "List AWS AppStream Images and Metadata"
-Description: "Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      arn,
-      a ->> 'AppBlockArn' as app_block_arn,
-      a ->> 'Arn' as app_arn,
-      a ->> 'CreatedTime' as app_created_time,
-      a ->> 'Description' as app_description,
-      a ->> 'DisplayName' as app_display_name,
-      a ->> 'Enabled' as app_enabled,
-      a ->> 'IconS3Location' as app_icon_s3_location,
-      a ->> 'IconURL' as app_icon_url,
-      a ->> 'InstanceFamilies' as app_instance_families,
-      a ->> 'LaunchParameters' as app_launch_parameters,
-      a ->> 'LaunchPath' as app_launch_path,
-      a ->> 'Name' as app_name,
-      a ->> 'Platforms' as app_platforms,
-      a ->> 'WorkingDirectory' as app_WorkingDirectory
-    from
-      aws_appstream_image,
-      jsonb_array_elements(applications) as a;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  name,\n  arn,\n  a ->> 'AppBlockArn' as app_block_arn,\n\
+    \  a ->> 'Arn' as app_arn,\n  a ->> 'CreatedTime' as app_created_time,\n  a ->>\
+    \ 'Description' as app_description,\n  a ->> 'DisplayName' as app_display_name,\n\
+    \  a ->> 'Enabled' as app_enabled,\n  a ->> 'IconS3Location' as app_icon_s3_location,\n\
+    \  a ->> 'IconURL' as app_icon_url,\n  a ->> 'InstanceFamilies' as app_instance_families,\n\
+    \  a ->> 'LaunchParameters' as app_launch_parameters,\n  a ->> 'LaunchPath' as\
+    \ app_launch_path,\n  a ->> 'Name' as app_name,\n  a ->> 'Platforms' as app_platforms,\n\
+    \  a ->> 'WorkingDirectory' as app_WorkingDirectory\nfrom\n  aws_appstream_image,\n\
+    \  jsonb_array_elements(applications) as a;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AppStream
+Title: List AWS AppStream Images and Metadata

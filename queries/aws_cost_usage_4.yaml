@@ -1,35 +1,25 @@
+Description: Allows users to query Cost and Usage data from AWS Cost Explorer Service
+  to monitor, track, and manage AWS costs and usage over time.
 ID: aws_cost_usage_4
-Title: "List all AWS Cost and Usage Data from Cost Explorer Service"
-Description: "Allows users to query Cost and Usage data from AWS Cost Explorer Service to monitor, track, and manage AWS costs and usage over time."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      period_start,
-      dimension_1 as account_id,
-      dimension_2 as record_type,
-      net_unblended_cost_amount::numeric::money
-    from
-      aws_cost_usage
-    where
-      granularity = 'MONTHLY'
-      and dimension_type_1 = 'LINKED_ACCOUNT'
-      and dimension_type_2 = 'RECORD_TYPE'
-      and dimension_2 in ('DiscountedUsage', 'Credit')
-    order by
-      dimension_1,
-      period_start;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  period_start,\n  dimension_1 as account_id,\n  dimension_2\
+    \ as record_type,\n  net_unblended_cost_amount::numeric::money\nfrom\n  aws_cost_usage\n\
+    where\n  granularity = 'MONTHLY'\n  and dimension_type_1 = 'LINKED_ACCOUNT'\n\
+    \  and dimension_type_2 = 'RECORD_TYPE'\n  and dimension_2 in ('DiscountedUsage',\
+    \ 'Credit')\norder by\n  dimension_1,\n  period_start;"
 Tags:
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Cost Explorer Service
+Title: List all AWS Cost and Usage Data from Cost Explorer Service

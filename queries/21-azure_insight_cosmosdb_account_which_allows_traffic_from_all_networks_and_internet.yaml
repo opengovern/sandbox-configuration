@@ -1,24 +1,19 @@
+Description: List of database accounts which allows traffic from all networks, including
+  the public Internet.
 ID: azure_insight_cosmosdb_account_which_allows_traffic_from_all_networks_and_internet
-Title: "Database Accounts with Public access"
-Description: "List of database accounts which allows traffic from all networks, including the public Internet."
 IntegrationTypeName:
-- azure
+- azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name,
-      region,
-      virtual_network_rules, subscription_id, og_account_id, og_resource_id
-    from
-      azure_cosmosdb_account
-    where
-      virtual_network_rules = '[]';
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
   - azure_cosmosdb_account
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: "select\n  name,\n  region,\n  virtual_network_rules, subscription_id,\
+    \ og_account_id, og_resource_id\nfrom\n  azure_cosmosdb_account\nwhere\n  virtual_network_rules\
+    \ = '[]';"
 Tags:
   category:
   - Security
   - Technical Debt
+Title: Database Accounts with Public access

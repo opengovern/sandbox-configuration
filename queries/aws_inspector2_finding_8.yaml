@@ -1,37 +1,31 @@
+Description: Allows users to query AWS Inspector findings to gain insights into potential
+  security issues and vulnerabilities within their AWS resources. The table provides
+  detailed information about each finding, including its severity, status, and associated
+  resources.
 ID: aws_inspector2_finding_8
-Title: "Find AWS Inspector findings and vulnerabilities via SQL"
-Description: "Allows users to query AWS Inspector findings to gain insights into potential security issues and vulnerabilities within their AWS resources. The table provides detailed information about each finding, including its severity, status, and associated resources."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      f.arn,
-      f.vulnerability_id,
-      v ->> 'Name' as vulnerability_package_name,
-      v ->> 'Version' as vulnerability_package_version,
-      v ->> 'Arch' as vulnerability_package_arch,
-      v ->> 'Epoch' as vulnerability_package_epoch,
-      v ->> 'FilePath' as vulnerability_package_file_path,
-      v ->> 'FixedInVersion' as vulnerability_package_fixed_in_version,
-      v ->> 'PackageManager' as vulnerability_package_package_manager,
-      v ->> 'Release' as vulnerability_package_release,
-      v ->> 'Remediation' as vulnerability_package_remediation,
-      v ->> 'SourceLambdaLayerArn' as source_lambda_layer_arn,
-      v ->> 'Name' as source_layer_hash
-    from
-      aws_inspector2_finding as f,
-      jsonb_array_elements(vulnerable_packages) as v;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  f.arn,\n  f.vulnerability_id,\n  v ->> 'Name' as vulnerability_package_name,\n\
+    \  v ->> 'Version' as vulnerability_package_version,\n  v ->> 'Arch' as vulnerability_package_arch,\n\
+    \  v ->> 'Epoch' as vulnerability_package_epoch,\n  v ->> 'FilePath' as vulnerability_package_file_path,\n\
+    \  v ->> 'FixedInVersion' as vulnerability_package_fixed_in_version,\n  v ->>\
+    \ 'PackageManager' as vulnerability_package_package_manager,\n  v ->> 'Release'\
+    \ as vulnerability_package_release,\n  v ->> 'Remediation' as vulnerability_package_remediation,\n\
+    \  v ->> 'SourceLambdaLayerArn' as source_lambda_layer_arn,\n  v ->> 'Name' as\
+    \ source_layer_hash\nfrom\n  aws_inspector2_finding as f,\n  jsonb_array_elements(vulnerable_packages)\
+    \ as v;"
 Tags:
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: Find AWS Inspector findings and vulnerabilities via SQL

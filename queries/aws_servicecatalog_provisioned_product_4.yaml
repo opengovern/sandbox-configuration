@@ -1,34 +1,26 @@
+Description: Allows users to query AWS Service Catalog Provisioned Product data including
+  product details, owner, type, and associated metadata.
 ID: aws_servicecatalog_provisioned_product_4
-Title: "List all AWS Service Catalog Provisioned Product details"
-Description: "Allows users to query AWS Service Catalog Provisioned Product data including product details, owner, type, and associated metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      pr.id as provisioning_id,
-      p.name as product_name,
-      p.id as product_view_id,
-      p.product_id,
-      p.type as product_type,
-      p.support_url as product_support_url,
-      p.support_email as product_support_email
-    from
-      aws_servicecatalog_provisioned_product as pr,
-      aws_servicecatalog_product as p
-    where
-      pr.product_id = p.product_id
-      and last_successful_provisioning_record_id is not null;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  pr.id as provisioning_id,\n  p.name as product_name,\n\
+    \  p.id as product_view_id,\n  p.product_id,\n  p.type as product_type,\n  p.support_url\
+    \ as product_support_url,\n  p.support_email as product_support_email\nfrom\n\
+    \  aws_servicecatalog_provisioned_product as pr,\n  aws_servicecatalog_product\
+    \ as p\nwhere\n  pr.product_id = p.product_id\n  and last_successful_provisioning_record_id\
+    \ is not null;"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Service Catalog
+Title: List all AWS Service Catalog Provisioned Product details

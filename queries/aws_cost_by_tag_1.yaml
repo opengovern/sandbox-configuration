@@ -1,27 +1,16 @@
+Description: Allows users to query AWS Cost Explorer to obtain cost allocation tags
+  and associated costs.
 ID: aws_cost_by_tag_1
-Title: "Find all AWS Cost Allocation Tags and Associated Costs"
-Description: "Allows users to query AWS Cost Explorer to obtain cost allocation tags and associated costs."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      tag_key_1,
-      tag_value_1,
-      period_start,
-      blended_cost_amount::numeric::money,
-      unblended_cost_amount::numeric::money,
-      amortized_cost_amount::numeric::money,
-      net_unblended_cost_amount::numeric::money,
-      net_amortized_cost_amount::numeric::money
-    from
-      aws_cost_by_tag
-    where
-      granularity = 'DAILY'
-    and
-      tag_key_1 = 'Name';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  tag_key_1,\n  tag_value_1,\n  period_start,\n  blended_cost_amount::numeric::money,\n\
+    \  unblended_cost_amount::numeric::money,\n  amortized_cost_amount::numeric::money,\n\
+    \  net_unblended_cost_amount::numeric::money,\n  net_amortized_cost_amount::numeric::money\n\
+    from\n  aws_cost_by_tag\nwhere\n  granularity = 'DAILY'\nand\n  tag_key_1 = 'Name';"
 Tags: {}
+Title: Find all AWS Cost Allocation Tags and Associated Costs

@@ -1,30 +1,23 @@
+Description: Allows users to query AWS KMS aliases and retrieve information about
+  their associated keys, including the key ID, alias name, and alias ARN.
 ID: aws_kms_alias_2
-Title: "Find AWS KMS Alias and Associated Keys with SQL"
-Description: "Allows users to query AWS KMS aliases and retrieve information about their associated keys, including the key ID, alias name, and alias ARN."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      k.id as key_id,
-      k.key_rotation_enabled as key_rotation_enabled,
-      a.alias_name as alias_name,
-      a.arn as alias_arn
-    from
-      aws_kms_key as k,
-      aws_kms_alias as a
-    where
-      k.id = a.target_key_id and not key_rotation_enabled;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  k.id as key_id,\n  k.key_rotation_enabled as key_rotation_enabled,\n\
+    \  a.alias_name as alias_name,\n  a.arn as alias_arn\nfrom\n  aws_kms_key as k,\n\
+    \  aws_kms_alias as a\nwhere\n  k.id = a.target_key_id and not key_rotation_enabled;"
 Tags:
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Key Management Service
+Title: Find AWS KMS Alias and Associated Keys with SQL

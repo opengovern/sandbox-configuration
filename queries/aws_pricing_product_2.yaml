@@ -1,40 +1,25 @@
+Description: Allows users to query AWS Pricing Product details such as the product''s
+  description, pricing details, and associated attributes.
 ID: aws_pricing_product_2
-Title: "List AWS Pricing Product Details by Service Code and Filters"
-Description: "Allows users to query AWS Pricing Product details such as the product''s description, pricing details, and associated attributes."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      term,
-      purchase_option,
-      lease_contract_length,
-      unit,
-      price_per_unit::numeric::money,
-      currency,
-      attributes ->> 'instanceType',
-      attributes ->> 'vcpu',
-      attributes ->> 'memory',
-      attributes ->> 'databaseEngine',
-      attributes ->> 'deploymentOption'
-    from
-      aws_pricing_product
-    where
-      service_code = 'AmazonRDS'
-      and filters = '{
-      "regionCode": "eu-west-3",
-      "locationType": "AWS Region",
-      "instanceType": "db.m5.xlarge",
-      "databaseEngine": "MySQL",
-      "deploymentOption": "Single-AZ" }'::jsonb;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  term,\n  purchase_option,\n  lease_contract_length,\n\
+    \  unit,\n  price_per_unit::numeric::money,\n  currency,\n  attributes ->> 'instanceType',\n\
+    \  attributes ->> 'vcpu',\n  attributes ->> 'memory',\n  attributes ->> 'databaseEngine',\n\
+    \  attributes ->> 'deploymentOption'\nfrom\n  aws_pricing_product\nwhere\n  service_code\
+    \ = 'AmazonRDS'\n  and filters = '{\n  \"regionCode\": \"eu-west-3\",\n  \"locationType\"\
+    : \"AWS Region\",\n  \"instanceType\": \"db.m5.xlarge\",\n  \"databaseEngine\"\
+    : \"MySQL\",\n  \"deploymentOption\": \"Single-AZ\" }'::jsonb;"
 Tags:
   cloud_finops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Pricing Product
+Title: List AWS Pricing Product Details by Service Code and Filters

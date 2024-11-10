@@ -1,34 +1,25 @@
+Description: Allows users to query AWS Inspector Coverage data that provides details
+  on the assessment targets and the assessment templates that are associated with
+  the AWS Inspector service.
 ID: aws_inspector2_coverage_7
-Title: "List all AWS Inspector Coverage Data Details"
-Description: "Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.resource_id,
-      c.resource_type,
-      c.ecr_repository_name,
-      r.registry_id,
-      r.repository_uri,
-      r.encryption_configuration
-    from
-      aws_inspector2_coverage as c,
-      aws_ecr_repository as r
-    where
-      r.repository_name = c.ecr_repository_name
-    and
-      c.resource_type = `AWS_ECR_REPOSITORY';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  c.resource_id,\n  c.resource_type,\n  c.ecr_repository_name,\n\
+    \  r.registry_id,\n  r.repository_uri,\n  r.encryption_configuration\nfrom\n \
+    \ aws_inspector2_coverage as c,\n  aws_ecr_repository as r\nwhere\n  r.repository_name\
+    \ = c.ecr_repository_name\nand\n  c.resource_type = `AWS_ECR_REPOSITORY';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Inspector
+Title: List all AWS Inspector Coverage Data Details

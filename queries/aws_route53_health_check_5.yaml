@@ -1,28 +1,24 @@
+Description: Allows users to query AWS Route 53 Health Check data, providing information
+  about health checks within AWS Route 53. This includes details such as health check
+  configuration, health check status, and associated metadata.
 ID: aws_route53_health_check_5
-Title: "Find AWS Route 53 Health Check Configuration Details"
-Description: "Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id,
-      health_check_version,
-      health_check_config ->> 'FullyQualifiedDomainName' as fully_qualified_domain_name,
-      health_check_config ->> 'IPAddress' as ip_address,
-      health_check_config ->> 'Port' as port,
-      health_check_config ->> 'Type' as type,
-      health_check_config ->> 'RequestInterval' as request_interval
-    from 
-      aws_route53_health_check;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  id,\n  health_check_version,\n  health_check_config ->>\
+    \ 'FullyQualifiedDomainName' as fully_qualified_domain_name,\n  health_check_config\
+    \ ->> 'IPAddress' as ip_address,\n  health_check_config ->> 'Port' as port,\n\
+    \  health_check_config ->> 'Type' as type,\n  health_check_config ->> 'RequestInterval'\
+    \ as request_interval\nfrom \n  aws_route53_health_check;"
 Tags:
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Route 53
+Title: Find AWS Route 53 Health Check Configuration Details

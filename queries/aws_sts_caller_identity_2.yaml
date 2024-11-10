@@ -1,34 +1,24 @@
+Description: Allows users to query AWS Security Token Service Caller Identity to retrieve
+  details about the IAM user or role whose credentials are used to call the operation.
 ID: aws_sts_caller_identity_2
-Title: "Find AWS STS Caller Identity Details Using SQL"
-Description: "Allows users to query AWS Security Token Service Caller Identity to retrieve details about the IAM user or role whose credentials are used to call the operation."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      caller_identity.arn,
-      caller_identity.user_id,
-      caller_identity.title,
-      caller_identity.account_id,
-      u.name,
-      u.create_date,
-      u.password_last_used
-    from
-      aws_sts_caller_identity as caller_identity,
-      aws_iam_user as u
-    where
-      caller_identity.user_id = u.user_id
-      and caller_identity.arn like '%assumed%';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  caller_identity.arn,\n  caller_identity.user_id,\n  caller_identity.title,\n\
+    \  caller_identity.account_id,\n  u.name,\n  u.create_date,\n  u.password_last_used\n\
+    from\n  aws_sts_caller_identity as caller_identity,\n  aws_iam_user as u\nwhere\n\
+    \  caller_identity.user_id = u.user_id\n  and caller_identity.arn like '%assumed%';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Security Token Service
+Title: Find AWS STS Caller Identity Details Using SQL

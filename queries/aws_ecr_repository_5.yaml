@@ -1,30 +1,24 @@
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
+  and retrieve detailed information about each repository.
 ID: aws_ecr_repository_5
-Title: "Find AWS ECR Repositories with Failed Image Scans"
-Description: "Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      r.repository_name as repository_name,
-      i.image_digest as image_digest,
-      i.image_scan_status as image_scan_status
-    from
-      aws_ecr_repository as r,
-      aws_ecr_image as i
-    where
-      r.repository_name = i.repository_name
-      and i.image_scan_status ->> 'Status' = 'FAILED';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  r.repository_name as repository_name,\n  i.image_digest\
+    \ as image_digest,\n  i.image_scan_status as image_scan_status\nfrom\n  aws_ecr_repository\
+    \ as r,\n  aws_ecr_image as i\nwhere\n  r.repository_name = i.repository_name\n\
+    \  and i.image_scan_status ->> 'Status' = 'FAILED';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_data_security:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Elastic Container Registry
+Title: Find AWS ECR Repositories with Failed Image Scans

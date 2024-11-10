@@ -1,32 +1,25 @@
+Description: Allows users to query AWS KMS aliases and retrieve information about
+  their associated keys, including the key ID, alias name, and alias ARN.
 ID: aws_kms_alias_3
-Title: "List all AWS KMS aliases with key state pending deletion"
-Description: "Allows users to query AWS KMS aliases and retrieve information about their associated keys, including the key ID, alias name, and alias ARN."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.alias_name as alias_name,
-      k.id as key_id,
-      k.key_state as key_state,
-      k.deletion_date as key_deletion_date
-    from
-      aws_kms_key as k,
-      aws_kms_alias as a
-    where
-      k.id = a.target_key_id and key_state = 'PendingDeletion';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  a.alias_name as alias_name,\n  k.id as key_id,\n  k.key_state\
+    \ as key_state,\n  k.deletion_date as key_deletion_date\nfrom\n  aws_kms_key as\
+    \ k,\n  aws_kms_alias as a\nwhere\n  k.id = a.target_key_id and key_state = 'PendingDeletion';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_identity_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Key Management Service
+Title: List all AWS KMS aliases with key state pending deletion

@@ -1,31 +1,22 @@
+Description: Allows users to query ElastiCache Redis Metrics and provides daily statistics
+  for Engine CPU Utilization.
 ID: aws_elasticache_redis_metric_engine_cpu_utilization_daily_3
-Title: "List All AWS ElastiCache Redis Engine CPU Utilization Daily"
-Description: "Allows users to query ElastiCache Redis Metrics and provides daily statistics for Engine CPU Utilization."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      cache_cluster_id,
-      timestamp,
-      round(minimum::numeric,2) as min_cpu,
-      round(maximum::numeric,2) as max_cpu,
-      round(average::numeric,2) as avg_cpu,
-      sample_count
-    from
-      aws_elasticache_redis_metric_engine_cpu_utilization_daily
-    where average < 2
-    order by
-      cache_cluster_id,
-      timestamp;
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  cache_cluster_id,\n  timestamp,\n  round(minimum::numeric,2)\
+    \ as min_cpu,\n  round(maximum::numeric,2) as max_cpu,\n  round(average::numeric,2)\
+    \ as avg_cpu,\n  sample_count\nfrom\n  aws_elasticache_redis_metric_engine_cpu_utilization_daily\n\
+    where average < 2\norder by\n  cache_cluster_id,\n  timestamp;"
 Tags:
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - ElastiCache
+Title: List All AWS ElastiCache Redis Engine CPU Utilization Daily

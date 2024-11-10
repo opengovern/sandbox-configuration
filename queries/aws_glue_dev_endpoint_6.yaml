@@ -1,34 +1,23 @@
+Description: Allows users to query AWS Glue Development Endpoints to retrieve detailed
+  information about individual endpoints, their configurations, and related metadata.
 ID: aws_glue_dev_endpoint_6
-Title: "Find AWS Glue Development Endpoints Configurations and Metadata"
-Description: "Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      e.endpoint_name,
-      split_part(j, '/', '3') as extra_jars_s3_bucket,
-      b.versioning_enabled,
-      b.policy,
-      b.object_lock_configuration,
-      b.restrict_public_buckets,
-      b.policy
-    from
-      aws_glue_dev_endpoint as e,
-      aws_s3_bucket as b,
-      unnest (string_to_array(e.extra_jars_s3_path, ',')) as j
-    where
-      b.name = split_part(j, '/', '3')
-    and
-      e.endpoint_name = 'test34';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  e.endpoint_name,\n  split_part(j, '/', '3') as extra_jars_s3_bucket,\n\
+    \  b.versioning_enabled,\n  b.policy,\n  b.object_lock_configuration,\n  b.restrict_public_buckets,\n\
+    \  b.policy\nfrom\n  aws_glue_dev_endpoint as e,\n  aws_s3_bucket as b,\n  unnest\
+    \ (string_to_array(e.extra_jars_s3_path, ',')) as j\nwhere\n  b.name = split_part(j,\
+    \ '/', '3')\nand\n  e.endpoint_name = 'test34';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - AWS Glue
+Title: Find AWS Glue Development Endpoints Configurations and Metadata

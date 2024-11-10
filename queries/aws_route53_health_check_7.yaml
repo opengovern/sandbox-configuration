@@ -1,33 +1,27 @@
+Description: Allows users to query AWS Route 53 Health Check data, providing information
+  about health checks within AWS Route 53. This includes details such as health check
+  configuration, health check status, and associated metadata.
 ID: aws_route53_health_check_7
-Title: "Find AWS Route 53 Health Check Details"
-Description: "Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata."
 IntegrationTypeName:
-- aws
+- aws_cloud
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      r.id,
-      r.health_check_version,
-      hc ->> 'IPAddress' as ip_address,
-      hc ->> 'Region' as region,
-      hc-> 'StatusReport' as status_report
-    from 
-      aws_route53_health_check as r,
-      jsonb_array_elements(health_check_status) hc 
-    where 
-      hc-> 'StatusReport' ->> 'Status' not like '%Success%';
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: "select\n  r.id,\n  r.health_check_version,\n  hc ->> 'IPAddress'\
+    \ as ip_address,\n  hc ->> 'Region' as region,\n  hc-> 'StatusReport' as status_report\n\
+    from \n  aws_route53_health_check as r,\n  jsonb_array_elements(health_check_status)\
+    \ hc \nwhere \n  hc-> 'StatusReport' ->> 'Status' not like '%Success%';"
 Tags:
   cloud_asset_management:
-  - "true"
+  - 'true'
   cloud_network_security:
-  - "true"
+  - 'true'
   cloud_ops:
-  - "true"
+  - 'true'
   cloud_provider:
   - aws
   cloud_service:
   - Route 53
+Title: Find AWS Route 53 Health Check Details
