@@ -1,39 +1,22 @@
 ID: aws_iam_policies_with_full_administrative_privileges
 Title: "IAM Policies With Full Administrative Privileges"
 Description: "Ensure IAM policies that allow full '*:*' administrative privileges aren't created."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '["*"]' then 'policy allows full administrative privileges'
-        else 'policy does not allow full administrative privileges'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_policy as p,
-      jsonb_array_elements(p.policy_std -> 'Statement') as stmt
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'policy allows full administrative privileges'\n    else 'policy does not allow full administrative privileges'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_policy as p,\n  jsonb_array_elements(p.policy_std -> 'Statement') as stmt\n"
   PrimaryTable: aws_iam_policy
   ListOfTables:
-  - aws_iam_policy
+    - aws_iam_policy
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

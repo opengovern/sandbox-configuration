@@ -1,8 +1,6 @@
 ID: aws_foundational_security_ssm_3
 Title: "3 Instances managed by Systems Manager should have an association compliance status of COMPLIANT"
 Description: "This control checks whether the status of the AWS Systems Manager association compliance is COMPLIANT or non compliant after the association is run on an instance. The control passes if the association compliance status is COMPLIANT."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -26,8 +24,10 @@ Query:
       and c.compliance_type = 'Association';
   PrimaryTable: aws_ssm_managed_instance
   ListOfTables:
-  - aws_ssm_managed_instance
-  - aws_ssm_managed_instance_compliance
+    - aws_ssm_managed_instance
+    - aws_ssm_managed_instance_compliance
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

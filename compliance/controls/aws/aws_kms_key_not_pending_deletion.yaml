@@ -1,62 +1,44 @@
 ID: aws_kms_key_not_pending_deletion
 Title: "KMS keys should not be pending deletion"
 Description: "To help protect data at rest, ensure necessary customer master keys (CMKs) are not scheduled for deletion in AWS Key Management Service (AWS KMS)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when key_state = 'PendingDeletion' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when key_state = 'PendingDeletion' then title || ' scheduled for deletion and will be deleted in ' || extract(day from deletion_date - current_timestamp) || ' day(s).'
-        else title || ' not scheduled for deletion.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_kms_key
-    where
-      key_manager = 'CUSTOMER';
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when key_state = 'PendingDeletion' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when key_state = 'PendingDeletion' then title || ' scheduled for deletion and will be deleted in ' || extract(day from deletion_date - current_timestamp) || ' day(s).'\n    else title || ' not scheduled for deletion.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_kms_key\nwhere\n  key_manager = 'CUSTOMER';\n"
   PrimaryTable: aws_kms_key
   ListOfTables:
-  - aws_kms_key
+    - aws_kms_key
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/KMS
+    - AWS/KMS
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

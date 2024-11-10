@@ -1,46 +1,26 @@
 ID: aws_es_domain_error_logging_enabled
 Title: "Elasticsearch domain error logging to CloudWatch Logs should be enabled"
 Description: "This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when
-          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
-          and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when
-          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
-          and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then title || ' error logging enabled.'
-        else title || ' error logging disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_elasticsearch_domain;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when\n      log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n      and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when\n      log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n      and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then title || ' error logging enabled.'\n    else title || ' error logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticsearch_domain;\n"
   PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
-  - aws_elasticsearch_domain
+    - aws_elasticsearch_domain
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - logging
+    - logging
   foundational_security_item_id:
-  - es_4
+    - es_4
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/ES
+    - AWS/ES
+IntegrationTypeName:
+  - aws_cloud

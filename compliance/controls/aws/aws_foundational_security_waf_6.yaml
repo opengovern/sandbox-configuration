@@ -1,30 +1,14 @@
 ID: aws_foundational_security_waf_6
 Title: "6 AWS WAF Classic global rules should have at least one condition"
 Description: "This control checks whether an AWS WAF global rule contains any conditions. The control fails if no conditions are present within a rule."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      rule_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when predicates is null or jsonb_array_length(predicates) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when predicates is null or jsonb_array_length(predicates) = 0 then title || ' has no attached conditions.'
-        else title || ' has ' || jsonb_array_length(predicates) || ' attached conditions.'
-      end as reason
-      
-      
-    from
-      aws_waf_rule;
+  QueryToExecute: "select\n  rule_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when predicates is null or jsonb_array_length(predicates) = 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when predicates is null or jsonb_array_length(predicates) = 0 then title || ' has no attached conditions.'\n    else title || ' has ' || jsonb_array_length(predicates) || ' attached conditions.'\n  end as reason\n  \n  \nfrom\n  aws_waf_rule;"
   PrimaryTable: aws_waf_rule
   ListOfTables:
-  - aws_waf_rule
+    - aws_waf_rule
   Parameters: []
 Severity: medium
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

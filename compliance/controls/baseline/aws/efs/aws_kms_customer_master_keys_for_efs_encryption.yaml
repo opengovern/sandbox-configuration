@@ -1,8 +1,6 @@
 ID: aws_kms_customer_master_keys_for_efs_encryption
 Title: "AWS KMS Customer Master Keys for EFS Encryption"
 Description: "Ensure EFS file systems are encrypted with KMS Customer Master Keys (CMKs) in order to have full control over data encryption and decryption."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -27,16 +25,18 @@ Query:
       left join aws_kms_key as k on fs.kms_key_id = k.arn
   PrimaryTable: aws_efs_file_system
   ListOfTables:
-  - aws_efs_file_system
-  - aws_kms_key
+    - aws_efs_file_system
+    - aws_kms_key
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - Amazon Elastic File System (EFS)
+    - Amazon Elastic File System (EFS)
   platform_score_use_case:
-  - Unencrypted Storage
+    - Unencrypted Storage
   score_service_name:
-  - Amazon Elastic File System (EFS)
+    - Amazon Elastic File System (EFS)
   score_tags:
-  - Unencrypted Storage
+    - Unencrypted Storage
+IntegrationTypeName:
+  - aws_cloud

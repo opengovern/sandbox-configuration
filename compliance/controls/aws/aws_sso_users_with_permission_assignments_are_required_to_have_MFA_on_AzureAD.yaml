@@ -1,40 +1,23 @@
 ID: aws_sso_users_with_permission_assignments_are_required_to_have_MFA_on_AzureAD
 Title: "AWS SSO Users with Permission Assignments are required to have MFA on AzureAD"
 Description: "AWS SSO Users with Permission Assignments are required to have MFA on AzureAD"
-Connector:
-- aws
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select 
-      iden.id as resource,
-      iden.og_account_id,
-      iden.og_resource_id,
-      case
-        when is_mfa_registered::bool then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when is_mfa_registered::bool then iden.name || ' has MFA registered'
-        else iden.name || ' doesnt have MFA'
-      end reason
-    from 
-      (aws_identitystore_user cross join jsonb_array_elements(external_ids) as external_id) iden
-      inner join azuread_user_registration_details az on az.id = value ->> 'Id'
-    where 
-      exists(select * from aws_ssoadmin_account_assignment where principal_type = 'USER' and principal_id = iden.id) 
+  QueryToExecute: "select \n  iden.id as resource,\n  iden.og_account_id,\n  iden.og_resource_id,\n  case\n    when is_mfa_registered::bool then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when is_mfa_registered::bool then iden.name || ' has MFA registered'\n    else iden.name || ' doesnt have MFA'\n  end reason\nfrom \n  (aws_identitystore_user cross join jsonb_array_elements(external_ids) as external_id) iden\n  inner join azuread_user_registration_details az on az.id = value ->> 'Id'\nwhere \n  exists(select * from aws_ssoadmin_account_assignment where principal_type = 'USER' and principal_id = iden.id) \n"
   PrimaryTable: aws_identitystore_user
   ListOfTables:
-  - aws_identitystore_user
-  - aws_ssoadmin_account_assignment
-  - azuread_user_registration_details
+    - aws_identitystore_user
+    - aws_ssoadmin_account_assignment
+    - azuread_user_registration_details
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   plugin:
-  - aws
+    - aws
   score_service_name:
-  - AWS Single Sign-On (SSO)
+    - AWS Single Sign-On (SSO)
+IntegrationTypeName:
+  - aws_cloud
+  - azure_subscription

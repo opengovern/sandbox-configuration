@@ -1,8 +1,6 @@
 ID: aws_foundational_security_ecs_1
 Title: "1 Amazon ECS task definitions should have secure networking modes and user definitions"
 Description: "This control checks whether an Amazon ECS task definition that has host networking mode also has 'privileged' or 'user' container definitions. The control fails for task definitions that have host network mode and container definitions where privileged"
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -42,7 +40,9 @@ Query:
       left join host_network_task_definition as b on a.task_definition_arn = b.arn;
   PrimaryTable: aws_ecs_task_definition
   ListOfTables:
-  - aws_ecs_task_definition
+    - aws_ecs_task_definition
   Parameters: []
 Severity: medium
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

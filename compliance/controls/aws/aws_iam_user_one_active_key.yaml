@@ -1,57 +1,33 @@
 ID: aws_iam_user_one_active_key
 Title: "Ensure there is only one active access key available for any single IAM user"
 Description: "Access keys are long-term credentials for an IAM user or the AWS account root user. You can use access keys to sign programmatic requests to the AWS CLI or AWS API (directly or using the AWS SDK)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      u.arn as resource,
-      u.og_account_id as og_account_id,
-      u.og_resource_id as og_resource_id,
-      case
-        when count(k.*) > 1 then 'alarm'
-        else 'ok'
-      end as status,
-      u.name || ' has ' || count(k.*) || ' active access key(s).' as reason
-      
-      , u.account_id
-    from
-      aws_iam_user as u
-      left join aws_iam_access_key as k on u.name = k.user_name and u.account_id = k.account_id
-    where
-      k.status = 'Active' or k.status is null
-    group by
-      u.arn,
-      u.name,
-      u.account_id,
-      u.tags,
-      u.og_account_id,
-      u.og_resource_id,
-      u._ctx;
+  QueryToExecute: "select\n  u.arn as resource,\n  u.og_account_id as og_account_id,\n  u.og_resource_id as og_resource_id,\n  case\n    when count(k.*) > 1 then 'alarm'\n    else 'ok'\n  end as status,\n  u.name || ' has ' || count(k.*) || ' active access key(s).' as reason\n  \n  , u.account_id\nfrom\n  aws_iam_user as u\n  left join aws_iam_access_key as k on u.name = k.user_name and u.account_id = k.account_id\nwhere\n  k.status = 'Active' or k.status is null\ngroup by\n  u.arn,\n  u.name,\n  u.account_id,\n  u.tags,\n  u.og_account_id,\n  u.og_resource_id,\n  u._ctx;\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_access_key
-  - aws_iam_user
+    - aws_iam_access_key
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "1.13"
+    - "1.13"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "1"
+    - "1"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/IAM
+    - AWS/IAM
+IntegrationTypeName:
+  - aws_cloud

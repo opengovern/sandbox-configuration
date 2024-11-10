@@ -1,39 +1,22 @@
 ID: aws_ssl_tls_certificate_expiry_30_days
 Title: "SSL/TLS Certificate Expiry 30 Days"
 Description: "Ensure SSL/TLS certificates are renewed before their expiration."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN expiration - '30 days'::interval < now() THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN expiration < now() THEN 'certificate has been expired'
-        WHEN expiration - '30 days'::interval < now() THEN 'certificate is about to expire in ' || expiration 
-        ELSE 'certificate is not going to expire soon'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_server_certificate
+  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN expiration - '30 days'::interval < now() THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN expiration < now() THEN 'certificate has been expired'\n    WHEN expiration - '30 days'::interval < now() THEN 'certificate is about to expire in ' || expiration \n    ELSE 'certificate is not going to expire soon'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_server_certificate\n"
   PrimaryTable: aws_iam_server_certificate
   ListOfTables:
-  - aws_iam_server_certificate
+    - aws_iam_server_certificate
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

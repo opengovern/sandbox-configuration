@@ -1,66 +1,50 @@
 ID: aws_ebs_snapshot_not_publicly_restorable
 Title: "EBS snapshots should not be publicly restorable"
 Description: "\"Manage access to the AWS Cloud by ensuring EBS snapshots are not publicly restorable."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':snapshot/' || snapshot_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when create_volume_permissions @> '[{"Group": "all", "UserId": null}]' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when create_volume_permissions @> '[{"Group": "all", "UserId": null}]' then title || ' is publicly restorable.'
-        else title || ' is not publicly restorable.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ebs_snapshot;
+  QueryToExecute: "select\n  'arn:' || partition || ':ec2:' || region || ':' || account_id || ':snapshot/' || snapshot_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when create_volume_permissions @> '[{\"Group\": \"all\", \"UserId\": null}]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when create_volume_permissions @> '[{\"Group\": \"all\", \"UserId\": null}]' then title || ' is publicly restorable.'\n    else title || ' is not publicly restorable.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_snapshot;\n"
   PrimaryTable: aws_ebs_snapshot
   ListOfTables:
-  - aws_ebs_snapshot
+    - aws_ebs_snapshot
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/EBS
+    - AWS/EBS
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

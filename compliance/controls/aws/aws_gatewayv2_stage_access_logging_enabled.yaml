@@ -1,42 +1,26 @@
 ID: aws_gatewayv2_stage_access_logging_enabled
 Title: "Access logging should be configured for API Gateway V2 Stages"
 Description: "This control checks if AWS API Gateway V2 stages have access logging configured. This control fails if access log settings aren't defined."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when access_log_settings is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when access_log_settings is null then title || ' access logging disabled.'
-        else title || ' access logging enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_api_gatewayv2_stage;
+  QueryToExecute: "select\n  'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when access_log_settings is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when access_log_settings is null then title || ' access logging disabled.'\n    else title || ' access logging enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_api_gatewayv2_stage;\n"
   PrimaryTable: aws_api_gatewayv2_stage
   ListOfTables:
-  - aws_api_gatewayv2_stage
+    - aws_api_gatewayv2_stage
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - logging
+    - logging
   foundational_security_item_id:
-  - apigateway_9
+    - apigateway_9
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/APIGateway
+    - AWS/APIGateway
+IntegrationTypeName:
+  - aws_cloud

@@ -1,47 +1,16 @@
 ID: aws_mandatory_sql_codepipeline_pipeline_mandatory
 Title: "CodePipeline pipelines should have mandatory tags"
 Description: "Check if CodePipeline pipelines have mandatory tags."
-Connector:
-- aws
 Query:
   Engine: steampipe-v0.5
-  QueryToExecute: |
-    with analysis as (
-      select
-        og_account_id,
-        og_resource_id,
-        arn,
-        title,
-        tags ?& '{{.awsMandatoryTags}}'::text[] as has_mandatory_tags,
-        to_jsonb('{{.awsMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
-        region,
-        account_id,
-        tags,
-        _ctx
-      from
-        aws_codepipeline_pipeline
-    )
-    select
-        og_account_id,
-        og_resource_id,
-        arn as resource,
-      case
-        when has_mandatory_tags then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when has_mandatory_tags then title || ' has all mandatory tags.'
-        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      end as reason
-      
-      , region, account_id
-    from
-      analysis;
+  QueryToExecute: "with analysis as (\n  select\n    og_account_id,\n    og_resource_id,\n    arn,\n    title,\n    tags ?& '{{.awsMandatoryTags}}'::text[] as has_mandatory_tags,\n    to_jsonb('{{.awsMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,\n    region,\n    account_id,\n    tags,\n    _ctx\n  from\n    aws_codepipeline_pipeline\n)\nselect\n    og_account_id,\n    og_resource_id,\n    arn as resource,\n  case\n    when has_mandatory_tags then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when has_mandatory_tags then title || ' has all mandatory tags.'\n    else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'\n  end as reason\n  \n  , region, account_id\nfrom\n  analysis;\n"
   PrimaryTable: aws_codepipeline_pipeline
   ListOfTables:
-  - aws_codepipeline_pipeline
+    - aws_codepipeline_pipeline
   Parameters:
-  - key: awsMandatoryTags
-    required: true
+    - key: awsMandatoryTags
+      required: true
 Severity: high
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

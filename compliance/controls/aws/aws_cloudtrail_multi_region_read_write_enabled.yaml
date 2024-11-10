@@ -1,8 +1,6 @@
 ID: aws_cloudtrail_multi_region_read_write_enabled
 Title: "CloudTrail trails should be enabled in all regions"
 Description: "AWS CloudTrail is a web service that records AWS API calls for your account and delivers log files to you. The recorded information includes the identity of the API caller, the time of the API call, the source IP address of the API caller, the request parameters, and the response elements returned by the AWS service. CloudTrail provides a history of AWS API calls for an account, including API calls made via the Management Console, SDKs, command line tools, and higher-level AWS services (such as CloudFormation)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -37,7 +35,7 @@ Query:
         when d.account_id is null and ad.account_id is null then 'cloudtrail disabled.'
         else 'cloudtrail enabled.'
       end as reason
-    
+
       , a.account_id
     from
       aws_account as a
@@ -45,26 +43,28 @@ Query:
       left join advanced_event_selectors_trail_details as ad on ad.account_id = a.account_id;
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
-  - aws_cloudtrail_trail
+    - aws_account
+    - aws_cloudtrail_trail
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "2.1"
+    - "2.1"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "2"
+    - "2"
   cis_type:
-  - scored
+    - scored
   cis_version:
-  - v1.2.0
+    - v1.2.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CloudTrail
+    - AWS/CloudTrail
+IntegrationTypeName:
+  - aws_cloud

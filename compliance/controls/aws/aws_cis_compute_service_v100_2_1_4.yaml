@@ -1,27 +1,14 @@
 ID: aws_cis_compute_service_v100_2_1_4
 Title: "2.1.4 Ensure Images (AMI) are not older than 90 days"
 Description: "Ensure that your AMIs are not older than 90 days."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      image_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when creation_date >= (current_date - interval '90 days') then 'ok'
-        else 'alarm'
-      end as status,
-      title || ' created ' || to_char(creation_date , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - creation_date) || ' days).' as reason
-      
-      
-    from
-      aws_ec2_ami;
+  QueryToExecute: "select\n  image_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when creation_date >= (current_date - interval '90 days') then 'ok'\n    else 'alarm'\n  end as status,\n  title || ' created ' || to_char(creation_date , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - creation_date) || ' days).' as reason\n  \n  \nfrom\n  aws_ec2_ami;"
   PrimaryTable: aws_ec2_ami
   ListOfTables:
-  - aws_ec2_ami
+    - aws_ec2_ami
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

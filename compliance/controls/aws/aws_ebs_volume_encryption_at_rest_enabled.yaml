@@ -1,46 +1,30 @@
 ID: aws_ebs_volume_encryption_at_rest_enabled
 Title: "EBS volume encryption at rest should be enabled"
 Description: "Because sensitive data can exist and to help protect data at rest, ensure encryption is enabled for your AWS Elastic Block Store (AWS EBS) volumes."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted then volume_id || ' encrypted.'
-        else volume_id || ' not encrypted.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ebs_volume;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encrypted then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encrypted then volume_id || ' encrypted.'\n    else volume_id || ' not encrypted.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_volume;\n"
   PrimaryTable: aws_ebs_volume
   ListOfTables:
-  - aws_ebs_volume
+    - aws_ebs_volume
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/EBS
+    - AWS/EBS
+IntegrationTypeName:
+  - aws_cloud

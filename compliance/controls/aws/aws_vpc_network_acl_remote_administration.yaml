@@ -1,8 +1,6 @@
 ID: aws_vpc_network_acl_remote_administration
 Title: "Network ACLs should not allow ingress from 0.0.0.0/0 to port 22 or port 3389"
 Description: "This control checks if default ports for SSH/RDP ingress traffic for network access control lists (NACLs) is unrestricted. The rule fails if a NACL inbound entry allows a source CIDR block of '0.0.0.0/0' or '::/0' for ports 22 or 3389."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -57,25 +55,27 @@ Query:
       left join bad_rules on bad_rules.network_acl_id = acl.network_acl_id;
   PrimaryTable: aws_vpc_network_acl
   ListOfTables:
-  - aws_vpc_network_acl
+    - aws_vpc_network_acl
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "5.1"
+    - "5.1"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "5"
+    - "5"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/VPC
+    - AWS/VPC
+IntegrationTypeName:
+  - aws_cloud

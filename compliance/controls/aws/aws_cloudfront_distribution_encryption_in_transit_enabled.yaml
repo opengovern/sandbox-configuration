@@ -1,56 +1,26 @@
 ID: aws_cloudfront_distribution_encryption_in_transit_enabled
 Title: "CloudFront distributions should require encryption in transit"
 Description: "This control checks whether an AWS CloudFront distribution requires viewers to use HTTPS directly or whether it uses redirection. The control fails if ViewerProtocolPolicy is set to allow-all for defaultCacheBehavior or for cacheBehaviors."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with data as (
-      select
-        distinct arn
-      from
-        aws_cloudfront_distribution,
-          jsonb_array_elements(
-        case jsonb_typeof(cache_behaviors -> 'Items')
-            when 'array' then (cache_behaviors -> 'Items')
-            else null end
-        ) as cb
-      where
-        cb ->> 'ViewerProtocolPolicy' = 'allow-all'
-    )
-    select
-      b.arn as resource,
-      b.og_account_id as og_account_id,
-      b.og_resource_id as og_resource_id,
-      case
-        when d.arn is not null or (default_cache_behavior ->> 'ViewerProtocolPolicy' = 'allow-all') then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when d.arn is not null or (default_cache_behavior ->> 'ViewerProtocolPolicy' = 'allow-all') then title || ' data not encrypted in transit.'
-        else title || ' data encrypted in transit.'
-      end as reason
-      
-      , b.region, b.account_id
-    from
-      aws_cloudfront_distribution as b
-      left join data as d on b.arn = d.arn;
+  QueryToExecute: "with data as (\n  select\n    distinct arn\n  from\n    aws_cloudfront_distribution,\n      jsonb_array_elements(\n    case jsonb_typeof(cache_behaviors -> 'Items')\n        when 'array' then (cache_behaviors -> 'Items')\n        else null end\n    ) as cb\n  where\n    cb ->> 'ViewerProtocolPolicy' = 'allow-all'\n)\nselect\n  b.arn as resource,\n  b.og_account_id as og_account_id,\n  b.og_resource_id as og_resource_id,\n  case\n    when d.arn is not null or (default_cache_behavior ->> 'ViewerProtocolPolicy' = 'allow-all') then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when d.arn is not null or (default_cache_behavior ->> 'ViewerProtocolPolicy' = 'allow-all') then title || ' data not encrypted in transit.'\n    else title || ' data encrypted in transit.'\n  end as reason\n  \n  , b.region, b.account_id\nfrom\n  aws_cloudfront_distribution as b\n  left join data as d on b.arn = d.arn;\n"
   PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
-  - aws_cloudfront_distribution
+    - aws_cloudfront_distribution
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - encryption_of_data_in_transit
+    - encryption_of_data_in_transit
   foundational_security_item_id:
-  - cloudfront_3
+    - cloudfront_3
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CloudFront
+    - AWS/CloudFront
+IntegrationTypeName:
+  - aws_cloud

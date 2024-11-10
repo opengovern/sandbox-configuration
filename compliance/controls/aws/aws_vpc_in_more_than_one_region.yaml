@@ -1,46 +1,15 @@
 ID: aws_vpc_in_more_than_one_region
 Title: "VPCs should exist in multiple regions"
 Description: "This control checks whether there are VPCs present in multiple regions."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with vpc_region_list as (
-      select
-        distinct region, account_id
-      from
-        aws_vpc
-    ), vpc_count_in_account as (
-        select
-        count(*) as num,
-        account_id
-      from
-        vpc_region_list
-        group by account_id
-    )
-    select
-      arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when v.num > 1 then 'ok'
-        when v.num = 1 then 'alarm'
-        else 'alarm'
-      end as status,
-      case
-        when v.num > 1 then 'VPCs exist in ' || v.num || ' regions.'
-        when v.num = 1 then 'VPCs exist only in one region.'
-        else 'VPC does not exist.'
-      end as reason
-      
-    from
-      aws_account as a
-      left join vpc_count_in_account as v on v.account_id = a.account_id;
+  QueryToExecute: "with vpc_region_list as (\n  select\n    distinct region, account_id\n  from\n    aws_vpc\n), vpc_count_in_account as (\n    select\n    count(*) as num,\n    account_id\n  from\n    vpc_region_list\n    group by account_id\n)\nselect\n  arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when v.num > 1 then 'ok'\n    when v.num = 1 then 'alarm'\n    else 'alarm'\n  end as status,\n  case\n    when v.num > 1 then 'VPCs exist in ' || v.num || ' regions.'\n    when v.num = 1 then 'VPCs exist only in one region.'\n    else 'VPC does not exist.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join vpc_count_in_account as v on v.account_id = a.account_id;"
   PrimaryTable: aws_vpc
   ListOfTables:
-  - aws_vpc
-  - aws_account
+    - aws_vpc
+    - aws_account
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

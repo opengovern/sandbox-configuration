@@ -1,38 +1,22 @@
 ID: aws_encryption_at_rest
 Title: "Encryption At Rest"
 Description: "Ensure that your Amazon OpenSearch domains are encrypted in order to meet security and compliance requirements."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN (encryption_at_rest_options ->> 'Enabled')::bool THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (encryption_at_rest_options ->> 'Enabled')::bool THEN domain_name || ' encryption at rest is not enabled' 
-        ELSE domain_name || ' encryption at rest is enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
+  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN (encryption_at_rest_options ->> 'Enabled')::bool THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN (encryption_at_rest_options ->> 'Enabled')::bool THEN domain_name || ' encryption at rest is not enabled' \n    ELSE domain_name || ' encryption at rest is enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   platform_score_use_case:
-  - Unencrypted Storage
+    - Unencrypted Storage
   score_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   score_tags:
-  - Unencrypted Storage
+    - Unencrypted Storage
+IntegrationTypeName:
+  - aws_cloud

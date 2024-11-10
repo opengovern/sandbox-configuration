@@ -1,8 +1,6 @@
 ID: azure_keyvault_logging_enabled
 Title: "Resource logs in Key Vault should be enabled"
 Description: "Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes when a security incident occurs or when your network is compromised."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -34,7 +32,7 @@ Query:
         when l.key_vault_name not like concat('%', v.name, '%') then v.name || ' logging not enabled.'
         else v.name || ' logging enabled.'
       end as reason
-    
+
       , v.resource_group as resource_group
       , sub.display_name as subscription
     from
@@ -45,28 +43,30 @@ Query:
       azure_subscription sub ON sub.subscription_id = v.subscription_id;
   PrimaryTable: azure_key_vault
   ListOfTables:
-  - azure_key_vault
-  - azure_subscription
+    - azure_key_vault
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 5.1.5
+    - 5.1.5
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "5.1"
+    - "5.1"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   score_service_name:
-  - Azure KeyVault
+    - Azure KeyVault
   score_tags:
-  - Observability
+    - Observability
+IntegrationTypeName:
+  - azure_subscription

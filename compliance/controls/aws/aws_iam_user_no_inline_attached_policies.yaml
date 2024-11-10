@@ -1,66 +1,52 @@
 ID: aws_iam_user_no_inline_attached_policies
 Title: "IAM user should not have any inline or attached policies"
 Description: "This rule ensures AWS Identity and Access Management (IAM) policies are attached only to groups or roles to control access to systems and assets."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when inline_policies is null and attached_policy_arns is null then 'ok'
-        else 'alarm'
-      end status,
-      name || ' has ' || coalesce(jsonb_array_length(inline_policies),0) || ' inline and ' ||
-        coalesce(jsonb_array_length(attached_policy_arns),0) || ' directly attached policies.' as reason
-      
-      , account_id
-    from
-      aws_iam_user;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when inline_policies is null and attached_policy_arns is null then 'ok'\n    else 'alarm'\n  end status,\n  name || ' has ' || coalesce(jsonb_array_length(inline_policies),0) || ' inline and ' ||\n    coalesce(jsonb_array_length(attached_policy_arns),0) || ' directly attached policies.' as reason\n  \n  , account_id\nfrom\n  aws_iam_user;\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_user
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/IAM
+    - AWS/IAM
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

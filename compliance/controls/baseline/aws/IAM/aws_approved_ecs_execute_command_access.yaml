@@ -1,120 +1,27 @@
 ID: aws_approved_ecs_execute_command_access
 Title: "Approved ECS Execute Command Access"
 Description: "Ensure that all access to the ECS Execute Command action is approved"
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      og_account_id,
-      og_resource_id,
-     'aws_iam_user' as og_table_name,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        ELSE 'ok'
-      END AS reason,
-      region, 
-      account_id
-    FROM
-      aws_iam_user
-    
-    UNION ALL
-    
-    SELECT
-      name AS resource,
-      og_account_id,
-      og_resource_id,
-      'aws_iam_role' as og_table_name,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        ELSE 'ok'
-      END AS reason,
-      region, 
-      account_id
-    FROM
-      aws_iam_role
-    
-    UNION ALL
-    
-    SELECT
-      name AS resource,
-      og_account_id,
-      og_resource_id,
-      'aws_iam_group' as og_table_name,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        WHEN exists(
-          select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap
-          where p.policy::text like '%ecs:ExecuteCommand%'
-        ) and
-        ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'
-        ELSE 'ok'
-      END AS reason,
-      region, 
-      account_id
-    FROM
-      aws_iam_group
+  QueryToExecute: "SELECT\n  name AS resource,\n  og_account_id,\n  og_resource_id,\n 'aws_iam_user' as og_table_name,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    ELSE 'ok'\n  END AS reason,\n  region, \n  account_id\nFROM\n  aws_iam_user\n\nUNION ALL\n\nSELECT\n  name AS resource,\n  og_account_id,\n  og_resource_id,\n  'aws_iam_role' as og_table_name,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    ELSE 'ok'\n  END AS reason,\n  region, \n  account_id\nFROM\n  aws_iam_role\n\nUNION ALL\n\nSELECT\n  name AS resource,\n  og_account_id,\n  og_resource_id,\n  'aws_iam_group' as og_table_name,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN (inline_policies_std::text like '%ecs:ExecuteCommand%') and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    WHEN exists(\n      select 1 from jsonb_array_elements_text(attached_policy_arns) as ap left join aws_iam_policy as p on p.arn = ap\n      where p.policy::text like '%ecs:ExecuteCommand%'\n    ) and\n    ('{{.awsEcsExecuteCommandIamArns}}' not like '%' || arn || '%') THEN 'user is not authorized to do this ecs action'\n    ELSE 'ok'\n  END AS reason,\n  region, \n  account_id\nFROM\n  aws_iam_group\n"
   PrimaryTable: ""
   ListOfTables:
-  - aws_iam_group
-  - aws_iam_policy
-  - aws_iam_role
-  - aws_iam_user
+    - aws_iam_group
+    - aws_iam_policy
+    - aws_iam_role
+    - aws_iam_user
   Parameters:
     - Key: awsEcsExecuteCommandIamArns
       Required: true
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

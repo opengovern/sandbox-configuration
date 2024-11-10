@@ -1,42 +1,26 @@
 ID: aws_sqs_queue_encrypted_at_rest
 Title: "AWS SQS queues should be encrypted at rest"
 Description: "This control checks whether AWS SQS queues are encrypted at rest."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      queue_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when kms_master_key_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when kms_master_key_id is null then title || ' encryption at rest disabled.'
-        else title || ' encryption at rest enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_sqs_queue;
+  QueryToExecute: "select\n  queue_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_master_key_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_master_key_id is null then title || ' encryption at rest disabled.'\n    else title || ' encryption at rest enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_sqs_queue;\n"
   PrimaryTable: aws_sqs_queue
   ListOfTables:
-  - aws_sqs_queue
+    - aws_sqs_queue
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - encryption_of_data_at_rest
+    - encryption_of_data_at_rest
   foundational_security_item_id:
-  - sqs_1
+    - sqs_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/SQS
+    - AWS/SQS
+IntegrationTypeName:
+  - aws_cloud

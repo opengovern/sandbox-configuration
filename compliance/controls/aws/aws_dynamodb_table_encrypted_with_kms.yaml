@@ -1,60 +1,44 @@
 ID: aws_dynamodb_table_encrypted_with_kms
 Title: "DynamoDB table should be encrypted with AWS KMS"
 Description: "Ensure that encryption is enabled for your AWS DynamoDB tables. Because sensitive data can exist at rest in these tables, enable encryption at rest to help protect that data."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when sse_description is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when sse_description is null then title || ' not encrypted with KMS.'
-        else title || ' encrypted with KMS.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_dynamodb_table;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when sse_description is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when sse_description is null then title || ' not encrypted with KMS.'\n    else title || ' encrypted with KMS.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_dynamodb_table;\n"
   PrimaryTable: aws_dynamodb_table
   ListOfTables:
-  - aws_dynamodb_table
+    - aws_dynamodb_table
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/DynamoDB
+    - AWS/DynamoDB
+IntegrationTypeName:
+  - aws_cloud

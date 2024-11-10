@@ -1,54 +1,25 @@
 ID: aws_ebs_instances_have_backup_withing_rpo_period
 Title: "Attached EBS Storage Volumes restoration needs meet RPO Standard"
 Description: "AWS EBS Storage Volumes that are connected need to have restorable backup within the defined period"
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    WITH all_backup AS (
-      SELECT recovery_point_arn, resource_arn, creation_date
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '2 week'::interval 
-      and resource_type = 'EBS' and status = 'COMPLETED'),
-    points AS (
-      SELECT recovery_point_arn, resource_arn
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '{{.awsEbsInstancesBackupPeriod}} hours'::interval 
-      and resource_type = 'EBS' and status = 'COMPLETED')
-    
-    select
-      v.arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when p.recovery_point_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when p.recovery_point_arn is null and a.recovery_point_arn is null then 'there is no backup for this resource'
-        when p.recovery_point_arn is null then 'last backup at ' || a.creation_date::text
-        else ''
-      end as reason
-      , region, account_id 
-    from 
-      aws_ebs_volume as v
-      left join points as p on v.arn = p.resource_arn
-      left join all_backup as a on v.arn = a.resource_arn
+  QueryToExecute: "WITH all_backup AS (\n  SELECT recovery_point_arn, resource_arn, creation_date\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '2 week'::interval \n  and resource_type = 'EBS' and status = 'COMPLETED'),\npoints AS (\n  SELECT recovery_point_arn, resource_arn\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '{{.awsEbsInstancesBackupPeriod}} hours'::interval \n  and resource_type = 'EBS' and status = 'COMPLETED')\n\nselect\n  v.arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when p.recovery_point_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when p.recovery_point_arn is null and a.recovery_point_arn is null then 'there is no backup for this resource'\n    when p.recovery_point_arn is null then 'last backup at ' || a.creation_date::text\n    else ''\n  end as reason\n  , region, account_id \nfrom \n  aws_ebs_volume as v\n  left join points as p on v.arn = p.resource_arn\n  left join all_backup as a on v.arn = a.resource_arn\n"
   PrimaryTable: aws_ebs_volume
   ListOfTables:
-  - aws_backup_recovery_point
-  - aws_ebs_volume
+    - aws_backup_recovery_point
+    - aws_ebs_volume
   Parameters:
     - Key: awsEbsInstancesBackupPeriod
       Required: true
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   platform_score_use_case:
-  - Missing Backup
+    - Missing Backup
   score_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   score_tags:
-  - Missing Backup
+    - Missing Backup
+IntegrationTypeName:
+  - aws_cloud

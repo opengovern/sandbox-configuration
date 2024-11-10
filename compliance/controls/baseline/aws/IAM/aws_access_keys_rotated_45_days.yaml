@@ -1,40 +1,22 @@
 ID: aws_access_keys_rotated_45_days
 Title: "Access Keys Rotated 45 Days"
 Description: "Ensure AWS IAM access keys are rotated on a periodic basis as a security best practice (45 Days)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      access_key_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when status <> 'Active' then 'skip'
-        when create_date + '45 days'::interval < now() then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when status <> 'Active' then 'key is not activated'
-        when create_date + '45 days'::interval < now() then 'key is too old'
-        else 'key is not old yet'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_iam_access_key v
+  QueryToExecute: "select\n  access_key_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when status <> 'Active' then 'skip'\n    when create_date + '45 days'::interval < now() then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when status <> 'Active' then 'key is not activated'\n    when create_date + '45 days'::interval < now() then 'key is too old'\n    else 'key is not old yet'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_iam_access_key v\n"
   PrimaryTable: aws_iam_access_key
   ListOfTables:
-  - aws_iam_access_key
+    - aws_iam_access_key
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Insecure Keys
+    - Insecure Keys
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Insecure Keys
+    - Insecure Keys
+IntegrationTypeName:
+  - aws_cloud

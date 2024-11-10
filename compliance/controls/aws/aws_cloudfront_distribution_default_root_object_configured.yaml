@@ -1,42 +1,26 @@
 ID: aws_cloudfront_distribution_default_root_object_configured
 Title: "CloudFront distributions should have a default root object configured"
 Description: "This control checks whether an AWS CloudFront distribution is configured to return a specific object that is the default root object. The control fails if the CloudFront distribution does not have a default root object configured."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when default_root_object = '' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when default_root_object = '' then title || ' default root object not configured.'
-        else title || ' default root object configured.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_cloudfront_distribution;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when default_root_object = '' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when default_root_object = '' then title || ' default root object not configured.'\n    else title || ' default root object configured.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudfront_distribution;\n"
   PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
-  - aws_cloudfront_distribution
+    - aws_cloudfront_distribution
   Parameters: []
 Severity: critical
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - resources_not_publicly_accessible
+    - resources_not_publicly_accessible
   foundational_security_item_id:
-  - cloudfront_1
+    - cloudfront_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CloudFront
+    - AWS/CloudFront
+IntegrationTypeName:
+  - aws_cloud

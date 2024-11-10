@@ -1,8 +1,6 @@
 ID: azure_network_security_group_ssh_access_restricted
 Title: "Ensure that SSH access is restricted from the internet"
 Description: "Disable SSH access on network security groups from the Internet."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -45,7 +43,7 @@ Query:
           then sg.title || ' restricts SSH access from internet.'
         else sg.title || ' allows SSH access from internet.'
       end as reason
-    
+
       , sg.resource_group as resource_group
       , sub.display_name as subscription
     from
@@ -54,26 +52,28 @@ Query:
       join azure_subscription sub on sub.subscription_id = sg.subscription_id;
   PrimaryTable: azure_network_security_group
   ListOfTables:
-  - azure_network_security_group
-  - azure_subscription
+    - azure_network_security_group
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "6.2"
+    - "6.2"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "6"
+    - "6"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/Network
+    - Azure/Network
+IntegrationTypeName:
+  - azure_subscription

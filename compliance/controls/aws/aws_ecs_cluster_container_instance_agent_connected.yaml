@@ -1,8 +1,6 @@
 ID: aws_ecs_cluster_container_instance_agent_connected
 Title: "ECS cluster container instances should have connected agent"
 Description: "This control checks if ECS cluster container instances have connected agent. This control fails if the agent is not connected."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -33,8 +31,10 @@ Query:
       left join unconnected_agent_instance as i on c.cluster_arn = i.cluster_arn;
   PrimaryTable: aws_ecs_cluster
   ListOfTables:
-  - aws_ecs_cluster
-  - aws_ecs_container_instance
+    - aws_ecs_cluster
+    - aws_ecs_container_instance
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

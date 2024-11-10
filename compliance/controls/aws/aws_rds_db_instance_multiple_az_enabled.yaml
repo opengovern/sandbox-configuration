@@ -1,60 +1,42 @@
 ID: aws_rds_db_instance_multiple_az_enabled
 Title: "RDS DB instance multiple az should be enabled"
 Description: "Multi-AZ support in AWS Relational Database Service (AWS RDS) provides enhanced availability and durability for database instances."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when engine ilike any (array ['%aurora-mysql%', '%aurora-postgres%']) then 'skip'
-        when multi_az then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when engine ilike any (array ['%aurora-mysql%', '%aurora-postgres%']) then title || ' cluster instance.'
-        when multi_az then title || ' Multi-AZ enabled.'
-        else title || ' Multi-AZ disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_rds_db_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when engine ilike any (array ['%aurora-mysql%', '%aurora-postgres%']) then 'skip'\n    when multi_az then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when engine ilike any (array ['%aurora-mysql%', '%aurora-postgres%']) then title || ' cluster instance.'\n    when multi_az then title || ' Multi-AZ enabled.'\n    else title || ' Multi-AZ disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_instance;\n"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_instance
+    - aws_rds_db_instance
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/RDS
+    - AWS/RDS
+IntegrationTypeName:
+  - aws_cloud

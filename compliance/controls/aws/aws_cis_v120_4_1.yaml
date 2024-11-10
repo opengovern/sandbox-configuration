@@ -1,8 +1,6 @@
 ID: aws_cis_v120_4_1
 Title: "4.1 Ensure no security groups allow ingress from 0.0.0.0/0 to port 22"
 Description: "Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. It is recommended that no security group allows unrestricted ingress access to port 22."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -44,8 +42,10 @@ Query:
       left join ingress_ssh_rules on ingress_ssh_rules.group_id = sg.group_id;
   PrimaryTable: aws_vpc_security_group
   ListOfTables:
-  - aws_vpc_security_group_rule
-  - aws_vpc_security_group
+    - aws_vpc_security_group_rule
+    - aws_vpc_security_group
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

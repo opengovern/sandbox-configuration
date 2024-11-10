@@ -1,38 +1,22 @@
 ID: aws_acm_certificates_with_wildcard_domain_names
 Title: "AWS ACM Certificates with Wildcard Domain Names"
 Description: "Ensure that wildcard certificates issued by Amazon Certificate Manager (ACM) or imported to ACM are not in use."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      certificate_arn as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN domain_name LIKE '*%' then 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN domain_name LIKE '*%' then 'wildcard domain name certificate is used'
-        ELSE 'single domain name certificate is used'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_acm_certificate
+  QueryToExecute: "SELECT \n  certificate_arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN domain_name LIKE '*%' then 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN domain_name LIKE '*%' then 'wildcard domain name certificate is used'\n    ELSE 'single domain name certificate is used'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_acm_certificate\n"
   PrimaryTable: aws_acm_certificate
   ListOfTables:
-  - aws_acm_certificate
+    - aws_acm_certificate
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Certificate Manager
+    - AWS Certificate Manager
   platform_score_use_case:
-  - Tolerate Failures
+    - Tolerate Failures
   score_service_name:
-  - AWS Certificate Manager
+    - AWS Certificate Manager
   score_tags:
-  - Tolerate Failures
+    - Tolerate Failures
+IntegrationTypeName:
+  - aws_cloud

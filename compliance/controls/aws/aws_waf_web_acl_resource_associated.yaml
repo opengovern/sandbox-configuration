@@ -1,40 +1,24 @@
 ID: aws_waf_web_acl_resource_associated
 Title: "WAF web ACL should be associated with an Application Load Balancer, API Gateway stage, or CloudFront distributions"
 Description: "This control checks if the web ACL is associated with an Application Load Balancer, API Gateway stage, or CloudFront distributions."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(resources) > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when jsonb_array_length(resources) > 0 then title || ' associated with ' || jsonb_array_length(resources) || ' AWS resource(s).'
-        else title || ' not assoicated with AWS resource.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_wafregional_web_acl;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(resources) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when jsonb_array_length(resources) > 0 then title || ' associated with ' || jsonb_array_length(resources) || ' AWS resource(s).'\n    else title || ' not assoicated with AWS resource.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_wafregional_web_acl;\n"
   PrimaryTable: aws_wafregional_web_acl
   ListOfTables:
-  - aws_wafregional_web_acl
+    - aws_wafregional_web_acl
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/WAF
+    - AWS/WAF
+IntegrationTypeName:
+  - aws_cloud

@@ -1,42 +1,26 @@
 ID: aws_cloudfront_distribution_waf_enabled
 Title: "CloudFront distributions should have AWS WAF enabled"
 Description: "This control checks whether CloudFront distributions are associated with either AWS WAF or AWS WAFv2 web ACLs. The control fails if the distribution is not associated with a web ACL."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when web_acl_id <> '' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when web_acl_id <> '' then title || ' associated with WAF.'
-        else title || ' not associated with WAF.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_cloudfront_distribution;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when web_acl_id <> '' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when web_acl_id <> '' then title || ' associated with WAF.'\n    else title || ' not associated with WAF.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudfront_distribution;\n"
   PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
-  - aws_cloudfront_distribution
+    - aws_cloudfront_distribution
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - protective_services
+    - protective_services
   foundational_security_item_id:
-  - cloudfront_6
+    - cloudfront_6
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CloudFront
+    - AWS/CloudFront
+IntegrationTypeName:
+  - aws_cloud

@@ -1,48 +1,32 @@
 ID: aws_efs_file_system_encrypt_data_at_rest
 Title: "EFS file system encryption at rest should be enabled"
 Description: "Because sensitive data can exist and to help protect data at rest, ensure encryption is enabled for your AWS Elastic File System (EFS)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted then title || ' encrypted at rest.'
-        else title || ' not encrypted at rest.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_efs_file_system;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encrypted then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encrypted then title || ' encrypted at rest.'\n    else title || ' not encrypted at rest.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_efs_file_system;\n"
   PrimaryTable: aws_efs_file_system
   ListOfTables:
-  - aws_efs_file_system
+    - aws_efs_file_system
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 2.4.1
+    - 2.4.1
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "2.4"
+    - "2.4"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.5.0
+    - v1.5.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EFS
+    - AWS/EFS
+IntegrationTypeName:
+  - aws_cloud

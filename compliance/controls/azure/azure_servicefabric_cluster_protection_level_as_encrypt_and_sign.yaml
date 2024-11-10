@@ -1,39 +1,21 @@
 ID: azure_servicefabric_cluster_protection_level_as_encrypt_and_sign
 Title: "Service Fabric clusters should have the ClusterProtectionLevel property set to EncryptAndSign"
 Description: "Service Fabric provides three levels of protection (None, Sign and EncryptAndSign) for node-to-node communication using a primary cluster certificate. Set the protection level to ensure that all node-to-node messages are encrypted and digitally signed."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when fabric_settings @> '[{"parameters":[{"value": "EncryptAndSign"}]}]'::jsonb then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when fabric_settings @> '[{"parameters":[{"value": "EncryptAndSign"}]}]'::jsonb then a.name || ' ClusterProtectionLevel property set to EncryptAndSign.'
-        else a.name || ' ClusterProtectionLevel property not set to EncryptAndSign.'
-      end as reason
-      
-      , a.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_service_fabric_cluster a,
-      azure_subscription sub;
+  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when fabric_settings @> '[{\"parameters\":[{\"value\": \"EncryptAndSign\"}]}]'::jsonb then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when fabric_settings @> '[{\"parameters\":[{\"value\": \"EncryptAndSign\"}]}]'::jsonb then a.name || ' ClusterProtectionLevel property set to EncryptAndSign.'\n    else a.name || ' ClusterProtectionLevel property not set to EncryptAndSign.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_service_fabric_cluster a,\n  azure_subscription sub;\n"
   PrimaryTable: azure_service_fabric_cluster
   ListOfTables:
-  - azure_service_fabric_cluster
-  - azure_subscription
+    - azure_service_fabric_cluster
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   service:
-  - Azure/ServiceFabric
+    - Azure/ServiceFabric
+IntegrationTypeName:
+  - azure_subscription

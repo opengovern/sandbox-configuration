@@ -1,8 +1,6 @@
 ID: aws_vpc_security_group_allows_ingress_to_mongodb_ports
 Title: "VPC security groups should restrict ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018"
 Description: "This control checks whether the VPC security groups that are in use allow ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 from ports 27017 and 27018."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -48,8 +46,10 @@ Query:
       left join ingress_ssh_rules on ingress_ssh_rules.group_id = sg.group_id;
   PrimaryTable: aws_vpc_security_group
   ListOfTables:
-  - aws_vpc_security_group_rule
-  - aws_vpc_security_group
+    - aws_vpc_security_group_rule
+    - aws_vpc_security_group
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

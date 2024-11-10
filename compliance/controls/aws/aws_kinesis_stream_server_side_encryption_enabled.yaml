@@ -1,42 +1,26 @@
 ID: aws_kinesis_stream_server_side_encryption_enabled
 Title: "Kinesis streams should have server side encryption enabled"
 Description: "Enable server side encryption (SSE) of your AWS Kinesis Server data at rest, in order to protect your data and metadata from breaches or unauthorized access, and fulfill compliance requirements for data-at-rest encryption within your organization."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      stream_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encryption_type = 'KMS' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encryption_type = 'KMS' then title || ' server side encryption enabled.'
-        else title || ' server side encryption disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_kinesis_stream;
+  QueryToExecute: "select\n  stream_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encryption_type = 'KMS' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encryption_type = 'KMS' then title || ' server side encryption enabled.'\n    else title || ' server side encryption disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_kinesis_stream;\n"
   PrimaryTable: aws_kinesis_stream
   ListOfTables:
-  - aws_kinesis_stream
+    - aws_kinesis_stream
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - encryption_of_data_at_rest
+    - encryption_of_data_at_rest
   foundational_security_item_id:
-  - kinesis_1
+    - kinesis_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Kinesis
+    - AWS/Kinesis
+IntegrationTypeName:
+  - aws_cloud

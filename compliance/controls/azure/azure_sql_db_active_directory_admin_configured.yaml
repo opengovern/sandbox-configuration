@@ -1,54 +1,34 @@
 ID: azure_sql_db_active_directory_admin_configured
 Title: "Ensure that Azure Active Directory Admin is configured"
 Description: "Use Azure Active Directory Authentication for authentication with SQL Database."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when server_azure_ad_administrator is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when server_azure_ad_administrator is null then name || ' Azure AD authentication not configured.'
-        else name || ' Azure AD authentication configured.'
-      end as reason
-      
-      , s.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_sql_server s,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when server_azure_ad_administrator is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when server_azure_ad_administrator is null then name || ' Azure AD authentication not configured.'\n    else name || ' Azure AD authentication configured.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server s,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: azure_sql_server
   ListOfTables:
-  - azure_ad_administrator
-  - azure_sql_server
-  - azure_subscription
+    - azure_ad_administrator
+    - azure_sql_server
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "4.4"
+    - "4.4"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "4"
+    - "4"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SQL
+    - Azure/SQL
+IntegrationTypeName:
+  - azure_subscription

@@ -1,32 +1,13 @@
 ID: azure_cis_v150_4_1_3
 Title: "4.1.3 Ensure SQL server's Transparent Data Encryption (TDE) protector is encrypted with Customer-managed key"
 Description: "Transparent Data Encryption (TDE) with Customer-managed key support provides increased transparency and control over the TDE Protector, increased security with an HSM-backed external service, and promotion of separation of duties."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when encryption ->> 'kind' = 'servicemanaged' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when encryption ->> 'kind' = 'servicemanaged' then s.name || ' TDE protector not encrypted with CMK.'
-        else s.name || ' TDE protector encrypted with CMK.'
-      end as reason
-      
-      
-      
-    from
-      azure_sql_server s,
-      jsonb_array_elements(encryption_protector) encryption,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when encryption ->> 'kind' = 'servicemanaged' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when encryption ->> 'kind' = 'servicemanaged' then s.name || ' TDE protector not encrypted with CMK.'\n    else s.name || ' TDE protector encrypted with CMK.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(encryption_protector) encryption,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

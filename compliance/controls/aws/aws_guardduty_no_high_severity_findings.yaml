@@ -1,8 +1,6 @@
 ID: aws_guardduty_no_high_severity_findings
 Title: "GuardDuty Detector should not have high severity findings"
 Description: "GuardDuty generates a finding whenever it detects unexpected and potentially malicious activity in your AWS environment. If critical findings are not addressed threats can spread in the environment. This rule is non-compliant if there are high severity findings."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -46,8 +44,10 @@ Query:
       left join finding_count as fc on fc.detector_id = d.detector_id;
   PrimaryTable: aws_guardduty_detector
   ListOfTables:
-  - aws_guardduty_detector
-  - aws_guardduty_finding
+    - aws_guardduty_detector
+    - aws_guardduty_finding
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

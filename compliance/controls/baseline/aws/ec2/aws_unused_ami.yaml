@@ -1,60 +1,25 @@
 ID: aws_unused_ami
 Title: "Unused AMI"
 Description: "Identify unused Amazon Machine Images (AMI) to help lower the cost of your monthly AWS bill."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with dlm_managed as (
-      select og_resource_id from aws_ec2_ami CROSS JOIN jsonb_each(tags) where (key like 'aws:dlm%' or key = 'dlm:managed') limit 1
-    )
-    select
-      ami.name as resource,
-      ami.og_resource_id,
-      ami.og_account_id,
-      case
-        when is_aws_backup_managed then 'skip'
-        when ami.root_device_type <> 'ebs' then 'skip'
-        when i.arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when is_aws_backup_managed then name || ' is managed by aws'
-        when ami.root_device_type <> 'ebs' then name || ' is not stored in ebs'
-        when i.arn is null then ami.name || ' is unused.'
-        else ami.name || ' is used.'
-      end as reason,  
-      case
-        when is_aws_backup_managed then 0
-        when ami.root_device_type <> 'ebs' then 0
-        when i.arn is null then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' 
-             AND es.resource_id = s.arn limit 1))
-             FROM jsonb_array_elements(ami.block_device_mappings) AS bdm
-             LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')
-        else 0
-      end as cost_optimization,
-      ami.region,
-      ami.account_id
-    from
-      aws_ec2_ami AS ami
-      LEFT JOIN aws_ec2_instance AS i ON ami.image_id = i.image_id
-    where 
-      not(exists(select * from dlm_managed dl where dl.og_resource_id = ami.og_resource_id)) 
+  QueryToExecute: "with dlm_managed as (\n  select og_resource_id from aws_ec2_ami CROSS JOIN jsonb_each(tags) where (key like 'aws:dlm%' or key = 'dlm:managed') limit 1\n)\nselect\n  ami.name as resource,\n  ami.og_resource_id,\n  ami.og_account_id,\n  case\n    when is_aws_backup_managed then 'skip'\n    when ami.root_device_type <> 'ebs' then 'skip'\n    when i.arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when is_aws_backup_managed then name || ' is managed by aws'\n    when ami.root_device_type <> 'ebs' then name || ' is not stored in ebs'\n    when i.arn is null then ami.name || ' is unused.'\n    else ami.name || ' is used.'\n  end as reason,  \n  case\n    when is_aws_backup_managed then 0\n    when ami.root_device_type <> 'ebs' then 0\n    when i.arn is null then (SELECT SUM((select cost from pennywise_cost_estimate AS es WHERE es.resource_type = 'aws::ec2::volumesnapshot' \n         AND es.resource_id = s.arn limit 1))\n         FROM jsonb_array_elements(ami.block_device_mappings) AS bdm\n         LEFT JOIN aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')\n    else 0\n  end as cost_optimization,\n  ami.region,\n  ami.account_id\nfrom\n  aws_ec2_ami AS ami\n  LEFT JOIN aws_ec2_instance AS i ON ami.image_id = i.image_id\nwhere \n  not(exists(select * from dlm_managed dl where dl.og_resource_id = ami.og_resource_id)) \n"
   PrimaryTable: aws_ec2_ami
   ListOfTables:
-  - aws_backup_managed
-  - aws_ebs_snapshot
-  - aws_ec2_ami
-  - aws_ec2_instance
+    - aws_backup_managed
+    - aws_ebs_snapshot
+    - aws_ec2_ami
+    - aws_ec2_instance
   Parameters: []
 Severity: low
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Orphaned Resources
+    - Orphaned Resources
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Orphaned Resources
+    - Orphaned Resources
+IntegrationTypeName:
+  - aws_cloud

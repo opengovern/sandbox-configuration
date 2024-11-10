@@ -1,32 +1,13 @@
 ID: azure_cis_v200_4_1_5
 Title: "4.1.5 Ensure that 'Data encryption' is set to 'On' on a SQL Database"
 Description: "Enable Transparent Data Encryption on every SQL server."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.database_id resource,
-      case
-        when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then 'ok'
-          else 'alarm'
-      end as status,
-      case
-        when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then s.title || ' transparent data encryption enabled.'
-          else s.title || ' transparent data encryption disabled.'
-      end as reason
-      
-      
-      
-    from
-      azure_sql_database as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id
-      and s.name <> 'master';
+  QueryToExecute: "select\n  s.database_id resource,\n  case\n    when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then 'ok'\n      else 'alarm'\n  end as status,\n  case\n    when transparent_data_encryption ->> 'status' = 'Enabled' or transparent_data_encryption ->> 'state' = 'Enabled' then s.title || ' transparent data encryption enabled.'\n      else s.title || ' transparent data encryption disabled.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_database as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id\n  and s.name <> 'master';\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

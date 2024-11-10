@@ -1,44 +1,23 @@
 ID: aws_vpc_endpoints_in_use
 Title: "VPC Endpoints In Use"
 Description: "Ensure that VPC endpoints are being used to connect your VPC to another AWS cloud service."
-Connector:
-- aws
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      v.vpc_id as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      CASE
-        WHEN EXISTS (
-          select 1 from aws_vpc_endpoint as e where e.vpc_id = v.vpc_id
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          select 1 from aws_vpc_endpoint as e where e.vpc_id = v.vpc_id
-        )  THEN v.vpc_id || '  has VPC endpoints'
-        ELSE ' there are no Amazon VPC endpoints deployed for ' || v.vpc_id
-      END AS reason,
-      v.region,
-      v.account_id
-    FROM 
-    aws_vpc as v
-    WHERE is_default = false;
+  QueryToExecute: "SELECT \n  v.vpc_id as resource,\n  v.og_resource_id,\n  v.og_account_id,\n  CASE\n    WHEN EXISTS (\n      select 1 from aws_vpc_endpoint as e where e.vpc_id = v.vpc_id\n    ) THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN EXISTS (\n      select 1 from aws_vpc_endpoint as e where e.vpc_id = v.vpc_id\n    )  THEN v.vpc_id || '  has VPC endpoints'\n    ELSE ' there are no Amazon VPC endpoints deployed for ' || v.vpc_id\n  END AS reason,\n  v.region,\n  v.account_id\nFROM \naws_vpc as v\nWHERE is_default = false;\n"
   PrimaryTable: aws_vpc
   ListOfTables:
-  - aws_vpc
-  - aws_vpc_endpoint
+    - aws_vpc
+    - aws_vpc_endpoint
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Virtual Private Cloud (VPC)
+    - AWS Virtual Private Cloud (VPC)
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS Virtual Private Cloud (VPC)
+    - AWS Virtual Private Cloud (VPC)
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+IntegrationTypeName:
+  - aws_cloud

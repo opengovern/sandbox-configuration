@@ -1,43 +1,26 @@
 ID: aws_eks_cluster_with_latest_kubernetes_version
 Title: "EKS clusters should run on a supported Kubernetes version"
 Description: "This control checks whether an AWS EKS cluster is running on a supported Kubernetes version. The control fails if the EKS cluster is running on an unsupported version. If your application doesn't require a specific version of Kubernetes, we recommend that you use the latest available Kubernetes version that's supported by EKS for your clusters."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        -- eks:oldestVersionSupported (Current oldest supported version is 1.19)
-        when (version)::decimal >= 1.19 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (version)::decimal >= 1.19 then title || ' runs on a supported kubernetes version.'
-        else title || ' does not run on a supported kubernetes version.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_eks_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    -- eks:oldestVersionSupported (Current oldest supported version is 1.19)\n    when (version)::decimal >= 1.19 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (version)::decimal >= 1.19 then title || ' runs on a supported kubernetes version.'\n    else title || ' does not run on a supported kubernetes version.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_eks_cluster;\n"
   PrimaryTable: aws_eks_cluster
   ListOfTables:
-  - aws_eks_cluster
+    - aws_eks_cluster
   Parameters: []
 Severity: high
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - vulnerability_patch_and_version_management
+    - vulnerability_patch_and_version_management
   foundational_security_item_id:
-  - eks_2
+    - eks_2
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EKS
+    - AWS/EKS
+IntegrationTypeName:
+  - aws_cloud

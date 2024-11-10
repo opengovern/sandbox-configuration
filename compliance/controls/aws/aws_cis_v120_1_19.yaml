@@ -1,23 +1,14 @@
 ID: aws_cis_v120_1_19
 Title: "1.19 Ensure IAM instance roles are used for AWS resource access from instances"
 Description: "AWS access from within AWS instances can be done by either encoding AWS keys into AWS API calls or by assigning the instance to a role which has an appropriate permissions policy for the required access. \\\"AWS Access\\\" means accessing the APIs of AWS in order to access AWS resources or manage AWS account resources."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason
-      
-    from
-      aws_account;
+  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'info' as status,\n  'Manual verification required.' as reason\n  \nfrom\n  aws_account;"
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
+    - aws_account
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

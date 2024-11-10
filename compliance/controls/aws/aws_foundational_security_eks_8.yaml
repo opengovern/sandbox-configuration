@@ -1,8 +1,6 @@
 ID: aws_foundational_security_eks_8
 Title: "8 EKS clusters should have audit logging enabled"
 Description: "This control checks whether an Amazon EKS cluster has audit logging enabled. The control fails if audit logging isn't enabled for the cluster."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -37,7 +35,9 @@ Query:
       left join control_panel_audit_logging as l on l.arn = c.arn;
   PrimaryTable: aws_eks_cluster
   ListOfTables:
-  - aws_eks_cluster
+    - aws_eks_cluster
   Parameters: []
 Severity: medium
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

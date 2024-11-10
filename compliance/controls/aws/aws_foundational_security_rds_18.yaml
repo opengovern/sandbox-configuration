@@ -1,30 +1,14 @@
 ID: aws_foundational_security_rds_18
 Title: "18 RDS instances should be deployed in a VPC"
 Description: "This control checks whether an RDS instance is deployed in a VPC (EC2-VPC)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when vpc_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when vpc_id is null then title || ' is not in VPC.'
-        else title || ' is in VPC ' || vpc_id || '.'
-      end as reason
-      
-      
-    from
-      aws_rds_db_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when vpc_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when vpc_id is null then title || ' is not in VPC.'\n    else title || ' is in VPC ' || vpc_id || '.'\n  end as reason\n  \n  \nfrom\n  aws_rds_db_instance;"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_instance
+    - aws_rds_db_instance
   Parameters: []
 Severity: high
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

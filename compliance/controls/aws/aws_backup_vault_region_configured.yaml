@@ -1,8 +1,6 @@
 ID: aws_backup_vault_region_configured
 Title: "Backup vaults should exist in a region"
 Description: "Ensure that there exists at least one backup vault in a region. The rule is non-compliant if there are no backup vaults in a region."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -34,8 +32,10 @@ Query:
       left join count_vaults as v on r.account_id = v.account_id and r.region = v.region;
   PrimaryTable: aws_backup_vault
   ListOfTables:
-  - aws_backup_vault
-  - aws_region
+    - aws_backup_vault
+    - aws_region
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

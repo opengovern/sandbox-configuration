@@ -1,44 +1,26 @@
 ID: aws_networkfirewall_firewall_policy_default_stateless_action_check_full_packets
 Title: "The default stateless action for Network Firewall policies should be drop or forward for full packets"
 Description: "A firewall policy defines how your firewall monitors and handles traffic in AWS VPC. You configure stateless and stateful rule groups to filter packets and traffic flows. Defaulting to Pass can allow unintended traffic."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when (not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:drop'
-            and not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:forward_to_sfe') then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when (not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:drop'
-          and not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:forward_to_sfe') then title || ' stateless action is neither drop nor forward for full packets.'
-        else title || ' stateless action is either drop or forward for full packets.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_networkfirewall_firewall_policy;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when (not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:drop'\n        and not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:forward_to_sfe') then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when (not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:drop'\n      and not (firewall_policy -> 'StatelessDefaultActions') ? 'aws:forward_to_sfe') then title || ' stateless action is neither drop nor forward for full packets.'\n    else title || ' stateless action is either drop or forward for full packets.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_networkfirewall_firewall_policy;\n"
   PrimaryTable: aws_networkfirewall_firewall_policy
   ListOfTables:
-  - aws_networkfirewall_firewall_policy
+    - aws_networkfirewall_firewall_policy
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - secure_network_configuration
+    - secure_network_configuration
   foundational_security_item_id:
-  - networkfirewall_4
+    - networkfirewall_4
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/NetworkFirewall
+    - AWS/NetworkFirewall
+IntegrationTypeName:
+  - aws_cloud

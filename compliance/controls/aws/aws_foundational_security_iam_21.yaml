@@ -1,8 +1,6 @@
 ID: aws_foundational_security_iam_21
 Title: "21 IAM customer managed policies that you create should not allow wildcard actions for services"
 Description: "This control checks whether the IAM identity-based policies that you create have Allow statements that use the * wildcard to grant permissions for all actions on any service. The control fails if any policy statement includes 'Effect': 'Allow' with 'Action': 'Service:*'."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -43,7 +41,9 @@ Query:
       not p.is_aws_managed;
   PrimaryTable: aws_iam_policy
   ListOfTables:
-  - aws_iam_policy
+    - aws_iam_policy
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

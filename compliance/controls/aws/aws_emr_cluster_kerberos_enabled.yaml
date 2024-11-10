@@ -1,54 +1,38 @@
 ID: aws_emr_cluster_kerberos_enabled
 Title: "EMR cluster Kerberos should be enabled"
 Description: "The access permissions and authorizations can be managed and incorporated with the principles of least privilege and separation of duties, by enabling Kerberos for AWS EMR clusters."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      cluster_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when kerberos_attributes is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when kerberos_attributes is null then title || ' Kerberos not enabled.'
-        else title || ' Kerberos enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_emr_cluster;
+  QueryToExecute: "select\n  cluster_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kerberos_attributes is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kerberos_attributes is null then title || ' Kerberos not enabled.'\n    else title || ' Kerberos enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_emr_cluster;\n"
   PrimaryTable: aws_emr_cluster
   ListOfTables:
-  - aws_emr_cluster
+    - aws_emr_cluster
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EMR
+    - AWS/EMR
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

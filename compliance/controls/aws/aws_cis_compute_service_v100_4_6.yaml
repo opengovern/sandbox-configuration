@@ -1,8 +1,6 @@
 ID: aws_cis_compute_service_v100_4_6
 Title: "4.6 Ensure Lambda functions are not exposed to everyone"
 Description: "A publicly accessible Amazon Lambda function is open to the public and can be reviewed by anyone. To protect against unauthorized users that are sending requests to invoke these functions they need to be changed so they are not exposed to the public"
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -40,7 +38,9 @@ Query:
       left join wildcard_action_policies as p on p.arn = f.arn;
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

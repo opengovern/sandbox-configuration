@@ -1,29 +1,14 @@
 ID: aws_cis_v140_1_5
 Title: "1.5 Ensure MFA is enabled for the 'root' user account"
 Description: "The 'root' user account is the most privileged user in an AWS account. Multi-factor Authentication (MFA) adds an extra layer of protection on top of a username and password. With MFA enabled, when a user signs in to an AWS website, they will be prompted for their username and password as well as for an authentication code from their AWS MFA device."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when account_mfa_enabled then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when account_mfa_enabled then 'MFA enabled for root account.'
-        else 'MFA not enabled for root account.'
-      end reason
-      
-    from
-      aws_iam_account_summary;
+  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when account_mfa_enabled then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when account_mfa_enabled then 'MFA enabled for root account.'\n    else 'MFA not enabled for root account.'\n  end reason\n  \nfrom\n  aws_iam_account_summary;"
   PrimaryTable: aws_iam_account_summary
   ListOfTables:
-  - aws_iam_account_summary
+    - aws_iam_account_summary
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

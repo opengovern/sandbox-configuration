@@ -1,39 +1,22 @@
 ID: aws_iam_policies_with_effect_set_to_allow_and_notaction
 Title: "IAM Policies with Effect set to Allow and NotAction"
 Description: "Ensure that IAM policies do not use \"Allow\" in combination with \"NotAction\" element to follow IAM security best practices."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then name || ' has allowed nonAction policy'
-        else name || ' does not have allowed nonAction policy'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_policy,
-      jsonb_array_elements(policy_std -> 'Statement') as s
+  QueryToExecute: "select\n  name as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when (s -> 'NotAction' is not null and s ->> 'Effect' = 'Allow') then name || ' has allowed nonAction policy'\n    else name || ' does not have allowed nonAction policy'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_policy,\n  jsonb_array_elements(policy_std -> 'Statement') as s\n"
   PrimaryTable: aws_iam_policy
   ListOfTables:
-  - aws_iam_policy
+    - aws_iam_policy
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

@@ -1,52 +1,36 @@
 ID: aws_lambda_function_concurrent_execution_limit_configured
 Title: "Lambda functions concurrent execution limit configured"
 Description: "Checks whether the AWS Lambda function is configured with function-level concurrent execution limit. The control is non-compliant if the Lambda function is not configured with function-level concurrent execution limit."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when reserved_concurrent_executions is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when reserved_concurrent_executions is null then title || ' function-level concurrent execution limit not configured.'
-        else title || ' function-level concurrent execution limit configured.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_lambda_function;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when reserved_concurrent_executions is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when reserved_concurrent_executions is null then title || ' function-level concurrent execution limit not configured.'\n    else title || ' function-level concurrent execution limit configured.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_lambda_function;\n"
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Lambda
+    - AWS/Lambda
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

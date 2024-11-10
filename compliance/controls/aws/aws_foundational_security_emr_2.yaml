@@ -1,8 +1,6 @@
 ID: aws_foundational_security_emr_2
 Title: "2 Amazon EMR block public access setting should be enabled"
 Description: "This control checks whether your account is configured with Amazon EMR block public access. The control fails if the block public access setting isn't enabled or if any port other than port 22 is allowed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -37,7 +35,9 @@ Query:
       left join emr_port_configuration as p on p.region = c.region and p.account_id = c.account_id
   PrimaryTable: aws_emr_block_public_access_configuration
   ListOfTables:
-  - aws_emr_block_public_access_configuration
+    - aws_emr_block_public_access_configuration
   Parameters: []
 Severity: critical
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

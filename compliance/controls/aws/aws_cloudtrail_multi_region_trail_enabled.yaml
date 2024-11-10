@@ -1,8 +1,6 @@
 ID: aws_cloudtrail_multi_region_trail_enabled
 Title: "At least one multi-region AWS CloudTrail should be present in an account"
 Description: "AWS CloudTrail records AWS Management Console actions and API calls. You can identify which users and accounts called AWS, the source IP address from where the calls were made, and when the calls occurred. CloudTrail will deliver log files from all AWS Regions to your S3 bucket if MULTI_REGION_CLOUD_TRAIL_ENABLED is enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -45,7 +43,7 @@ Query:
         when o.is_organization_trail and o.is_multi_region_trail and o.is_logging is null then a.title || ' has organization trail, check organization account for cloudtrail logging status.'
         else a.title || ' does not have multi-region trail(s).'
       end as reason
-    
+
       , a.account_id
     from
       aws_account as a
@@ -53,46 +51,48 @@ Query:
       left join organization_trails as o on a.account_id = o.account_id;
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
-  - aws_cloudtrail_trail
+    - aws_account
+    - aws_cloudtrail_trail
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/CloudTrail
+    - AWS/CloudTrail
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

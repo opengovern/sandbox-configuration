@@ -1,8 +1,6 @@
 ID: aws_elb_application_network_lb_use_ssl_certificate
 Title: "ELB application and network load balancers should only use SSL or HTTPS listeners"
 Description: "Ensure that Application Load Balancers and Network Load Balancers are configured to use certificates from AWS Certificate Manager (ACM). This rule is compliant if at least 1 load balancer is configured without a certificate from ACM."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -61,35 +59,37 @@ Query:
       left join listeners_without_certificate as b on a.arn = b.load_balancer_arn;
   PrimaryTable: ""
   ListOfTables:
-  - aws_ec2_application_load_balancer
-  - aws_ec2_load_balancer_listener
-  - aws_ec2_network_load_balancer
+    - aws_ec2_application_load_balancer
+    - aws_ec2_load_balancer_listener
+    - aws_ec2_network_load_balancer
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/ELB
+    - AWS/ELB
+IntegrationTypeName:
+  - aws_cloud

@@ -1,8 +1,6 @@
 ID: aws_unrestricted_ssh_access
 Title: "Unrestricted SSH Access"
 Description: "Ensure no security groups allow ingress from 0.0.0.0/0 to port 22."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -42,16 +40,18 @@ Query:
       left join ingress_sg as isg on sg.group_id = isg.group_id
   PrimaryTable: aws_vpc_security_group
   ListOfTables:
-  - aws_vpc_security_group
-  - aws_vpc_security_group_rule
+    - aws_vpc_security_group
+    - aws_vpc_security_group_rule
   Parameters: []
 Severity: very high
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+IntegrationTypeName:
+  - aws_cloud

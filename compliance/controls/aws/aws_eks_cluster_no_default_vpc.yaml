@@ -1,8 +1,6 @@
 ID: aws_eks_cluster_no_default_vpc
 Title: "EKS clusters should not be configured within a default VPC"
 Description: "Ensure to configure a new VPC for your EKS cluster as default VPC comes with a default configuration that lacks the proper security controls. Your network should be well configured and should follow the least privilege principle, meaning only the necessary privileges are granted."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -32,8 +30,10 @@ Query:
       left join default_vpc_cluster as v on v.arn = c.arn;
   PrimaryTable: aws_eks_cluster
   ListOfTables:
-  - aws_eks_cluster
-  - aws_vpc
+    - aws_eks_cluster
+    - aws_vpc
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

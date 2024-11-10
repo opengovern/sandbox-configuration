@@ -1,44 +1,22 @@
 ID: aws_default_security_groups_in_use
 Title: "Default Security Groups In Use"
 Description: "Ensure default security groups aren't in use. Instead create unique security groups to better adhere to the principle of least privilege."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      instance_id as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 FROM jsonb_array_elements(security_groups) as sg
-          WHERE sg ->> 'GroupName' = 'default'
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 FROM jsonb_array_elements(security_groups) as sg
-          WHERE sg ->> 'GroupName' = 'default'
-        ) THEN instance_id || ' is using default security group' 
-        ELSE instance_id || ' is not using default security group'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_ec2_instance
+  QueryToExecute: "SELECT \n  instance_id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(security_groups) as sg\n      WHERE sg ->> 'GroupName' = 'default'\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(security_groups) as sg\n      WHERE sg ->> 'GroupName' = 'default'\n    ) THEN instance_id || ' is using default security group' \n    ELSE instance_id || ' is not using default security group'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_instance\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+IntegrationTypeName:
+  - aws_cloud

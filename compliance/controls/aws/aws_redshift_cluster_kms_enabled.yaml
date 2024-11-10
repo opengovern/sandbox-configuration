@@ -1,56 +1,40 @@
 ID: aws_redshift_cluster_kms_enabled
 Title: "AWS Redshift clusters should be encrypted with KMS"
 Description: "Ensure that AWS Redshift clusters are using a specified AWS Key Management Service (AWS KMS) key for encryption. The rule is compliant if encryption is enabled and the cluster is encrypted with the key provided in the kmsKeyArn parameter. The rule is non-compliant if the cluster is not encrypted or encrypted with another key."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encrypted and kms_key_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted and kms_key_id is not null then title || ' encrypted with KMS.'
-        else title || ' not encrypted with KMS'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_redshift_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encrypted and kms_key_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encrypted and kms_key_id is not null then title || ' encrypted with KMS.'\n    else title || ' not encrypted with KMS'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
   PrimaryTable: aws_redshift_cluster
   ListOfTables:
-  - aws_redshift_cluster
+    - aws_redshift_cluster
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/Redshift
+    - AWS/Redshift
+IntegrationTypeName:
+  - aws_cloud

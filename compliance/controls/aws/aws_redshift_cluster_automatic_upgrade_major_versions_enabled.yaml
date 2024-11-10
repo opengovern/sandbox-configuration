@@ -1,42 +1,26 @@
 ID: aws_redshift_cluster_automatic_upgrade_major_versions_enabled
 Title: "AWS Redshift should have automatic upgrades to major versions enabled"
 Description: "This control checks whether automatic major version upgrades are enabled for the AWS Redshift cluster."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when allow_version_upgrade then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when allow_version_upgrade then title || ' automatic upgrades to major versions enabled.'
-        else title || ' automatic upgrades to major versions disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_redshift_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when allow_version_upgrade then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when allow_version_upgrade then title || ' automatic upgrades to major versions enabled.'\n    else title || ' automatic upgrades to major versions disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
   PrimaryTable: aws_redshift_cluster
   ListOfTables:
-  - aws_redshift_cluster
+    - aws_redshift_cluster
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - vulnerability_and_patch_management
+    - vulnerability_and_patch_management
   foundational_security_item_id:
-  - redshift_6
+    - redshift_6
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Redshift
+    - AWS/Redshift
+IntegrationTypeName:
+  - aws_cloud

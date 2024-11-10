@@ -1,30 +1,15 @@
 ID: azure_application_gateway_waf_uses_specified_mode
 Title: "Web Application Firewall (WAF) should use the specified mode for Application Gateway"
 Description: "Mandates the use of 'Detection' or 'Prevention' mode to be active on all Web Application Firewall policies for Application Gateway."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      ag.id as resource,
-      ag.og_account_id as og_account_id,
-      ag.og_resource_id as og_resource_id,
-      case
-        when (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') in ('Prevention','Detection') then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') in ('Prevention','Detection') then ag.name || ' WAF mode is set to ' || (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') || '.'
-        else ag.name || ' WAF mode is not set to Prevention or Detection mode.' 
-      end as reason
-    from
-      azure_application_gateway as ag
-      join azure_subscription as sub on sub.subscription_id = ag.subscription_id;
+  QueryToExecute: "select\n  ag.id as resource,\n  ag.og_account_id as og_account_id,\n  ag.og_resource_id as og_resource_id,\n  case\n    when (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') in ('Prevention','Detection') then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') in ('Prevention','Detection') then ag.name || ' WAF mode is set to ' || (web_application_firewall_configuration::json -> 'PolicySettings' ->> 'mode') || '.'\n    else ag.name || ' WAF mode is not set to Prevention or Detection mode.' \n  end as reason\nfrom\n  azure_application_gateway as ag\n  join azure_subscription as sub on sub.subscription_id = ag.subscription_id;"
   PrimaryTable: azure_application_gateway
   ListOfTables:
-  - azure_application_gateway
-  - azure_subscription
+    - azure_application_gateway
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

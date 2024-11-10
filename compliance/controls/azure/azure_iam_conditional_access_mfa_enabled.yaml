@@ -1,50 +1,33 @@
 ID: azure_iam_conditional_access_mfa_enabled
 Title: "Ensure Multi-factor Authentication is required for Azure Management"
 Description: "For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      p.id as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when p.built_in_controls @> '["mfa"]' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.built_in_controls @> '["mfa"]' then p.display_name || ' MFA enabled.'
-        else p.display_name || ' MFA disabled.'
-      end as reason,
-      t.tenant_id
-      
-    from
-      azure_tenant as t,
-      azuread_conditional_access_policy as p;
+  QueryToExecute: "select\n  p.id as resource,\n  p.og_account_id as og_account_id,\n  p.og_resource_id as og_resource_id,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then p.display_name || ' MFA enabled.'\n    else p.display_name || ' MFA disabled.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  azure_tenant as t,\n  azuread_conditional_access_policy as p;\n"
   PrimaryTable: azuread_conditional_access_policy
   ListOfTables:
-  - azure_tenant
-  - azuread_conditional_access_policy
+    - azure_tenant
+    - azuread_conditional_access_policy
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 1.2.6
+    - 1.2.6
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "1.2"
+    - "1.2"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.5.0
+    - v1.5.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/ActiveDirectory
+    - Azure/ActiveDirectory
+IntegrationTypeName:
+  - azure_subscription

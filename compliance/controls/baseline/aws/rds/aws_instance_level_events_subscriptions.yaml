@@ -1,44 +1,23 @@
 ID: aws_instance_level_events_subscriptions
 Title: "Instance Level Events Subscriptions"
 Description: "Enable Event Subscriptions for Instance Level Events."
-Connector:
-- aws
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select distinct
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when s.arn
-        is null then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when s.arn is
-        null then 'Event notifications is not enabled for Amazon RDS instance level events'
-    
-          else 'Event notifications is enabled for Amazon RDS instance level events'
-    
-        end reason,
-      a.account_id
-    from 
-      aws_account a
-      left join (select * from
-        aws_rds_db_event_subscription where source_type = 'db-instance') s on s.og_account_id
-        = a.og_account_id
+  QueryToExecute: "select distinct\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when s.arn\n    is null then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when s.arn is\n    null then 'Event notifications is not enabled for Amazon RDS instance level events'\n\n      else 'Event notifications is enabled for Amazon RDS instance level events'\n\n    end reason,\n  a.account_id\nfrom \n  aws_account a\n  left join (select * from\n    aws_rds_db_event_subscription where source_type = 'db-instance') s on s.og_account_id\n    = a.og_account_id\n"
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
-  - aws_rds_db_event_subscription
+    - aws_account
+    - aws_rds_db_event_subscription
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   platform_score_use_case:
-  - General Efficiency
+    - General Efficiency
   score_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   score_tags:
-  - General Efficiency
+    - General Efficiency
+IntegrationTypeName:
+  - aws_cloud

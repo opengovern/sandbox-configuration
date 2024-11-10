@@ -1,8 +1,6 @@
 ID: aws_ebs_volume_snapshot_exists
 Title: "EBS volume snapshots should exist"
 Description: "Ensure that EBS volume snapshots exist. This rule is non-compliant if the EBS volume does not have any snapshot."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -32,8 +30,10 @@ Query:
       left join volume_with_snapshots as s on s.volume_id = v.volume_id;
   PrimaryTable: aws_ebs_volume
   ListOfTables:
-  - aws_ebs_snapshot
-  - aws_ebs_volume
+    - aws_ebs_snapshot
+    - aws_ebs_volume
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

@@ -1,8 +1,6 @@
 ID: azure_cis_v150_3_10
 Title: "3.10 Ensure Private Endpoints are used to access Storage Accounts"
 Description: "Use private endpoints for your Azure Storage accounts to allow clients and services to securely access data located over a network via an encrypted Private Link. To do this, the private endpoint uses an IP address from the VNet for each service. Network traffic between disparate services securely traverses encrypted over the VNet. This VNet can also link addressing space, extending your network and accessing resources on it. Similarly, it can be a tunnel through public networks to connect remote infrastructures together. This creates further security through segmenting network traffic and preventing outside sources from accessing it."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -35,8 +33,10 @@ Query:
       sub.subscription_id = a.subscription_id;
   PrimaryTable: azure_storage_account
   ListOfTables:
-  - azure_storage_account
-  - azure_subscription
+    - azure_storage_account
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

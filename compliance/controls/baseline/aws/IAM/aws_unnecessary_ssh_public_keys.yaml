@@ -1,51 +1,23 @@
 ID: aws_unnecessary_ssh_public_keys
 Title: "Unnecessary SSH Public Keys"
 Description: "Ensure there is a maximum of one active SSH public keys assigned to any single IAM user."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with active_count AS (
-      select 
-        user_name, 
-        count(*) 
-      from 
-        aws_iam_ssh_public_key 
-      where 
-        status = 'Active' 
-      group by 
-        user_name
-    )
-    SELECT 
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN c.count > 1 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'
-        ELSE u.name || ' does not have more than one active ssh key'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_user AS u
-      left join active_count AS c ON u.name = c.user_name;
+  QueryToExecute: "with active_count AS (\n  select \n    user_name, \n    count(*) \n  from \n    aws_iam_ssh_public_key \n  where \n    status = 'Active' \n  group by \n    user_name\n)\nSELECT \n  arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN c.count > 1 THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'\n    ELSE u.name || ' does not have more than one active ssh key'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user AS u\n  left join active_count AS c ON u.name = c.user_name;\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_ssh_public_key
-  - aws_iam_user
+    - aws_iam_ssh_public_key
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Insecure Keys
+    - Insecure Keys
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Insecure Keys
+    - Insecure Keys
+IntegrationTypeName:
+  - aws_cloud

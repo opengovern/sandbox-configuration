@@ -1,8 +1,6 @@
 ID: aws_kms_key_decryption_restricted_in_iam_inline_policy
 Title: "KMS key decryption should be restricted in IAM inline policy"
 Description: "Checks whether the inline policies that are embedded in your IAM identities (role, user, or group) allow the AWS KMS decryption actions on all KMS keys. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys in an inline policy."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -55,7 +53,7 @@ Query:
         when d.arn is null then 'User ' || i.title || ' not allowed to perform decryption actions on all keys.'
         else 'User ' || i.title || ' allowed to perform decryption actions on all keys.'
       end as reason
-    
+
       , i.account_id
     from
       aws_iam_user i
@@ -74,7 +72,7 @@ Query:
         when d.arn is null then 'Role ' || r.title || ' not allowed to perform decryption actions on all keys.'
         else 'Role ' || r.title || ' allowed to perform decryption actions on all keys.'
       end as reason
-    
+
       , r.account_id
     from
       aws_iam_role r
@@ -101,21 +99,23 @@ Query:
       left join group_with_decrypt_grant d on g.arn = d.arn;
   PrimaryTable: ""
   ListOfTables:
-  - aws_iam_group
-  - aws_iam_role
-  - aws_iam_user
+    - aws_iam_group
+    - aws_iam_role
+    - aws_iam_user
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - secure_access_management
+    - secure_access_management
   foundational_security_item_id:
-  - kms_2
+    - kms_2
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/KMS
+    - AWS/KMS
+IntegrationTypeName:
+  - aws_cloud

@@ -1,29 +1,14 @@
 ID: aws_foundational_security_rds_25
 Title: "25 RDS database instances should use a custom administrator username"
 Description: "This control checks whether you've changed the administrative username for Amazon Relational Database Service (Amazon RDS) database instances from the default value. The control fails if the administrative username is set to the default value."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when master_user_name in ('admin','postgres') then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when master_user_name in ('admin', 'postgres') then title || ' using default master user name.'
-        else title || ' not using default master user name.'
-      end reason
-      
-    from
-      aws_rds_db_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when master_user_name in ('admin','postgres') then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when master_user_name in ('admin', 'postgres') then title || ' using default master user name.'\n    else title || ' not using default master user name.'\n  end reason\n  \nfrom\n  aws_rds_db_instance;"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_instance
+    - aws_rds_db_instance
   Parameters: []
 Severity: medium
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

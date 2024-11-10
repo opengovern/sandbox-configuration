@@ -1,8 +1,6 @@
 ID: aws_foundational_security_ecr_1
 Title: "1 ECR private repositories should have image scanning configured"
 Description: "This control checks whether a private ECR repository has image scanning configured. This control fails if a private ECR repository doesn't have image scanning configured."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -34,8 +32,10 @@ Query:
       left join check_enhanced_scanning as s on s.registry_id = r.account_id and s.region = r.region;
   PrimaryTable: aws_ecr_repository
   ListOfTables:
-  - aws_ecr_registry_scanning_configuration
-  - aws_ecr_repository
+    - aws_ecr_registry_scanning_configuration
+    - aws_ecr_repository
   Parameters: []
 Severity: high
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

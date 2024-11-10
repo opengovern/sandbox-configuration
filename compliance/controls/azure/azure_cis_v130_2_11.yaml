@@ -1,32 +1,15 @@
 ID: azure_cis_v130_2_11
 Title: "2.11 Ensure that 'Automatic provisioning of monitoring agent' is set to 'On'"
 Description: "Enable automatic provisioning of the monitoring agent to collect security data."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sc_prov.id as resource,
-      sc_prov.og_account_id as og_account_id,
-      sc_prov.og_resource_id as og_resource_id,
-      case
-        when auto_provision = 'On' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when auto_provision = 'On' then 'Automatic provisioning of monitoring agent is on.'
-        else 'Automatic provisioning of monitoring agent is off.'
-      end as reason
-      
-      
-    from
-      azure_security_center_auto_provisioning sc_prov
-      right join azure_subscription sub on sc_prov.subscription_id = sub.subscription_id;
+  QueryToExecute: "select\n  sc_prov.id as resource,\n  sc_prov.og_account_id as og_account_id,\n  sc_prov.og_resource_id as og_resource_id,\n  case\n    when auto_provision = 'On' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when auto_provision = 'On' then 'Automatic provisioning of monitoring agent is on.'\n    else 'Automatic provisioning of monitoring agent is off.'\n  end as reason\n  \n  \nfrom\n  azure_security_center_auto_provisioning sc_prov\n  right join azure_subscription sub on sc_prov.subscription_id = sub.subscription_id;"
   PrimaryTable: azure_security_center_auto_provisioning
   ListOfTables:
-  - azure_security_center_auto_provisioning
-  - azure_subscription
+    - azure_security_center_auto_provisioning
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

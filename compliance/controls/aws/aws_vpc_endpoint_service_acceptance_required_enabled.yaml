@@ -1,30 +1,14 @@
 ID: aws_vpc_endpoint_service_acceptance_required_enabled
 Title: "VPC endpoint services should have acceptance required enabled"
 Description: "Ensure VPC endpoints connection requests to the service are accepted by the service owner."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      service_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when acceptance_required then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when acceptance_required then title || ' acceptance_required enabled.'
-        else title || ' acceptance_required disabled.'
-      end as reason
-      
-      
-    from
-      aws_vpc_endpoint_service;
+  QueryToExecute: "select\n  service_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when acceptance_required then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when acceptance_required then title || ' acceptance_required enabled.'\n    else title || ' acceptance_required disabled.'\n  end as reason\n  \n  \nfrom\n  aws_vpc_endpoint_service;"
   PrimaryTable: aws_vpc_endpoint_service
   ListOfTables:
-  - aws_vpc_endpoint_service
+    - aws_vpc_endpoint_service
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

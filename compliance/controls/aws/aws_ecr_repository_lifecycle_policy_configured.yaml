@@ -1,42 +1,26 @@
 ID: aws_ecr_repository_lifecycle_policy_configured
 Title: "ECR repositories should have lifecycle policies configured"
 Description: "This control checks if ECR repositories have lifecycle policy configured. This rule fails if ECR repository lifecycle policy is not enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when lifecycle_policy -> 'rules' is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when lifecycle_policy -> 'rules' is not null then title || ' lifecycle policy configured.'
-        else title || ' lifecycle policy not configured.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ecr_repository;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when lifecycle_policy -> 'rules' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when lifecycle_policy -> 'rules' is not null then title || ' lifecycle policy configured.'\n    else title || ' lifecycle policy not configured.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ecr_repository;\n"
   PrimaryTable: aws_ecr_repository
   ListOfTables:
-  - aws_ecr_repository
+    - aws_ecr_repository
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - resource_configuration
+    - resource_configuration
   foundational_security_item_id:
-  - ecr_3
+    - ecr_3
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/ECR
+    - AWS/ECR
+IntegrationTypeName:
+  - aws_cloud

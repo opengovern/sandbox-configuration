@@ -1,34 +1,15 @@
 ID: azure_cis_v210_2_1_8
 Title: "2.1.8 Ensure That Microsoft Defender for Containers Is Set To 'On'"
 Description: "Turning on Microsoft Defender for Containers enables threat detection for Container Registries including Kubernetes, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sub_pricing.id as resource,
-      sub_pricing.og_account_id as og_account_id,
-      sub_pricing.og_resource_id as og_resource_id,
-      case
-        when pricing_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when pricing_tier = 'Standard' then 'Azure Defender on for Container Registry.'
-        else 'Azure Defender off for Container Registry.'
-      end as reason
-      
-      
-    from
-      azure_security_center_subscription_pricing sub_pricing
-      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
-    where
-      name = 'ContainerRegistry';
+  QueryToExecute: "select\n  sub_pricing.id as resource,\n  sub_pricing.og_account_id as og_account_id,\n  sub_pricing.og_resource_id as og_resource_id,\n  case\n    when pricing_tier = 'Standard' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when pricing_tier = 'Standard' then 'Azure Defender on for Container Registry.'\n    else 'Azure Defender off for Container Registry.'\n  end as reason\n  \n  \nfrom\n  azure_security_center_subscription_pricing sub_pricing\n  right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id\nwhere\n  name = 'ContainerRegistry';"
   PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
-  - azure_security_center_subscription_pricing
-  - azure_subscription
+    - azure_security_center_subscription_pricing
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

@@ -1,54 +1,38 @@
 ID: aws_lambda_function_dead_letter_queue_configured
 Title: "Lambda functions should be configured with a dead-letter queue"
 Description: "Enable this rule to help notify the appropriate personnel through AWS Simple Queue Service (AWS SQS) or AWS Simple Notification Service (AWS SNS) when a function has failed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when dead_letter_config_target_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when dead_letter_config_target_arn is null then title || ' configured with dead-letter queue.'
-        else title || ' not configured with dead-letter queue.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_lambda_function;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when dead_letter_config_target_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when dead_letter_config_target_arn is null then title || ' configured with dead-letter queue.'\n    else title || ' not configured with dead-letter queue.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_lambda_function;\n"
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Lambda
+    - AWS/Lambda
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

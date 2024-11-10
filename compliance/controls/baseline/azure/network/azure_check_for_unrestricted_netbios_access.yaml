@@ -1,8 +1,6 @@
 ID: azure_check_for_unrestricted_netbios_access
 Title: "Check for Unrestricted NetBIOS Access"
 Description: "Ensure that no network security groups allow unrestricted inbound access on TCP port 139 and UDP ports 137 and 138 (NetBIOS)."
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
@@ -35,12 +33,14 @@ Query:
       (sr -> 'properties' ->> 'destinationPortRanges' = '137' or sr -> 'properties' ->> 'destinationPortRanges' like '%"137"%' or sr -> 'properties' ->> 'destinationPortRanges' = '138' or sr -> 'properties' ->> 'destinationPortRanges' like '%"138"%' or sr -> 'properties' ->> 'destinationPortRanges' = '*'))) and sr -> 'properties' ->> 'direction' = 'Inbound'
   PrimaryTable: azure_network_security_group
   ListOfTables:
-  - azure_network_security_group
-  - azure_subscription
+    - azure_network_security_group
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - Azure Network
+    - Azure Network
   score_service_name:
-  - Azure Network
+    - Azure Network
+IntegrationTypeName:
+  - azure_subscription

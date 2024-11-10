@@ -1,38 +1,22 @@
 ID: aws_iam_user_no_policies
 Title: "Receive Permissions via IAM Groups Only"
 Description: "Ensure that IAM users receive permissions only through IAM groups."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN attached_policy_arns is null and inline_policies is null THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN attached_policy_arns is null and inline_policies is null THEN name || ' does not receive access permissions through IAM groups only.' 
-        ELSE name || ' does receive access permissions through IAM groups only.'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_user
+  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN attached_policy_arns is null and inline_policies is null THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN attached_policy_arns is null and inline_policies is null THEN name || ' does not receive access permissions through IAM groups only.' \n    ELSE name || ' does receive access permissions through IAM groups only.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_user
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

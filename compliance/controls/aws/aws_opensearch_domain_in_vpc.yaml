@@ -1,8 +1,6 @@
 ID: aws_opensearch_domain_in_vpc
 Title: "OpenSearch domains should be in a VPC"
 Description: "This control checks whether AWS OpenSearch domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -44,22 +42,24 @@ Query:
       left join opensearch_domain_with_public_subnet as p on d.arn = p.arn;
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
-  - aws_vpc_route_table
+    - aws_opensearch_domain
+    - aws_vpc_route_table
   Parameters: []
 Severity: critical
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - resources_within_vpc
+    - resources_within_vpc
   foundational_security_item_id:
-  - opensearch_2
+    - opensearch_2
   plugin:
-  - aws
+    - aws
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
   service:
-  - AWS/OpenSearch
+    - AWS/OpenSearch
+IntegrationTypeName:
+  - aws_cloud

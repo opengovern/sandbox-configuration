@@ -1,8 +1,6 @@
 ID: aws_foundational_security_elb_1
 Title: "1 Application Load Balancer should be configured to redirect all HTTP requests to HTTPS"
 Description: "This control checks whether HTTP to HTTPS redirection is configured on all HTTP listeners of Application Load Balancers. The control fails if any of the HTTP listeners of Application Load Balancers do not have HTTP to HTTPS redirection configured."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -37,8 +35,10 @@ Query:
       left join detailed_listeners b on a.arn = b.load_balancer_arn;
   PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
-  - aws_ec2_load_balancer_listener
-  - aws_ec2_application_load_balancer
+    - aws_ec2_load_balancer_listener
+    - aws_ec2_application_load_balancer
   Parameters: []
 Severity: medium
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

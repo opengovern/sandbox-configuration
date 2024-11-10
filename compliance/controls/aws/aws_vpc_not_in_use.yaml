@@ -1,8 +1,6 @@
 ID: aws_vpc_not_in_use
 Title: "VPCs should be in use"
 Description: "This control checks whether there are any unused VPCs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -31,8 +29,10 @@ Query:
       left join vpc_without_subnet as s on s.vpc_id = v.vpc_id;
   PrimaryTable: aws_vpc
   ListOfTables:
-  - aws_vpc
-  - aws_vpc_subnet
+    - aws_vpc
+    - aws_vpc_subnet
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

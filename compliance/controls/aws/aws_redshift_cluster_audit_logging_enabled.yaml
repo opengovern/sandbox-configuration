@@ -1,44 +1,28 @@
 ID: aws_redshift_cluster_audit_logging_enabled
 Title: "AWS Redshift audit logging should be enabled"
 Description: "This control ensures if redshift clusters are logging audits to a specific bucket. The rule is no compliant if audit logging is not enabled for a redshift cluster or if the 'bucketNames' parameter is provided but the audit logging destination does not match."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when logging_status ->> 'LoggingEnabled' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when logging_status ->> 'LoggingEnabled' = 'true' then title || ' logging enabled.'
-        else title || ' logging disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_redshift_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logging_status ->> 'LoggingEnabled' = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when logging_status ->> 'LoggingEnabled' = 'true' then title || ' logging enabled.'\n    else title || ' logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
   PrimaryTable: aws_redshift_cluster
   ListOfTables:
-  - aws_redshift_cluster
+    - aws_redshift_cluster
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Redshift
+    - AWS/Redshift
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

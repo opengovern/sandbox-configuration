@@ -1,8 +1,6 @@
 ID: aws_guardduty_centrally_configured
 Title: "GuardDuty Detector should be centrally configured"
 Description: "Ensure that GuardDuty is centrally configured, if GuardDuty is not under central management, it becomes impossible to centrally manage GuardDuty findings, settings, and member accounts."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -25,7 +23,7 @@ Query:
         when status = 'ENABLED' and master_account ->> 'AccountId' is not null then r.region || ' detector ' || d.title || ' centrally configured.'
         else r.region || ' detector ' || d.title || ' not centrally configured..'
       end as reason
-    
+
     from
       aws_region as r
       left join aws_guardduty_detector d on r.account_id = d.account_id and r.name = d.region;
@@ -34,3 +32,5 @@ Query:
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

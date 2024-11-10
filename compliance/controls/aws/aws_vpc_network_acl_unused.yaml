@@ -1,42 +1,26 @@
 ID: aws_vpc_network_acl_unused
 Title: "VPC network access control lists (network ACLs) should be associated with a subnet."
 Description: "Ensure there are no unused network access control lists (network ACLs). The rule is compliant if each network ACL is associated with a subnet. The rule is non-compliant if a network ACL is not associated with a subnet."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      network_acl_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(associations) >= 1  then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when jsonb_array_length(associations) >= 1 then title || ' associated with subnet.'
-        else title || ' not associated with subnet.'
-      end reason
-      
-      , region, account_id
-    from
-      aws_vpc_network_acl;
+  QueryToExecute: "select\n  network_acl_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(associations) >= 1  then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(associations) >= 1 then title || ' associated with subnet.'\n    else title || ' not associated with subnet.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_vpc_network_acl;\n"
   PrimaryTable: aws_vpc_network_acl
   ListOfTables:
-  - aws_vpc_network_acl
+    - aws_vpc_network_acl
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/VPC
+    - AWS/VPC
+IntegrationTypeName:
+  - aws_cloud

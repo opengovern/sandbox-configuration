@@ -1,66 +1,50 @@
 ID: aws_lambda_function_in_vpc
 Title: "Lambda functions should be in a VPC"
 Description: "Deploy AWS Lambda functions within an AWS Virtual Private Cloud (AWS VPC) for a secure communication between a function and other services within the AWS VPC."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when vpc_id is null or vpc_id = '' then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when vpc_id is null or vpc_id = '' then title || ' is not in VPC.'
-        else title || ' is in VPC ' || vpc_id || '.'
-      end reason
-      
-      , region, account_id
-    from
-      aws_lambda_function;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when vpc_id is null or vpc_id = '' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when vpc_id is null or vpc_id = '' then title || ' is not in VPC.'\n    else title || ' is in VPC ' || vpc_id || '.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_lambda_function;\n"
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/Lambda
+    - AWS/Lambda
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

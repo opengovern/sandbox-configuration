@@ -1,56 +1,40 @@
 ID: aws_apigateway_stage_use_waf_web_acl
 Title: "API Gateway stage should be associated with waf"
 Description: "Ensure that an AWS API Gateway API stage is using a WAF Web ACL. This rule is non-compliant if an AWS WAF Web ACL is not used."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when web_acl_arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when web_acl_arn is not null then title || ' associated with WAF web ACL.'
-        else title || ' not associated with WAF web ACL.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_api_gateway_stage;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when web_acl_arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when web_acl_arn is not null then title || ' associated with WAF web ACL.'\n    else title || ' not associated with WAF web ACL.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_api_gateway_stage;\n"
   PrimaryTable: aws_api_gateway_stage
   ListOfTables:
-  - aws_api_gateway_stage
+    - aws_api_gateway_stage
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/APIGateway
+    - AWS/APIGateway
+IntegrationTypeName:
+  - aws_cloud

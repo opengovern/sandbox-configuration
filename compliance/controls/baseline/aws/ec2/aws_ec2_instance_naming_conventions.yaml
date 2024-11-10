@@ -1,42 +1,24 @@
 ID: aws_ec2_instance_naming_conventions
 Title: "EC2 Instance Naming Conventions"
 Description: "Follow proper naming conventions for EC2 instances."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      instance_id as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN '{{.awsEc2NamingPattern}}' = '' then 'ok'
-        WHEN tags ->> 'Name' LIKE '{{.awsEc2NamingPattern}}' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN '{{.awsEc2NamingPattern}}' = '' THEN 'ec2 naming pattern not defined' 
-        WHEN tags ->> 'Name' LIKE '{{.awsEc2NamingPattern}}' THEN instance_id || ' name is followed by your organization naming pattern' 
-        ELSE instance_id || ' name is not followed by your organization naming pattern'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_ec2_instance
+  QueryToExecute: "SELECT \n  instance_id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN '{{.awsEc2NamingPattern}}' = '' then 'ok'\n    WHEN tags ->> 'Name' LIKE '{{.awsEc2NamingPattern}}' THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN '{{.awsEc2NamingPattern}}' = '' THEN 'ec2 naming pattern not defined' \n    WHEN tags ->> 'Name' LIKE '{{.awsEc2NamingPattern}}' THEN instance_id || ' name is followed by your organization naming pattern' \n    ELSE instance_id || ' name is not followed by your organization naming pattern'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_instance\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters:
     - Key: awsEc2NamingPattern
       Required: false
 Severity: low
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Missing Tags
+    - Missing Tags
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Missing Tags
+    - Missing Tags
+IntegrationTypeName:
+  - aws_cloud

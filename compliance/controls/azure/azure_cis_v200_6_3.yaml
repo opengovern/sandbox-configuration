@@ -1,8 +1,6 @@
 ID: azure_cis_v200_6_3
 Title: "6.3 Ensure that UDP access from the Internet is evaluated and restricted"
 Description: "Network security groups should be periodically evaluated for port misconfigurations. Where certain ports and protocols may be exposed to the Internet, they should be evaluated for necessity and restricted wherever they are not explicitly required."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -52,8 +50,10 @@ Query:
       join azure_subscription sub on sub.subscription_id = sg.subscription_id;
   PrimaryTable: azure_network_security_group
   ListOfTables:
-  - azure_network_security_group
-  - azure_subscription
+    - azure_network_security_group
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

@@ -1,34 +1,13 @@
 ID: azure_cis_v140_4_1_3
 Title: "4.1.3 Ensure that 'Auditing' Retention is 'greater than 90 days'"
 Description: "SQL Server Audit Retention should be configured to be greater than 90 days."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then 'ok'
-        when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then name || ' audit retention set to unlimited days.'
-        when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then name || ' audit retention greater than 90 days.'
-        else  name || ' audit retention less than 90 days.'
-      end as reason
-      
-      
-      
-    from
-      azure_sql_server s,
-      jsonb_array_elements(server_audit_policy) audit,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then 'ok'\n    when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then name || ' audit retention set to unlimited days.'\n    when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then name || ' audit retention greater than 90 days.'\n    else  name || ' audit retention less than 90 days.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_audit_policy) audit,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

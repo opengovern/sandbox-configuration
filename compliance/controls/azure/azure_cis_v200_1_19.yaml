@@ -1,39 +1,15 @@
 ID: azure_cis_v200_1_19
 Title: "1.19 Ensure that 'Users can create security groups in Azure portals, API or PowerShell' is set to 'No'"
 Description: "Restrict security group creation to administrators only."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with distinct_tenant as (
-      select
-        distinct tenant_id,
-        subscription_id,
-        _ctx
-      from
-        azure_tenant
-    )
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when a.default_user_role_permissions ->> 'allowedToCreateSecurityGroups' = 'false' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when a.default_user_role_permissions ->> 'allowedToCreateSecurityGroups' = 'false' then a.display_name || ' does not allow user to create security groups.'
-        else a.display_name || ' allows user to create security groups.'
-      end as reason,
-      t.tenant_id  
-    from
-      distinct_tenant as t,
-      azuread_authorization_policy as a;
+  QueryToExecute: "with distinct_tenant as (\n  select\n    distinct tenant_id,\n    subscription_id,\n    _ctx\n  from\n    azure_tenant\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.default_user_role_permissions ->> 'allowedToCreateSecurityGroups' = 'false' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.default_user_role_permissions ->> 'allowedToCreateSecurityGroups' = 'false' then a.display_name || ' does not allow user to create security groups.'\n    else a.display_name || ' allows user to create security groups.'\n  end as reason,\n  t.tenant_id  \nfrom\n  distinct_tenant as t,\n  azuread_authorization_policy as a;"
   PrimaryTable: azuread_authorization_policy
   ListOfTables:
-  - azure_tenant
-  - azuread_authorization_policy
+    - azure_tenant
+    - azuread_authorization_policy
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

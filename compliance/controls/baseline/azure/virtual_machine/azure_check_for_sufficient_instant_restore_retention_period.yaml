@@ -1,8 +1,6 @@
 ID: azure_check_for_sufficient_instant_restore_retention_period
 Title: "Check for Sufficient Instant Restore Retention Period"
 Description: "Ensure there is a sufficient instant restore retention period configured for Azure virtual machines."
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
@@ -27,16 +25,18 @@ Query:
       left join azure_recovery_services_backup_policy as bp on bi.properties ->> 'PolicyID' = bp.id
   PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
-  - azure_compute_virtual_machine
-  - azure_recovery_services_backup_item
-  - azure_recovery_services_backup_policy
-  - azure_subscription
+    - azure_compute_virtual_machine
+    - azure_recovery_services_backup_item
+    - azure_recovery_services_backup_policy
+    - azure_subscription
   Parameters:
     - Key: azureSufficientInstantRestoreRetention
       Required: true
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - Azure Virtual Machines
+    - Azure Virtual Machines
   score_service_name:
-  - Azure Virtual Machines
+    - Azure Virtual Machines
+IntegrationTypeName:
+  - azure_subscription

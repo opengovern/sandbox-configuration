@@ -1,27 +1,14 @@
 ID: aws_appstream_fleet_session_disconnect_timeout_300_seconds
 Title: "AppStream fleet session disconnect timeout should be set to less than or equal to 5 mins"
 Description: "The disconnect timeout in minutes refers to the duration for which a streaming session remains active even after users have disconnected. It is recommended to set the disconnect timeout to 5 minutes or less for the AppStream Fleet."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when disconnect_timeout_in_seconds <= 300 then 'ok'
-        else 'alarm'
-      end as status,
-      title || ' disconnect timeout in seconds is set to ' || disconnect_timeout_in_seconds || ' seconds.' as reason
-      
-      
-    from
-      aws_appstream_fleet;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when disconnect_timeout_in_seconds <= 300 then 'ok'\n    else 'alarm'\n  end as status,\n  title || ' disconnect timeout in seconds is set to ' || disconnect_timeout_in_seconds || ' seconds.' as reason\n  \n  \nfrom\n  aws_appstream_fleet;"
   PrimaryTable: aws_appstream_fleet
   ListOfTables:
-  - aws_appstream_fleet
+    - aws_appstream_fleet
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

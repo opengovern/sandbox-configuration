@@ -1,33 +1,13 @@
 ID: azure_cis_v200_4_4_3
 Title: "4.4.3 Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server"
 Description: "Enable audit_log_enabled on MySQL Servers."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'
-        else s.name || ' server parameter audit_log_enabled on.'
-      end as reason
-      
-      
-      
-    from
-      azure_mysql_server as s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    where
-      config ->> 'Name' = 'audit_log_enabled'
-      and sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'\n    else s.name || ' server parameter audit_log_enabled on.'\n  end as reason\n  \n  \n  \nfrom\n  azure_mysql_server as s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'audit_log_enabled'\n  and sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

@@ -1,40 +1,24 @@
 ID: aws_check_that_only_safelisted_iam_users_exist
 Title: "Check that only safelisted IAM Users exist"
 Description: "Ensure that only safelisted IAM Users exist within your AWS account."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' then name || ' user is approved'
-        else name || ' user is not approved'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_user v
+  QueryToExecute: "select\n  name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' then name || ' user is approved'\n    else name || ' user is not approved'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_user v\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_user
+    - aws_iam_user
   Parameters:
     - Key: awsApprovedIamUsers
       Required: true
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+IntegrationTypeName:
+  - aws_cloud

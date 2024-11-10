@@ -1,47 +1,28 @@
 ID: aws_ebs_attached_volume_delete_on_termination_enabled
 Title: "Attached EBS volumes should have delete on termination enabled"
 Description: "This rule ensures that AWS Elastic Block Store volumes that are attached to AWS Elastic Compute Cloud (AWS EC2) instances are marked for deletion when an instance is terminated."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when state != 'in-use' then 'skip'
-        when attachment ->> 'DeleteOnTermination' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when state != 'in-use' then title || ' not attached to EC2 instance.'
-        when attachment ->> 'DeleteOnTermination' = 'true' then title || ' attached to ' || (attachment ->> 'InstanceId') || ', delete on termination enabled.'
-        else title || ' attached to ' || (attachment ->> 'InstanceId') || ', delete on termination disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ebs_volume
-      left join jsonb_array_elements(attachments) as attachment on true;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when state != 'in-use' then 'skip'\n    when attachment ->> 'DeleteOnTermination' = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when state != 'in-use' then title || ' not attached to EC2 instance.'\n    when attachment ->> 'DeleteOnTermination' = 'true' then title || ' attached to ' || (attachment ->> 'InstanceId') || ', delete on termination enabled.'\n    else title || ' attached to ' || (attachment ->> 'InstanceId') || ', delete on termination disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_volume\n  left join jsonb_array_elements(attachments) as attachment on true;\n"
   PrimaryTable: aws_ebs_volume
   ListOfTables:
-  - aws_ebs_volume
+    - aws_ebs_volume
   Parameters: []
 Severity: medium
 Tags:
   audit_manager_control_tower:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EBS
+    - AWS/EBS
+IntegrationTypeName:
+  - aws_cloud

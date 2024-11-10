@@ -1,57 +1,27 @@
 ID: aws_vpc_configured_to_use_vpc_endpoints
 Title: "VPC should be configured to use VPC endpoints"
 Description: "Checks if Service Endpoint for the service provided in rule parameter is created for each AWS Virtual Private Cloud (AWS VPC). The rule is non-compliant if an AWS VPC doesn't have an AWS VPC endpoint created for the service."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when vpc_id not in (
-          select
-            vpc_id
-          from
-            aws_vpc_endpoint
-          where
-            service_name like 'com.amazonaws.' || region || '.ec2'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when vpc_id not in (
-          select
-            vpc_id
-          from
-            aws_vpc_endpoint
-          where
-            service_name like 'com.amazonaws.' || region || '.ec2'
-        ) then title || ' not configured to use VPC endpoints.'
-        else title || ' configured to use VPC endpoints.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_vpc;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when vpc_id not in (\n      select\n        vpc_id\n      from\n        aws_vpc_endpoint\n      where\n        service_name like 'com.amazonaws.' || region || '.ec2'\n    ) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when vpc_id not in (\n      select\n        vpc_id\n      from\n        aws_vpc_endpoint\n      where\n        service_name like 'com.amazonaws.' || region || '.ec2'\n    ) then title || ' not configured to use VPC endpoints.'\n    else title || ' configured to use VPC endpoints.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_vpc;\n"
   PrimaryTable: aws_vpc
   ListOfTables:
-  - aws_vpc
-  - aws_vpc_endpoint
+    - aws_vpc
+    - aws_vpc_endpoint
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - api_private_access
+    - api_private_access
   foundational_security_item_id:
-  - ec2_10
+    - ec2_10
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EC2
+    - AWS/EC2
+IntegrationTypeName:
+  - aws_cloud

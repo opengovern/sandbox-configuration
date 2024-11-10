@@ -1,68 +1,52 @@
 ID: aws_redshift_cluster_automatic_snapshots_min_7_days
 Title: "AWS Redshift clusters should have automatic snapshots enabled"
 Description: "This control checks whether AWS Redshift clusters have automated snapshots enabled. It also checks whether the snapshot retention period is greater than or equal to seven."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when automated_snapshot_retention_period >= 7 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when automated_snapshot_retention_period >= 7 then title || ' automatic snapshots enabled with retention period greater than equals 7 days.'
-        else title || ' automatic snapshots enabled with retention period less than 7 days.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_redshift_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when automated_snapshot_retention_period >= 7 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when automated_snapshot_retention_period >= 7 then title || ' automatic snapshots enabled with retention period greater than equals 7 days.'\n    else title || ' automatic snapshots enabled with retention period less than 7 days.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
   PrimaryTable: aws_redshift_cluster
   ListOfTables:
-  - aws_redshift_cluster
+    - aws_redshift_cluster
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/Redshift
+    - AWS/Redshift
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

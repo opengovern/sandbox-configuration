@@ -1,41 +1,32 @@
 ID: aws_cis_v120_1_15
 Title: "1.15 Ensure security questions are registered in the AWS account"
 Description: "The AWS support portal allows account owners to establish security questions that can be used to authenticate individuals calling AWS customer service for support. It is recommended that security questions be established."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason
-      
-    from
-      aws_account;
+  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'info' as status,\n  'Manual verification required.' as reason\n  \nfrom\n  aws_account;"
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
+    - aws_account
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "1.15"
+    - "1.15"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "1"
+    - "1"
   cis_type:
-  - not_scored
+    - not_scored
   cis_version:
-  - v1.2.0
+    - v1.2.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/IAM
+    - AWS/IAM
+IntegrationTypeName:
+  - aws_cloud

@@ -1,39 +1,19 @@
 ID: azure_redis_cache_no_basic_sku
 Title: "Azure Cache for Redis should use standard SKUs as a minimum"
 Description: "The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      c.id as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when c.sku_name = 'Basic' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when c.sku_name = 'Basic' then c.title || ' using basic SKU.'
-        else c.title || ' using ' || sku_name || ' SKU.'
-      end as reason
-      
-      , c.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_redis_cache as c,
-      azure_subscription as sub
-    where
-      sub.subscription_id = c.subscription_id;
+  QueryToExecute: "select\n  c.id as resource,\n  c.og_account_id as og_account_id,\n  c.og_resource_id as og_resource_id,\n  case\n    when c.sku_name = 'Basic' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when c.sku_name = 'Basic' then c.title || ' using basic SKU.'\n    else c.title || ' using ' || sku_name || ' SKU.'\n  end as reason\n  \n  , c.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_redis_cache as c,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = c.subscription_id;\n"
   PrimaryTable: azure_redis_cache
   ListOfTables:
-  - azure_redis_cache
-  - azure_subscription
+    - azure_redis_cache
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   cis:
-  - "true"
+    - "true"
   service:
-  - Azure/Redis
+    - Azure/Redis
+IntegrationTypeName:
+  - azure_subscription

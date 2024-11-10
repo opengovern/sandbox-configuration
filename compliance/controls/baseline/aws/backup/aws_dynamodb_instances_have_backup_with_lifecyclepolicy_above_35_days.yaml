@@ -1,45 +1,23 @@
 ID: aws_dynamodb_instances_have_backup_with_lifecyclepolicy_above_35_days
 Title: "Dynamodb Instances have backup with lifecyclepolicy above 35 days"
 Description: "Ensure all DynamoDB are covered by a backup plan with a minimum of Life Cycle Policy 35 days"
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    WITH points AS (
-      SELECT recovery_point_arn, resource_arn
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '35 days'::interval and (lifecycle ->> 'DeleteAfterDays')::INT >= 35 
-      and resource_type = 'DynamoDB' and status = 'COMPLETED')
-    
-    select
-      t.arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when p.recovery_point_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when p.recovery_point_arn is null then 'lacks a backup configuration with a minimum of 35 days'
-        else ''
-      end as reason
-      , region, account_id 
-    from 
-      aws_dynamodb_table as t
-      left join points as p on t.arn = p.resource_arn
+  QueryToExecute: "WITH points AS (\n  SELECT recovery_point_arn, resource_arn\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '35 days'::interval and (lifecycle ->> 'DeleteAfterDays')::INT >= 35 \n  and resource_type = 'DynamoDB' and status = 'COMPLETED')\n\nselect\n  t.arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when p.recovery_point_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when p.recovery_point_arn is null then 'lacks a backup configuration with a minimum of 35 days'\n    else ''\n  end as reason\n  , region, account_id \nfrom \n  aws_dynamodb_table as t\n  left join points as p on t.arn = p.resource_arn\n"
   PrimaryTable: aws_dynamodb_table
   ListOfTables:
-  - aws_backup_recovery_point
-  - aws_dynamodb_table
+    - aws_backup_recovery_point
+    - aws_dynamodb_table
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - Amazon DynamoDB
+    - Amazon DynamoDB
   platform_score_use_case:
-  - Missing Backup
+    - Missing Backup
   score_service_name:
-  - Amazon DynamoDB
+    - Amazon DynamoDB
   score_tags:
-  - Missing Backup
+    - Missing Backup
+IntegrationTypeName:
+  - aws_cloud

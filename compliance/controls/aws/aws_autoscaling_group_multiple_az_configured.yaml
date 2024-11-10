@@ -1,39 +1,26 @@
 ID: aws_autoscaling_group_multiple_az_configured
 Title: "EC2 auto scaling groups should cover multiple availability zones"
 Description: "This control checks whether an AWS EC2 Auto Scaling group spans multiple availability zones. The control fails if an auto scaling group does not span multiple availability zones."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      autoscaling_group_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(availability_zones) > 1 then 'ok'
-        else 'alarm'
-      end as status,
-      title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason
-      
-      , region, account_id
-    from
-      aws_ec2_autoscaling_group;
+  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(availability_zones) > 1 then 'ok'\n    else 'alarm'\n  end as status,\n  title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_autoscaling_group;\n"
   PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
-  - aws_ec2_autoscaling_group
+    - aws_ec2_autoscaling_group
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - high_availability
+    - high_availability
   foundational_security_item_id:
-  - autoscaling_2
+    - autoscaling_2
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/AutoScaling
+    - AWS/AutoScaling
+IntegrationTypeName:
+  - aws_cloud

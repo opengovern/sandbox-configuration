@@ -1,40 +1,23 @@
 ID: aws_root_account_access_keys_present
 Title: "Root Account Access Keys Present"
 Description: "Ensure that your AWS root account is not using access keys as a security best practice."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      u.og_resource_id,
-      u.og_account_id,
-      CASE
-        WHEN r.access_key_1_active or r.access_key_2_active THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN r.access_key_1_active or r.access_key_2_active THEN u.name || ' does not have any active access key pair'
-        ELSE u.name || ' has at least one active access key pair.'
-      END AS reason,
-      u.region,
-      u.account_id
-    FROM 
-      aws_iam_user AS u
-      LEFT JOIN aws_iam_credential_report AS r ON u.name = r.user_name
+  QueryToExecute: "SELECT \n  name as resource,\n  u.og_resource_id,\n  u.og_account_id,\n  CASE\n    WHEN r.access_key_1_active or r.access_key_2_active THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN r.access_key_1_active or r.access_key_2_active THEN u.name || ' does not have any active access key pair'\n    ELSE u.name || ' has at least one active access key pair.'\n  END AS reason,\n  u.region,\n  u.account_id\nFROM \n  aws_iam_user AS u\n  LEFT JOIN aws_iam_credential_report AS r ON u.name = r.user_name\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_credential_report
-  - aws_iam_user
+    - aws_iam_credential_report
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Insecure Keys
+    - Insecure Keys
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Insecure Keys
+    - Insecure Keys
+IntegrationTypeName:
+  - aws_cloud

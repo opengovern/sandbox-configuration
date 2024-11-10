@@ -1,8 +1,6 @@
 ID: aws_elasticache_cluster_no_public_subnet
 Title: "ElastiCache clusters should not use public_subnet"
 Description: "This control checks if ElastiCache clusters are configured with public subnet as there is a risk of exposing sensitive data."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -85,10 +83,12 @@ Query:
       left join cluster_public_subnet as s on s.cache_subnet_group_name = c.cache_subnet_group_name;
   PrimaryTable: aws_elasticache_cluster
   ListOfTables:
-  - aws_vpc_route_table
-  - aws_vpc_subnet
-  - aws_elasticache_subnet_group
-  - aws_elasticache_cluster
+    - aws_vpc_route_table
+    - aws_vpc_subnet
+    - aws_elasticache_subnet_group
+    - aws_elasticache_cluster
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

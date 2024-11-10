@@ -1,63 +1,33 @@
 ID: azure_storage_account_uses_private_link
 Title: "Storage accounts should use private link"
 Description: "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your storage account, data leakage risks are reduced."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with storage_account_connection as (
-      select
-        distinct a.id
-      from
-        azure_storage_account as a,
-        jsonb_array_elements(private_endpoint_connections) as connection
-      where
-        connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
-    )
-    select
-      distinct a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when s.id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when s.id is null then a.name || ' not uses private link.'
-        else a.name || ' uses private link.'
-      end as reason
-      
-      , a.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join storage_account_connection as s on a.id = s.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
+  QueryToExecute: "with storage_account_connection as (\n  select\n    distinct a.id\n  from\n    azure_storage_account as a,\n    jsonb_array_elements(private_endpoint_connections) as connection\n  where\n    connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'\n)\nselect\n  distinct a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when s.id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when s.id is null then a.name || ' not uses private link.'\n    else a.name || ' uses private link.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account as a\n  left join storage_account_connection as s on a.id = s.id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
   PrimaryTable: azure_storage_account
   ListOfTables:
-  - azure_storage_account
-  - azure_subscription
+    - azure_storage_account
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "3.10"
+    - "3.10"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "3"
+    - "3"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.5.0
+    - v1.5.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/Storage
+    - Azure/Storage
+IntegrationTypeName:
+  - azure_subscription

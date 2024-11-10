@@ -1,50 +1,19 @@
 ID: azure_compute_vm_guest_configuration_installed
 Title: "Guest Configuration extension should be installed on your machines"
 Description: "To ensure secure configurations of in-guest settings of your machine, install the Guest Configuration extension. In-guest settings that the extension monitors include the configuration of the operating system, application configuration or presence, and environment settings. Once installed, in-guest policies will be available such as 'Windows Exploit guard should be enabled'."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with agent_installed_vm as (
-      select
-        distinct a.vm_id
-      from
-        azure_compute_virtual_machine as a,
-        jsonb_array_elements(extensions) as b
-      where
-        b ->> 'Publisher' = 'Microsoft.GuestConfiguration'
-        and b ->> 'ProvisioningState' = 'Succeeded'
-    )
-    select
-      a.vm_id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.vm_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.vm_id is not null then a.title || ' have guest configuration extension installed.'
-        else a.title || ' guest configuration extension not installed.'
-      end as reason
-      
-      , a.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_compute_virtual_machine as a
-      left join agent_installed_vm as b on a.vm_id = b.vm_id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
+  QueryToExecute: "with agent_installed_vm as (\n  select\n    distinct a.vm_id\n  from\n    azure_compute_virtual_machine as a,\n    jsonb_array_elements(extensions) as b\n  where\n    b ->> 'Publisher' = 'Microsoft.GuestConfiguration'\n    and b ->> 'ProvisioningState' = 'Succeeded'\n)\nselect\n  a.vm_id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.vm_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.vm_id is not null then a.title || ' have guest configuration extension installed.'\n    else a.title || ' guest configuration extension not installed.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_compute_virtual_machine as a\n  left join agent_installed_vm as b on a.vm_id = b.vm_id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
   PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
-  - azure_compute_virtual_machine
-  - azure_subscription
+    - azure_compute_virtual_machine
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
-  - "true"
+    - "true"
   service:
-  - Azure/Compute
+    - Azure/Compute
+IntegrationTypeName:
+  - azure_subscription

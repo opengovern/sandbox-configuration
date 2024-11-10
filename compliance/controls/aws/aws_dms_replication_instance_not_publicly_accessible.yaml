@@ -1,66 +1,50 @@
 ID: aws_dms_replication_instance_not_publicly_accessible
 Title: "DMS replication instances should not be publicly accessible"
 Description: "Manage access to the AWS Cloud by ensuring DMS replication instances cannot be publicly accessed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when publicly_accessible then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when publicly_accessible then title || ' publicly accessible.'
-        else title || ' not publicly accessible.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_dms_replication_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when publicly_accessible then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when publicly_accessible then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_dms_replication_instance;\n"
   PrimaryTable: aws_dms_replication_instance
   ListOfTables:
-  - aws_dms_replication_instance
+    - aws_dms_replication_instance
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/DMS
+    - AWS/DMS
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

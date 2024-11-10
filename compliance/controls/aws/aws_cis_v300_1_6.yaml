@@ -1,8 +1,6 @@
 ID: aws_cis_v300_1_6
 Title: "1.6 Ensure hardware MFA is enabled for the 'root' user account"
 Description: "The 'root' user account is the most privileged user in an AWS account. MFA adds an extra layer of protection on top of a user name and password. With MFA enabled, when a user signs in to an AWS website, they will be prompted for their user name and password as well as for an authentication code from their AWS MFA device. For Level 2, it is recommended that the root user account be protected with a hardware MFA."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -24,8 +22,10 @@ Query:
       left join aws_iam_virtual_mfa_device as d on (d.user ->> 'Arn') = 'arn:' || s.partition || ':iam::' || s.account_id || ':root';
   PrimaryTable: aws_iam_account_summary
   ListOfTables:
-  - aws_iam_account_summary
-  - aws_iam_virtual_mfa_device
+    - aws_iam_account_summary
+    - aws_iam_virtual_mfa_device
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

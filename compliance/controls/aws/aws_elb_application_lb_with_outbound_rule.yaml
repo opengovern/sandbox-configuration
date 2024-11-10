@@ -1,8 +1,6 @@
 ID: aws_elb_application_lb_with_outbound_rule
 Title: "ELB application load balancers should have at least one outbound rule"
 Description: "Ensure application load balancers have at least one outbound rule in all the attached security groups. A security group without any outbound rule rejects all outgoing traffic. This means that all outgoing traffic originating from your cloud assets (instances, containers, etc.) will be dropped when it reaches the ELB layer."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -46,8 +44,10 @@ Query:
       left join application_lb_without_outbound as o on a.arn = o.arn;
   PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
-  - aws_ec2_application_load_balancer
-  - aws_vpc_security_group_rule
+    - aws_ec2_application_load_balancer
+    - aws_vpc_security_group_rule
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

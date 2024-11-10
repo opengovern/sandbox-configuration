@@ -1,58 +1,24 @@
 ID: aws_opensearch_accessible_only_from_safelisted_ip_addresses
 Title: "Opensearch Accessible Only From Safelisted IP Addresses"
 Description: "Ensure only safelisted IP addresses can access your Amazon OpenSearch domains."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-          WHEN EXISTS (
-              SELECT 1
-              FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement
-              WHERE statement ->> 'Condition' = NULL
-          ) THEN 'alarm'
-          WHEN EXISTS (SELECT 1
-            FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement,
-                 jsonb_array_elements((statement -> 'Condition' -> 'IpAddress' ->> 'aws:SourceIp')::jsonb) AS ip
-            WHERE '{{.awsSafelistedIPs}}' like '%' || ip.value::text || '%') THEN 'ok'
-          WHEN '{{.awsSafelistedIPs}}' = '' THEN 'ok'
-          ELSE 'alarm'
-      END AS status,
-      CASE
-          WHEN EXISTS (
-              SELECT 1
-              FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement
-              WHERE statement ->> 'Condition' = NULL
-          ) THEN domain_name || ' does not include specific IP addresses'
-          WHEN EXISTS (SELECT 1
-            FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement,
-                 jsonb_array_elements((statement -> 'Condition' -> 'IpAddress' ->> 'aws:SourceIp')::jsonb) AS ip
-            WHERE '{{.awsSafelistedIPs}}' like '%' || ip.value::text || '%') THEN domain_name || ' includes approved specific IP addresses'
-          WHEN '{{.awsSafelistedIPs}}' = '' THEN ' approved IP addresses not defined'
-          ELSE domain_name || ' includes not approved specific IP addresses'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-        aws_opensearch_domain;
+  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n      WHEN EXISTS (\n          SELECT 1\n          FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement\n          WHERE statement ->> 'Condition' = NULL\n      ) THEN 'alarm'\n      WHEN EXISTS (SELECT 1\n        FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement,\n             jsonb_array_elements((statement -> 'Condition' -> 'IpAddress' ->> 'aws:SourceIp')::jsonb) AS ip\n        WHERE '{{.awsSafelistedIPs}}' like '%' || ip.value::text || '%') THEN 'ok'\n      WHEN '{{.awsSafelistedIPs}}' = '' THEN 'ok'\n      ELSE 'alarm'\n  END AS status,\n  CASE\n      WHEN EXISTS (\n          SELECT 1\n          FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement\n          WHERE statement ->> 'Condition' = NULL\n      ) THEN domain_name || ' does not include specific IP addresses'\n      WHEN EXISTS (SELECT 1\n        FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS statement,\n             jsonb_array_elements((statement -> 'Condition' -> 'IpAddress' ->> 'aws:SourceIp')::jsonb) AS ip\n        WHERE '{{.awsSafelistedIPs}}' like '%' || ip.value::text || '%') THEN domain_name || ' includes approved specific IP addresses'\n      WHEN '{{.awsSafelistedIPs}}' = '' THEN ' approved IP addresses not defined'\n      ELSE domain_name || ' includes not approved specific IP addresses'\n  END AS reason,\n  region,\n  account_id\nFROM \n    aws_opensearch_domain;\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters:
     - Key: awsSafelistedIPs
       Required: false
 Severity: critical
 Tags:
   platform_score_cloud_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+IntegrationTypeName:
+  - aws_cloud

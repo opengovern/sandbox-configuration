@@ -1,42 +1,26 @@
 ID: aws_ecr_repository_image_scan_on_push_enabled
 Title: "ECR repositories should have image scan on push enabled"
 Description: "Ensure AWS Elastic Container Registry (ECR) repositories have image scanning enabled. The rule is non-compliant if image scanning is not enabled for the ECR repository."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when image_scanning_configuration ->> 'ScanOnPush' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when image_scanning_configuration ->> 'ScanOnPush' = 'true' then title || ' scan on push enabled.'
-        else title || ' scan on push disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ecr_repository;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when image_scanning_configuration ->> 'ScanOnPush' = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when image_scanning_configuration ->> 'ScanOnPush' = 'true' then title || ' scan on push enabled.'\n    else title || ' scan on push disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ecr_repository;\n"
   PrimaryTable: aws_ecr_repository
   ListOfTables:
-  - aws_ecr_repository
+    - aws_ecr_repository
   Parameters: []
 Severity: high
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - vulnerability_patch_and_version_management
+    - vulnerability_patch_and_version_management
   foundational_security_item_id:
-  - ecr_1
+    - ecr_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/ECR
+    - AWS/ECR
+IntegrationTypeName:
+  - aws_cloud

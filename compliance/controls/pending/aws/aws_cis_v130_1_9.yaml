@@ -1,28 +1,13 @@
 ID: aws_cis_v130_1_9
 Title: "1.9 Ensure IAM password policy prevents password reuse"
 Description: "IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || a.partition || ':::' || a.account_id as resource,
-      case
-        when password_reuse_prevention >= 24 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimum_password_length is null then 'No password policy set.'
-        when password_reuse_prevention is null then 'Password reuse prevention not set.'
-        else 'Password reuse prevention set to ' || password_reuse_prevention || '.'
-      end as reason
-      
-    from
-      aws_account as a
-      left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
+  QueryToExecute: "select\n  'arn:' || a.partition || ':::' || a.account_id as resource,\n  case\n    when password_reuse_prevention >= 24 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when minimum_password_length is null then 'No password policy set.'\n    when password_reuse_prevention is null then 'Password reuse prevention not set.'\n    else 'Password reuse prevention set to ' || password_reuse_prevention || '.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

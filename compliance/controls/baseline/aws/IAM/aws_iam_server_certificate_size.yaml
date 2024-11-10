@@ -1,34 +1,18 @@
 ID: aws_iam_server_certificate_size
 Title: "AWS IAM Server Certificate Size"
 Description: "Ensure that all your SSL/TLS certificates are using either 2048 or 4096 bit RSA keys instead of 1024-bit keys."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN certificate_body_length < 2048 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN certificate_body_length < 2048 THEN 'The key length is 1024 therefore it is insecure' 
-        ELSE 'Key is secure.'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_server_certificate
+  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN certificate_body_length < 2048 THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN certificate_body_length < 2048 THEN 'The key length is 1024 therefore it is insecure' \n    ELSE 'Key is secure.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_server_certificate\n"
   PrimaryTable: aws_iam_server_certificate
   ListOfTables:
-  - aws_iam_server_certificate
+    - aws_iam_server_certificate
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
+IntegrationTypeName:
+  - aws_cloud

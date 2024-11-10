@@ -1,30 +1,14 @@
 ID: aws_docdb_cluster_deletion_protection_enabled
 Title: "DocumentDB clusters should have deletion protection enabled"
 Description: "Ensure DocumentDB clusters have deletion protection enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when deletion_protection then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when deletion_protection then title || ' deletion protection enabled.'
-        else title || ' deletion protection disabled.'
-      end reason
-      
-      
-    from
-      aws_docdb_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when deletion_protection then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when deletion_protection then title || ' deletion protection enabled.'\n    else title || ' deletion protection disabled.'\n  end reason\n  \n  \nfrom\n  aws_docdb_cluster;"
   PrimaryTable: aws_docdb_cluster
   ListOfTables:
-  - aws_docdb_cluster
+    - aws_docdb_cluster
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

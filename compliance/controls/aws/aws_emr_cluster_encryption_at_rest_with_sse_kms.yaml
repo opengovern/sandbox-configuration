@@ -1,8 +1,6 @@
 ID: aws_emr_cluster_encryption_at_rest_with_sse_kms
 Title: "EMR clusters server side encryption (SSE KMS) enabled with KMS"
 Description: "This control checks whether EMR clusters server side encryption (SSE KMS) is enabled with KMS. The check fails if encryption at rest is not enabled with SSE-KMS."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -27,8 +25,10 @@ Query:
       left join aws_emr_security_configuration as s on c.security_configuration = s.name and s.region = s.region and s.account_id = c.account_id;
   PrimaryTable: aws_emr_cluster
   ListOfTables:
-  - aws_emr_cluster
-  - aws_emr_security_configuration
+    - aws_emr_cluster
+    - aws_emr_security_configuration
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

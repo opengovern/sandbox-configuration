@@ -1,8 +1,6 @@
 ID: aws_use_kms_customer_master_keys_for_fsx_windows_file_server_file_systems
 Title: "Use KMS Customer Master Keys for FSx Windows File Server File Systems"
 Description: "Ensure AWS FSx for Windows File Server file systems data is encrypted using AWS KMS CMKs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -27,16 +25,18 @@ Query:
       left join aws_kms_key as k on v.kms_key_id = k.arn
   PrimaryTable: aws_fsx_file_system
   ListOfTables:
-  - aws_fsx_file_system
-  - aws_kms_key
+    - aws_fsx_file_system
+    - aws_kms_key
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   platform_score_use_case:
-  - Unencrypted Storage
+    - Unencrypted Storage
   score_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   score_tags:
-  - Unencrypted Storage
+    - Unencrypted Storage
+IntegrationTypeName:
+  - aws_cloud

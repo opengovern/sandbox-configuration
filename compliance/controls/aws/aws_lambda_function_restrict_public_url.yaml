@@ -1,32 +1,14 @@
 ID: aws_lambda_function_restrict_public_url
 Title: "Lambda functions should restrict public URL"
 Description: "This control verifies that the Lambda function does not have a publicly accessible URL. Exposing services publicly could potentially make sensitive data accessible to malicious actors."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when url_config is null then 'info'
-        when url_config ->> 'AuthType' = 'AWS_IAM' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when url_config is null then title || ' having no URL config.'
-        when url_config ->> 'AuthType' = 'AWS_IAM' then title || ' restricts public function URL.'
-        else title || ' public function URL configured.'
-      end as reason
-      
-      
-    from
-      aws_lambda_function;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when url_config is null then 'info'\n    when url_config ->> 'AuthType' = 'AWS_IAM' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when url_config is null then title || ' having no URL config.'\n    when url_config ->> 'AuthType' = 'AWS_IAM' then title || ' restricts public function URL.'\n    else title || ' public function URL configured.'\n  end as reason\n  \n  \nfrom\n  aws_lambda_function;"
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

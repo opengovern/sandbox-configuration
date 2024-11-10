@@ -1,29 +1,14 @@
 ID: aws_api_gateway_method_authorization_type_configured
 Title: "API Gateway methods authorizer should be configured"
 Description: "This control checks whether API Gateway method has an authorizer configured. This rule is non-compliant if API Gateway method has no authorizers configured."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      resource_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when authorization_type = 'NONE' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when authorization_type = 'NONE' then title || ' authorization type not configured.'
-        else title || ' authorization type ' || authorization_type || ' configured.'
-      end as reason
-      
-    from
-      aws_api_gateway_method;
+  QueryToExecute: "select\n  resource_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when authorization_type = 'NONE' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when authorization_type = 'NONE' then title || ' authorization type not configured.'\n    else title || ' authorization type ' || authorization_type || ' configured.'\n  end as reason\n  \nfrom\n  aws_api_gateway_method;"
   PrimaryTable: aws_api_gateway_method
   ListOfTables:
-  - aws_api_gateway_method
+    - aws_api_gateway_method
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - aws_cloud

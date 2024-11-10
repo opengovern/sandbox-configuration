@@ -1,65 +1,31 @@
 ID: aws_iam_policy_unused
 Title: "IAM policy should be in use"
 Description: "This control checks whether the IAM policy ARN is attached to an IAM user, or a group with one or more IAM users, or an IAM role with one or more trusted entity."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with in_use_policies as (
-      select
-        attached_policy_arns
-      from
-        aws_iam_user
-      union
-      select
-        attached_policy_arns
-      from
-        aws_iam_group
-      where
-        jsonb_array_length(users) > 0
-      union
-      select
-        attached_policy_arns
-      from
-        aws_iam_role
-    )
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when arn in (select jsonb_array_elements_text(attached_policy_arns) from in_use_policies) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when arn in (select jsonb_array_elements_text(attached_policy_arns) from in_use_policies) then title || ' in use.'
-        else title || ' not in use.'
-      end as reason
-      
-      , account_id
-    from
-      aws_iam_policy;
+  QueryToExecute: "with in_use_policies as (\n  select\n    attached_policy_arns\n  from\n    aws_iam_user\n  union\n  select\n    attached_policy_arns\n  from\n    aws_iam_group\n  where\n    jsonb_array_length(users) > 0\n  union\n  select\n    attached_policy_arns\n  from\n    aws_iam_role\n)\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when arn in (select jsonb_array_elements_text(attached_policy_arns) from in_use_policies) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when arn in (select jsonb_array_elements_text(attached_policy_arns) from in_use_policies) then title || ' in use.'\n    else title || ' not in use.'\n  end as reason\n  \n  , account_id\nfrom\n  aws_iam_policy;\n"
   PrimaryTable: aws_iam_policy
   ListOfTables:
-  - aws_iam_group
-  - aws_iam_policy
-  - aws_iam_role
-  - aws_iam_user
+    - aws_iam_group
+    - aws_iam_policy
+    - aws_iam_role
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/IAM
+    - AWS/IAM
   soc_2:
-  - "true"
+    - "true"
+IntegrationTypeName:
+  - aws_cloud

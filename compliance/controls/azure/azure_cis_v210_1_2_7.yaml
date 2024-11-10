@@ -1,44 +1,17 @@
 ID: azure_cis_v210_1_2_7
 Title: "1.2.7 Ensure Multifactor Authentication is Required to access Microsoft Admin Portals"
 Description: "This recommendation ensures that users accessing Microsoft Admin Portals (i.e. Microsoft 365 Admin, Microsoft 365 Defender, Exchange Admin Center, Azure Portal, etc.) are required to use multifactor authentication (MFA) credentials when logging into an Admin Portal."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with distinct_tenant as (
-      select
-        u.id,
-        tenant_id
-      from
-        azuread_user as u
-        left join azure_role_assignment as a on a.principal_id = u.id
-        left join azure_role_definition as d on d.id = a.role_definition_id
-      where role_type = 'BuiltInRole' and (role_name like '%Administrator%' or role_name = 'Owner')
-    )
-    select
-      p.id as resource,
-    p.og_account_id as og_account_id,
-    p.og_resource_id as og_resource_id,
-      case
-        when p.built_in_controls @> '["mfa"]' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.built_in_controls @> '["mfa"]' then p.display_name || ' MFA enabled.'
-        else p.display_name || ' MFA disabled.'
-      end as reason,
-      t.tenant_id
-      
-    from
-      distinct_tenant as t,
-      azuread_conditional_access_policy as p;
+  QueryToExecute: "with distinct_tenant as (\n  select\n    u.id,\n    tenant_id\n  from\n    azuread_user as u\n    left join azure_role_assignment as a on a.principal_id = u.id\n    left join azure_role_definition as d on d.id = a.role_definition_id\n  where role_type = 'BuiltInRole' and (role_name like '%Administrator%' or role_name = 'Owner')\n)\nselect\n  p.id as resource,\np.og_account_id as og_account_id,\np.og_resource_id as og_resource_id,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then p.display_name || ' MFA enabled.'\n    else p.display_name || ' MFA disabled.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  distinct_tenant as t,\n  azuread_conditional_access_policy as p;"
   PrimaryTable: azuread_conditional_access_policy
   ListOfTables:
-  - azuread_user
-  - azure_role_assignment
-  - azure_role_definition
-  - azuread_conditional_access_policy
+    - azuread_user
+    - azure_role_assignment
+    - azure_role_definition
+    - azuread_conditional_access_policy
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription

@@ -1,8 +1,6 @@
 ID: azure_cis_v210_1_25
 Title: "1.25 Ensure fewer than 5 users have global administrator assignment"
 Description: "This recommendation aims to maintain a balance between security and operational efficiency by ensuring that a minimum of 2 and a maximum of 4 users are assigned the Global Administrator role in Microsoft Entra ID. Having at least two Global Administrators ensures redundancy, while limiting the number to four reduces the risk of excessive privileged access."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -34,8 +32,10 @@ Query:
       display_name = 'Global Administrator'
   PrimaryTable: azuread_directory_role
   ListOfTables:
-  - azure_tenant
-  - azuread_directory_role
+    - azure_tenant
+    - azuread_directory_role
   Parameters: []
 Severity: low
 Tags: {}
+IntegrationTypeName:
+  - azure_subscription
