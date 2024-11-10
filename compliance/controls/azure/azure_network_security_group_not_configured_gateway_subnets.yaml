@@ -1,8 +1,6 @@
 ID: azure_network_security_group_not_configured_gateway_subnets
 Title: "Gateway subnets should not be configured with a network security group"
 Description: "Protect your subnet from potential threats by restricting access to it with a Network Security Group (NSG). NSGs contain a list of Access Control List (ACL) rules that allow or deny network traffic to your subnet."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -27,12 +25,14 @@ Query:
       join azure_subscription as sub on sub.subscription_id = subnet.subscription_id;
   PrimaryTable: azure_subnet
   ListOfTables:
-  - azure_subnet
-  - azure_subscription
+    - azure_subnet
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   hipaa_hitrust_v92:
-  - "true"
+    - "true"
   service:
-  - Azure/Network
+    - Azure/Network
+Integration_Type_Name:
+  - azure_subscription

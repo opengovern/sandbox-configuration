@@ -1,38 +1,22 @@
 ID: aws_opensearch_zone_awareness_enabled
 Title: "OpenSearch Zone Awareness Enabled"
 Description: "Ensure high availability for your Amazon OpenSearch clusters by enabling the Zone Awareness feature."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN domain_name || ' cross-zone replication is enabled' 
-        ELSE domain_name || ' cross-zone replication is not enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
+  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN domain_name || ' cross-zone replication is enabled' \n    ELSE domain_name || ' cross-zone replication is not enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   platform_score_use_case:
-  - Lacking High Availability
+    - Lacking High Availability
   score_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   score_tags:
-  - Lacking High Availability
+    - Lacking High Availability
+Integration_Type_Name:
+  - aws_cloud

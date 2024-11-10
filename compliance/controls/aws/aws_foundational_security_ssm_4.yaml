@@ -1,32 +1,14 @@
 ID: aws_foundational_security_ssm_4
 Title: "4 SSM documents should not be public"
 Description: "This control checks whether AWS Systems Manager documents that are owned by the account are public. This control fails if SSM documents with the owner Self are public."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when account_ids :: jsonb ? 'all' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'
-        else title || ' not publicly accesible.'
-      end as reason
-      
-      
-    from
-      aws_ssm_document
-    where
-      owner_type = 'Self';
+  QueryToExecute: "select\n  'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when account_ids :: jsonb ? 'all' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'\n    else title || ' not publicly accesible.'\n  end as reason\n  \n  \nfrom\n  aws_ssm_document\nwhere\n  owner_type = 'Self';"
   PrimaryTable: aws_ssm_document
   ListOfTables:
-  - aws_ssm_document
+    - aws_ssm_document
   Parameters: []
 Severity: critical
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

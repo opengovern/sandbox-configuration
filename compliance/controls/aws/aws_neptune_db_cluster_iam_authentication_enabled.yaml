@@ -1,30 +1,14 @@
 ID: aws_neptune_db_cluster_iam_authentication_enabled
 Title: "Neptune DB clusters should have IAM database authentication enabled"
 Description: "This control checks if a Neptune DB cluster has IAM database authentication enabled. The control fails if IAM database authentication isn't enabled for a Neptune DB cluster."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when iam_database_authentication_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when iam_database_authentication_enabled then title || ' IAM authentication enabled.'
-        else title || ' IAM authentication disabled.'
-      end as reason
-      
-      
-    from
-      aws_neptune_db_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when iam_database_authentication_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when iam_database_authentication_enabled then title || ' IAM authentication enabled.'\n    else title || ' IAM authentication disabled.'\n  end as reason\n  \n  \nfrom\n  aws_neptune_db_cluster;"
   PrimaryTable: aws_neptune_db_cluster
   ListOfTables:
-  - aws_neptune_db_cluster
+    - aws_neptune_db_cluster
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

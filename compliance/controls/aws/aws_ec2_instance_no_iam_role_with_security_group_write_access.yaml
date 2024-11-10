@@ -1,8 +1,6 @@
 ID: aws_ec2_instance_no_iam_role_with_security_group_write_access
 Title: "EC2 instance IAM role should not allow security group write access"
 Description: "This control ensures that EC2 instance IAM roles do not allow security group write access."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -48,8 +46,10 @@ Query:
       left join iam_role_with_permission as p on p.arn = r.role_arn;
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_iam_role
-  - aws_ec2_instance
+    - aws_iam_role
+    - aws_ec2_instance
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

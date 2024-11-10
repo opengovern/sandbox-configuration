@@ -1,42 +1,26 @@
 ID: aws_elasticache_cluster_no_default_subnet_group
 Title: "ElastiCache clusters should not use the default subnet group"
 Description: "This control checks if ElastiCache clusters are configured with a custom subnet group. The control fails for an ElastiCache cluster if CacheSubnetGroupName has the value default."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when cache_subnet_group_name = 'default' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when cache_subnet_group_name = 'default' then title || ' not configured with a custom subnet group.'
-        else title || ' configured with a custom subnet group.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_elasticache_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when cache_subnet_group_name = 'default' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when cache_subnet_group_name = 'default' then title || ' not configured with a custom subnet group.'\n    else title || ' configured with a custom subnet group.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticache_cluster;\n"
   PrimaryTable: aws_elasticache_cluster
   ListOfTables:
-  - aws_elasticache_cluster
+    - aws_elasticache_cluster
   Parameters: []
 Severity: high
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - secure_network_configuration
+    - secure_network_configuration
   foundational_security_item_id:
-  - elasticache_7
+    - elasticache_7
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/ElastiCache
+    - AWS/ElastiCache
+Integration_Type_Name:
+  - aws_cloud

@@ -1,30 +1,14 @@
 ID: aws_foundational_security_waf_7
 Title: "7 AWS WAF Classic global rule groups should have at least one rule"
 Description: "This control checks whether an AWS WAF global rule group has at least one rule. The control fails if no rules are present within a rule group."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when activated_rules is null or jsonb_array_length(activated_rules) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when activated_rules is null or jsonb_array_length(activated_rules) = 0 then title || ' has no attached rules.'
-        else title || ' has ' || jsonb_array_length(activated_rules) || ' rule(s) attached.'
-      end as reason
-      
-      
-    from
-      aws_waf_rule_group;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when activated_rules is null or jsonb_array_length(activated_rules) = 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when activated_rules is null or jsonb_array_length(activated_rules) = 0 then title || ' has no attached rules.'\n    else title || ' has ' || jsonb_array_length(activated_rules) || ' rule(s) attached.'\n  end as reason\n  \n  \nfrom\n  aws_waf_rule_group;"
   PrimaryTable: aws_waf_rule_group
   ListOfTables:
-  - aws_waf_rule_group
+    - aws_waf_rule_group
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

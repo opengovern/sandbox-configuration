@@ -1,49 +1,20 @@
 ID: azuread_user_should_have_mfa_enabled_with_azure_subscription_role_assignment
 Title: "AzureAD Users should have MFA Enabled with Azure subscription role assignment"
 Description: "AzureAD Users should have MFA Enabled with Azure subscription role assignment"
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with users_with_roles as (
-      SELECT distinct u.id as id, 
-        u.og_account_id as og_account_id, 
-        u.og_resource_id as og_resource_id, 
-        u.display_name as display_name, 
-        u.subscription_id as subscription_id,
-        u.account_enabled as account_enabled,
-        u.tenant_id as tenant_id
-      FROM (azuread_user AS u JOIN azure_user_effective_access AS ea ON u.id = ea.principal_id)
-    )
-    select 
-      u.id as resource, 
-      u.og_account_id as og_account_id,
-      u.og_resource_id as og_resource_id,
-      case
-        when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'skip'
-        when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'User is not included'
-        when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then u.display_name || ' does not have MFA enbabled'
-        else u.display_name || ' has MFA'
-      end as reason, 
-      u.tenant_id
-    from 
-      users_with_roles as u 
-      left join azuread_user_registration_details as rd on u.id = rd.id
-    where exists (select 1 from azure_user_effective_access AS ea where u.id = ea.principal_id)
+  QueryToExecute: "with users_with_roles as (\n  SELECT distinct u.id as id, \n    u.og_account_id as og_account_id, \n    u.og_resource_id as og_resource_id, \n    u.display_name as display_name, \n    u.subscription_id as subscription_id,\n    u.account_enabled as account_enabled,\n    u.tenant_id as tenant_id\n  FROM (azuread_user AS u JOIN azure_user_effective_access AS ea ON u.id = ea.principal_id)\n)\nselect \n  u.id as resource, \n  u.og_account_id as og_account_id,\n  u.og_resource_id as og_resource_id,\n  case\n    when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'skip'\n    when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when COALESCE(NULLIF('{{.azureadAccountStatusInclude}}',''), 'true,false,null') not like ('%' || COALESCE(u.account_enabled::text,'null') || '%') then 'User is not included'\n    when rd.is_mfa_registered::bool = false or rd.is_mfa_registered::bool is null then u.display_name || ' does not have MFA enbabled'\n    else u.display_name || ' has MFA'\n  end as reason, \n  u.tenant_id\nfrom \n  users_with_roles as u \n  left join azuread_user_registration_details as rd on u.id = rd.id\nwhere exists (select 1 from azure_user_effective_access AS ea where u.id = ea.principal_id)\n"
   PrimaryTable: azuread_user
   ListOfTables:
-  - azure_user_effective_access
-  - azuread_user
-  - azuread_user_registration_details
+    - azure_user_effective_access
+    - azuread_user
+    - azuread_user_registration_details
   Parameters:
     - Key: azureadAccountStatusInclude
       Required: false
 Severity: high
 Tags:
   score_service_name:
-  - Azure Active Directory (Azure AD)
+    - Azure Active Directory (Azure AD)
+Integration_Type_Name:
+  - azure_subscription

@@ -1,8 +1,6 @@
 ID: azure_log_profile_enabled_for_all_subscription
 Title: "Azure subscriptions should have a log profile for Activity Log"
 Description: "This policy ensures if a log profile is enabled for exporting activity logs. It audits if there is no log profile created to export the logs either to a storage account or to an event hub."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -31,8 +29,10 @@ Query:
       left join log_profiles as i on i.subscription_id = sub.subscription_id;
   PrimaryTable: azure_subscription
   ListOfTables:
-  - azure_log_profile
-  - azure_subscription
+    - azure_log_profile
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

@@ -1,8 +1,6 @@
 ID: azure_check_for_unrestricted_mongodb_access
 Title: "Check for Unrestricted MongoDB Access"
 Description: "Ensure that no network security groups allow unrestricted inbound access on TCP ports 27017, 27018 and 27019."
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
@@ -34,12 +32,14 @@ Query:
       (sr -> 'properties' ->> 'destinationPortRanges' = '27017' or sr -> 'properties' ->> 'destinationPortRanges' like '%"27017"%' or sr -> 'properties' ->> 'destinationPortRanges' = '27018' or sr -> 'properties' ->> 'destinationPortRanges' like '%"27018"%' or sr -> 'properties' ->> 'destinationPortRanges' = '27019' or sr -> 'properties' ->> 'destinationPortRanges' like '%"27019"%' or sr -> 'properties' ->> 'destinationPortRanges' = '*') and sr -> 'properties' ->> 'direction' = 'Inbound'
   PrimaryTable: azure_network_security_group
   ListOfTables:
-  - azure_network_security_group
-  - azure_subscription
+    - azure_network_security_group
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - Azure Network
+    - Azure Network
   score_service_name:
-  - Azure Network
+    - Azure Network
+Integration_Type_Name:
+  - azure_subscription

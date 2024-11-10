@@ -1,8 +1,6 @@
 ID: aws_foundational_security_elasticbeanstalk_3
 Title: "3 Elastic Beanstalk should stream logs to CloudWatch"
 Description: "This control checks whether an Elastic Beanstalk environment is configured to send logs to CloudWatch Logs. The control fails if an Elastic Beanstalk environment isn't configured to send logs to CloudWatch Logs. Optionally, you can provide a custom value for the RetentionInDays parameter if you want the control to pass only if logs are retained for the specified number of days before expiration."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -36,7 +34,9 @@ Query:
       left join beanstalk_environment_logs_enabled as l on e.arn = l.arn;
   PrimaryTable: aws_elastic_beanstalk_environment
   ListOfTables:
-  - aws_elastic_beanstalk_environment
+    - aws_elastic_beanstalk_environment
   Parameters: []
 Severity: high
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

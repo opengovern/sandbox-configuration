@@ -1,60 +1,42 @@
 ID: aws_rds_db_instance_deletion_protection_enabled
 Title: "RDS DB instances should have deletion protection enabled"
 Description: "Ensure AWS Relational Database Service (AWS RDS) instances have deletion protection enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when engine like any(array['aurora%', 'docdb', 'neptune']) then 'skip'
-        when deletion_protection then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when engine like any(array['aurora%', 'docdb', 'neptune']) then title || ' has engine ' || engine || ' cluster, deletion protection is set at cluster level.'
-        when deletion_protection then title || ' deletion protection enabled.'
-        else title || ' deletion protection not enabled.'
-      end reason
-      
-      , region, account_id
-    from
-      aws_rds_db_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when engine like any(array['aurora%', 'docdb', 'neptune']) then 'skip'\n    when deletion_protection then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when engine like any(array['aurora%', 'docdb', 'neptune']) then title || ' has engine ' || engine || ' cluster, deletion protection is set at cluster level.'\n    when deletion_protection then title || ' deletion protection enabled.'\n    else title || ' deletion protection not enabled.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_instance;\n"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_instance
+    - aws_rds_db_instance
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/RDS
+    - AWS/RDS
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

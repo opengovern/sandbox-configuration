@@ -1,8 +1,6 @@
 ID: aws_iam_policy_inline_no_blocked_kms_actions
 Title: "Ensure inline policies attached to IAM users, roles, and groups should not allow blocked actions on KMS keys"
 Description: "Checks if the inline policies attached to IAM users, roles, and groups do not allow blocked actions on all AWS Key Management Service (KMS) keys. The rule is non - compliant if any blocked action is allowed on all KMS keys in an inline policy."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -78,29 +76,31 @@ Query:
       left join kms_blocked_actions as w on u.arn = w.arn;
   PrimaryTable: ""
   ListOfTables:
-  - aws_iam_group
-  - aws_iam_role
-  - aws_iam_user
+    - aws_iam_group
+    - aws_iam_role
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/IAM
+    - AWS/IAM
+Integration_Type_Name:
+  - aws_cloud

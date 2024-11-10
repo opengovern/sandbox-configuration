@@ -1,70 +1,51 @@
 ID: aws_emr_cluster_master_nodes_no_public_ip
 Title: "EMR cluster master nodes should not have public IP addresses"
 Description: "Manage access to the AWS Cloud by ensuring AWS EMR cluster master nodes cannot be publicly accessed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      c.cluster_arn as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when c.status ->> 'State' not in ('RUNNING', 'WAITING') then 'skip'
-        when s.map_public_ip_on_launch then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when c.status ->> 'State' not in ('RUNNING', 'WAITING') then c.title || ' is in ' || (c.status ->> 'State') || ' state.'
-        when s.map_public_ip_on_launch then c.title || ' master nodes assigned with public IP.'
-        else c.title || ' master nodes not assigned with public IP.'
-      end as reason
-      
-      , c.region, c.account_id
-    from
-      aws_emr_cluster as c
-      left join aws_vpc_subnet as s on c.ec2_instance_attributes ->> 'Ec2SubnetId' = s.subnet_id;
+  QueryToExecute: "select\n  c.cluster_arn as resource,\n  c.og_account_id as og_account_id,\n  c.og_resource_id as og_resource_id,\n  case\n    when c.status ->> 'State' not in ('RUNNING', 'WAITING') then 'skip'\n    when s.map_public_ip_on_launch then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when c.status ->> 'State' not in ('RUNNING', 'WAITING') then c.title || ' is in ' || (c.status ->> 'State') || ' state.'\n    when s.map_public_ip_on_launch then c.title || ' master nodes assigned with public IP.'\n    else c.title || ' master nodes not assigned with public IP.'\n  end as reason\n  \n  , c.region, c.account_id\nfrom\n  aws_emr_cluster as c\n  left join aws_vpc_subnet as s on c.ec2_instance_attributes ->> 'Ec2SubnetId' = s.subnet_id;\n"
   PrimaryTable: aws_emr_cluster
   ListOfTables:
-  - aws_emr_cluster
-  - aws_vpc_subnet
+    - aws_emr_cluster
+    - aws_vpc_subnet
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/EMR
+    - AWS/EMR
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

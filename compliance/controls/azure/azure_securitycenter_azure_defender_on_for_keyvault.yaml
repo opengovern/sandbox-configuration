@@ -1,52 +1,33 @@
 ID: azure_securitycenter_azure_defender_on_for_keyvault
 Title: "Azure Defender for Key Vault should be enabled"
 Description: "Azure Defender for Key Vault provides an additional layer of protection and security intelligence by detecting unusual and potentially harmful attempts to access or exploit key vault accounts."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      sub_pricing.id as resource,
-      sub_pricing.og_account_id as og_account_id,
-      sub_pricing.og_resource_id as og_resource_id,
-      case
-        when pricing_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when pricing_tier = 'Standard' then 'Azure Defender on for Key Vaults.'
-        else 'Azure Defender off for Key Vaults.'
-      end as reason
-      
-      , sub.display_name as subscription
-    from
-      azure_security_center_subscription_pricing sub_pricing
-      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
-    where
-      name = 'KeyVaults';
+  QueryToExecute: "select\n  sub_pricing.id as resource,\n  sub_pricing.og_account_id as og_account_id,\n  sub_pricing.og_resource_id as og_resource_id,\n  case\n    when pricing_tier = 'Standard' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when pricing_tier = 'Standard' then 'Azure Defender on for Key Vaults.'\n    else 'Azure Defender off for Key Vaults.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_subscription_pricing sub_pricing\n  right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id\nwhere\n  name = 'KeyVaults';\n"
   PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
-  - azure_security_center_subscription_pricing
-  - azure_subscription
+    - azure_security_center_subscription_pricing
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "2.8"
+    - "2.8"
   cis_level:
-  - "2"
+    - "2"
   cis_section_id:
-  - "2"
+    - "2"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SecurityCenter
+    - Azure/SecurityCenter
+Integration_Type_Name:
+  - azure_subscription

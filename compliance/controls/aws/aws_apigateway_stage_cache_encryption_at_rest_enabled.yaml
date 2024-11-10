@@ -1,67 +1,48 @@
 ID: aws_apigateway_stage_cache_encryption_at_rest_enabled
 Title: "API Gateway stage cache encryption at rest should be enabled"
 Description: "To help protect data at rest, ensure encryption is enabled for your API Gateway stage's cache."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
-        and method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
-        and method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true'
-          then title || ' API cache and encryption enabled.'
-        else title || ' API cache and encryption not enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_api_gateway_stage;
+  QueryToExecute: "select\n  'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when method_settings -> '*/*' ->> 'CachingEnabled' = 'true'\n    and method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when method_settings -> '*/*' ->> 'CachingEnabled' = 'true'\n    and method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true'\n      then title || ' API cache and encryption enabled.'\n    else title || ' API cache and encryption not enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_api_gateway_stage;\n"
   PrimaryTable: aws_api_gateway_stage
   ListOfTables:
-  - aws_api_gateway_stage
+    - aws_api_gateway_stage
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/APIGateway
+    - AWS/APIGateway
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

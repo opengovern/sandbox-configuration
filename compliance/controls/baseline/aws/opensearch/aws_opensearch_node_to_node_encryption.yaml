@@ -1,38 +1,22 @@
 ID: aws_opensearch_node_to_node_encryption
 Title: "OpenSearch Node To Node Encryption"
 Description: "Ensure that your Amazon OpenSearch clusters are using node to node encryption in order to meet security and compliance requirements."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      domain_name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN not node_to_node_encryption_options_enabled THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN not node_to_node_encryption_options_enabled THEN domain_name || ' node-to-node encryption is not enabled' 
-        ELSE domain_name || ' node-to-node encryption is enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
+  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN not node_to_node_encryption_options_enabled THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN not node_to_node_encryption_options_enabled THEN domain_name || ' node-to-node encryption is not enabled' \n    ELSE domain_name || ' node-to-node encryption is enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   platform_score_use_case:
-  - Unencrypted Traffic
+    - Unencrypted Traffic
   score_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   score_tags:
-  - Unencrypted Traffic
+    - Unencrypted Traffic
+Integration_Type_Name:
+  - aws_cloud

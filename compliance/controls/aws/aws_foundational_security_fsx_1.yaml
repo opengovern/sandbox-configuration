@@ -1,34 +1,14 @@
 ID: aws_foundational_security_fsx_1
 Title: "1 FSx for OpenZFS file systems should be configured to copy tags to backups and volumes"
 Description: "This control checks if an Amazon FSx for OpenZFS file system is configured to copy tags to backups and volumes. The control fails if the OpenZFS file system isn't configured to copy tags to backups and volumes."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when file_system_type <> 'OPENZFS' then 'skip'
-        when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool and (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when file_system_type <> 'OPENZFS' then title || ' is of ' || file_system_type || ' type file system.'
-        when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool and (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then title || ' copy tags to backup and volume enabled.'
-        when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool then title || ' copy tags to backup enabled but disabled for volume.'
-        when (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then title || ' copy tags to volume enabled but disabled for backup.'
-        else title || ' copy tags to backup and volume disabled.'
-      end as reason
-      
-      
-    from
-      aws_fsx_file_system;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when file_system_type <> 'OPENZFS' then 'skip'\n    when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool and (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when file_system_type <> 'OPENZFS' then title || ' is of ' || file_system_type || ' type file system.'\n    when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool and (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then title || ' copy tags to backup and volume enabled.'\n    when (open_zfs_configuration ->> 'CopyTagsToBackups')::bool then title || ' copy tags to backup enabled but disabled for volume.'\n    when (open_zfs_configuration ->> 'CopyTagsToVolumes')::bool then title || ' copy tags to volume enabled but disabled for backup.'\n    else title || ' copy tags to backup and volume disabled.'\n  end as reason\n  \n  \nfrom\n  aws_fsx_file_system;"
   PrimaryTable: aws_fsx_file_system
   ListOfTables:
-  - aws_fsx_file_system
+    - aws_fsx_file_system
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

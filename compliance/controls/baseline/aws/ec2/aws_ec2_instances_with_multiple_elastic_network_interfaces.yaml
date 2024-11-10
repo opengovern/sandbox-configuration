@@ -1,45 +1,18 @@
 ID: aws_ec2_instances_with_multiple_elastic_network_interfaces
 Title: "EC2 Instances with Multiple Elastic Network Interfaces"
 Description: "Ensure that Amazon EC2 instances are not using multiple ENIs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with instance_nis as (
-      select
-      i.instance_id, count(ni)
-      from
-      aws_ec2_instance as i,
-      jsonb_array_elements(network_interfaces) as ni
-      where ni -> 'Attachment' ->> 'Status' = 'attached'
-      group by i.instance_id
-      )
-      
-      select
-      i.instance_id as resource,
-      og_resource_id,
-      og_account_id,
-      case
-      when nis.count > 1 then 'alarm'
-      else 'ok'
-      end status,
-      case
-      when nis.count > 1 then i.instance_id || ' Has more than one network interfaces.'
-      else i.instance_id || ' Has more than one network interfaces.'
-      end as reason,
-      region,
-      account_id
-      from
-      aws_ec2_instance as i left join
-      instance_nis as nis on i.instance_id = nis.instance_id
+  QueryToExecute: "with instance_nis as (\n  select\n  i.instance_id, count(ni)\n  from\n  aws_ec2_instance as i,\n  jsonb_array_elements(network_interfaces) as ni\n  where ni -> 'Attachment' ->> 'Status' = 'attached'\n  group by i.instance_id\n  )\n  \n  select\n  i.instance_id as resource,\n  og_resource_id,\n  og_account_id,\n  case\n  when nis.count > 1 then 'alarm'\n  else 'ok'\n  end status,\n  case\n  when nis.count > 1 then i.instance_id || ' Has more than one network interfaces.'\n  else i.instance_id || ' Has more than one network interfaces.'\n  end as reason,\n  region,\n  account_id\n  from\n  aws_ec2_instance as i left join\n  instance_nis as nis on i.instance_id = nis.instance_id\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   score_service_name:
-  - AWS EC2
+    - AWS EC2
+Integration_Type_Name:
+  - aws_cloud

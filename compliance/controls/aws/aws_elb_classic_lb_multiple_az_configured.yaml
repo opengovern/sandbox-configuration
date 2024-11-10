@@ -1,39 +1,26 @@
 ID: aws_elb_classic_lb_multiple_az_configured
 Title: "ELB classic load balancers should span multiple availability zones"
 Description: "This control checks whether a Classic Load Balancer has been configured to span multiple Availability Zones. The control fails if the Classic Load Balancer does not span multiple Availability Zones."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(availability_zones) < 2 then 'alarm'
-        else 'ok'
-      end as status,
-      title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason
-      
-      , region, account_id
-    from
-      aws_ec2_classic_load_balancer;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(availability_zones) < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_classic_load_balancer;\n"
   PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
-  - aws_ec2_classic_load_balancer
+    - aws_ec2_classic_load_balancer
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - high_availability
+    - high_availability
   foundational_security_item_id:
-  - elb_10
+    - elb_10
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/ELB
+    - AWS/ELB
+Integration_Type_Name:
+  - aws_cloud

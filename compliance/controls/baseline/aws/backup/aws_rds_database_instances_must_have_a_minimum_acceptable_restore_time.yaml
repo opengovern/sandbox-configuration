@@ -1,52 +1,25 @@
 ID: aws_rds_database_instances_must_have_a_minimum_acceptable_restore_time
 Title: "AWS RDS Database Instances must have a minimum acceptable restore time"
 Description: "Check for all AWS RDS Database Instances to see if they are meeting the required restore time defined."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-        i.arn as resource,
-        i.og_account_id,
-        i.og_resource_id,
-        case
-          when c.latest_restorable_time is not null then 
-            case
-              when now() - c.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'
-              else 'alarm'
-            end
-          else
-            case
-              when now() - i.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'
-              else 'alarm'
-            end
-        end as status,
-        case
-          when c.latest_restorable_time is not null then 
-            i.title || ' backup retention period set to ' || c.latest_restorable_time || '.'
-          else
-            i.title || ' backup retention period set to ' || i.latest_restorable_time || '.'
-        end as reason,
-        i.region,
-        i.account_id
-      from
-        aws_rds_db_instance as i
-        left join aws_rds_db_cluster as c on i.db_cluster_identifier = c.db_cluster_identifier
+  QueryToExecute: "select\n    i.arn as resource,\n    i.og_account_id,\n    i.og_resource_id,\n    case\n      when c.latest_restorable_time is not null then \n        case\n          when now() - c.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'\n          else 'alarm'\n        end\n      else\n        case\n          when now() - i.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'\n          else 'alarm'\n        end\n    end as status,\n    case\n      when c.latest_restorable_time is not null then \n        i.title || ' backup retention period set to ' || c.latest_restorable_time || '.'\n      else\n        i.title || ' backup retention period set to ' || i.latest_restorable_time || '.'\n    end as reason,\n    i.region,\n    i.account_id\n  from\n    aws_rds_db_instance as i\n    left join aws_rds_db_cluster as c on i.db_cluster_identifier = c.db_cluster_identifier\n"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_cluster
-  - aws_rds_db_instance
+    - aws_rds_db_cluster
+    - aws_rds_db_instance
   Parameters:
     - Key: awsRdsBaselineRestorableTimeInHrs
       Required: true
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   platform_score_use_case:
-  - Missing Backup
+    - Missing Backup
   score_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   score_tags:
-  - Missing Backup
+    - Missing Backup
+Integration_Type_Name:
+  - aws_cloud

@@ -1,42 +1,26 @@
 ID: aws_waf_web_acl_logging_enabled
 Title: "WAF web ACL logging should be enabled"
 Description: "To help with logging and monitoring within your environment, enable AWS WAF logging on regional and global web ACLs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when logging_configuration is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when logging_configuration is null then title || ' logging disabled.'
-        else title || ' logging enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_waf_web_acl;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logging_configuration is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when logging_configuration is null then title || ' logging disabled.'\n    else title || ' logging enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_waf_web_acl;\n"
   PrimaryTable: aws_waf_web_acl
   ListOfTables:
-  - aws_waf_web_acl
+    - aws_waf_web_acl
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - logging
+    - logging
   foundational_security_item_id:
-  - waf_1
+    - waf_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/WAF
+    - AWS/WAF
+Integration_Type_Name:
+  - aws_cloud

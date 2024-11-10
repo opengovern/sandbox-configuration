@@ -1,48 +1,32 @@
 ID: aws_redshift_cluster_enhanced_vpc_routing_enabled
 Title: "AWS Redshift enhanced VPC routing should be enabled"
 Description: "Ensure that AWS Redshift cluster has 'enhancedVpcRouting' enabled. The rule is non-compliant if 'enhancedVpcRouting' is not enabled or if the configuration.enhancedVpcRouting field is 'false'."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when enhanced_vpc_routing then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enhanced_vpc_routing then title || ' enhanced VPC routing enabled.'
-        else title || ' enhanced VPC routing disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_redshift_cluster;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when enhanced_vpc_routing then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enhanced_vpc_routing then title || ' enhanced VPC routing enabled.'\n    else title || ' enhanced VPC routing disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
   PrimaryTable: aws_redshift_cluster
   ListOfTables:
-  - aws_redshift_cluster
+    - aws_redshift_cluster
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/Redshift
+    - AWS/Redshift
+Integration_Type_Name:
+  - aws_cloud

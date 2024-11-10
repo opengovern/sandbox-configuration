@@ -1,59 +1,24 @@
 ID: aws_vpc_peering_connections_to_accounts_outside_aws_organization
 Title: "VPC Peering Connections To Accounts Outside AWS Organization"
 Description: "Ensure VPC peering communication is only between AWS accounts, members of the same AWS Organization."
-Connector:
-- aws
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    WITH account_org AS (
-      SELECT 
-        og_account_id,
-        organization_id
-      FROM
-        aws_account
-    ), vpc_org AS (
-      SELECT
-        vpc.vpc_id,
-        ao.organization_id as org
-      FROM
-        aws_vpc AS vpc
-        LEFT JOIN account_org AS ao ON ao.og_account_id = vpc.og_account_id
-    )
-    
-    SELECT 
-      c.id as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN accepter_org.org = requester_org.org THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN accepter_org.org = requester_org.org THEN c.id || ' connections are ok'
-        ELSE c.id || ' connects to accounts outside organization'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_vpc_peering_connection AS c
-      LEFT JOIN vpc_org AS accepter_org ON c.accepter_vpc_id = accepter_org.vpc_id
-      LEFT JOIN vpc_org AS requester_org ON c.requester_vpc_id = accepter_org.vpc_id
-    WHERE
-      status_code = 'active'
+  QueryToExecute: "WITH account_org AS (\n  SELECT \n    og_account_id,\n    organization_id\n  FROM\n    aws_account\n), vpc_org AS (\n  SELECT\n    vpc.vpc_id,\n    ao.organization_id as org\n  FROM\n    aws_vpc AS vpc\n    LEFT JOIN account_org AS ao ON ao.og_account_id = vpc.og_account_id\n)\n\nSELECT \n  c.id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN accepter_org.org = requester_org.org THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN accepter_org.org = requester_org.org THEN c.id || ' connections are ok'\n    ELSE c.id || ' connects to accounts outside organization'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_vpc_peering_connection AS c\n  LEFT JOIN vpc_org AS accepter_org ON c.accepter_vpc_id = accepter_org.vpc_id\n  LEFT JOIN vpc_org AS requester_org ON c.requester_vpc_id = accepter_org.vpc_id\nWHERE\n  status_code = 'active'\n"
   PrimaryTable: aws_vpc_peering_connection
   ListOfTables:
-  - aws_account
-  - aws_vpc
-  - aws_vpc_peering_connection
+    - aws_account
+    - aws_vpc
+    - aws_vpc_peering_connection
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Virtual Private Cloud (VPC)
+    - AWS Virtual Private Cloud (VPC)
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS Virtual Private Cloud (VPC)
+    - AWS Virtual Private Cloud (VPC)
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+Integration_Type_Name:
+  - aws_cloud

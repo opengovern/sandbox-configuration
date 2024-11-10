@@ -1,42 +1,26 @@
 ID: aws_opensearch_domain_fine_grained_access_enabled
 Title: "OpenSearch domains should have fine-grained access control enabled"
 Description: "This control checks whether OpenSearch domains have fine-grained access control enabled. The control fails if the fine-grained access control is not enabled. Fine-grained access control requires advanced-security-optionsin the OpenSearch parameter update-domain-config to be enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when advanced_security_options is null or not (advanced_security_options -> 'Enabled')::boolean then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when advanced_security_options is null or not (advanced_security_options -> 'Enabled')::boolean then title || ' has fine-grained access control disabled.'
-        else title || ' has fine-grained access control enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_opensearch_domain;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when advanced_security_options is null or not (advanced_security_options -> 'Enabled')::boolean then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when advanced_security_options is null or not (advanced_security_options -> 'Enabled')::boolean then title || ' has fine-grained access control disabled.'\n    else title || ' has fine-grained access control enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: high
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - secure_access_management
+    - secure_access_management
   foundational_security_item_id:
-  - opensearch_7
+    - opensearch_7
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/OpenSearch
+    - AWS/OpenSearch
+Integration_Type_Name:
+  - aws_cloud

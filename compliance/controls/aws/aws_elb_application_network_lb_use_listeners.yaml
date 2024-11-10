@@ -1,8 +1,6 @@
 ID: aws_elb_application_network_lb_use_listeners
 Title: "ELB application and network load balancers should use listeners"
 Description: "Ensure that application and network load balancer must have one or more listeners. A listener is a process that checks for connection requests, using the protocol and port that you configure. The rules that you define for a listener determine how the load balancer routes requests to its registered targets."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -48,9 +46,11 @@ Query:
       left join aws_ec2_load_balancer_listener as l on lb.arn = l.load_balancer_arn;
   PrimaryTable: aws_ec2_network_load_balancer
   ListOfTables:
-  - aws_ec2_network_load_balancer
-  - aws_ec2_application_load_balancer
-  - aws_ec2_load_balancer_listener
+    - aws_ec2_network_load_balancer
+    - aws_ec2_application_load_balancer
+    - aws_ec2_load_balancer_listener
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

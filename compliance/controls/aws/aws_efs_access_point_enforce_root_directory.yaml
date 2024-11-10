@@ -1,42 +1,26 @@
 ID: aws_efs_access_point_enforce_root_directory
 Title: "EFS access points should enforce a root directory"
 Description: "This control checks if AWS EFS access points are configured to enforce a root directory. The control fails if the value of Path is set to / (the default root directory of the file system)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      access_point_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when root_directory ->> 'Path'= '/' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when root_directory ->> 'Path'= '/' then title || ' not configured to enforce a root directory.'
-        else title || ' configured to enforce a root directory.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_efs_access_point;
+  QueryToExecute: "select\n  access_point_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when root_directory ->> 'Path'= '/' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when root_directory ->> 'Path'= '/' then title || ' not configured to enforce a root directory.'\n    else title || ' configured to enforce a root directory.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_efs_access_point;\n"
   PrimaryTable: aws_efs_access_point
   ListOfTables:
-  - aws_efs_access_point
+    - aws_efs_access_point
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - secure_access_management
+    - secure_access_management
   foundational_security_item_id:
-  - efs_3
+    - efs_3
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EFS
+    - AWS/EFS
+Integration_Type_Name:
+  - aws_cloud

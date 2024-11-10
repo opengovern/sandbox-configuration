@@ -1,8 +1,6 @@
 ID: azure_application_insights_block_log_ingestion_and_querying_from_public
 Title: "Application Insights components should block log ingestion and querying from public networks"
 Description: "Improve Application Insights security by blocking log ingestion and querying from public networks. Only private-link connected networks will be able to ingest and query logs of this component. Learn more at https://aka.ms/AzMonPrivateLink#configure-application-insights."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -23,8 +21,10 @@ Query:
       left join azure_subscription sub on sub.subscription_id = a.subscription_id;
   PrimaryTable: azure_application_insight
   ListOfTables:
-  - azure_application_insight
-  - azure_subscription
+    - azure_application_insight
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

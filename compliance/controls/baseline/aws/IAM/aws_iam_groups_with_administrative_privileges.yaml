@@ -1,38 +1,22 @@
 ID: aws_iam_groups_with_administrative_privileges
 Title: "IAM Groups with Administrative Privileges"
 Description: "Ensure there are no IAM groups with administrative permissions available in your AWS cloud account."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AdministratorAccess%' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AdministratorAccess%' then name || ' iam group has AWS administrator-level permissions'
-        else name || ' iam group does not have AWS administrator-level permissions'
-      end as reason,
-      region, 
-      account_id
-    from
-      aws_iam_group
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AdministratorAccess%' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AdministratorAccess%' then name || ' iam group has AWS administrator-level permissions'\n    else name || ' iam group does not have AWS administrator-level permissions'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_group\n"
   PrimaryTable: aws_iam_group
   ListOfTables:
-  - aws_iam_group
+    - aws_iam_group
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+Integration_Type_Name:
+  - aws_cloud

@@ -1,32 +1,13 @@
 ID: azure_cis_v150_4_2_1
 Title: "4.2.1 Ensure that Microsoft Defender for SQL is set to 'On' for critical SQL Servers"
 Description: "Enable \\\"Azure Defender for SQL\\\" on critical SQL Servers."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when security -> 'properties' ->> 'state' = 'Disabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when security -> 'properties' ->> 'state' = 'Disabled' then s.name || ' Azure defender disabled.'
-        else s.name || ' Azure defender enabled.'
-      end as reason
-      
-      
-      
-    from
-      azure_sql_server s,
-      jsonb_array_elements(server_security_alert_policy) security,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when security -> 'properties' ->> 'state' = 'Disabled' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when security -> 'properties' ->> 'state' = 'Disabled' then s.name || ' Azure defender disabled.'\n    else s.name || ' Azure defender enabled.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_security_alert_policy) security,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

@@ -1,30 +1,14 @@
 ID: aws_foundational_security_ec2_9
 Title: "9 EC2 instances should not have a public IP address"
 Description: "This control checks whether EC2 instances have a public IP address. The control fails if the publicIp field is present in the EC2 instance configuration item. This control applies to IPv4 addresses only."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when public_ip_address is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when public_ip_address is null then instance_id || ' not publicly accessible.'
-        else instance_id || ' publicly accessible.'
-      end as reason
-      
-      
-    from
-      aws_ec2_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when public_ip_address is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when public_ip_address is null then instance_id || ' not publicly accessible.'\n    else instance_id || ' publicly accessible.'\n  end as reason\n  \n  \nfrom\n  aws_ec2_instance;"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: high
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

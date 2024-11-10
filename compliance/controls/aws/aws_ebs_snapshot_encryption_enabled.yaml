@@ -1,30 +1,14 @@
 ID: aws_ebs_snapshot_encryption_enabled
 Title: "EBS snapshots should be encrypted"
 Description: "Ensure that EBS snapshots are encrypted. This rule is non-compliant if the EBS snapshot is not encrypted."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted then title || ' encryption enabled.'
-        else title || ' encryption disabled.'
-      end as reason
-      
-      
-    from
-      aws_ebs_snapshot;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encrypted then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encrypted then title || ' encryption enabled.'\n    else title || ' encryption disabled.'\n  end as reason\n  \n  \nfrom\n  aws_ebs_snapshot;"
   PrimaryTable: aws_ebs_snapshot
   ListOfTables:
-  - aws_ebs_snapshot
+    - aws_ebs_snapshot
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

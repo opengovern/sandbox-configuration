@@ -1,8 +1,6 @@
 ID: aws_foundational_security_ecs_8
 Title: "8 Secrets should not be passed as container environment variables"
 Description: "This control checks if the key value of any variables in the environment parameter of container definitions includes AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control fails if a single environment variable in any container definition equals AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control does not cover environmental variables passed in from other locations such as Amazon S3."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -39,7 +37,9 @@ Query:
       left join definitions_with_secret_environment_variable as e on d.task_definition_arn = e.arn;
   PrimaryTable: aws_ecs_task_definition
   ListOfTables:
-  - aws_ecs_task_definition
+    - aws_ecs_task_definition
   Parameters: []
 Severity: high
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

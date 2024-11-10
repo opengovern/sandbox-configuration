@@ -1,64 +1,48 @@
 ID: aws_sns_topic_encrypted_at_rest
 Title: "SNS topics should be encrypted at rest"
 Description: "To help protect data at rest, ensure that your AWS Simple Notification Service (AWS SNS) topics require encryption using AWS Key Management Service (AWS KMS)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      topic_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when kms_master_key_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when kms_master_key_id is null then title || ' encryption at rest disabled.'
-        else title || ' encryption at rest enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_sns_topic;
+  QueryToExecute: "select\n  topic_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_master_key_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_master_key_id is null then title || ' encryption at rest disabled.'\n    else title || ' encryption at rest enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_sns_topic;\n"
   PrimaryTable: aws_sns_topic
   ListOfTables:
-  - aws_sns_topic
+    - aws_sns_topic
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/SNS
+    - AWS/SNS
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

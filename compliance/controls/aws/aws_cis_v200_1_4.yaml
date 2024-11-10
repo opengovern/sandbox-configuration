@@ -1,29 +1,14 @@
 ID: aws_cis_v200_1_4
 Title: "1.4 Ensure no 'root' user account access key exists"
 Description: "The 'root' user account is the most privileged user in an AWS account. AWS Access Keys provide programmatic access to a given AWS account. It is recommended that all access keys associated with the 'root' user account be deleted."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when account_access_keys_present > 0 then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when account_access_keys_present > 0 then 'Root user access keys exist.'
-        else 'No root user access keys exist.'
-      end reason
-      
-    from
-      aws_iam_account_summary;
+  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when account_access_keys_present > 0 then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when account_access_keys_present > 0 then 'Root user access keys exist.'\n    else 'No root user access keys exist.'\n  end reason\n  \nfrom\n  aws_iam_account_summary;"
   PrimaryTable: aws_iam_account_summary
   ListOfTables:
-  - aws_iam_account_summary
+    - aws_iam_account_summary
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

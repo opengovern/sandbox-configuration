@@ -1,66 +1,50 @@
 ID: aws_sagemaker_notebook_instance_encryption_at_rest_enabled
 Title: "SageMaker notebook instance encryption should be enabled"
 Description: "To help protect data at rest, ensure encryption with AWS Key Management Service (AWS KMS) is enabled for your SageMaker notebook."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when kms_key_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when kms_key_id is null then title || ' encryption at rest enabled'
-        else title || ' encryption at rest not enabled'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_sagemaker_notebook_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_key_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_key_id is null then title || ' encryption at rest enabled'\n    else title || ' encryption at rest not enabled'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_sagemaker_notebook_instance;\n"
   PrimaryTable: aws_sagemaker_notebook_instance
   ListOfTables:
-  - aws_sagemaker_notebook_instance
+    - aws_sagemaker_notebook_instance
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/SageMaker
+    - AWS/SageMaker
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

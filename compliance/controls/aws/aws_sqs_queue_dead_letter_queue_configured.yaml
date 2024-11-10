@@ -1,30 +1,14 @@
 ID: aws_sqs_queue_dead_letter_queue_configured
 Title: "SQS queues should be configured with a dead-letter queue."
 Description: "Ensure SQS queue is configured with a dead-letter queue. Dead-letter queues are useful for debugging your application or messaging system because they let you isolate problematic messages to determine why their processing didn't succeed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      queue_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when redrive_policy is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when redrive_policy is not null then title || ' configured with dead-letter queue.'
-        else title || ' not configured with dead-letter queue.'
-      end as reason
-      
-      
-    from
-      aws_sqs_queue;
+  QueryToExecute: "select\n  queue_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when redrive_policy is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when redrive_policy is not null then title || ' configured with dead-letter queue.'\n    else title || ' not configured with dead-letter queue.'\n  end as reason\n  \n  \nfrom\n  aws_sqs_queue;"
   PrimaryTable: aws_sqs_queue
   ListOfTables:
-  - aws_sqs_queue
+    - aws_sqs_queue
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

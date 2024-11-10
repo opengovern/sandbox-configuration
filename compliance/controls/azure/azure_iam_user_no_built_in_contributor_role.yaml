@@ -1,8 +1,6 @@
 ID: azure_iam_user_no_built_in_contributor_role
 Title: "IAM users should not have built in contributor role"
 Description: "Ensure that IAM user does not have built in contributor role. This rule is non-compliant if IAM user have built in contributor role."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -46,10 +44,12 @@ Query:
       azuread_user as u left join all_contributor_permission_users as c on c.user_principal_name = u.user_principal_name;
   PrimaryTable: azuread_user
   ListOfTables:
-  - azuread_user
-  - azure_role_assignment
-  - azure_role_definition
-  - azure_tenant
+    - azuread_user
+    - azure_role_assignment
+    - azure_role_definition
+    - azure_tenant
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

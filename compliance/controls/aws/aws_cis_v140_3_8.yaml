@@ -1,8 +1,6 @@
 ID: aws_cis_v140_3_8
 Title: "3.8 Ensure rotation for customer created CMKs is enabled"
 Description: "AWS Key Management Service (KMS) allows customers to rotate the backing key which is key material stored within the KMS which is tied to the key ID of the Customer Created customer master key (CMK). It is the backing key that is used to perform cryptographic operations such as encryption and decryption. Automated key rotation currently retains all prior backing keys so that decryption of encrypted data can take place transparently. It is recommended that CMK key rotation be enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -30,7 +28,9 @@ Query:
       key_manager = 'CUSTOMER';
   PrimaryTable: aws_kms_key
   ListOfTables:
-  - aws_kms_key
+    - aws_kms_key
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

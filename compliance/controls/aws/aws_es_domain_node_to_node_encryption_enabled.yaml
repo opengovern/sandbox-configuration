@@ -1,68 +1,50 @@
 ID: aws_es_domain_node_to_node_encryption_enabled
 Title: "Elasticsearch domain node-to-node encryption should be enabled"
 Description: "Ensure node-to-node encryption for AWS Elasticsearch Service is enabled. Node-to-node encryption enables TLS 1.2 encryption for all communications within the AWS Virtual Private Cloud (AWS VPC)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then 'skip'
-        when not enabled then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then title || ' node-to-node encryption not supported in ' || region || '.'
-        when not enabled then title || ' node-to-node encryption disabled.'
-        else title || ' node-to-node encryption enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_elasticsearch_domain;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then 'skip'\n    when not enabled then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then title || ' node-to-node encryption not supported in ' || region || '.'\n    when not enabled then title || ' node-to-node encryption disabled.'\n    else title || ' node-to-node encryption enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticsearch_domain;\n"
   PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
-  - aws_elasticsearch_domain
+    - aws_elasticsearch_domain
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/ES
+    - AWS/ES
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

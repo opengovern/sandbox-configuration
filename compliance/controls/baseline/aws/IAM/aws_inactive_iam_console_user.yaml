@@ -1,46 +1,23 @@
 ID: aws_inactive_iam_console_user
 Title: "Inactive IAM Console User"
 Description: "Ensure no AWS IAM users have been inactive for a long (specified) period of time."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      name as resource,
-      u.og_resource_id,
-      u.og_account_id,
-      CASE
-        WHEN (k.access_key_id is null and 
-          (password_last_used is null or
-          password_last_used::timestamp < now() - '90 days'::interval)
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (k.access_key_id is null and 
-          (password_last_used is null or
-          password_last_used::timestamp < now() - '90 days'::interval)
-        ) THEN 'certificate has been expired'
-        ELSE 'certificate is not expired'
-      END AS reason,
-      u.region,
-      u.account_id
-    FROM 
-      aws_iam_user AS u
-      LEFT JOIN aws_iam_access_key AS k ON u.name = k.user_name
+  QueryToExecute: "SELECT \n  name as resource,\n  u.og_resource_id,\n  u.og_account_id,\n  CASE\n    WHEN (k.access_key_id is null and \n      (password_last_used is null or\n      password_last_used::timestamp < now() - '90 days'::interval)\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN (k.access_key_id is null and \n      (password_last_used is null or\n      password_last_used::timestamp < now() - '90 days'::interval)\n    ) THEN 'certificate has been expired'\n    ELSE 'certificate is not expired'\n  END AS reason,\n  u.region,\n  u.account_id\nFROM \n  aws_iam_user AS u\n  LEFT JOIN aws_iam_access_key AS k ON u.name = k.user_name\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_access_key
-  - aws_iam_user
+    - aws_iam_access_key
+    - aws_iam_user
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+Integration_Type_Name:
+  - aws_cloud

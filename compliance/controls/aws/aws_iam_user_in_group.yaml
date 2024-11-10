@@ -1,60 +1,44 @@
 ID: aws_iam_user_in_group
 Title: "IAM users should be in at least one group"
 Description: "AWS Identity and Access Management (IAM) can help you restrict access permissions and authorizations, by ensuring IAM users are members of at least one group."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(groups) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when jsonb_array_length(groups) = 0 then title || ' not associated with any IAM group.'
-        else title || ' associated with IAM group.'
-      end as reason
-      
-      , account_id
-    from
-      aws_iam_user;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(groups) = 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when jsonb_array_length(groups) = 0 then title || ' not associated with any IAM group.'\n    else title || ' associated with IAM group.'\n  end as reason\n  \n  , account_id\nfrom\n  aws_iam_user;\n"
   PrimaryTable: aws_iam_user
   ListOfTables:
-  - aws_iam_user
+    - aws_iam_user
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/IAM
+    - AWS/IAM
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

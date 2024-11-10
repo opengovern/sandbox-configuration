@@ -1,50 +1,33 @@
 ID: azure_securitycenter_automatic_provisioning_monitoring_agent_on
 Title: "Auto provisioning of the Log Analytics agent should be enabled on your subscription"
 Description: "To monitor for security vulnerabilities and threats, Azure Security Center collects data from your Azure virtual machines. Data is collected by the Log Analytics agent, formerly known as the Microsoft Monitoring Agent (MMA), which reads various security-related configurations and event logs from the machine and copies the data to your Log Analytics workspace for analysis. We recommend enabling auto provisioning to automatically deploy the agent to all supported Azure VMs and any new ones that are created."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      sc_prov.id as resource,
-      sc_prov.og_account_id as og_account_id,
-      sc_prov.og_resource_id as og_resource_id,
-      case
-        when auto_provision = 'On' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when auto_provision = 'On' then 'Automatic provisioning of monitoring agent is on.'
-        else 'Automatic provisioning of monitoring agent is off.'
-      end as reason
-      
-      , sub.display_name as subscription
-    from
-      azure_security_center_auto_provisioning sc_prov
-      right join azure_subscription sub on sc_prov.subscription_id = sub.subscription_id;
+  QueryToExecute: "select\n  sc_prov.id as resource,\n  sc_prov.og_account_id as og_account_id,\n  sc_prov.og_resource_id as og_resource_id,\n  case\n    when auto_provision = 'On' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when auto_provision = 'On' then 'Automatic provisioning of monitoring agent is on.'\n    else 'Automatic provisioning of monitoring agent is off.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_auto_provisioning sc_prov\n  right join azure_subscription sub on sc_prov.subscription_id = sub.subscription_id;\n"
   PrimaryTable: azure_security_center_auto_provisioning
   ListOfTables:
-  - azure_security_center_auto_provisioning
-  - azure_subscription
+    - azure_security_center_auto_provisioning
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "2.11"
+    - "2.11"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "2"
+    - "2"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SecurityCenter
+    - Azure/SecurityCenter
+Integration_Type_Name:
+  - azure_subscription

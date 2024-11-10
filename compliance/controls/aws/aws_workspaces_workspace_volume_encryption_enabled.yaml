@@ -1,35 +1,14 @@
 ID: aws_workspaces_workspace_volume_encryption_enabled
 Title: "WorkSpaces root and user volume encryption should be enabled"
 Description: "To help protect data at rest, ensure encryption is enabled for your WorkSpaces root and user volumes."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when user_volume_encryption_enabled and root_volume_encryption_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when user_volume_encryption_enabled and root_volume_encryption_enabled then title || ' user and root volume encryption enabled.'
-        else
-          case
-            when not user_volume_encryption_enabled and not root_volume_encryption_enabled then title || ' user and root volume encryption disabled.'
-            when not root_volume_encryption_enabled then title || ' root volume encryption disabled.'
-            else  title || ' user volume encryption disabled.'
-          end
-      end as reason
-      
-      
-    from
-      aws_workspaces_workspace;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when user_volume_encryption_enabled and root_volume_encryption_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when user_volume_encryption_enabled and root_volume_encryption_enabled then title || ' user and root volume encryption enabled.'\n    else\n      case\n        when not user_volume_encryption_enabled and not root_volume_encryption_enabled then title || ' user and root volume encryption disabled.'\n        when not root_volume_encryption_enabled then title || ' root volume encryption disabled.'\n        else  title || ' user volume encryption disabled.'\n      end\n  end as reason\n  \n  \nfrom\n  aws_workspaces_workspace;"
   PrimaryTable: aws_workspaces_workspace
   ListOfTables:
-  - aws_workspaces_workspace
+    - aws_workspaces_workspace
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

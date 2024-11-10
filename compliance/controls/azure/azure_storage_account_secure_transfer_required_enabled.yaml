@@ -1,53 +1,33 @@
 ID: azure_storage_account_secure_transfer_required_enabled
 Title: "Secure transfer to storage accounts should be enabled"
 Description: "Audit requirement of Secure transfer in your storage account. Secure transfer is an option that forces your storage account to accept requests only from secure connections (HTTPS). Use of HTTPS ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      sa.id as resource,
-      sa.og_account_id as og_account_id,
-      sa.og_resource_id as og_resource_id,
-      case
-        when not enable_https_traffic_only then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not enable_https_traffic_only then sa.name || ' encryption in transit not enabled.'
-        else sa.name || ' encryption in transit enabled.'
-      end as reason
-      
-      , sa.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_storage_account sa,
-      azure_subscription sub
-    where
-      sub.subscription_id = sa.subscription_id;
+  QueryToExecute: "select\n  sa.id as resource,\n  sa.og_account_id as og_account_id,\n  sa.og_resource_id as og_resource_id,\n  case\n    when not enable_https_traffic_only then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not enable_https_traffic_only then sa.name || ' encryption in transit not enabled.'\n    else sa.name || ' encryption in transit enabled.'\n  end as reason\n  \n  , sa.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
   PrimaryTable: azure_storage_account
   ListOfTables:
-  - azure_storage_account
-  - azure_subscription
+    - azure_storage_account
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "3.1"
+    - "3.1"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "3"
+    - "3"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/Storage
+    - Azure/Storage
+Integration_Type_Name:
+  - azure_subscription

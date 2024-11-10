@@ -1,8 +1,6 @@
 ID: aws_enable_support_for_grpc_protocol
 Title: "Enable Support for gRPC Protocol"
 Description: "Ensure that support for gRPC protocol is enabled for Application Load Balancers (ALBs)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -25,12 +23,14 @@ Query:
       left join aws_ec2_target_group as tg on tg.load_balancer_arns::text like '%' || a.arn || '%'
   PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
-  - aws_ec2_application_load_balancer
-  - aws_ec2_target_group
+    - aws_ec2_application_load_balancer
+    - aws_ec2_target_group
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
   score_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
+Integration_Type_Name:
+  - aws_cloud

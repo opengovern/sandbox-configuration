@@ -1,32 +1,13 @@
 ID: azure_cis_v130_4_5
 Title: "4.5 Ensure SQL server's TDE protector is encrypted with Customer-managed key"
 Description: "Based on business needs or criticality of data/databases hosted a SQL server, it is recommended that the TDE protector is encrypted by a key that is managed by the data owner (Customer-managed key)"
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when encryption ->> 'kind' = 'servicemanaged' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when encryption ->> 'kind' = 'servicemanaged' then s.name || ' TDE protector not encrypted with CMK.'
-        else s.name || ' TDE protector encrypted with CMK.'
-      end as reason
-      
-      
-      
-    from
-      azure_sql_server s,
-      jsonb_array_elements(encryption_protector) encryption,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when encryption ->> 'kind' = 'servicemanaged' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when encryption ->> 'kind' = 'servicemanaged' then s.name || ' TDE protector not encrypted with CMK.'\n    else s.name || ' TDE protector encrypted with CMK.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(encryption_protector) encryption,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

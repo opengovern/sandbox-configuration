@@ -1,44 +1,26 @@
 ID: aws_opensearch_domain_node_to_node_encryption_enabled
 Title: "OpenSearch domains node-to-node encryption should be enabled"
 Description: "This control checks if AWS OpenSearch Service nodes are encrypted end to end. The rule is non-compliant if the node-to-node encryption is not enabled on the domain."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then 'skip'
-        when node_to_node_encryption_options_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then title || ' node-to-node encryption not supported in ' || region || '.'
-        when node_to_node_encryption_options_enabled then title || ' node-to-node encryption enabled.'
-        else title || ' node-to-node encryption disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_opensearch_domain;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then 'skip'\n    when node_to_node_encryption_options_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) then title || ' node-to-node encryption not supported in ' || region || '.'\n    when node_to_node_encryption_options_enabled then title || ' node-to-node encryption enabled.'\n    else title || ' node-to-node encryption disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - encryption_of_data_in_transit
+    - encryption_of_data_in_transit
   foundational_security_item_id:
-  - opensearch_3
+    - opensearch_3
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/OpenSearch
+    - AWS/OpenSearch
+Integration_Type_Name:
+  - aws_cloud

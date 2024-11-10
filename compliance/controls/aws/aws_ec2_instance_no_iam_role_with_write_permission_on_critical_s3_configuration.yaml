@@ -1,8 +1,6 @@
 ID: aws_ec2_instance_no_iam_role_with_write_permission_on_critical_s3_configuration
 Title: "EC2 instance IAM role should not allow write permission on critical s3 configuration"
 Description: "This control ensures that EC2 instance IAM roles do not allow write permission on critical s3 configuration."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -72,9 +70,11 @@ Query:
       left join iam_role_with_permission as p on p.arn = r.role_arn;
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
-  - iam_roles
-  - iam_role_with_permission
+    - aws_ec2_instance
+    - iam_roles
+    - iam_role_with_permission
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

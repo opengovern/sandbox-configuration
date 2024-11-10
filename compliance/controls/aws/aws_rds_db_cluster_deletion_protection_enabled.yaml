@@ -1,42 +1,26 @@
 ID: aws_rds_db_cluster_deletion_protection_enabled
 Title: "RDS clusters should have deletion protection enabled"
 Description: "This control checks whether RDS clusters have deletion protection enabled. This control is intended for RDS DB instances. However, it can also generate findings for Aurora DB instances, Neptune DB instances, and AWS DocumentDB clusters. If these findings are not useful,then you can suppress them."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when deletion_protection then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when deletion_protection then title || ' deletion protection enabled.'
-        else title || ' deletion protection not enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_rds_db_cluster;
+  QueryToExecute: "select\n  db_cluster_identifier as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when deletion_protection then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when deletion_protection then title || ' deletion protection enabled.'\n    else title || ' deletion protection not enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_cluster;\n"
   PrimaryTable: aws_rds_db_cluster
   ListOfTables:
-  - aws_rds_db_cluster
+    - aws_rds_db_cluster
   Parameters: []
 Severity: low
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - data_deletion_protection
+    - data_deletion_protection
   foundational_security_item_id:
-  - rds_7
+    - rds_7
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/RDS
+    - AWS/RDS
+Integration_Type_Name:
+  - aws_cloud

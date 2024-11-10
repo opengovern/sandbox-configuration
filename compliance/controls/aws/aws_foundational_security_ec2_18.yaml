@@ -1,8 +1,6 @@
 ID: aws_foundational_security_ec2_18
 Title: "18 Security groups should only allow unrestricted incoming traffic for authorized ports"
 Description: "This control checks whether the security groups that are in use allow unrestricted incoming traffic. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. The default values for authorizedTcpPorts are 80 and 443."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -36,8 +34,10 @@ Query:
       left join ingress_unauthorized_ports on ingress_unauthorized_ports.group_id = sg.group_id;
   PrimaryTable: aws_vpc_security_group
   ListOfTables:
-  - aws_vpc_security_group_rule
-  - aws_vpc_security_group
+    - aws_vpc_security_group_rule
+    - aws_vpc_security_group
   Parameters: []
 Severity: high
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

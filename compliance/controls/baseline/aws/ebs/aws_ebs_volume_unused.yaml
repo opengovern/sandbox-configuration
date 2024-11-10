@@ -1,42 +1,22 @@
 ID: aws_ebs_volume_unused
 Title: "Unused EBS Volumes"
 Description: "Identify any unused Elastic Block Store volumes to improve cost optimization and security."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when state = 'in-use' then 0
-        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.og_resource_id limit 1)
-      end as cost_optimization,
-      case
-        when state = 'in-use' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when state = 'in-use' then title || ' attached to EC2 instance.'
-        else title || ' not attached to EC2 instance.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ebs_volume v
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when state = 'in-use' then 0\n    else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.og_resource_id limit 1)\n  end as cost_optimization,\n  case\n    when state = 'in-use' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when state = 'in-use' then title || ' attached to EC2 instance.'\n    else title || ' not attached to EC2 instance.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_volume v\n"
   PrimaryTable: aws_ebs_volume
   ListOfTables:
-  - aws_ebs_volume
+    - aws_ebs_volume
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   platform_score_use_case:
-  - Optimization
+    - Optimization
   score_service_name:
-  - AWS Elastic Block Store (EBS)
+    - AWS Elastic Block Store (EBS)
   score_tags:
-  - Optimization
+    - Optimization
+Integration_Type_Name:
+  - aws_cloud

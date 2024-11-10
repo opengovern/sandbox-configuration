@@ -1,35 +1,13 @@
 ID: azure_iot_hub_private_link_used
 Title: "IoT Hub device provisioning service instances should use private link"
 Description: "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to the IoT Hub device provisioning service, data leakage risks are reduced."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.id as resource,
-      case
-        -- Only applicable to standard tier
-        when sku_tier = 'Basic' then 'skip'
-        when pec -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when sku_tier = 'Basic' then a.name || ' is of ' || sku_tier || ' tier.'
-        when pec -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved' then a.name || ' using private link.'
-        else a.name || ' not using private link.'
-      end as reason
-      
-      
-      
-    from
-      azure_iothub a,
-      jsonb_array_elements(private_endpoint_connections) as pec,
-      azure_subscription sub
-    where
-      sub.subscription_id = a.subscription_id;
+  QueryToExecute: "select\n  a.id as resource,\n  case\n    -- Only applicable to standard tier\n    when sku_tier = 'Basic' then 'skip'\n    when pec -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when sku_tier = 'Basic' then a.name || ' is of ' || sku_tier || ' tier.'\n    when pec -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved' then a.name || ' using private link.'\n    else a.name || ' not using private link.'\n  end as reason\n  \n  \n  \nfrom\n  azure_iothub a,\n  jsonb_array_elements(private_endpoint_connections) as pec,\n  azure_subscription sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

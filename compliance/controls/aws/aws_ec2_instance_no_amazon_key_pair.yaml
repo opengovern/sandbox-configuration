@@ -1,40 +1,22 @@
 ID: aws_ec2_instance_no_amazon_key_pair
 Title: "EC2 instances should not use key pairs in running state"
 Description: "This control checks whether running EC2 instances are using key pairs. The control fails if a running EC2 instance uses a key pair."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when instance_state <> 'running' then 'skip'
-        when key_name is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when instance_state <> 'running' then title || ' is in ' || instance_state || ' state.'
-        when key_name is null then title || ' not launched using amazon key pairs.'
-        else title || ' launched using amazon key pairs.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ec2_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when instance_state <> 'running' then 'skip'\n    when key_name is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when instance_state <> 'running' then title || ' is in ' || instance_state || ' state.'\n    when key_name is null then title || ' not launched using amazon key pairs.'\n    else title || ' launched using amazon key pairs.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_instance;\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EC2
+    - AWS/EC2
+Integration_Type_Name:
+  - aws_cloud

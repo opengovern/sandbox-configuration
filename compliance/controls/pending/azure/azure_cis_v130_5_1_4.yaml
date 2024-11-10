@@ -1,35 +1,13 @@
 ID: azure_cis_v130_5_1_4
 Title: "5.1.4 Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)"
 Description: "The storage account with the activity log export container is configured to use BYOK (Use Your Own Key)."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.id as resource,
-      case
-        when a.encryption_key_source = 'Microsoft.Keyvault' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when a.encryption_key_source = 'Microsoft.Keyvault'
-          then a.name || ' container insights-operational-logs encrypted with BYOK.'
-        else a.name || ' container insights-operational-logs not encrypted with BYOK.'
-      end as reason
-      
-      
-      
-    from
-      azure_storage_container c,
-      azure_storage_account a,
-      azure_subscription sub
-    where
-      c.name = 'insights-operational-logs'
-      and c.account_name = a.name
-      and sub.subscription_id = a.subscription_id;
+  QueryToExecute: "select\n  a.id as resource,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault'\n      then a.name || ' container insights-operational-logs encrypted with BYOK.'\n    else a.name || ' container insights-operational-logs not encrypted with BYOK.'\n  end as reason\n  \n  \n  \nfrom\n  azure_storage_container c,\n  azure_storage_account a,\n  azure_subscription sub\nwhere\n  c.name = 'insights-operational-logs'\n  and c.account_name = a.name\n  and sub.subscription_id = a.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

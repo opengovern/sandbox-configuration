@@ -1,30 +1,14 @@
 ID: aws_kinesis_stream_encrypted_with_kms_cmk
 Title: "Kinesis streams should be encrypted with CMK"
 Description: "Ensure Kinesis streams are encrypted using CMK. Using KMS CMK, you gain full control over who can use the keys to access AWS Kinesis data (including the system metadata)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      stream_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then title || ' encrypted with CMK.'
-        else title || ' not encrypted with CMK.'
-      end as reason
-      
-      
-    from
-      aws_kinesis_stream;
+  QueryToExecute: "select\n  stream_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encryption_type = 'KMS' and key_id <> 'alias/aws/kinesis' then title || ' encrypted with CMK.'\n    else title || ' not encrypted with CMK.'\n  end as reason\n  \n  \nfrom\n  aws_kinesis_stream;"
   PrimaryTable: aws_kinesis_stream
   ListOfTables:
-  - aws_kinesis_stream
+    - aws_kinesis_stream
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

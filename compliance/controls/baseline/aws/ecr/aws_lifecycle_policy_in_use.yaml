@@ -1,8 +1,6 @@
 ID: aws_lifecycle_policy_in_use
 Title: "Lifecycle Policy in Use"
 Description: "Ensure that each Amazon ECR container image is automatically scanned for vulnerabilities when pushed to a repository."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -18,7 +16,7 @@ Query:
           and (r -> 'selection' ->> 'countType' = 'sinceImagePushed')
         )
     )
-    
+
     select
       r.repository_name as resource,
       og_resource_id,
@@ -38,11 +36,13 @@ Query:
       left join repo_with_policy as p on r.repository_name = p.repository_name
   PrimaryTable: aws_ecr_repository
   ListOfTables:
-  - aws_ecr_repository
+    - aws_ecr_repository
   Parameters: []
 Severity: low
 Tags:
   platform_score_cloud_service_name:
-  - Elastic Container Registry (ECR)
+    - Elastic Container Registry (ECR)
   score_service_name:
-  - Elastic Container Registry (ECR)
+    - Elastic Container Registry (ECR)
+Integration_Type_Name:
+  - aws_cloud

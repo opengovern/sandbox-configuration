@@ -1,44 +1,28 @@
 ID: aws_codebuild_project_logging_enabled
 Title: "CodeBuild projects should have logging enabled"
 Description: "This control checks if an AWS CodeBuild project environment has at least one log option enabled. The rule is non-compliant if the status of all present log configurations is set to 'DISABLED'."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then title || ' logging enabled.'
-        else title || ' logging disabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_codebuild_project;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then title || ' logging enabled.'\n    else title || ' logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_codebuild_project;\n"
   PrimaryTable: aws_codebuild_project
   ListOfTables:
-  - aws_codebuild_project
+    - aws_codebuild_project
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CodeBuild
+    - AWS/CodeBuild
+Integration_Type_Name:
+  - aws_cloud

@@ -1,8 +1,6 @@
 ID: aws_neptune_db_cluster_no_public_subnet
 Title: "Neptune DB clusters should not use public_subnet"
 Description: "This control checks if Neptune DB clusters are configured with public subnet as there is a risk of exposing sensitive data."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -85,10 +83,12 @@ Query:
       left join cluster_public_subnet as s on s.subnet_group_name = c.db_subnet_group;
   PrimaryTable: aws_neptune_db_cluster
   ListOfTables:
-  - aws_vpc_route_table
-  - aws_vpc_subnet
-  - aws_rds_db_subnet_group
-  - aws_neptune_db_cluster
+    - aws_vpc_route_table
+    - aws_vpc_subnet
+    - aws_rds_db_subnet_group
+    - aws_neptune_db_cluster
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

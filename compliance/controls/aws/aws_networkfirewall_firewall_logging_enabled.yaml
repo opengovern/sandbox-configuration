@@ -1,30 +1,14 @@
 ID: aws_networkfirewall_firewall_logging_enabled
 Title: "Network Firewall logging should be enabled"
 Description: "This control checks whether logging is enabled for an AWS Network Firewall firewall. The control fails if logging isn't enabled for at least one log type or if the logging destination doesn't exist."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(logging_configuration) > 0 then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when jsonb_array_length(logging_configuration) > 0 then title || ' logging enabled.'
-        else title || ' logging disabled.'
-      end reason
-      
-      
-    from
-      aws_networkfirewall_firewall;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(logging_configuration) > 0 then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(logging_configuration) > 0 then title || ' logging enabled.'\n    else title || ' logging disabled.'\n  end reason\n  \n  \nfrom\n  aws_networkfirewall_firewall;"
   PrimaryTable: aws_networkfirewall_firewall
   ListOfTables:
-  - aws_networkfirewall_firewall
+    - aws_networkfirewall_firewall
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,54 +1,33 @@
 ID: azure_sql_server_auditing_on
 Title: "Auditing on SQL server should be enabled"
 Description: "Auditing on your SQL Server should be enabled to track database activities across all databases on the server and save them in an audit log."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when audit -> 'properties' ->> 'state' = 'Disabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when audit -> 'properties' ->> 'state' = 'Disabled' then name || ' auditing disabled.'
-        else name || ' auditing enabled.'
-      end as reason
-      
-      , s.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_sql_server s,
-      jsonb_array_elements(server_audit_policy) audit,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when audit -> 'properties' ->> 'state' = 'Disabled' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when audit -> 'properties' ->> 'state' = 'Disabled' then name || ' auditing disabled.'\n    else name || ' auditing enabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_audit_policy) audit,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: azure_sql_server
   ListOfTables:
-  - azure_sql_server
-  - azure_subscription
+    - azure_sql_server
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 4.1.1
+    - 4.1.1
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "4.1"
+    - "4.1"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SQL
+    - Azure/SQL
+Integration_Type_Name:
+  - azure_subscription

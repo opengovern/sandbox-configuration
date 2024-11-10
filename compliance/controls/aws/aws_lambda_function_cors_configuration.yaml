@@ -1,32 +1,14 @@
 ID: aws_lambda_function_cors_configuration
 Title: "Lambda functions CORS configuration should not allow all origins"
 Description: "Enable this rule to ensure that the CORS configuration for your Lambda functions does not allow all origins."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when url_config is null then 'info'
-        when url_config -> 'Cors' ->> 'AllowOrigins' = '["*"]' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when url_config is null then title || ' does not has a URL config.'
-        when url_config -> 'Cors' ->> 'AllowOrigins' = '["*"]' then title || ' CORS configuration allows all origins.'
-        else title || ' CORS configuration does not allow all origins.'
-      end as reason
-      
-      
-    from
-      aws_lambda_function;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when url_config is null then 'info'\n    when url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when url_config is null then title || ' does not has a URL config.'\n    when url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' then title || ' CORS configuration allows all origins.'\n    else title || ' CORS configuration does not allow all origins.'\n  end as reason\n  \n  \nfrom\n  aws_lambda_function;"
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_lambda_function
+    - aws_lambda_function
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

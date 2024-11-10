@@ -1,8 +1,6 @@
 ID: aws_unused_gateway_load_balancers
 Title: "Unused Gateway Load Balancers"
 Description: "Identify unused Gateway Load Balancers, and delete them to help lower the cost of your monthly AWS bill."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -38,16 +36,18 @@ Query:
       left join target_resource b on a.arn = b.load_balancer_arn;
   PrimaryTable: aws_ec2_gateway_load_balancer
   ListOfTables:
-  - aws_ec2_gateway_load_balancer
-  - aws_ec2_target_group
+    - aws_ec2_gateway_load_balancer
+    - aws_ec2_target_group
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
   platform_score_use_case:
-  - Orphaned Resources
+    - Orphaned Resources
   score_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
-  - Orphaned Resources
+    - Orphaned Resources
+Integration_Type_Name:
+  - aws_cloud

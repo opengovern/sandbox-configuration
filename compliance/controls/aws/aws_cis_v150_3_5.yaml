@@ -1,71 +1,15 @@
 ID: aws_cis_v150_3_5
 Title: "3.5 Ensure AWS Config is enabled in all regions"
 Description: "AWS Config is a web service that performs configuration management of supported AWS resources within your account and delivers log files to you. The recorded information includes the configuration item (AWS resource), relationships between configuration items (AWS resources), any configuration changes between resources. It is recommended AWS Config be enabled in all regions."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    -- pgFormatter-ignore
-    -- Get count for any region with all matching criteria
-    with global_recorders as (
-      select
-        count(*) as global_config_recorders
-      from
-        aws_config_configuration_recorder
-      where
-        recording_group -> 'IncludeGlobalResourceTypes' = 'true'
-        and recording_group -> 'AllSupported' = 'true'
-        and status ->> 'Recording' = 'true'
-        and status ->> 'LastStatus' = 'SUCCESS'
-    )
-    select
-      'arn:aws::' || a.region || ':' || a.account_id as resource,
-    a.og_account_id as og_account_id,
-    a.og_resource_id as og_resource_id,
-      case
-      -- When any of the region satisfies with above CTE
-      -- In left join of <aws_config_configuration_recorder> table, regions now having
-      -- 'Recording' and 'LastStatus' matching criteria can be considered as OK
-        when
-          g.global_config_recorders >= 1
-          and status ->> 'Recording' = 'true'
-          and status ->> 'LastStatus' = 'SUCCESS'
-        then 'ok'
-      -- Skip any regions that are disabled in the account.
-        when a.opt_in_status = 'not-opted-in' then 'skip'
-        else 'alarm'
-      end as status,
-      -- Below cases are for citing respective reasons for control state
-      case
-        when a.opt_in_status = 'not-opted-in' then a.region || ' region is disabled.'
-        else
-      case
-        when recording_group -> 'IncludeGlobalResourceTypes' = 'true' then a.region || ' IncludeGlobalResourceTypes enabled,'
-        else a.region || ' IncludeGlobalResourceTypes disabled,'
-      end ||
-      case
-        when recording_group -> 'AllSupported' = 'true' then ' AllSupported enabled,'
-        else ' AllSupported disabled,'
-      end ||
-      case
-        when status ->> 'Recording' = 'true' then ' Recording enabled'
-        else ' Recording disabled'
-      end ||
-      case
-        when status ->> 'LastStatus' = 'SUCCESS' then ' and LastStatus is SUCCESS.'
-        else ' and LastStatus is not SUCCESS.'
-      end
-      end as reason
-      
-    from
-      global_recorders as g,
-      aws_region as a
-      left join aws_config_configuration_recorder as r on r.account_id = a.account_id and r.region = a.name;
+  QueryToExecute: "-- pgFormatter-ignore\n-- Get count for any region with all matching criteria\nwith global_recorders as (\n  select\n    count(*) as global_config_recorders\n  from\n    aws_config_configuration_recorder\n  where\n    recording_group -> 'IncludeGlobalResourceTypes' = 'true'\n    and recording_group -> 'AllSupported' = 'true'\n    and status ->> 'Recording' = 'true'\n    and status ->> 'LastStatus' = 'SUCCESS'\n)\nselect\n  'arn:aws::' || a.region || ':' || a.account_id as resource,\na.og_account_id as og_account_id,\na.og_resource_id as og_resource_id,\n  case\n  -- When any of the region satisfies with above CTE\n  -- In left join of <aws_config_configuration_recorder> table, regions now having\n  -- 'Recording' and 'LastStatus' matching criteria can be considered as OK\n    when\n      g.global_config_recorders >= 1\n      and status ->> 'Recording' = 'true'\n      and status ->> 'LastStatus' = 'SUCCESS'\n    then 'ok'\n  -- Skip any regions that are disabled in the account.\n    when a.opt_in_status = 'not-opted-in' then 'skip'\n    else 'alarm'\n  end as status,\n  -- Below cases are for citing respective reasons for control state\n  case\n    when a.opt_in_status = 'not-opted-in' then a.region || ' region is disabled.'\n    else\n  case\n    when recording_group -> 'IncludeGlobalResourceTypes' = 'true' then a.region || ' IncludeGlobalResourceTypes enabled,'\n    else a.region || ' IncludeGlobalResourceTypes disabled,'\n  end ||\n  case\n    when recording_group -> 'AllSupported' = 'true' then ' AllSupported enabled,'\n    else ' AllSupported disabled,'\n  end ||\n  case\n    when status ->> 'Recording' = 'true' then ' Recording enabled'\n    else ' Recording disabled'\n  end ||\n  case\n    when status ->> 'LastStatus' = 'SUCCESS' then ' and LastStatus is SUCCESS.'\n    else ' and LastStatus is not SUCCESS.'\n  end\n  end as reason\n  \nfrom\n  global_recorders as g,\n  aws_region as a\n  left join aws_config_configuration_recorder as r on r.account_id = a.account_id and r.region = a.name;"
   PrimaryTable: aws_config_configuration_recorder
   ListOfTables:
-  - aws_config_configuration_recorder
-  - aws_region
+    - aws_config_configuration_recorder
+    - aws_region
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

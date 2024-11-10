@@ -1,58 +1,42 @@
 ID: aws_vpc_subnet_auto_assign_public_ip_disabled
 Title: "VPC subnet auto assign public IP should be disabled"
 Description: "Ensure that AWS Virtual Private Cloud (AWS VPC) subnets are assigned a public IP address. The control is compliant if AWS VPC does not have subnets that are assigned a public IP address. The control is non-compliant if AWS VPC has subnets that are assigned a public IP address."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      subnet_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when map_public_ip_on_launch = 'false' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when map_public_ip_on_launch = 'false' then title || ' auto assign public IP disabled.'
-        else title || ' auto assign public IP enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_vpc_subnet;
+  QueryToExecute: "select\n  subnet_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when map_public_ip_on_launch = 'false' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when map_public_ip_on_launch = 'false' then title || ' auto assign public IP disabled.'\n    else title || ' auto assign public IP enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_vpc_subnet;\n"
   PrimaryTable: aws_vpc_subnet
   ListOfTables:
-  - aws_vpc_subnet
+    - aws_vpc_subnet
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/VPC
+    - AWS/VPC
+Integration_Type_Name:
+  - aws_cloud

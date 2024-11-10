@@ -1,8 +1,6 @@
 ID: aws_foundational_security_elasticache_6
 Title: "6 ElastiCache for Redis replication groups before version 6.0 should use Redis AUTH"
 Description: "This control checks if ElastiCache for Redis replication groups have Redis AUTH enabled. The control fails for an ElastiCache for Redis replication group if the Redis version of its nodes is below 6.0 and AuthToken isn't in use."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -32,8 +30,10 @@ Query:
       left join elasticache_cluster_node_version as v on eg.replication_group_id = v.replication_group_id;
   PrimaryTable: aws_elasticache_replication_group
   ListOfTables:
-  - aws_elasticache_cluster
-  - aws_elasticache_replication_group
+    - aws_elasticache_cluster
+    - aws_elasticache_replication_group
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

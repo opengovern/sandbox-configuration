@@ -1,8 +1,6 @@
 ID: aws_cis_v200_2_1_4
 Title: "2.1.4 Ensure that S3 Buckets are configured with 'Block public access (bucket settings)'"
 Description: "Amazon S3 provides Block public access (bucket settings) and Block public access (account settings) to help you manage public access to Amazon S3 resources. By default, S3 buckets and objects are created with public access disabled. However, an IAM principle with sufficient S3 permissions can enable public access at the bucket and/or object level. While enabled, Block public access (bucket settings) prevents an individual bucket, and its contained objects, from becoming publicly accessible. Similarly, Block public access (account settings) prevents all buckets, and contained objects, from becoming publicly accessible across the entire account."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -39,8 +37,10 @@ Query:
       s3account.account_id = bucket.account_id;
   PrimaryTable: aws_s3_bucket
   ListOfTables:
-  - aws_s3_bucket
-  - aws_s3_account_settings
+    - aws_s3_bucket
+    - aws_s3_account_settings
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,52 +1,33 @@
 ID: azure_securitycenter_mcas_integration
 Title: "Ensure that Microsoft Defender for Cloud Apps (MCAS) Integration with Microsoft Defender for Cloud is selected"
 Description: "This setting enables Microsoft Defender for Cloud Apps (MCAS) integration with Microsoft Defender for Cloud."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      sc_sett.id as resource,
-      sc_sett.og_account_id as og_account_id,
-      sc_sett.og_resource_id as og_resource_id,
-      case
-        when enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enabled then 'Windows Defender ATP (WDATP) integrated with Security Center.'
-        else 'Windows Defender ATP (WDATP) not integrated with Security Center.'
-      end as reason
-      
-      , sub.display_name as subscription
-    from
-      azure_security_center_setting sc_sett
-      right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id
-    where
-      name = 'MCAS';
+  QueryToExecute: "select\n  sc_sett.id as resource,\n  sc_sett.og_account_id as og_account_id,\n  sc_sett.og_resource_id as og_resource_id,\n  case\n    when enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enabled then 'Windows Defender ATP (WDATP) integrated with Security Center.'\n    else 'Windows Defender ATP (WDATP) not integrated with Security Center.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_setting sc_sett\n  right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id\nwhere\n  name = 'MCAS';\n"
   PrimaryTable: azure_security_center_setting
   ListOfTables:
-  - azure_security_center_setting
-  - azure_subscription
+    - azure_security_center_setting
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "2.10"
+    - "2.10"
   cis_level:
-  - "2"
+    - "2"
   cis_section_id:
-  - "2"
+    - "2"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SecurityCenter
+    - Azure/SecurityCenter
+Integration_Type_Name:
+  - azure_subscription

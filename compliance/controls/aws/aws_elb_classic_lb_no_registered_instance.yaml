@@ -1,27 +1,14 @@
 ID: aws_elb_classic_lb_no_registered_instance
 Title: "ELB classic load balancers should have at least one registered instance"
 Description: "This control checks whether an ELB classic load balancer has registered instances. The control fails if an ELB classic load balancer has zero instances registered."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(instances) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      title || ' has ' || jsonb_array_length(instances) || ' instance(s) registered.' as reason
-      
-      
-    from
-      aws_ec2_classic_load_balancer;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(instances) = 0 then 'alarm'\n    else 'ok'\n  end as status,\n  title || ' has ' || jsonb_array_length(instances) || ' instance(s) registered.' as reason\n  \n  \nfrom\n  aws_ec2_classic_load_balancer;"
   PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
-  - aws_ec2_classic_load_balancer
+    - aws_ec2_classic_load_balancer
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,48 +1,16 @@
 ID: azure_cis_v140_8_4
 Title: "8.4 Ensure that the Expiration Date is set for all Secrets in Non-RBAC Key Vaults"
 Description: "Ensure that all Secrets in Non Role Based Access Control (RBAC) Azure Key Vaults have an expiration time set."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with non_rbac_vault as (
-      select
-        name
-      from
-        azure_key_vault
-      where not enable_rbac_authorization
-    )
-    select
-      kvs.id as resource,
-      kvs.og_account_id as og_account_id,
-      kvs.og_resource_id as og_resource_id,
-      case
-        when v.name is null then 'skip'
-        when enabled and expires_at is null then 'alarm'
-        else 'ok'
-      end as status,
-      vault_name || ' key ' || kvs.name ||
-      case
-        when v.name is null then ' RBAC enabled vault.'
-        when enabled and expires_at is null then ' expiration date not set.'
-        when not enabled then ' disabled.'
-        else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'
-      end as reason
-      
-      
-      
-    from
-      azure_key_vault_secret kvs
-      left join non_rbac_vault as v on v.name = kvs.vault_name,
-      azure_subscription sub
-    where
-      sub.subscription_id = kvs.subscription_id;
+  QueryToExecute: "with non_rbac_vault as (\n  select\n    name\n  from\n    azure_key_vault\n  where not enable_rbac_authorization\n)\nselect\n  kvs.id as resource,\n  kvs.og_account_id as og_account_id,\n  kvs.og_resource_id as og_resource_id,\n  case\n    when v.name is null then 'skip'\n    when enabled and expires_at is null then 'alarm'\n    else 'ok'\n  end as status,\n  vault_name || ' key ' || kvs.name ||\n  case\n    when v.name is null then ' RBAC enabled vault.'\n    when enabled and expires_at is null then ' expiration date not set.'\n    when not enabled then ' disabled.'\n    else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'\n  end as reason\n  \n  \n  \nfrom\n  azure_key_vault_secret kvs\n  left join non_rbac_vault as v on v.name = kvs.vault_name,\n  azure_subscription sub\nwhere\n  sub.subscription_id = kvs.subscription_id;\n"
   PrimaryTable: azure_key_vault_secret
   ListOfTables:
-  - azure_key_vault
-  - azure_key_vault_secret
-  - azure_subscription
+    - azure_key_vault
+    - azure_key_vault_secret
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

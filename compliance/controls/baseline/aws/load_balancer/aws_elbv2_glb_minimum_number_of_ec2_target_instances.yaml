@@ -1,49 +1,23 @@
 ID: aws_elbv2_glb_minimum_number_of_ec2_target_instances
 Title: "ELBv2 GLB Minimum Number of EC2 Target Instances"
 Description: "Ensure there is a minimum number of two healthy target instances associated with each AWS ELBv2 gateway load balancer."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with target_resource as (
-    select 
-      load_balancer_arn,
-      count(*) as c 
-    from 
-      aws_ec2_target_group, 
-      jsonb_array_elements_text(load_balancer_arns) as load_balancer_arn 
-    group by load_balancer_arn
-    )
-    select
-      a.arn as resource,
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when b.load_balancer_arn is null or b.c < 2 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when b.load_balancer_arn is null or b.c < 2 then a.title || ' is not using a fault-tolerant configuration.'
-        else a.title || ' is using a fault-tolerant configuration.'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_gateway_load_balancer a
-      left join target_resource b on a.arn = b.load_balancer_arn;
+  QueryToExecute: "with target_resource as (\nselect \n  load_balancer_arn,\n  count(*) as c \nfrom \n  aws_ec2_target_group, \n  jsonb_array_elements_text(load_balancer_arns) as load_balancer_arn \ngroup by load_balancer_arn\n)\nselect\n  a.arn as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when b.load_balancer_arn is null or b.c < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when b.load_balancer_arn is null or b.c < 2 then a.title || ' is not using a fault-tolerant configuration.'\n    else a.title || ' is using a fault-tolerant configuration.'\n  end as reason,\n  a.region,\n  a.account_id\nfrom\n  aws_ec2_gateway_load_balancer a\n  left join target_resource b on a.arn = b.load_balancer_arn;\n"
   PrimaryTable: aws_ec2_gateway_load_balancer
   ListOfTables:
-  - aws_ec2_gateway_load_balancer
-  - aws_ec2_target_group
+    - aws_ec2_gateway_load_balancer
+    - aws_ec2_target_group
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
   platform_score_use_case:
-  - Lacking High Availability
+    - Lacking High Availability
   score_service_name:
-  - AWS Elastic Load Balancing V2 (ELBv2)
+    - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
-  - Lacking High Availability
+    - Lacking High Availability
+Integration_Type_Name:
+  - aws_cloud

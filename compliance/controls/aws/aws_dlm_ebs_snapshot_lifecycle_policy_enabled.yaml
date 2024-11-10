@@ -1,8 +1,6 @@
 ID: aws_dlm_ebs_snapshot_lifecycle_policy_enabled
 Title: "DLM EBS snapshot lifecycle policy should be enabled"
 Description: "Ensure DLM EBS snapshot lifecycle policy is enabled in all the regions with EBS snapshots."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -46,8 +44,10 @@ Query:
           left join dlm_ebs_lifecycle_policy as p on p.region = r.region and r.account_id = p.account_id;
   PrimaryTable: aws_dlm_lifecycle_policy
   ListOfTables:
-  - aws_ebs_snapshot
-  - aws_dlm_lifecycle_policy
+    - aws_ebs_snapshot
+    - aws_dlm_lifecycle_policy
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,8 +1,6 @@
 ID: aws_elb_classic_lb_with_inbound_rule
 Title: "ELB classic load balancers should have at least one inbound rule"
 Description: "Ensure classic load balancer have at least one inbound rule in all the attached security groups."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -46,8 +44,10 @@ Query:
       left join classic_lb_without_inbound as i on c.arn = i.arn;
   PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
-  - aws_ec2_classic_load_balancer
-  - aws_vpc_security_group_rule
+    - aws_ec2_classic_load_balancer
+    - aws_vpc_security_group_rule
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,8 +1,6 @@
 ID: aws_ecs_task_definition_no_root_user
 Title: "ECS task definitions should not use root user."
 Description: "This control checks if ECS task definitions have root user. This control fails if the ECS task definitions have root user."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -32,7 +30,9 @@ Query:
       left join root_user_task_definition as b on a.task_definition_arn = b.arn;
   PrimaryTable: aws_ecs_task_definition
   ListOfTables:
-  - aws_ecs_task_definition
+    - aws_ecs_task_definition
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

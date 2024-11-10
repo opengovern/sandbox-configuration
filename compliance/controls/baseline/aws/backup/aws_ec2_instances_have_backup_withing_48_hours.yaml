@@ -1,56 +1,23 @@
 ID: aws_ec2_instances_have_backup_withing_48_hours
 Title: "Stateful EC2 Instances have operational backup within 48 hours."
 Description: "Verify that EC2 Instances, excluding shutdowns, spot VMs, and those under 24 hrs old, have at least one restore point in the past 48 hrs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    WITH all_backup AS (
-      SELECT recovery_point_arn, resource_arn, creation_date
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '48 hours'::interval 
-      and resource_type = 'EC2' and status = 'COMPLETED'),
-      points AS (
-      SELECT recovery_point_arn, resource_arn
-      FROM aws_backup_recovery_point 
-      WHERE now() - creation_date < '48 hours'::interval 
-      and resource_type = 'EC2' and status = 'COMPLETED')
-      select
-        v.arn as resource,
-        og_account_id as og_account_id,
-        og_resource_id as og_resource_id,
-        case
-          when p.recovery_point_arn is null then 'alarm'
-          else 'ok'
-        end as status,
-        case
-          when p.recovery_point_arn is null and a.recovery_point_arn is null then 'there is no backup for this resource'
-          when p.recovery_point_arn is null then 'last backup at ' || a.creation_date::text
-          else 'Last backup at ' || a.creation_date::text
-        end as reason
-        , region, account_id 
-        from 
-          aws_ec2_instance as v
-          left join points as p on v.arn = p.resource_arn
-          left join all_backup as a on v.arn = a.resource_arn
-          where
-          v.instance_lifecycle != 'spot'
-          and instance_state = 'running'
-          and state_transition_time <= (current_date - interval '24 hours'
-      )
+  QueryToExecute: "WITH all_backup AS (\n  SELECT recovery_point_arn, resource_arn, creation_date\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '48 hours'::interval \n  and resource_type = 'EC2' and status = 'COMPLETED'),\n  points AS (\n  SELECT recovery_point_arn, resource_arn\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '48 hours'::interval \n  and resource_type = 'EC2' and status = 'COMPLETED')\n  select\n    v.arn as resource,\n    og_account_id as og_account_id,\n    og_resource_id as og_resource_id,\n    case\n      when p.recovery_point_arn is null then 'alarm'\n      else 'ok'\n    end as status,\n    case\n      when p.recovery_point_arn is null and a.recovery_point_arn is null then 'there is no backup for this resource'\n      when p.recovery_point_arn is null then 'last backup at ' || a.creation_date::text\n      else 'Last backup at ' || a.creation_date::text\n    end as reason\n    , region, account_id \n    from \n      aws_ec2_instance as v\n      left join points as p on v.arn = p.resource_arn\n      left join all_backup as a on v.arn = a.resource_arn\n      where\n      v.instance_lifecycle != 'spot'\n      and instance_state = 'running'\n      and state_transition_time <= (current_date - interval '24 hours'\n  )\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_backup_recovery_point
-  - aws_ec2_instance
+    - aws_backup_recovery_point
+    - aws_ec2_instance
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Missing Backup
+    - Missing Backup
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Missing Backup
+    - Missing Backup
+Integration_Type_Name:
+  - aws_cloud

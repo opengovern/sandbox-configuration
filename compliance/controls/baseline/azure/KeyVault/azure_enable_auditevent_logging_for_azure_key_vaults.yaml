@@ -1,54 +1,23 @@
 ID: azure_enable_auditevent_logging_for_azure_key_vaults
 Title: "Enable AuditEvent Logging for Azure Key Vaults"
 Description: "Ensure that logging for Azure KeyVault is 'Enabled'"
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when exists(
-          select 1
-          from 
-            jsonb_array_elements(diagnostic_settings) as ds,
-            jsonb_array_elements(ds -> 'properties' -> 'logs') as l
-          where
-            (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when exists(
-          select 1
-          from 
-            jsonb_array_elements(diagnostic_settings) as ds,
-            jsonb_array_elements(ds -> 'properties' -> 'logs') as l
-          where
-            (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')
-        ) then 'subscription has an app-tier cmk'
-        else 'subscription does not have any app-tier cmk'
-      end as reason,
-      resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_key_vault as v
-      left join azure_subscription as sub on v.subscription_id = sub.subscription_id
+  QueryToExecute: "select\n  name as resource,\n  v.og_resource_id,\n  v.og_account_id,\n  case\n    when exists(\n      select 1\n      from \n        jsonb_array_elements(diagnostic_settings) as ds,\n        jsonb_array_elements(ds -> 'properties' -> 'logs') as l\n      where\n        (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')\n    ) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when exists(\n      select 1\n      from \n        jsonb_array_elements(diagnostic_settings) as ds,\n        jsonb_array_elements(ds -> 'properties' -> 'logs') as l\n      where\n        (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')\n    ) then 'subscription has an app-tier cmk'\n    else 'subscription does not have any app-tier cmk'\n  end as reason,\n  resource_group as resource_group,\n  sub.display_name as subscription\nfrom\n  azure_key_vault as v\n  left join azure_subscription as sub on v.subscription_id = sub.subscription_id\n"
   PrimaryTable: azure_key_vault
   ListOfTables:
-  - azure_key_vault
-  - azure_subscription
+    - azure_key_vault
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - Azure KeyVault
+    - Azure KeyVault
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - Azure KeyVault
+    - Azure KeyVault
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+Integration_Type_Name:
+  - azure_subscription

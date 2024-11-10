@@ -1,55 +1,33 @@
 ID: azure_mysql_server_min_tls_1_2
 Title: "Ensure 'TLS Version' is set to 'TLSV1.2' for MySQL flexible Database Server"
 Description: "Ensure TLS version on MySQL flexible servers is set to the default value."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when minimal_tls_version = 'TLSEnforcementDisabled' then 'alarm'
-        when minimal_tls_version = 'TLS1_2' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimal_tls_version = 'TLSEnforcementDisabled' then s.name || ' TLS enforcement is disabled.'
-        when minimal_tls_version = 'TLS1_2' then s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
-        else s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
-      end as reason
-      
-      , s.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_mysql_server as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when minimal_tls_version = 'TLSEnforcementDisabled' then 'alarm'\n    when minimal_tls_version = 'TLS1_2' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when minimal_tls_version = 'TLSEnforcementDisabled' then s.name || ' TLS enforcement is disabled.'\n    when minimal_tls_version = 'TLS1_2' then s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'\n    else s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_mysql_server as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: azure_mysql_server
   ListOfTables:
-  - azure_mysql_server
-  - azure_subscription
+    - azure_mysql_server
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 4.4.2
+    - 4.4.2
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "4.4"
+    - "4.4"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.4.0
+    - v1.4.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/MySQL
+    - Azure/MySQL
+Integration_Type_Name:
+  - azure_subscription

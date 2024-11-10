@@ -1,42 +1,22 @@
 ID: aws_iam_access_analyzer_findings
 Title: "IAM Access Analyzer Findings"
 Description: "Ensure that IAM Access Analyzer findings are reviewed and resolved to maintain access security to your AWS resources."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when exists (
-          select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists (
-          select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'
-        ) then 'There are unresolved findings in this analyzer'
-        else 'There is no unresolved findings in this analyzer'
-      end as reason,
-      a.region, 
-      a.account_id
-    from
-      aws_accessanalyzer_analyzer as a
+  QueryToExecute: "select\n  a.name as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'There are unresolved findings in this analyzer'\n    else 'There is no unresolved findings in this analyzer'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_accessanalyzer_analyzer as a\n"
   PrimaryTable: aws_accessanalyzer_analyzer
   ListOfTables:
-  - aws_accessanalyzer_analyzer
+    - aws_accessanalyzer_analyzer
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+Integration_Type_Name:
+  - aws_cloud

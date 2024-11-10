@@ -1,61 +1,44 @@
 ID: aws_ec2_stopped_instance_30_days
 Title: "EC2 stopped instances should be removed in 30 days"
 Description: "Enable this rule to help with the baseline configuration of AWS Elastic Compute Cloud (AWS EC2) instances by checking whether AWS EC2 instances have been stopped for more than the allowed number of days, according to your organization's standards."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when instance_state not in ('stopped', 'stopping') then 'skip'
-        when state_transition_time <= (current_date - interval '30' day) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when instance_state not in ('stopped', 'stopping') then title || ' is in ' || instance_state || ' state.'
-        else title || ' stopped since ' || to_char(state_transition_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - state_transition_time) || ' days).'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ec2_instance;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when instance_state not in ('stopped', 'stopping') then 'skip'\n    when state_transition_time <= (current_date - interval '30' day) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when instance_state not in ('stopped', 'stopping') then title || ' is in ' || instance_state || ' state.'\n    else title || ' stopped since ' || to_char(state_transition_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - state_transition_time) || ' days).'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_instance;\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EC2
+    - AWS/EC2
+Integration_Type_Name:
+  - aws_cloud

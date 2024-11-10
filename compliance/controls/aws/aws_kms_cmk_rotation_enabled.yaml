@@ -1,66 +1,42 @@
 ID: aws_kms_cmk_rotation_enabled
 Title: "KMS CMK rotation should be enabled"
 Description: "Enable key rotation to ensure that keys are rotated once they have reached the end of their crypto period."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when origin = 'EXTERNAL' then 'skip'
-        when key_state = 'PendingDeletion' then 'skip'
-        when key_state = 'Disabled' then 'skip'
-        when not key_rotation_enabled then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when origin = 'EXTERNAL' then title || ' has imported key material.'
-        when key_state = 'PendingDeletion' then title || ' is pending deletion.'
-        when key_state = 'Disabled' then title || ' is disabled.'
-        when not key_rotation_enabled then title || ' key rotation disabled.'
-        else title || ' key rotation enabled.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_kms_key
-    where
-      key_manager = 'CUSTOMER';
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when origin = 'EXTERNAL' then 'skip'\n    when key_state = 'PendingDeletion' then 'skip'\n    when key_state = 'Disabled' then 'skip'\n    when not key_rotation_enabled then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when origin = 'EXTERNAL' then title || ' has imported key material.'\n    when key_state = 'PendingDeletion' then title || ' is pending deletion.'\n    when key_state = 'Disabled' then title || ' is disabled.'\n    when not key_rotation_enabled then title || ' key rotation disabled.'\n    else title || ' key rotation enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_kms_key\nwhere\n  key_manager = 'CUSTOMER';\n"
   PrimaryTable: aws_kms_key
   ListOfTables:
-  - aws_kms_key
+    - aws_kms_key
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/KMS
+    - AWS/KMS
+Integration_Type_Name:
+  - aws_cloud

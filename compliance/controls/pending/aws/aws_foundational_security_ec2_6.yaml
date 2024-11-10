@@ -1,54 +1,13 @@
 ID: aws_foundational_security_ec2_6
 Title: "6 VPC flow logging should be enabled in all VPCs"
 Description: "This control checks whether Amazon VPC Flow Logs are found and enabled for VPCs. The traffic type is set to Reject. With the VPC Flow Logs feature, you can capture information about the IP address traffic going to and from network interfaces in your VPC. After you create a flow log, you can view and retrieve its data in CloudWatch Logs. To reduce cost, you can also send your flow logs to Amazon S3."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with vpcs as (
-      select
-        arn,
-        account_id,
-        region,
-        owner_id,
-        vpc_id,
-        tags,
-        _ctx
-      from
-        aws_vpc
-      order by
-        vpc_id
-    ),
-    flowlogs as (
-      select
-        resource_id,
-        account_id,
-        region
-      from
-        aws_vpc_flow_log
-      order by
-        resource_id
-    )
-    select
-      v.arn as resource,
-      case
-        when v.account_id <> v.owner_id then 'skip'
-        when f.resource_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when v.account_id <> v.owner_id then v.vpc_id || ' is a shared VPC.'
-        when f.resource_id is not null then v.vpc_id || ' flow logging enabled.'
-        else v.vpc_id || ' flow logging disabled.'
-      end as reason
-      
-      
-    from
-      vpcs as v
-      left join flowlogs as f on v.vpc_id = f.resource_id;
+  QueryToExecute: "with vpcs as (\n  select\n    arn,\n    account_id,\n    region,\n    owner_id,\n    vpc_id,\n    tags,\n    _ctx\n  from\n    aws_vpc\n  order by\n    vpc_id\n),\nflowlogs as (\n  select\n    resource_id,\n    account_id,\n    region\n  from\n    aws_vpc_flow_log\n  order by\n    resource_id\n)\nselect\n  v.arn as resource,\n  case\n    when v.account_id <> v.owner_id then 'skip'\n    when f.resource_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when v.account_id <> v.owner_id then v.vpc_id || ' is a shared VPC.'\n    when f.resource_id is not null then v.vpc_id || ' flow logging enabled.'\n    else v.vpc_id || ' flow logging disabled.'\n  end as reason\n  \n  \nfrom\n  vpcs as v\n  left join flowlogs as f on v.vpc_id = f.resource_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

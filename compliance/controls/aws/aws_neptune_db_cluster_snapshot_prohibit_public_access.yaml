@@ -1,30 +1,14 @@
 ID: aws_neptune_db_cluster_snapshot_prohibit_public_access
 Title: "Neptune DB cluster snapshots should not be public"
 Description: "This control checks whether a Neptune manual DB cluster snapshot is public. The control fails if a Neptune manual DB cluster snapshot is public."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_snapshot_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when cluster_snapshot -> 'AttributeValues' = '["all"]' then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when cluster_snapshot -> 'AttributeValues' = '["all"]' then title || ' publicly accessible.'
-        else title || ' not publicly accessible.'
-      end reason
-      
-    from
-      aws_neptune_db_cluster_snapshot,
-      jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot;
+  QueryToExecute: "select\n  db_cluster_snapshot_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end reason\n  \nfrom\n  aws_neptune_db_cluster_snapshot,\n  jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot;"
   PrimaryTable: aws_neptune_db_cluster_snapshot
   ListOfTables:
-  - aws_neptune_db_cluster_snapshot
+    - aws_neptune_db_cluster_snapshot
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

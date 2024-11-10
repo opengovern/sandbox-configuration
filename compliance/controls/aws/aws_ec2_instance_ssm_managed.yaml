@@ -1,70 +1,51 @@
 ID: aws_ec2_instance_ssm_managed
 Title: "EC2 instances should be managed by AWS Systems Manager"
 Description: "An inventory of the software platforms and applications within the organization is possible by managing AWS Elastic Compute Cloud (AWS EC2) instances with AWS Systems Manager."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when i.instance_state = 'stopped' then 'info'
-        when m.instance_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when i.instance_state = 'stopped' then i.title || ' is in stopped state.'
-        when m.instance_id is null then i.title || ' not managed by AWS SSM.'
-        else i.title || ' managed by AWS SSM.'
-      end as reason
-      
-      , i.region, i.account_id
-    from
-      aws_ec2_instance i
-      left join aws_ssm_managed_instance m on m.instance_id = i.instance_id;
+  QueryToExecute: "select\n  i.arn as resource,\n  i.og_account_id as og_account_id,\n  i.og_resource_id as og_resource_id,\n  case\n    when i.instance_state = 'stopped' then 'info'\n    when m.instance_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when i.instance_state = 'stopped' then i.title || ' is in stopped state.'\n    when m.instance_id is null then i.title || ' not managed by AWS SSM.'\n    else i.title || ' managed by AWS SSM.'\n  end as reason\n  \n  , i.region, i.account_id\nfrom\n  aws_ec2_instance i\n  left join aws_ssm_managed_instance m on m.instance_id = i.instance_id;\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
-  - aws_ssm_managed_instance
+    - aws_ec2_instance
+    - aws_ssm_managed_instance
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/SSM
+    - AWS/SSM
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

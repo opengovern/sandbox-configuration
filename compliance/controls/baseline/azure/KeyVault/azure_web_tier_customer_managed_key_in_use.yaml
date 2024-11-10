@@ -1,8 +1,6 @@
 ID: azure_web_tier_customer_managed_key_in_use
 Title: "Web Tier Customer-Managed Key In Use"
 Description: "Ensure that a Customer-Managed Key is created for your Microsoft Azure cloud web tier."
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
@@ -17,7 +15,7 @@ Query:
               FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
             ), '{', ''), '}', '') || '%'
     )
-    
+
     select
       sub.display_name as resource,
       sub.og_resource_id,
@@ -36,18 +34,20 @@ Query:
       left join web_tier_keys as wtk on sub.subscription_id = wtk.subscription_id
   PrimaryTable: azure_subscription
   ListOfTables:
-  - azure_key_vault_key
-  - azure_subscription
+    - azure_key_vault_key
+    - azure_subscription
   Parameters:
     - Key: azureWebTierTags
       Required: true
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - Azure KeyVault
+    - Azure KeyVault
   platform_score_use_case:
-  - Insecure Keys
+    - Insecure Keys
   score_service_name:
-  - Azure KeyVault
+    - Azure KeyVault
   score_tags:
-  - Insecure Keys
+    - Insecure Keys
+Integration_Type_Name:
+  - azure_subscription

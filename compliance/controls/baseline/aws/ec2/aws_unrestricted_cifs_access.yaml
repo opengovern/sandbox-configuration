@@ -1,52 +1,24 @@
 ID: aws_unrestricted_cifs_access
 Title: "Unrestricted CIFS Access"
 Description: "Ensure no security group allows unrestricted inbound access to UDP port 445 (CIFS)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      group_name as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN exists (
-          select 1
-          from jsonb_array_elements(ip_permissions) as p,
-          jsonb_array_elements(p -> 'IpRanges') as r
-          where ('{{.awsCifsTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445')
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN exists (
-          select 1
-          from jsonb_array_elements(ip_permissions) as p,
-          jsonb_array_elements(p -> 'IpRanges') as r
-          where ('{{.awsCifsTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445')
-        ) THEN group_name || ' has Unrestricted CIFS Access' 
-        ELSE group_name || ' CIFS Access is secure'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_vpc_security_group
-    WHERE
-      exists (select 1 from jsonb_array_elements(ip_permissions) as p where ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445'))
+  QueryToExecute: "SELECT \n  group_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN exists (\n      select 1\n      from jsonb_array_elements(ip_permissions) as p,\n      jsonb_array_elements(p -> 'IpRanges') as r\n      where ('{{.awsCifsTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445')\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN exists (\n      select 1\n      from jsonb_array_elements(ip_permissions) as p,\n      jsonb_array_elements(p -> 'IpRanges') as r\n      where ('{{.awsCifsTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445')\n    ) THEN group_name || ' has Unrestricted CIFS Access' \n    ELSE group_name || ' CIFS Access is secure'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_vpc_security_group\nWHERE\n  exists (select 1 from jsonb_array_elements(ip_permissions) as p where ((p ->> 'FromPort') = '445') and ((p ->> 'ToPort') = '445'))\n"
   PrimaryTable: aws_vpc_security_group
   ListOfTables:
-  - aws_vpc_security_group
+    - aws_vpc_security_group
   Parameters:
     - Key: awsCifsTrustedIpRange
       Required: true
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS EC2
+    - AWS EC2
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS EC2
+    - AWS EC2
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+Integration_Type_Name:
+  - aws_cloud

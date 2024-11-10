@@ -1,8 +1,6 @@
 ID: aws_cis_v200_1_20
 Title: "1.20 Ensure that IAM Access analyzer is enabled for all regions"
 Description: "Enable IAM Access analyzer for IAM policies about all resources in each region. IAM Access Analyzer is a technology introduced at AWS reinvent 2019. After the Analyzer is enabled in IAM, scan results are displayed on the console showing the accessible resources. Scans show resources that other accounts and federated users can access, such as KMS keys and IAM roles. So the results allow you to determine if an unintended user is allowed, making it easier for administrators to monitor least privileges access. Access Analyzer analyzes only policies that are applied to resources in the same AWS Region."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -26,8 +24,10 @@ Query:
       left join aws_accessanalyzer_analyzer as aa on r.account_id = aa.account_id and r.region = aa.region;
   PrimaryTable: aws_region
   ListOfTables:
-  - aws_region
-  - aws_accessanalyzer_analyzer
+    - aws_region
+    - aws_accessanalyzer_analyzer
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

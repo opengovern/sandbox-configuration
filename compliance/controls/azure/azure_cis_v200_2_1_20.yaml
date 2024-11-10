@@ -1,42 +1,15 @@
 ID: azure_cis_v200_2_1_20
 Title: "2.1.20 Ensure That 'Notify about alerts with the following severity' is Set to 'High'"
 Description: "Enables emailing security alerts to the subscription owner or other designated security contact."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with contact_info as (
-      select
-        count(*) filter (where alert_notifications = 'On') as notification_alert_count,
-        subscription_id
-      from
-        azure_security_center_contact
-      group by
-        subscription_id
-      limit 1
-    )
-    select
-      sub.subscription_id as resource,
-      sub.og_account_id as og_account_id,
-      sub.og_resource_id as og_resource_id,
-      case
-        when notification_alert_count > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when notification_alert_count > 0 then '"Notify about alerts with the following severity" set to High.'
-        else '"Notify about alerts with the following severity" not set to High.'
-      end as reason
-      
-      
-    from
-      azure_subscription sub
-      left join contact_info ci on sub.subscription_id = ci.subscription_id;
+  QueryToExecute: "with contact_info as (\n  select\n    count(*) filter (where alert_notifications = 'On') as notification_alert_count,\n    subscription_id\n  from\n    azure_security_center_contact\n  group by\n    subscription_id\n  limit 1\n)\nselect\n  sub.subscription_id as resource,\n  sub.og_account_id as og_account_id,\n  sub.og_resource_id as og_resource_id,\n  case\n    when notification_alert_count > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when notification_alert_count > 0 then '\"Notify about alerts with the following severity\" set to High.'\n    else '\"Notify about alerts with the following severity\" not set to High.'\n  end as reason\n  \n  \nfrom\n  azure_subscription sub\n  left join contact_info ci on sub.subscription_id = ci.subscription_id;"
   PrimaryTable: azure_subscription
   ListOfTables:
-  - azure_security_center_contact
-  - azure_subscription
+    - azure_security_center_contact
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

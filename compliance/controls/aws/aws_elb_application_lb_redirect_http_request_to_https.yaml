@@ -1,82 +1,51 @@
 ID: aws_elb_application_lb_redirect_http_request_to_https
 Title: "ELB application load balancers should redirect HTTP requests to HTTPS"
 Description: "To help protect data in transit, ensure that your Application Load Balancer automatically redirects unencrypted HTTP requests to HTTPS."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with detailed_listeners as (
-      select
-        arn,
-        load_balancer_arn,
-        protocol
-      from
-        aws_ec2_load_balancer_listener,
-        jsonb_array_elements(default_actions) as ac
-      where
-        split_part(arn,'/',2) = 'app'
-        and protocol = 'HTTP'
-        and ac ->> 'Type' = 'redirect'
-        and ac -> 'RedirectConfig' ->> 'Protocol' = 'HTTPS'
-    )
-    select
-      a.arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.load_balancer_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when b.load_balancer_arn is not null then  a.title || ' associated with HTTP redirection.'
-        else a.title || ' not associated with HTTP redirection.'
-      end as reason
-      
-      , a.region, a.account_id
-    from
-      aws_ec2_application_load_balancer a
-      left join detailed_listeners b on a.arn = b.load_balancer_arn;
+  QueryToExecute: "with detailed_listeners as (\n  select\n    arn,\n    load_balancer_arn,\n    protocol\n  from\n    aws_ec2_load_balancer_listener,\n    jsonb_array_elements(default_actions) as ac\n  where\n    split_part(arn,'/',2) = 'app'\n    and protocol = 'HTTP'\n    and ac ->> 'Type' = 'redirect'\n    and ac -> 'RedirectConfig' ->> 'Protocol' = 'HTTPS'\n)\nselect\n  a.arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.load_balancer_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when b.load_balancer_arn is not null then  a.title || ' associated with HTTP redirection.'\n    else a.title || ' not associated with HTTP redirection.'\n  end as reason\n  \n  , a.region, a.account_id\nfrom\n  aws_ec2_application_load_balancer a\n  left join detailed_listeners b on a.arn = b.load_balancer_arn;\n"
   PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
-  - aws_ec2_application_load_balancer
-  - aws_ec2_load_balancer_listener
+    - aws_ec2_application_load_balancer
+    - aws_ec2_load_balancer_listener
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/ELB
+    - AWS/ELB
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

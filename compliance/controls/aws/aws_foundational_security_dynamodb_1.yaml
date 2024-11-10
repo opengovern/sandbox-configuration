@@ -1,8 +1,6 @@
 ID: aws_foundational_security_dynamodb_1
 Title: "1 DynamoDB tables should automatically scale capacity with demand"
 Description: "This control checks whether an Amazon DynamoDB table can scale its read and write capacity as needed. This control passes if the table uses either on-demand capacity mode or provisioned mode with auto scaling configured. Scaling capacity with demand avoids throttling exceptions, which helps to maintain availability of your applications."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -35,8 +33,10 @@ Query:
       left join table_with_autocaling as t on concat('table/', d.name) = t.resource_id;
   PrimaryTable: aws_dynamodb_table
   ListOfTables:
-  - aws_appautoscaling_target
-  - aws_dynamodb_table
+    - aws_appautoscaling_target
+    - aws_dynamodb_table
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

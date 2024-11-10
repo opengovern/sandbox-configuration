@@ -1,70 +1,45 @@
 ID: aws_ec2_instance_protected_by_backup_plan
 Title: "EC2 instances should be protected by backup plan"
 Description: "Ensure that AWS Elastic Compute Cloud (AWS EC2) instances are protected by a backup plan. The rule is non-compliant if the AWS EC2 instance is not covered by a backup plan."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with backup_protected_instance as (
-      select
-        resource_arn as arn
-      from
-        aws_backup_protected_resource as b
-      where
-        resource_type = 'EC2'
-    )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when b.arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.arn is not null then i.title || ' is protected by backup plan.'
-        else i.title || ' is not protected by backup plan.'
-      end as reason
-      
-      , i.region, i.account_id
-    from
-      aws_ec2_instance as i
-      left join backup_protected_instance as b on i.arn = b.arn;
+  QueryToExecute: "with backup_protected_instance as (\n  select\n    resource_arn as arn\n  from\n    aws_backup_protected_resource as b\n  where\n    resource_type = 'EC2'\n)\nselect\n  i.arn as resource,\n  i.og_account_id as og_account_id,\n  i.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then i.title || ' is protected by backup plan.'\n    else i.title || ' is not protected by backup plan.'\n  end as reason\n  \n  , i.region, i.account_id\nfrom\n  aws_ec2_instance as i\n  left join backup_protected_instance as b on i.arn = b.arn;\n"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_backup_protected_resource
-  - aws_ec2_instance
+    - aws_backup_protected_resource
+    - aws_ec2_instance
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EC2
+    - AWS/EC2
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

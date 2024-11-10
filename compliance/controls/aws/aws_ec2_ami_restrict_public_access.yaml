@@ -1,30 +1,14 @@
 ID: aws_ec2_ami_restrict_public_access
 Title: "EC2 AMIs should restrict public access"
 Description: "This control checks whether EC2 AMIs are set as private or not. The control fails if the EC2 AMIs are set as public."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':image/' || image_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when public then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when public then title || ' publicly accessible.'
-        else title || ' not publicly accessible.'
-      end reason
-      
-      
-    from
-      aws_ec2_ami;
+  QueryToExecute: "select\n  'arn:' || partition || ':ec2:' || region || ':' || account_id || ':image/' || image_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when public then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when public then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end reason\n  \n  \nfrom\n  aws_ec2_ami;"
   PrimaryTable: aws_ec2_ami
   ListOfTables:
-  - aws_ec2_ami
+    - aws_ec2_ami
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

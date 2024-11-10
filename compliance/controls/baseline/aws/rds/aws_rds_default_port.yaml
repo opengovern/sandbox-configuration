@@ -1,59 +1,22 @@
 ID: aws_rds_default_port
 Title: "RDS Default Port"
 Description: "Ensure Amazon RDS database instances aren't using the default ports."
-Connector:
-- aws
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      db_instance_identifier as resource,
-      og_account_id
-        as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when
-        
-        endpoint_port = 3306 and engine in ('mysql', 'mariadb', 'aurora-mysql')
-        or
-        endpoint_port = 5431 and engine in ('postres', 'postgres-ee', 'aurora-postgresql')
-        or
-        endpoint_port = 1433 and engine like 'sqlserver%' or
-        endpoint_port
-        = 1521 and engine = 'oracle-ee'
-        then 'alarm'
-        else 'ok'
-      end as status,
-    
-        case
-        when 
-        endpoint_port = 3306 and engine in ('mysql', 'mariadb',
-        'aurora-mysql') or
-        endpoint_port = 5431 and engine in ('postres', 'postgres-ee',
-        'aurora-postgresql') or
-        endpoint_port = 1433 and engine like 'sqlserver%'
-        or
-        endpoint_port = 1521 and engine = 'oracle-ee'
-        then title || ' port
-        is set to default'
-        else title || ' port is not set to default'
-      end as
-        reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance
+  QueryToExecute: "select\n  db_instance_identifier as resource,\n  og_account_id\n    as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when\n    \n    endpoint_port = 3306 and engine in ('mysql', 'mariadb', 'aurora-mysql')\n    or\n    endpoint_port = 5431 and engine in ('postres', 'postgres-ee', 'aurora-postgresql')\n    or\n    endpoint_port = 1433 and engine like 'sqlserver%' or\n    endpoint_port\n    = 1521 and engine = 'oracle-ee'\n    then 'alarm'\n    else 'ok'\n  end as status,\n\n    case\n    when \n    endpoint_port = 3306 and engine in ('mysql', 'mariadb',\n    'aurora-mysql') or\n    endpoint_port = 5431 and engine in ('postres', 'postgres-ee',\n    'aurora-postgresql') or\n    endpoint_port = 1433 and engine like 'sqlserver%'\n    or\n    endpoint_port = 1521 and engine = 'oracle-ee'\n    then title || ' port\n    is set to default'\n    else title || ' port is not set to default'\n  end as\n    reason,\n  region,\n  account_id\nfrom\n  aws_rds_db_instance\n"
   PrimaryTable: aws_rds_db_instance
   ListOfTables:
-  - aws_rds_db_instance
+    - aws_rds_db_instance
   Parameters: []
 Severity: low
 Tags:
   platform_score_cloud_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS Relational Database Service (RDS)
+    - AWS Relational Database Service (RDS)
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+Integration_Type_Name:
+  - aws_cloud

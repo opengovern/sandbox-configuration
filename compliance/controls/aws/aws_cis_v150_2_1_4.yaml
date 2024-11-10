@@ -1,8 +1,6 @@
 ID: aws_cis_v150_2_1_4
 Title: "2.1.4 Ensure all data in Amazon S3 has been discovered, classified and secured when required"
 Description: "Amazon S3 buckets can contain sensitive data, that for security purposes should be discovered, monitored, classified and protected. Macie along with other 3rd party tools can automatically provide an inventory of Amazon S3 buckets."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -33,8 +31,10 @@ Query:
       left join bucket_list as l on b.name = l.bucket_name;
   PrimaryTable: aws_s3_bucket
   ListOfTables:
-  - aws_macie2_classification_job
-  - aws_s3_bucket
+    - aws_macie2_classification_job
+    - aws_s3_bucket
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,54 +1,25 @@
 ID: aws_efs_file_system_encrypted_with_cmk
 Title: "EFS file systems should be encrypted with CMK"
 Description: "Ensure AWS Elastic File Systems (AWS EFS) are encrypted using CMK. The rule is non-compliant if the EFS File System is not encrypted using CMK."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with encrypted_fs as (
-      select
-        fs.arn as arn,
-        key_manager
-      from
-        aws_efs_file_system as fs
-        left join aws_kms_key as k on fs.kms_key_id = k.arn
-      where
-        enabled
-    )
-    select
-      f.arn as resource,
-      f.og_account_id as og_account_id,
-      f.og_resource_id as og_resource_id,
-      case
-        when not encrypted then 'alarm'
-        when encrypted and e.key_manager = 'CUSTOMER' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when not encrypted then title || ' not encrypted.'
-        when encrypted and e.key_manager = 'CUSTOMER' then title || ' encrypted with CMK.'
-        else title || ' not encrypted with CMK.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_efs_file_system as f
-      left join encrypted_fs as e on f.arn = e.arn;
+  QueryToExecute: "with encrypted_fs as (\n  select\n    fs.arn as arn,\n    key_manager\n  from\n    aws_efs_file_system as fs\n    left join aws_kms_key as k on fs.kms_key_id = k.arn\n  where\n    enabled\n)\nselect\n  f.arn as resource,\n  f.og_account_id as og_account_id,\n  f.og_resource_id as og_resource_id,\n  case\n    when not encrypted then 'alarm'\n    when encrypted and e.key_manager = 'CUSTOMER' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not encrypted then title || ' not encrypted.'\n    when encrypted and e.key_manager = 'CUSTOMER' then title || ' encrypted with CMK.'\n    else title || ' not encrypted with CMK.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_efs_file_system as f\n  left join encrypted_fs as e on f.arn = e.arn;\n"
   PrimaryTable: aws_efs_file_system
   ListOfTables:
-  - aws_efs_file_system
-  - aws_kms_key
+    - aws_efs_file_system
+    - aws_kms_key
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   other_checks:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/EFS
+    - AWS/EFS
+Integration_Type_Name:
+  - aws_cloud

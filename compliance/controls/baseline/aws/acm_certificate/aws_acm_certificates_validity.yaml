@@ -1,40 +1,22 @@
 ID: aws_acm_certificates_validity
 Title: "AWS ACM Certificates Validity"
 Description: "Ensure expired SSL/TLS certificates are removed from AWS Certificate Manager (ACM)."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT 
-      certificate_arn as resource,
-      og_resource_id,
-      og_account_id,
-      CASE
-        WHEN status = 'EXPIRED' then 'skip'
-        WHEN status = 'PENDING_VALIDATION' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status = 'EXPIRED' then 'certificate has been expired'
-        WHEN status = 'PENDING_VALIDATION' THEN 'certificate validation is pending' 
-        ELSE 'certificate has been validated'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_acm_certificate
+  QueryToExecute: "SELECT \n  certificate_arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN status = 'EXPIRED' then 'skip'\n    WHEN status = 'PENDING_VALIDATION' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN status = 'EXPIRED' then 'certificate has been expired'\n    WHEN status = 'PENDING_VALIDATION' THEN 'certificate validation is pending' \n    ELSE 'certificate has been validated'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_acm_certificate\n"
   PrimaryTable: aws_acm_certificate
   ListOfTables:
-  - aws_acm_certificate
+    - aws_acm_certificate
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - AWS Certificate Manager
+    - AWS Certificate Manager
   platform_score_use_case:
-  - Tolerate Failures
+    - Tolerate Failures
   score_service_name:
-  - AWS Certificate Manager
+    - AWS Certificate Manager
   score_tags:
-  - Tolerate Failures
+    - Tolerate Failures
+Integration_Type_Name:
+  - aws_cloud

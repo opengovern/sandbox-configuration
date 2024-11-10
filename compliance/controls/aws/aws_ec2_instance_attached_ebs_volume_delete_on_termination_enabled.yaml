@@ -1,8 +1,6 @@
 ID: aws_ec2_instance_attached_ebs_volume_delete_on_termination_enabled
 Title: "Ensure EBS volumes attached to an EC2 instance is marked for deletion upon instance termination"
 Description: "This rule ensures that Amazon Elastic Block Store volumes that are attached to Amazon Elastic Compute Cloud (Amazon EC2) instances are marked for deletion when an instance is terminated. If an Amazon EBS volume isn't deleted when the instance that it's attached to is terminated, it may violate the concept of least functionality."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -35,7 +33,9 @@ Query:
       left join ebs_volume_with_delete_on_termination_enabled as e on e.arn = i.arn;
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

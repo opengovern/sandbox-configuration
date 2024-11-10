@@ -1,8 +1,6 @@
 ID: aws_log_metric_filter_organization
 Title: "Ensure AWS Organizations changes are monitored"
 Description: "Real-time monitoring of API calls can be achieved by directing CloudTrail Logs to CloudWatch Logs, and establishing corresponding metric filters and alarms. It is recommended that a metric filter and alarm be established for AWS Organizations changes made in the master AWS Account."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -53,29 +51,31 @@ Query:
       left join filter_data as f on a.account_id = f.account_id;
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
-  - aws_cloudtrail_trail
-  - aws_cloudwatch_alarm
-  - aws_cloudwatch_log_metric_filter
-  - aws_sns_topic_subscription
+    - aws_account
+    - aws_cloudtrail_trail
+    - aws_cloudwatch_alarm
+    - aws_cloudwatch_log_metric_filter
+    - aws_sns_topic_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "4.15"
+    - "4.15"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "4"
+    - "4"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/CloudWatch
+    - AWS/CloudWatch
+Integration_Type_Name:
+  - aws_cloud

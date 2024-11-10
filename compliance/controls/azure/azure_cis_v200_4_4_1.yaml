@@ -1,33 +1,15 @@
 ID: azure_cis_v200_4_4_1
 Title: "4.4.1 Ensure 'Enforce SSL connection' is set to 'Enabled' for Standard MySQL Database Server"
 Description: "Enable SSL connection on MySQL Servers."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when ssl_enforcement = 'Disabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ssl_enforcement = 'Disabled' then s.name || ' SSL connection disabled.'
-        else s.name || ' SSL connection enabled.'
-      end as reason
-      
-    from
-      azure_mysql_server as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when ssl_enforcement = 'Disabled' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when ssl_enforcement = 'Disabled' then s.name || ' SSL connection disabled.'\n    else s.name || ' SSL connection enabled.'\n  end as reason\n  \nfrom\n  azure_mysql_server as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;"
   PrimaryTable: azure_mysql_server
   ListOfTables:
-  - azure_mysql_server
-  - azure_subscription
+    - azure_mysql_server
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

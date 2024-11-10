@@ -1,8 +1,6 @@
 ID: aws_lambda_function_cloudtrail_logging_enabled
 Title: "Lambda functions CloudTrail logging should be enabled"
 Description: "Lambda functions logging is essential because once lambdas are triggered, all of the underlying compute resources are automatically managed for you. This control is compliant if CloudTrail logging is enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -71,8 +69,10 @@ Query:
       left join function_logging_region_advance_es as a on a.cloudtrail_region = l.region;
   PrimaryTable: aws_lambda_function
   ListOfTables:
-  - aws_cloudtrail_trail
-  - aws_lambda_function
+    - aws_cloudtrail_trail
+    - aws_lambda_function
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

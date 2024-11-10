@@ -1,66 +1,33 @@
 ID: aws_s3_public_access_block_bucket_account
 Title: "S3 public access should be blocked at account and bucket levels"
 Description: "Manage access to resources in the AWS Cloud by ensuring that AWS Simple Storage Service (AWS S3) buckets cannot be publicly accessed."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      bucket.arn as resource,
-      bucket.og_account_id as og_account_id,
-      bucket.og_resource_id as og_resource_id,
-      case
-        when (bucket.block_public_acls or s3account.block_public_acls)
-          and (bucket.block_public_policy or s3account.block_public_policy)
-          and (bucket.ignore_public_acls or s3account.ignore_public_acls)
-          and (bucket.restrict_public_buckets or s3account.restrict_public_buckets)
-          then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (bucket.block_public_acls or s3account.block_public_acls)
-          and (bucket.block_public_policy or s3account.block_public_policy)
-          and (bucket.ignore_public_acls or s3account.ignore_public_acls)
-          and (bucket.restrict_public_buckets or s3account.restrict_public_buckets)
-          then name || ' all public access blocks enabled.'
-        else name || ' not enabled for: ' ||
-          concat_ws(', ',
-            case when not (bucket.block_public_acls or s3account.block_public_acls) then 'block_public_acls' end,
-            case when not (bucket.block_public_policy or s3account.block_public_policy) then 'block_public_policy' end,
-            case when not (bucket.ignore_public_acls or s3account.ignore_public_acls) then 'ignore_public_acls' end,
-            case when not (bucket.restrict_public_buckets or s3account.restrict_public_buckets) then 'restrict_public_buckets' end
-          ) || '.'
-      end as reason
-      
-      , bucket.region, bucket.account_id
-    from
-      aws_s3_bucket as bucket,
-      aws_s3_account_settings as s3account
-    where
-      s3account.account_id = bucket.account_id;
+  QueryToExecute: "select\n  bucket.arn as resource,\n  bucket.og_account_id as og_account_id,\n  bucket.og_resource_id as og_resource_id,\n  case\n    when (bucket.block_public_acls or s3account.block_public_acls)\n      and (bucket.block_public_policy or s3account.block_public_policy)\n      and (bucket.ignore_public_acls or s3account.ignore_public_acls)\n      and (bucket.restrict_public_buckets or s3account.restrict_public_buckets)\n      then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (bucket.block_public_acls or s3account.block_public_acls)\n      and (bucket.block_public_policy or s3account.block_public_policy)\n      and (bucket.ignore_public_acls or s3account.ignore_public_acls)\n      and (bucket.restrict_public_buckets or s3account.restrict_public_buckets)\n      then name || ' all public access blocks enabled.'\n    else name || ' not enabled for: ' ||\n      concat_ws(', ',\n        case when not (bucket.block_public_acls or s3account.block_public_acls) then 'block_public_acls' end,\n        case when not (bucket.block_public_policy or s3account.block_public_policy) then 'block_public_policy' end,\n        case when not (bucket.ignore_public_acls or s3account.ignore_public_acls) then 'ignore_public_acls' end,\n        case when not (bucket.restrict_public_buckets or s3account.restrict_public_buckets) then 'restrict_public_buckets' end\n      ) || '.'\n  end as reason\n  \n  , bucket.region, bucket.account_id\nfrom\n  aws_s3_bucket as bucket,\n  aws_s3_account_settings as s3account\nwhere\n  s3account.account_id = bucket.account_id;\n"
   PrimaryTable: aws_s3_bucket
   ListOfTables:
-  - aws_s3_account_settings
-  - aws_s3_bucket
+    - aws_s3_account_settings
+    - aws_s3_bucket
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "1.20"
+    - "1.20"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "1"
+    - "1"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/S3
+    - AWS/S3
+Integration_Type_Name:
+  - aws_cloud

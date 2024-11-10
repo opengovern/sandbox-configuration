@@ -1,30 +1,14 @@
 ID: aws_dms_endpoint_ssl_configured
 Title: "DMS endpoints should use SSL"
 Description: "This control checks whether an AWS DMS endpoint uses an SSL connection. The control fails if the endpoint doesn't use SSL."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when ssl_mode = 'none' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ssl_mode = 'none' then title || ' SSL not configured.'
-        else title || ' SSL configured.'
-      end as reason
-      
-      
-    from
-      aws_dms_endpoint;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when ssl_mode = 'none' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when ssl_mode = 'none' then title || ' SSL not configured.'\n    else title || ' SSL configured.'\n  end as reason\n  \n  \nfrom\n  aws_dms_endpoint;"
   PrimaryTable: aws_dms_endpoint
   ListOfTables:
-  - aws_dms_endpoint
+    - aws_dms_endpoint
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

@@ -1,39 +1,14 @@
 ID: aws_foundational_security_elb_14
 Title: "14 Classic Load Balancers should be configured with defensive or strictest desync mitigation mode"
 Description: "This control checks whether a Classic Load Balancer is configured with defensive or strictest desync mitigation mode. This control will fail if the Classic Load Balancer is not configured with defensive or strictest desync mitigation mode."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with app_lb_desync_mitigation_mode as (
-      select
-        arn,
-        a ->> 'Key',
-        a ->> 'Value' as v
-      from
-        aws_ec2_classic_load_balancer,
-        jsonb_array_elements(additional_attributes) as a
-      where
-        a ->> 'Key' = 'elb.http.desyncmitigationmode'
-    )
-    select
-      c.arn as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when m.v = any(array['defensive', 'strictest']) then 'ok'
-        else 'alarm'
-      end as status,
-        title || ' has ' || m.v || ' desync mitigation mode.' as reason
-      
-      
-    from
-      aws_ec2_classic_load_balancer as c
-      left join app_lb_desync_mitigation_mode as m on c.arn = m.arn;
+  QueryToExecute: "with app_lb_desync_mitigation_mode as (\n  select\n    arn,\n    a ->> 'Key',\n    a ->> 'Value' as v\n  from\n    aws_ec2_classic_load_balancer,\n    jsonb_array_elements(additional_attributes) as a\n  where\n    a ->> 'Key' = 'elb.http.desyncmitigationmode'\n)\nselect\n  c.arn as resource,\n  c.og_account_id as og_account_id,\n  c.og_resource_id as og_resource_id,\n  case\n    when m.v = any(array['defensive', 'strictest']) then 'ok'\n    else 'alarm'\n  end as status,\n    title || ' has ' || m.v || ' desync mitigation mode.' as reason\n  \n  \nfrom\n  aws_ec2_classic_load_balancer as c\n  left join app_lb_desync_mitigation_mode as m on c.arn = m.arn;"
   PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
-  - aws_ec2_classic_load_balancer
+    - aws_ec2_classic_load_balancer
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

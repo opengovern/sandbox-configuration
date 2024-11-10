@@ -1,70 +1,52 @@
 ID: aws_cloudtrail_trail_integrated_with_logs
 Title: "CloudTrail trails should be integrated with CloudWatch logs"
 Description: "Use AWS CloudWatch to centrally collect and manage log event activity. Inclusion of AWS CloudTrail data provides details of API call activity within your AWS account."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then title || ' integrated with CloudWatch logs.'
-        else title || ' not integrated with CloudWatch logs.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_cloudtrail_trail
-    where
-      region = home_region;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then title || ' integrated with CloudWatch logs.'\n    else title || ' not integrated with CloudWatch logs.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudtrail_trail\nwhere\n  region = home_region;\n"
   PrimaryTable: aws_cloudtrail_trail
   ListOfTables:
-  - aws_cloudtrail_trail
+    - aws_cloudtrail_trail
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   cisa_cyber_essentials:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   gdpr:
-  - "true"
+    - "true"
   gxp_21_cfr_part_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   rbi_cyber_security:
-  - "true"
+    - "true"
   service:
-  - AWS/CloudTrail
+    - AWS/CloudTrail
   soc_2:
-  - "true"
+    - "true"
+Integration_Type_Name:
+  - aws_cloud

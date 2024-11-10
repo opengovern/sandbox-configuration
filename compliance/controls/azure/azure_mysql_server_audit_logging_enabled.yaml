@@ -1,55 +1,33 @@
 ID: azure_mysql_server_audit_logging_enabled
 Title: "Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server"
 Description: "Enable audit logging on MySQL Servers."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'
-        else s.name || ' server parameter audit_log_enabled on.'
-      end as reason
-      
-      , s.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_mysql_server as s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    where
-      config ->> 'Name' = 'audit_log_enabled'
-      and sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'\n    else s.name || ' server parameter audit_log_enabled on.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_mysql_server as s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'audit_log_enabled'\n  and sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: azure_mysql_server
   ListOfTables:
-  - azure_mysql_server
-  - azure_subscription
+    - azure_mysql_server
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 4.4.3
+    - 4.4.3
   cis_level:
-  - "2"
+    - "2"
   cis_section_id:
-  - "4.4"
+    - "4.4"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.5.0
+    - v1.5.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/MySQL
+    - Azure/MySQL
+Integration_Type_Name:
+  - azure_subscription

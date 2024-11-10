@@ -1,8 +1,6 @@
 ID: azure_securitycenter_azure_defender_on_for_cosmosdb
 Title: "Ensure That Microsoft Defender for Azure Cosmos DB is set to 'On'"
 Description: "Microsoft Defender for Azure Cosmos DB scans all incoming network requests for threats to your Azure Cosmos DB resources."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -18,7 +16,7 @@ Query:
         when pricing_tier = 'Standard' then 'Azure Defender on for Cosmos DB.'
         else 'Azure Defender off for Cosmos DB.'
       end as reason
-    
+
       , sub.display_name as subscription
     from
       azure_security_center_subscription_pricing sub_pricing
@@ -27,26 +25,28 @@ Query:
       sub_pricing.title = 'CosmosDbs';
   PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
-  - azure_security_center_subscription_pricing
-  - azure_subscription
+    - azure_security_center_subscription_pricing
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 2.1.9
+    - 2.1.9
   cis_level:
-  - "2"
+    - "2"
   cis_section_id:
-  - "2.1"
+    - "2.1"
   cis_type:
-  - manual
+    - manual
   cis_version:
-  - v1.5.0
+    - v1.5.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/SecurityCenter
+    - Azure/SecurityCenter
+Integration_Type_Name:
+  - azure_subscription

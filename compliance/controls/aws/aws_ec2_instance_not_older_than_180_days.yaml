@@ -1,28 +1,14 @@
 ID: aws_ec2_instance_not_older_than_180_days
 Title: "Ensure no AWS EC2 Instances are older than 180 days"
 Description: "\"Identify any running AWS EC2 instances older than 180 days."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      instance_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      launch_time,
-      case
-        when launch_time >= (current_date - interval '180 days') then 'ok'
-        else 'alarm'
-      end as status,
-      title || ' created ' || to_char(launch_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - launch_time) || ' days).' as reason
-      
-      
-    from
-      aws_ec2_instance;
+  QueryToExecute: "select\n  instance_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  launch_time,\n  case\n    when launch_time >= (current_date - interval '180 days') then 'ok'\n    else 'alarm'\n  end as status,\n  title || ' created ' || to_char(launch_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - launch_time) || ' days).' as reason\n  \n  \nfrom\n  aws_ec2_instance;"
   PrimaryTable: aws_ec2_instance
   ListOfTables:
-  - aws_ec2_instance
+    - aws_ec2_instance
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

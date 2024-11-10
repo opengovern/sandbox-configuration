@@ -1,51 +1,24 @@
 ID: aws_valid_iam_identity_providers
 Title: "Valid IAM Identity Providers"
 Description: "Ensure valid IAM Identity Providers are used within your AWS account for secure user authentication and authorization."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with locations AS (
-      SELECT
-        og_resource_id, unnest(xpath('/md:EntityDescriptor/md:IDPSSODescriptor/md:SingleLogoutService/@Location', unnest(xpath('/md:EntityDescriptor', saml_metadata_document::xml, ARRAY[ARRAY['md', 'urn:oasis:names:tc:SAML:2.0:metadata']])), ARRAY[ARRAY['md', 'urn:oasis:names:tc:SAML:2.0:metadata']]))::text as location
-      FROM aws_iam_saml_provider
-    )
-    SELECT 
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      saml_metadata_document,
-      CASE
-        WHEN '{{.awsTrustedEndpoints}}' = '' THEN 'ok'
-        WHEN EXISTS (
-          select 1 from locations as l where l.og_resource_id = p.og_resource_id and l.location not like '{{.awsTrustedEndpoints}}'
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN '{{.awsTrustedEndpoints}}' = '' THEN 'trusted endpoints not provided'
-        WHEN EXISTS (
-          select 1 from locations as l where l.og_resource_id = p.og_resource_id and l.location not like '{{.awsTrustedEndpoints}}') THEN 'location is not inside trusted endpoints'
-        ELSE 'is inside trusted endpoints'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_saml_provider AS p
+  QueryToExecute: "with locations AS (\n  SELECT\n    og_resource_id, unnest(xpath('/md:EntityDescriptor/md:IDPSSODescriptor/md:SingleLogoutService/@Location', unnest(xpath('/md:EntityDescriptor', saml_metadata_document::xml, ARRAY[ARRAY['md', 'urn:oasis:names:tc:SAML:2.0:metadata']])), ARRAY[ARRAY['md', 'urn:oasis:names:tc:SAML:2.0:metadata']]))::text as location\n  FROM aws_iam_saml_provider\n)\nSELECT \n  arn as resource,\n  og_resource_id,\n  og_account_id,\n  saml_metadata_document,\n  CASE\n    WHEN '{{.awsTrustedEndpoints}}' = '' THEN 'ok'\n    WHEN EXISTS (\n      select 1 from locations as l where l.og_resource_id = p.og_resource_id and l.location not like '{{.awsTrustedEndpoints}}'\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN '{{.awsTrustedEndpoints}}' = '' THEN 'trusted endpoints not provided'\n    WHEN EXISTS (\n      select 1 from locations as l where l.og_resource_id = p.og_resource_id and l.location not like '{{.awsTrustedEndpoints}}') THEN 'location is not inside trusted endpoints'\n    ELSE 'is inside trusted endpoints'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_saml_provider AS p\n"
   PrimaryTable: aws_iam_saml_provider
   ListOfTables:
-  - aws_iam_saml_provider
+    - aws_iam_saml_provider
   Parameters:
     - Key: awsTrustedEndpoints
       Required: true
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   platform_score_use_case:
-  - Problem Identities
+    - Problem Identities
   score_service_name:
-  - AWS Identity and Access Management (IAM)
+    - AWS Identity and Access Management (IAM)
   score_tags:
-  - Problem Identities
+    - Problem Identities
+Integration_Type_Name:
+  - aws_cloud

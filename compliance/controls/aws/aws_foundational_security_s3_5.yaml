@@ -1,8 +1,6 @@
 ID: aws_foundational_security_s3_5
 Title: "5 S3 buckets should require requests to use Secure Socket Layer"
 Description: "This control checks whether S3 buckets have policies that require requests to use Secure Socket Layer (SSL). S3 buckets should have policies that require all requests (Action: S3:*)to only accept transmission of data over HTTPS in the S3 resource policy, indicated by the condition key aws:SecureTransport."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -42,7 +40,9 @@ Query:
       left join ssl_ok as ok on ok.name = b.name;
   PrimaryTable: aws_s3_bucket
   ListOfTables:
-  - aws_s3_bucket
+    - aws_s3_bucket
   Parameters: []
 Severity: medium
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

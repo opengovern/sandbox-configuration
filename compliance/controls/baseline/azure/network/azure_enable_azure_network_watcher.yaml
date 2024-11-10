@@ -1,8 +1,6 @@
 ID: azure_enable_azure_network_watcher
 Title: "Enable Azure Network Watcher"
 Description: "Ensure that Network Watcher is enabled within your Microsoft Azure account subscription."
-Connector:
-- azure
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
@@ -11,7 +9,7 @@ Query:
       FROM azure_network_watcher
       GROUP BY subscription_id
     )
-    
+
     select
       sub.id as resource,
       sub.og_account_id,
@@ -66,12 +64,14 @@ Query:
       left join regions_nw as nw on sub.subscription_id = nw.subscription_id
   PrimaryTable: azure_subscription
   ListOfTables:
-  - azure_network_watcher
-  - azure_subscription
+    - azure_network_watcher
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
-  - Azure Network
+    - Azure Network
   score_service_name:
-  - Azure Network
+    - Azure Network
+Integration_Type_Name:
+  - azure_subscription

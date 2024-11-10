@@ -1,8 +1,6 @@
 ID: aws_backup_plan_region_configured
 Title: "Backup plan should exist in a region"
 Description: "Ensure that there exists at least one backup plan in a region. The rule is non-compliant if there are no backup plans in a region."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -34,8 +32,10 @@ Query:
       left join count_plans as cp on r.account_id = cp.account_id and r.region = cp.region;
   PrimaryTable: aws_backup_plan
   ListOfTables:
-  - aws_backup_plan
-  - aws_region
+    - aws_backup_plan
+    - aws_region
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

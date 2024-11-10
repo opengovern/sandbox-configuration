@@ -1,31 +1,13 @@
 ID: azure_cis_v200_3_7
 Title: "3.7 Ensure that 'Public access level' is disabled for storage accounts with blob containers"
 Description: "Disallowing public access for a storage account overrides the public access settings for individual containers in that storage account."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      container.id as resource,
-      case
-        when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when not account.allow_blob_public_access and container.public_access = 'None'
-          then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
-        else account.name || ' container ' || container.name || ' allows anonymous access.'
-      end as reason
-      
-      
-      
-    from
-      azure_storage_container container
-      join azure_storage_account account on container.account_name = account.name
-      join azure_subscription sub on sub.subscription_id = account.subscription_id;
+  QueryToExecute: "select\n  container.id as resource,\n  case\n    when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not account.allow_blob_public_access and container.public_access = 'None'\n      then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'\n    else account.name || ' container ' || container.name || ' allows anonymous access.'\n  end as reason\n  \n  \n  \nfrom\n  azure_storage_container container\n  join azure_storage_account account on container.account_name = account.name\n  join azure_subscription sub on sub.subscription_id = account.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

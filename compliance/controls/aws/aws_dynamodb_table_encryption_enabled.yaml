@@ -1,51 +1,32 @@
 ID: aws_dynamodb_table_encryption_enabled
 Title: "DynamoDB table should have encryption enabled"
 Description: "Ensure that encryption is enabled for your AWS DynamoDB tables. Because sensitive data can exist at rest in these tables, enable encryption at rest to help protect that data."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when sse_description is not null and sse_description ->> 'SSEType' = 'KMS' then 'ok'
-        when sse_description is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when sse_description is not null and sse_description ->> 'SSEType' = 'KMS'
-          then title || ' encrypted with AWS KMS.'
-        when sse_description is null then title || ' encrypted with DynamoDB managed CMK.'
-        else title || ' not encrypted with CMK.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_dynamodb_table;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when sse_description is not null and sse_description ->> 'SSEType' = 'KMS' then 'ok'\n    when sse_description is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when sse_description is not null and sse_description ->> 'SSEType' = 'KMS'\n      then title || ' encrypted with AWS KMS.'\n    when sse_description is null then title || ' encrypted with DynamoDB managed CMK.'\n    else title || ' not encrypted with CMK.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_dynamodb_table;\n"
   PrimaryTable: aws_dynamodb_table
   ListOfTables:
-  - aws_dynamodb_table
+    - aws_dynamodb_table
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   gdpr:
-  - "true"
+    - "true"
   gxp_eu_annex_11:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/DynamoDB
+    - AWS/DynamoDB
+Integration_Type_Name:
+  - aws_cloud

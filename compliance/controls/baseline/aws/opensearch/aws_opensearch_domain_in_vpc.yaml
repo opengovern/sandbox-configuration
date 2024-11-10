@@ -1,8 +1,6 @@
 ID: aws_opensearch_domain_in_vpc
 Title: "OpenSearch Domain In VPC"
 Description: "Ensure that your Amazon OpenSearch domains are accessible only from AWS VPCs."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -54,16 +52,18 @@ Query:
       left join opensearch_domain_with_public_subnet as p on d.arn = p.arn;
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
-  - aws_vpc_route_table
+    - aws_opensearch_domain
+    - aws_vpc_route_table
   Parameters: []
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   platform_score_use_case:
-  - Exposed Endpoints
+    - Exposed Endpoints
   score_service_name:
-  - AWS OpenSearch Service
+    - AWS OpenSearch Service
   score_tags:
-  - Exposed Endpoints
+    - Exposed Endpoints
+Integration_Type_Name:
+  - aws_cloud

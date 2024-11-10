@@ -1,60 +1,42 @@
 ID: aws_autoscaling_group_with_lb_use_health_check
 Title: "Auto Scaling groups with a load balancer should use health checks"
 Description: "The Elastic Load Balancer (ELB) health checks for AWS Elastic Compute Cloud (AWS EC2) Auto Scaling groups support maintenance of adequate capacity and availability."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      autoscaling_group_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when load_balancer_names is null and target_group_arns is null then 'alarm'
-        when health_check_type != 'ELB' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when load_balancer_names is null and target_group_arns is null then title || ' not associated with a load balancer.'
-        when health_check_type != 'ELB' then title || ' does not use ELB health check.'
-        else title || ' uses ELB health check.'
-      end as reason
-      
-      , region, account_id
-    from
-      aws_ec2_autoscaling_group;
+  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when load_balancer_names is null and target_group_arns is null then 'alarm'\n    when health_check_type != 'ELB' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when load_balancer_names is null and target_group_arns is null then title || ' not associated with a load balancer.'\n    when health_check_type != 'ELB' then title || ' does not use ELB health check.'\n    else title || ' uses ELB health check.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_autoscaling_group;\n"
   PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
-  - aws_ec2_autoscaling_group
+    - aws_ec2_autoscaling_group
   Parameters: []
 Severity: low
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis_controls_v8_ig1:
-  - "true"
+    - "true"
   fedramp_low_rev_4:
-  - "true"
+    - "true"
   fedramp_moderate_rev_4:
-  - "true"
+    - "true"
   ffiec:
-  - "true"
+    - "true"
   hipaa_final_omnibus_security_rule_2013:
-  - "true"
+    - "true"
   hipaa_security_rule_2003:
-  - "true"
+    - "true"
   nist_800_171_rev_2:
-  - "true"
+    - "true"
   nist_800_53_rev_4:
-  - "true"
+    - "true"
   nist_800_53_rev_5:
-  - "true"
+    - "true"
   nist_csf:
-  - "true"
+    - "true"
   pci_dss_v321:
-  - "true"
+    - "true"
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/AutoScaling
+    - AWS/AutoScaling
+Integration_Type_Name:
+  - aws_cloud

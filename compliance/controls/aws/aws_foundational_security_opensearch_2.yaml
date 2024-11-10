@@ -1,8 +1,6 @@
 ID: aws_foundational_security_opensearch_2
 Title: "2 OpenSearch domains should not be publicly accessible"
 Description: "This control checks whether OpenSearch domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -44,8 +42,10 @@ Query:
       left join opensearch_domain_with_public_subnet as p on d.arn = p.arn;
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_vpc_route_table
-  - aws_opensearch_domain
+    - aws_vpc_route_table
+    - aws_opensearch_domain
   Parameters: []
 Severity: critical
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

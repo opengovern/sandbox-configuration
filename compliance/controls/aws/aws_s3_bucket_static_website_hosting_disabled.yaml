@@ -1,30 +1,14 @@
 ID: aws_s3_bucket_static_website_hosting_disabled
 Title: "S3 buckets static website hosting should be disabled"
 Description: "Enabling static website on a S3 bucket requires to grant public read access to the bucket. There is a potential risk of exposure when you turn off block public access settings to make your bucket public. This is recommend to not configure static website on S3 bucket."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then name || ' static website hosting enabled.'
-        else name || ' static website hosting disabled.'
-      end reason
-      
-      
-    from
-      aws_s3_bucket;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when website_configuration -> 'IndexDocument' ->> 'Suffix' is not null then name || ' static website hosting enabled.'\n    else name || ' static website hosting disabled.'\n  end reason\n  \n  \nfrom\n  aws_s3_bucket;"
   PrimaryTable: aws_s3_bucket
   ListOfTables:
-  - aws_s3_bucket
+    - aws_s3_bucket
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

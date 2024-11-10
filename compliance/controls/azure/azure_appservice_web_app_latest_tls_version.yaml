@@ -1,53 +1,33 @@
 ID: azure_appservice_web_app_latest_tls_version
 Title: "Latest TLS version should be used in your Web App"
 Description: "Upgrade to the latest TLS version."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      app.id as resource,
-      app.og_account_id as og_account_id,
-      app.og_resource_id as og_resource_id,
-      case
-        when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then name || ' not using the latest version of TLS encryption.'
-        else name || ' using the latest version of TLS encryption.'
-      end as reason
-      
-      , app.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_app_service_web_app as app,
-      azure_subscription as sub
-    where
-      sub.subscription_id = app.subscription_id;
+  QueryToExecute: "select\n  app.id as resource,\n  app.og_account_id as og_account_id,\n  app.og_resource_id as og_resource_id,\n  case\n    when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then name || ' not using the latest version of TLS encryption.'\n    else name || ' using the latest version of TLS encryption.'\n  end as reason\n  \n  , app.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_web_app as app,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = app.subscription_id;\n"
   PrimaryTable: azure_app_service_web_app
   ListOfTables:
-  - azure_app_service_web_app
-  - azure_subscription
+    - azure_app_service_web_app
+    - azure_subscription
   Parameters: []
 Severity: medium
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "9.3"
+    - "9.3"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "9"
+    - "9"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/AppService
+    - Azure/AppService
+Integration_Type_Name:
+  - azure_subscription

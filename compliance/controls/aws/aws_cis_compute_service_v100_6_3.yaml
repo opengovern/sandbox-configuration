@@ -1,23 +1,14 @@
 ID: aws_cis_compute_service_v100_6_3
 Title: "6.3 Ensure access logs are enabled"
 Description: "When you enable load balancing, your AWS Elastic Beanstalk environment is equipped with an Elastic Load Balancing load balancer to distribute traffic among the instances in your environment."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason
-      
-    from
-      aws_account;
+  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'info' as status,\n  'Manual verification required.' as reason\n  \nfrom\n  aws_account;"
   PrimaryTable: aws_account
   ListOfTables:
-  - aws_account
+    - aws_account
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - aws_cloud

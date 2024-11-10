@@ -1,42 +1,26 @@
 ID: aws_opensearch_domain_encryption_at_rest_enabled
 Title: "OpenSearch domains should have encryption at rest enabled"
 Description: "This control checks whether AWS OpenSearch domains have encryption-at-rest configuration enabled. The check fails if encryption at rest is not enabled."
-Connector:
-- aws
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encryption_at_rest_options ->> 'Enabled' = 'false' then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when encryption_at_rest_options ->> 'Enabled' = 'false' then title || ' encryption at rest disabled.'
-        else title || ' encryption at rest enabled.'
-      end reason
-      
-      , region, account_id
-    from
-      aws_opensearch_domain;
+  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encryption_at_rest_options ->> 'Enabled' = 'false' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when encryption_at_rest_options ->> 'Enabled' = 'false' then title || ' encryption at rest disabled.'\n    else title || ' encryption at rest enabled.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
   PrimaryTable: aws_opensearch_domain
   ListOfTables:
-  - aws_opensearch_domain
+    - aws_opensearch_domain
   Parameters: []
 Severity: medium
 Tags:
   aws_foundational_security:
-  - "true"
+    - "true"
   category:
-  - Compliance
+    - Compliance
   foundational_security_category:
-  - encryption_of_data_at_rest
+    - encryption_of_data_at_rest
   foundational_security_item_id:
-  - opensearch_1
+    - opensearch_1
   plugin:
-  - aws
+    - aws
   service:
-  - AWS/OpenSearch
+    - AWS/OpenSearch
+Integration_Type_Name:
+  - aws_cloud

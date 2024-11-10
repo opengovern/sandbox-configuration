@@ -1,8 +1,6 @@
 ID: azure_compute_disk_unattached_encrypted_with_cmk
 Title: "Unattached Compute disks should be encrypted with ADE/CMK"
 Description: "This policy identifies the disks which are unattached and are encrypted with default encryption instead of ADE/CMK. Azure encrypts disks by default Server-Side Encryption (SSE) with platform-managed keys [SSE with PMK]. It is recommended to use either SSE with Azure Disk Encryption [SSE with PMK+ADE] or Customer Managed Key [SSE with CMK] which improves on platform-managed keys by giving you control of the encryption keys to meet your compliance need."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |-
@@ -34,8 +32,10 @@ Query:
       and sub.subscription_id = disk.subscription_id;
   PrimaryTable: azure_compute_disk
   ListOfTables:
-  - azure_compute_disk
-  - azure_subscription
+    - azure_compute_disk
+    - azure_subscription
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

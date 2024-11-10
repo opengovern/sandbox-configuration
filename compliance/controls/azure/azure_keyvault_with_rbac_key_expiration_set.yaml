@@ -1,66 +1,34 @@
 ID: azure_keyvault_with_rbac_key_expiration_set
 Title: "Ensure that the Expiration Date is set for all Keys in RBAC Key Vaults"
 Description: "Ensure that all Keys in Role Based Access Control (RBAC) Azure Key Vaults have an expiration date set."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with rbac_vault as (
-      select
-        name
-      from
-        azure_key_vault
-      where enable_rbac_authorization
-    )
-    select
-      kvk.id as resource,
-      kvk.og_account_id as og_account_id,
-      kvk.og_resource_id as og_resource_id,
-      case
-        when v.name is null then 'skip'
-        when enabled and expires_at is null then 'alarm'
-        else 'ok'
-      end as status,
-      vault_name || ' key ' || kvk.name ||
-      case
-        when v.name is null then ' not RBAC enabled vault.'
-        when enabled and expires_at is null then ' expiration date not set.'
-        when not enabled then ' disabled.'
-        else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'
-      end as reason
-      
-      , kvk.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_key_vault_key kvk
-      left join rbac_vault as v on v.name = kvk.vault_name,
-      azure_subscription sub
-    where
-      sub.subscription_id = kvk.subscription_id;
+  QueryToExecute: "with rbac_vault as (\n  select\n    name\n  from\n    azure_key_vault\n  where enable_rbac_authorization\n)\nselect\n  kvk.id as resource,\n  kvk.og_account_id as og_account_id,\n  kvk.og_resource_id as og_resource_id,\n  case\n    when v.name is null then 'skip'\n    when enabled and expires_at is null then 'alarm'\n    else 'ok'\n  end as status,\n  vault_name || ' key ' || kvk.name ||\n  case\n    when v.name is null then ' not RBAC enabled vault.'\n    when enabled and expires_at is null then ' expiration date not set.'\n    when not enabled then ' disabled.'\n    else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'\n  end as reason\n  \n  , kvk.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_key_vault_key kvk\n  left join rbac_vault as v on v.name = kvk.vault_name,\n  azure_subscription sub\nwhere\n  sub.subscription_id = kvk.subscription_id;\n"
   PrimaryTable: azure_key_vault_key
   ListOfTables:
-  - azure_key_vault
-  - azure_key_vault_key
-  - azure_subscription
+    - azure_key_vault
+    - azure_key_vault_key
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - "8.1"
+    - "8.1"
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "8"
+    - "8"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.4.0
+    - v1.4.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/KeyVault
+    - Azure/KeyVault
+Integration_Type_Name:
+  - azure_subscription

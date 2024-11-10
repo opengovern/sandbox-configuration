@@ -1,33 +1,13 @@
 ID: azure_cis_v210_4_3_3
 Title: "4.3.3 Ensure server parameter 'log_connections' is set to 'ON' for PostgreSQL Database Server"
 Description: "Enable log_connections on PostgreSQL Servers."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      s.id as resource,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter log_connections off.'
-        else s.name || ' server parameter log_connections on.'
-      end as reason
-      
-      
-      
-    from
-      azure_postgresql_server s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    where
-      config ->> 'Name' = 'log_connections'
-      and sub.subscription_id = s.subscription_id;
+  QueryToExecute: "select\n  s.id as resource,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter log_connections off.'\n    else s.name || ' server parameter log_connections on.'\n  end as reason\n  \n  \n  \nfrom\n  azure_postgresql_server s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'log_connections'\n  and sub.subscription_id = s.subscription_id;\n"
   PrimaryTable: ""
   ListOfTables: []
   Parameters: []
 Severity: low
 Tags: {}
+Integration_Type_Name:
+  - azure_subscription

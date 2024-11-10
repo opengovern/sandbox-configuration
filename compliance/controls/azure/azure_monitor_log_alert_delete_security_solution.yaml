@@ -1,8 +1,6 @@
 ID: azure_monitor_log_alert_delete_security_solution
 Title: "Ensure that Activity Log Alert exists for Delete Security Solution"
 Description: "Create an activity log alert for the Delete Security Solution event."
-Connector:
-- azure
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
@@ -40,7 +38,7 @@ Query:
         when count(a.subscription_id) > 0 then 'Activity log alert exists for delete Security Solution event.'
         else 'Activity log alert does not exists for delete Security Solution event.'
       end as reason
-    
+
       , sub.display_name as subscription
     from
       azure_subscription sub
@@ -53,26 +51,28 @@ Query:
       sub.display_name;
   PrimaryTable: azure_log_alert
   ListOfTables:
-  - azure_log_alert
-  - azure_subscription
+    - azure_log_alert
+    - azure_subscription
   Parameters: []
 Severity: high
 Tags:
   category:
-  - Compliance
+    - Compliance
   cis:
-  - "true"
+    - "true"
   cis_item_id:
-  - 5.2.8
+    - 5.2.8
   cis_level:
-  - "1"
+    - "1"
   cis_section_id:
-  - "5.2"
+    - "5.2"
   cis_type:
-  - automated
+    - automated
   cis_version:
-  - v1.3.0
+    - v1.3.0
   plugin:
-  - azure
+    - azure
   service:
-  - Azure/Monitor
+    - Azure/Monitor
+Integration_Type_Name:
+  - azure_subscription
