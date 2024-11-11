@@ -28,7 +28,7 @@ def process_file(filepath):
                     new_list = []
                     for item in value:
                         if item == 'aws':
-                            new_list.append('aws_cloud')
+                            new_list.append('aws_cloud_account')
                             modified = True
                         elif item == 'azure':
                             new_list.append('azure_subscription')

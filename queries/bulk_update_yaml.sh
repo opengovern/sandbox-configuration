@@ -2,7 +2,7 @@
 
 # Script Name: replace_integration_types.sh
 # Description: 
-#   Replaces '- aws' with '- aws_cloud' and '- azure' with '- azure_subscription' 
+#   Replaces '- aws' with '- aws_cloud_account' and '- azure' with '- azure_subscription'
 #   within the IntegrationTypeName sections of YAML files.
 #
 # Usage: 
@@ -83,7 +83,7 @@ for FILE in "${FIND_CMD[@]}"; do
             }
             # If within the IntegrationTypeName block and line matches '- aws', replace it
             in_block == 1 && /^[[:space:]]*-[[:space:]]*aws[[:space:]]*$/ {
-                sub(/- aws[[:space:]]*$/, "- aws_cloud")
+                sub(/- aws[[:space:]]*$/, "- aws_cloud_account")
             }
             # If within the IntegrationTypeName block and line matches '- azure', replace it
             in_block == 1 && /^[[:space:]]*-[[:space:]]*azure[[:space:]]*$/ {

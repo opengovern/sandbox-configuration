@@ -24,13 +24,13 @@ find "$ROOT_DIR" -type f \( -iname "*.yaml" -o -iname "*.yml" \) -print0 | while
         if type == "array" then
           .Connector | map(
             {
-              "aws": "aws_cloud",
+              "aws": "aws_cloud_account",
               "azure": "azure_subscription"
             }[.] // .
           )
         else
           {
-            "aws": "aws_cloud",
+            "aws": "aws_cloud_account",
             "azure": "azure_subscription"
           }[.] // .
         end
@@ -46,13 +46,13 @@ find "$ROOT_DIR" -type f \( -iname "*.yaml" -o -iname "*.yml" \) -print0 | while
           if type == "array" then
             .Connector | map(
               {
-                "aws": "aws_cloud",
+                "aws": "aws_cloud_account",
                 "azure": "azure_subscription"
               }[.] // .
             )
           else
             {
-              "aws": "aws_cloud",
+              "aws": "aws_cloud_account",
               "azure": "azure_subscription"
             }[.] // .
           end
