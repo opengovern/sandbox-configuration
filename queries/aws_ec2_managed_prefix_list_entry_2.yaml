@@ -1,22 +1,30 @@
-Description: Allows users to query AWS EC2 Managed Prefix List Entries, providing
-  details such as the CIDR block, description, and the prefix list ID. This table
-  is useful for understanding the IP address ranges included in a managed prefix list.
+Description: Allows users to query AWS EC2 Managed Prefix List Entries, providing details such as the CIDR block, description, and the prefix list ID. This table is useful for understanding the IP address ranges included in a managed prefix list.
 ID: aws_ec2_managed_prefix_list_entry_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  l.name,\n  l.id,\n  e.cidr,\n  e.description,\n  l.state,\n\
-    \  l.owner_id\nfrom\n  aws_ec2_managed_prefix_list_entry as e,\n  aws_ec2_managed_prefix_list\
-    \ as l\nwhere\n  l.owner_id <> 'AWS';"
+  QueryToExecute: |
+    SELECT
+      l.name,
+      l.id,
+      e.cidr,
+      e.description,
+      l.state,
+      l.owner_id
+    FROM
+      aws_ec2_managed_prefix_list_entry AS e,
+      aws_ec2_managed_prefix_list AS l
+    WHERE
+      l.owner_id <> 'AWS';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find AWS EC2 Managed Prefix List Entries with Details

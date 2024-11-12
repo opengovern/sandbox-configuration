@@ -1,23 +1,28 @@
-Description: Allows users to query AWS CodeDeploy Deployment Configurations to retrieve
-  information about the deployment configurations within AWS CodeDeploy service.
+Description: Allows users to query AWS CodeDeploy Deployment Configurations to retrieve information about the deployment configurations within AWS CodeDeploy service.
 ID: aws_codedeploy_deployment_config_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  deployment_config_id,\n  deployment_config_name,\n\
-    \  traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryInterval' as canary_interval,\n\
-    \  traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryPercentage' as canary_percentage\n\
-    from\n  aws_codedeploy_deployment_config\nwhere\n  traffic_routing_config ->>\
-    \ 'Type' = 'TimeBasedCanary';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      deployment_config_id,
+      deployment_config_name,
+      traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryInterval' AS canary_interval,
+      traffic_routing_config -> 'TimeBasedCanary' ->> 'CanaryPercentage' AS canary_percentage
+    FROM
+      aws_codedeploy_deployment_config
+    WHERE
+      traffic_routing_config ->> 'Type' = 'TimeBasedCanary';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeDeploy
+    - CodeDeploy
 Title: Find AWS CodeDeploy Deployment Configurations

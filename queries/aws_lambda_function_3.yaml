@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Lambda Functions, providing information about
-  each function''s configuration, including runtime, code size, timeout, and associated
-  tags.
+Description: Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags.
 ID: aws_lambda_function_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  runtime,\n  count(*)\nfrom\n  aws_lambda_function\ngroup\
-    \ by\n  runtime;"
+  QueryToExecute: |
+    SELECT
+      runtime,
+      COUNT(*)
+    FROM
+      aws_lambda_function
+    GROUP BY
+      runtime;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda
+    - Lambda
 Title: List all AWS Lambda Functions with Runtime Details

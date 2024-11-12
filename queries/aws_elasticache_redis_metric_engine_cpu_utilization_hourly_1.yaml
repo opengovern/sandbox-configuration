@@ -1,21 +1,30 @@
-Description: Allows users to query hourly CPU utilization metrics for AWS ElastiCache
-  Redis.
+Description: Allows users to query hourly CPU utilization metrics for AWS ElastiCache Redis.
 ID: aws_elasticache_redis_metric_engine_cpu_utilization_hourly_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  timestamp,\n  minimum,\n  maximum,\n\
-    \  average,\n  sample_count\nfrom\n  aws_elasticache_redis_metric_engine_cpu_utilization_hourly\n\
-    order by\n  cache_cluster_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    FROM
+      aws_elasticache_redis_metric_engine_cpu_utilization_hourly
+    ORDER BY
+      cache_cluster_id,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache Redis
+    - ElastiCache Redis
 Title: List hourly CPU utilization metrics for ElastiCache Redis

@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Organizations Policy to retrieve detailed information
-  on policies within AWS Organizations. This table can be utilized to gain insights
-  on policy-specific details, such as policy type, content, and associated metadata.
+Description: Allows users to query AWS Organizations Policy to retrieve detailed information on policies within AWS Organizations. This table can be utilized to gain insights on policy-specific details, such as policy type, content, and associated metadata.
 ID: aws_organizations_policy_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  arn,\n  type,\n  aws_managed\nfrom\n\
-    \  aws_organizations_policy\nwhere\n  not aws_managed\n  and type = 'TAG_POLICY';"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      arn,
+      type,
+      aws_managed
+    FROM
+      aws_organizations_policy
+    WHERE
+      NOT aws_managed
+      AND type = 'TAG_POLICY';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Organizations
+    - Organizations
 Title: List all Tag Policies in AWS Organizations

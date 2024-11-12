@@ -1,30 +1,37 @@
-Description: Allows users to query AWS Disaster Recovery Service Recovery Instances
-  to retrieve information about recovery instances, including instance type, recovery
-  instance ARN, and associated tags.
+Description: Allows users to query AWS Disaster Recovery Service Recovery Instances to retrieve information about recovery instances, including instance type, recovery instance ARN, and associated tags.
 ID: aws_drs_recovery_instance_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  recovery_instance_id,\n  arn,\n  source_server_id,\n\
-    \  ec2_instance_id,\n  failback ->> 'AgentLastSeenByServiceDateTime' as agent_last_seen_by_service_date_time,\n\
-    \  failback ->> 'ElapsedReplicationDuration' as elapsed_replication_duration,\n\
-    \  failback ->> 'FailbackClientID' as failback_client_id,\n  failback ->> 'FailbackClientLastSeenByServiceDateTime'\
-    \ as failback_client_last_seen_by_service_date_time,\n  failback ->> 'FailbackInitiationTime'\
-    \ as failback_initiation_time,\n  failback -> 'FailbackJobID' as failback_job_id,\n\
-    \  failback -> 'FailbackLaunchType' as failback_launch_type,\n  failback -> 'FailbackToOriginalServer'\
-    \ as failback_to_original_server,\n  failback -> 'FirstByteDateTime' as failback_first_byte_date_time,\n\
-    \  failback -> 'State' as failback_state\nfrom\n  aws_drs_recovery_instance;"
+  QueryToExecute: |
+    SELECT
+      recovery_instance_id,
+      arn,
+      source_server_id,
+      ec2_instance_id,
+      failback ->> 'AgentLastSeenByServiceDateTime' AS agent_last_seen_by_service_date_time,
+      failback ->> 'ElapsedReplicationDuration' AS elapsed_replication_duration,
+      failback ->> 'FailbackClientID' AS failback_client_id,
+      failback ->> 'FailbackClientLastSeenByServiceDateTime' AS failback_client_last_seen_by_service_date_time,
+      failback ->> 'FailbackInitiationTime' AS failback_initiation_time,
+      failback -> 'FailbackJobID' AS failback_job_id,
+      failback -> 'FailbackLaunchType' AS failback_launch_type,
+      failback -> 'FailbackToOriginalServer' AS failback_to_original_server,
+      failback -> 'FirstByteDateTime' AS failback_first_byte_date_time,
+      failback -> 'State' AS failback_state
+    FROM
+      aws_drs_recovery_instance;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Disaster Recovery Service
+    - Disaster Recovery Service
 Title: List all AWS Disaster Recovery Recovery Instances

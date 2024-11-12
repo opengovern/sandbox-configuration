@@ -1,22 +1,29 @@
-Description: Allows users to query Amazon DocumentDB Cluster Instances to gather detailed
-  information such as instance identifier, cluster identifier, instance class, availability
-  zone, engine version, and more.
+Description: Allows users to query Amazon DocumentDB Cluster Instances to gather detailed information such as instance identifier, cluster identifier, instance class, availability zone, engine version, and more.
 ID: aws_docdb_cluster_instance_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  db_cluster_identifier,\n \
-    \ engine,\n  engine_version,\n  db_instance_class,\n  availability_zone\nfrom\n\
-    \  aws_docdb_cluster_instance\nwhere\n  publicly_accessible;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      db_cluster_identifier,
+      engine,
+      engine_version,
+      db_instance_class,
+      availability_zone
+    FROM
+      aws_docdb_cluster_instance
+    WHERE
+      publicly_accessible;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DocumentDB
+    - DocumentDB
 Title: List all Amazon DocumentDB Cluster Instances

@@ -1,26 +1,30 @@
-Description: Allows users to query AWS Inspector findings to gain insights into potential
-  security issues and vulnerabilities within their AWS resources. The table provides
-  detailed information about each finding, including its severity, status, and associated
-  resources.
+Description: Allows users to query AWS Inspector findings to gain insights into potential security issues and vulnerabilities within their AWS resources. The table provides detailed information about each finding, including its severity, status, and associated resources.
 ID: aws_inspector2_finding_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  severity\nfrom\n  aws_inspector2_finding\n\
-    where\n  last_observed_at >= now() - interval '10' day;"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      severity
+    FROM
+      aws_inspector2_finding
+    WHERE
+      last_observed_at >= NOW() - INTERVAL '10' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector
+    - AWS Inspector
 Title: Find all AWS Inspector findings with details

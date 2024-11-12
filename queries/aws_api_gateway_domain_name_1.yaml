@@ -1,21 +1,27 @@
-Description: Allows users to query AWS API Gateway Domain Names and retrieve details
-  about each domain''s configuration, certificate, and associated API.
+Description: Allows users to query AWS API Gateway Domain Names and retrieve details about each domain's configuration, certificate, and associated API.
 ID: aws_api_gateway_domain_name_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  certificate_arn,\n  distribution_domain_name,\n\
-    \  distribution_hosted_zone_id,\n  domain_name_status,\n  ownership_verification_certificate_arn\n\
-    from\n  aws_api_gateway_domain_name;"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      certificate_arn,
+      distribution_domain_name,
+      distribution_hosted_zone_id,
+      domain_name_status,
+      ownership_verification_certificate_arn
+    FROM
+      aws_api_gateway_domain_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: List all AWS API Gateway Domain Names with Configuration

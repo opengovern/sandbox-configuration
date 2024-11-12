@@ -1,23 +1,28 @@
 Description: Allows users to query AWS EKS Add-On Versions.
 ID: aws_eks_addon_version_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  addon_name,\n  addon_version,\n  addon_configuration\
-    \ -> '$defs' -> 'extraVolumeTags' ->> 'description' as addon_configuration_def_description,\n\
-    \  addon_configuration -> '$defs' -> 'extraVolumeTags' -> 'propertyNames' as addon_configuration_def_property_names,\n\
-    \  addon_configuration -> '$defs' -> 'extraVolumeTags' -> 'patternProperties'\
-    \ as addon_configuration_def_pattern_properties,\n  addon_configuration -> 'properties'\
-    \ as addon_configuration_properties\nfrom\n  aws_eks_addon_version limit 10;"
+  QueryToExecute: |
+    SELECT
+      addon_name,
+      addon_version,
+      addon_configuration -> '$defs' -> 'extraVolumeTags' ->> 'description' AS addon_configuration_def_description,
+      addon_configuration -> '$defs' -> 'extraVolumeTags' -> 'propertyNames' AS addon_configuration_def_property_names,
+      addon_configuration -> '$defs' -> 'extraVolumeTags' -> 'patternProperties' AS addon_configuration_def_pattern_properties,
+      addon_configuration -> 'properties' AS addon_configuration_properties
+    FROM
+      aws_eks_addon_version
+    LIMIT 10;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EKS
+    - EKS
 Title: Find AWS EKS Add-On Versions

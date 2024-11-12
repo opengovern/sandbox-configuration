@@ -1,26 +1,32 @@
-Description: Allows users to query AWS CloudFront Distributions to gain insights into
-  their configuration, status, and associated metadata.
+Description: Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata.
 ID: aws_cloudfront_distribution_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  arn,\n  p -> 'CustomOriginConfig' -> 'HTTPPort'\
-    \ as http_port,\n  p -> 'CustomOriginConfig' -> 'HTTPSPort' as https_port,\n \
-    \ p -> 'CustomOriginConfig' -> 'OriginKeepaliveTimeout' as origin_keepalive_timeout,\n\
-    \  p -> 'CustomOriginConfig' -> 'OriginProtocolPolicy' as origin_protocol_policy\n\
-    from\n  aws_cloudfront_distribution,\n  jsonb_array_elements(origins) as p\nwhere\n\
-    \  p -> 'CustomOriginConfig' ->> 'OriginProtocolPolicy' = 'https-only';"
+  QueryToExecute: |
+    SELECT
+      id,
+      arn,
+      p -> 'CustomOriginConfig' -> 'HTTPPort' AS http_port,
+      p -> 'CustomOriginConfig' -> 'HTTPSPort' AS https_port,
+      p -> 'CustomOriginConfig' -> 'OriginKeepaliveTimeout' AS origin_keepalive_timeout,
+      p -> 'CustomOriginConfig' -> 'OriginProtocolPolicy' AS origin_protocol_policy
+    FROM
+      aws_cloudfront_distribution,
+      jsonb_array_elements(origins) AS p
+    WHERE
+      p -> 'CustomOriginConfig' ->> 'OriginProtocolPolicy' = 'https-only';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: Query AWS CloudFront Distributions and Insights

@@ -1,22 +1,26 @@
-Description: Allows users to query AWS Security Hub Insights to retrieve information
-  about the insights in AWS Security Hub. This includes details such as insight ARN,
-  name, filters, group by attributes, and more.
+Description: Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more.
 ID: aws_securityhub_insight_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  filters ->> 'MalwareName' as malware_name,\n\
-    \  filters ->> 'MalwarePath' as malware_path,\n  filters ->> 'MalwareType' as\
-    \ malware_type\nfrom\n  aws_securityhub_insight;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      filters ->> 'MalwareName' AS malware_name,
+      filters ->> 'MalwarePath' AS malware_path,
+      filters ->> 'MalwareType' AS malware_type
+    FROM
+      aws_securityhub_insight;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: List all AWS Security Hub Insights with Details

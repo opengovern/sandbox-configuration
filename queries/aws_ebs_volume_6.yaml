@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Elastic Block Store (EBS) volumes for detailed
-  information about their configuration, status, and associated tags.
+Description: Allows users to query AWS Elastic Block Store (EBS) volumes for detailed information about their configuration, status, and associated tags.
 ID: aws_ebs_volume_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  volume_id,\n  size,\n  att ->> 'InstanceId' as instance_id\n\
-    from\n  aws_ebs_volume\n  cross join jsonb_array_elements(attachments) as att\n\
-    \  join aws_ec2_instance as i on i.instance_id = att ->> 'InstanceId'\nwhere\n\
-    \  instance_state = 'stopped';"
+  QueryToExecute: |
+    SELECT
+      volume_id,
+      size,
+      att ->> 'InstanceId' AS instance_id
+    FROM
+      aws_ebs_volume
+      CROSS JOIN jsonb_array_elements(attachments) AS att
+      JOIN aws_ec2_instance AS i ON i.instance_id = att ->> 'InstanceId'
+    WHERE
+      instance_state = 'stopped';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Block Store (EBS)
+    - Elastic Block Store (EBS)
 Title: List all AWS EBS volumes and their stopped instances

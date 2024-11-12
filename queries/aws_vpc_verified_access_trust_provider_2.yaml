@@ -1,26 +1,31 @@
-Description: Allows users to query AWS VPC Verified Access Trust Providers, providing
-  information about the trust providers for VPC endpoints in AWS. This table can be
-  used to gain insights into the trust relationships between VPC endpoints and the
-  services they access.
+Description: Allows users to query AWS VPC Verified Access Trust Providers, providing information about the trust providers for VPC endpoints in AWS. This table can be used to gain insights into the trust relationships between VPC endpoints and the services they access.
 ID: aws_vpc_verified_access_trust_provider_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  verified_access_trust_provider_id,\n  creation_time,\n\
-    \  device_trust_provider_type,\n  last_updated_time,\n  policy_reference_name,\n\
-    \  trust_provider_type\nfrom\n  aws_vpc_verified_access_trust_provider\nwhere\n\
-    \  trust_provider_type = 'user';"
+  QueryToExecute: |
+    SELECT
+      verified_access_trust_provider_id,
+      creation_time,
+      device_trust_provider_type,
+      last_updated_time,
+      policy_reference_name,
+      trust_provider_type
+    FROM
+      aws_vpc_verified_access_trust_provider
+    WHERE
+      trust_provider_type = 'user';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC Verified Access
+    - VPC Verified Access
 Title: List AWS VPC Verified Access Trust Providers' Details

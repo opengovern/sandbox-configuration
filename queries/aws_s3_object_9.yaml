@@ -1,26 +1,33 @@
-Description: Allows users to query AWS S3 Objects and retrieve metadata and details
-  about each object stored in S3 buckets.
+Description: Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets.
 ID: aws_s3_object_9
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.key,\n  s.bucket_name,\n  s.object_lock_retain_until_date,\n\
-    \  s.object_lock_mode,\n  s.object_lock_legal_hold_status\nfrom\n  aws_s3_object\
-    \ as s\nwhere\n  bucket_name = 'steampipe-test'\n  and object_lock_retain_until_date\
-    \ > current_date + interval '1 year';"
+  QueryToExecute: |
+    SELECT
+      s.key,
+      s.bucket_name,
+      s.object_lock_retain_until_date,
+      s.object_lock_mode,
+      s.object_lock_legal_hold_status
+    FROM
+      aws_s3_object AS s
+    WHERE
+      s.bucket_name = 'steampipe-test'
+      AND s.object_lock_retain_until_date > CURRENT_DATE + INTERVAL '1 year';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find metadata and details of AWS S3 Objects

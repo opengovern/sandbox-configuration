@@ -1,21 +1,25 @@
-Description: Allows users to query AWS CloudFront Origin Request Policies, providing
-  details about each policy such as ID, name, comment, cookies configuration, headers
-  configuration, query strings configuration, and more.
+Description: Allows users to query AWS CloudFront Origin Request Policies, providing details about each policy such as ID, name, comment, cookies configuration, headers configuration, query strings configuration, and more.
 ID: aws_cloudfront_origin_request_policy_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  headers_config ->> 'HeaderBehavior' as\
-    \ header_behavior,\n  headers_config ->> 'Headers' as headers\nfrom\n  aws_cloudfront_origin_request_policy;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      headers_config ->> 'HeaderBehavior' AS header_behavior,
+      headers_config ->> 'Headers' AS headers
+    FROM
+      aws_cloudfront_origin_request_policy;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: List all AWS CloudFront Origin Request Policies

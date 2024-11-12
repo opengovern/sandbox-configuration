@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Directory Service Directories for information
-  about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
+Description: Allows users to query AWS Directory Service Directories for information about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
 ID: aws_directory_service_directory_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  directory_id,\n  e ->> 'CreatedDateTime' as\
-    \ topic_created_date_time,\n  e ->> 'Status' as topic_status,\n  e ->> 'TopicArn'\
-    \ as topic_arn,\n  e ->> 'TopicName' as topic_name\nfrom\n  aws_directory_service_directory,\n\
-    \  jsonb_array_elements(event_topics) as e;"
+  QueryToExecute: |
+    SELECT
+      name,
+      directory_id,
+      e ->> 'CreatedDateTime' AS topic_created_date_time,
+      e ->> 'Status' AS topic_status,
+      e ->> 'TopicArn' AS topic_arn,
+      e ->> 'TopicName' AS topic_name
+    FROM
+      aws_directory_service_directory,
+      jsonb_array_elements(event_topics) AS e;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Directory Service
+    - Directory Service
 Title: List All AWS Directory Service Directory Information

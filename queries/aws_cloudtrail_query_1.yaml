@@ -1,24 +1,29 @@
-Description: Allows users to query AWS CloudTrail events for a detailed view of account
-  activity, including actions taken through the AWS Management Console, AWS SDKs,
-  command line tools, and other AWS services.
+Description: Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services.
 ID: aws_cloudtrail_query_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  query_id,\n  event_data_store_arn,\n  query_status,\n\
-    \  query_status,\n  creation_time,\n  events_matched,\n  events_scanned\nfrom\n\
-    \  aws_cloudtrail_query;"
+  QueryToExecute: |
+    SELECT
+      query_id,
+      event_data_store_arn,
+      query_status,
+      creation_time,
+      events_matched,
+      events_scanned
+    FROM
+      aws_cloudtrail_query;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudTrail
+    - CloudTrail
 Title: Find AWS CloudTrail events for account activity

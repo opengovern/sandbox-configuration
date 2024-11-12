@@ -1,22 +1,32 @@
 Description: List all ELB with no WAF.
 ID: aws_insight_elb_application_lb_waf_enabled
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_ec2_application_load_balancer
+    - aws_ec2_application_load_balancer
   Parameters: []
   PrimaryTable: aws_ec2_application_load_balancer
-  QueryToExecute: "select\n  -- Required Columns\n  arn as resource, account_id, og_account_id,\
-    \ og_resource_id,\n  case\n    when load_balancer_attributes @> '[{\"Key\":\"\
-    waf.fail_open.enabled\",\"Value\":\"true\"}]' then 'ok'\n    else 'alarm'\n  end\
-    \ as status,\n  case\n    when load_balancer_attributes @> '[{\"Key\":\"waf.fail_open.enabled\"\
-    ,\"Value\":\"true\"}]' then title || ' WAF enabled.'\n    else title || ' WAF\
-    \ disabled.'\n  end as reason,\n  -- Additional Dimensions\n  region \nfrom\n\
-    \  aws_ec2_application_load_balancer;"
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      account_id,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN load_balancer_attributes @> '[{"Key":"waf.fail_open.enabled","Value":"true"}]' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN load_balancer_attributes @> '[{"Key":"waf.fail_open.enabled","Value":"true"}]' THEN title || ' WAF enabled.'
+        ELSE title || ' WAF disabled.'
+      END AS reason,
+      region
+    FROM
+      aws_ec2_application_load_balancer;
 Tags:
   category:
-  - Security
-  - Technical Debt
+    - Security
+    - Technical Debt
 Title: Load Balancers with no WAF

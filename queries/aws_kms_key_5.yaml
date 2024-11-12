@@ -1,22 +1,27 @@
-Description: Allows users to query AWS KMS Key data including cryptographic details,
-  key usage, key state, and associated metadata.
+Description: Allows users to query AWS KMS Key data including cryptographic details, key usage, key state, and associated metadata.
 ID: aws_kms_key_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  key_manager,\n  count(key_manager) as count\nfrom\n \
-    \ aws_kms_key\ngroup by\n  key_manager;"
+  QueryToExecute: |
+    SELECT
+      key_manager,
+      COUNT(key_manager) AS count
+    FROM
+      aws_kms_key
+    GROUP BY
+      key_manager;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - KMS
+    - KMS
 Title: List all AWS KMS Key data with cryptographic details

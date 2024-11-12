@@ -1,24 +1,30 @@
-Description: Allows users to query AWS EC2 Network Load Balancer data including configuration,
-  status, and other related information.
+Description: Allows users to query AWS EC2 Network Load Balancer data including configuration, status, and other related information.
 ID: aws_ec2_network_load_balancer_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  lb ->> 'Key' as cross_zone,\n  lb ->> 'Value'\
-    \ as cross_zone_value\nfrom\n  aws_ec2_network_load_balancer\n  cross join jsonb_array_elements(load_balancer_attributes)\
-    \ as lb\nwhere\n  lb ->> 'Key' = 'load_balancing.cross_zone.enabled'\n  and lb\
-    \ ->> 'Value' = 'false';"
+  QueryToExecute: |
+    SELECT
+      name,
+      lb ->> 'Key' AS cross_zone,
+      lb ->> 'Value' AS cross_zone_value
+    FROM
+      aws_ec2_network_load_balancer
+      CROSS JOIN jsonb_array_elements(load_balancer_attributes) AS lb
+    WHERE
+      lb ->> 'Key' = 'load_balancing.cross_zone.enabled'
+      AND lb ->> 'Value' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Network Load Balancer
+    - EC2 Network Load Balancer
 Title: Find AWS EC2 Network Load Balancer Configuration and Status

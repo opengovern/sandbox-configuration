@@ -1,22 +1,25 @@
-Description: Allows users to query AWS IAM Group data such as group name, path, and
-  ARN. This table provides information about IAM groups within AWS Identity and Access
-  Management (IAM).
+Description: Allows users to query AWS IAM Group data such as group name, path, and ARN. This table provides information about IAM groups within AWS Identity and Access Management (IAM).
 ID: aws_iam_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as group_name,\n  split_part(attachments, '/', 2)\
-    \ as attached_policies\nfrom\n  aws_iam_group\n  cross join jsonb_array_elements_text(attached_policy_arns)\
-    \ as attachments;"
+  QueryToExecute: |
+    SELECT
+      name AS group_name,
+      SPLIT_PART(attachments, '/', 2) AS attached_policies
+    FROM
+      aws_iam_group
+    CROSS JOIN 
+      jsonb_array_elements_text(attached_policy_arns) AS attachments;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find all AWS IAM Group details with their attached policies

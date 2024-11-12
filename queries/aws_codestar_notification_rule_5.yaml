@@ -1,28 +1,41 @@
-Description: Allows users to query CodeStar notification rules in the AWS Developer
-  Tools to retrieve information about notification rules.
+Description: Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules.
 ID: aws_codestar_notification_rule_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with rule_target as (\n  select\n    arn,\n    target ->> 'TargetAddress'\
-    \ as target_address,\n    target ->> 'TargetStatus' as target_status,\n    target\
-    \ ->> 'TargetType' as target_type\n  from\n    aws_codestar_notification_rule\
-    \ cross\n    join jsonb_array_elements(targets) as target\n)\nselect\n  notification_rule.name\
-    \ as notification_rule,\n  rule_target.target_type,\n  topic.title as target_topic\n\
-    from\n  aws_codestar_notification_rule as notification_rule\n  left join rule_target\
-    \ on rule_target.arn = notification_rule.arn\n  left join aws_sns_topic as topic\
-    \ on rule_target.target_address = topic.topic_arn;"
+  QueryToExecute: |
+    WITH rule_target AS (
+      SELECT
+        arn,
+        target ->> 'TargetAddress' AS target_address,
+        target ->> 'TargetStatus' AS target_status,
+        target ->> 'TargetType' AS target_type
+      FROM
+        aws_codestar_notification_rule
+      CROSS JOIN 
+        jsonb_array_elements(targets) AS target
+    )
+    SELECT
+      notification_rule.name AS notification_rule,
+      rule_target.target_type,
+      topic.title AS target_topic
+    FROM
+      aws_codestar_notification_rule AS notification_rule
+    LEFT JOIN 
+      rule_target ON rule_target.arn = notification_rule.arn
+    LEFT JOIN 
+      aws_sns_topic AS topic ON rule_target.target_address = topic.topic_arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeStar
+    - CodeStar
 Title: List AWS CodeStar Notification Rules with Targets

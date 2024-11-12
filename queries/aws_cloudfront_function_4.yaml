@@ -1,23 +1,30 @@
-Description: Allows users to query AWS CloudFront Functions to retrieve detailed information
-  about each function, including its ARN, stage, status, and more.
+Description: Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more.
 ID: aws_cloudfront_function_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  function_metadata ->> 'Stage' as stage,\n\
-    \  status,\n  function_metadata ->> 'LastModifiedTime' as last_modified_time\n\
-    from\n  aws_cloudfront_function\nwhere\n  (function_metadata ->> 'LastModifiedTime')::timestamp\
-    \ >= (now() - interval '1' hour)\norder by\n  function_metadata ->> 'LastModifiedTime'\
-    \ DESC;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      function_metadata ->> 'Stage' AS stage,
+      status,
+      function_metadata ->> 'LastModifiedTime' AS last_modified_time
+    FROM
+      aws_cloudfront_function
+    WHERE
+      (function_metadata ->> 'LastModifiedTime')::timestamp >= (NOW() - INTERVAL '1' HOUR)
+    ORDER BY
+      function_metadata ->> 'LastModifiedTime' DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: List of AWS CloudFront Functions with Detailed Information

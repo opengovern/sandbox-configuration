@@ -1,23 +1,31 @@
-Description: Allows users to query AWS RDS DB Instances for detailed information about
-  the configuration, status, and other metadata associated with each database instance.
+Description: Allows users to query AWS RDS DB Instances for detailed information about the configuration, status, and other metadata associated with each database instance.
 ID: aws_rds_db_instance_12
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  class,\n  engine,\n  engine_version,\n\
-    \  kms_key_id,\n  processor_features\nfrom\n  aws_rds_db_instance\nwhere\n  processor_features\
-    \ not null;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      class,
+      engine,
+      engine_version,
+      kms_key_id,
+      processor_features
+    FROM
+      aws_rds_db_instance
+    WHERE
+      processor_features IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find Detailed Info on AWS RDS DB Instances

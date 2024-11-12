@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Systems Manager Inventory Entry to fetch information
-  about the inventory entries of managed instances. The table provides details such
-  as instance ID, type name, schema version, capture time, and inventory data.
+Description: Allows users to query AWS Systems Manager Inventory Entry to fetch information about the inventory entries of managed instances. The table provides details such as instance ID, type name, schema version, capture time, and inventory data.
 ID: aws_ssm_inventory_entry_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  e.instance_id,\n  e.type_name,\n  i.schema_version,\n\
-    \  i.schema\nfrom\n  aws_ssm_inventory_entry as e,\n  aws_ssm_inventory as i\n\
-    where\n  i.id = e.instance_id;"
+  QueryToExecute: |
+    SELECT
+      e.instance_id,
+      e.type_name,
+      i.schema_version,
+      i.schema
+    FROM
+      aws_ssm_inventory_entry AS e,
+      aws_ssm_inventory AS i
+    WHERE
+      i.id = e.instance_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager
+    - Systems Manager
 Title: List AWS SSM Inventory Entry Details by Instance

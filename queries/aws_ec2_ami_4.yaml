@@ -1,26 +1,32 @@
-Description: Allows users to query AWS EC2 AMIs (Amazon Machine Images) to retrieve
-  detailed information about each AMI available in the AWS account.
+Description: Allows users to query AWS EC2 AMIs (Amazon Machine Images) to retrieve detailed information about each AMI available in the AWS account.
 ID: aws_ec2_ami_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  image_id,\n  mapping -> 'Ebs' ->> 'VolumeSize'\
-    \ as volume_size,\n  mapping -> 'Ebs' ->> 'VolumeType' as volume_type,\n  mapping\
-    \ -> 'Ebs' ->> 'Encrypted' as encryption_status,\n  mapping -> 'Ebs' ->> 'KmsKeyId'\
-    \ as kms_key,\n  mapping -> 'Ebs' ->> 'DeleteOnTermination' as delete_on_termination\n\
-    from\n  aws_ec2_ami\n  cross join jsonb_array_elements(block_device_mappings)\
-    \ as mapping;"
+  QueryToExecute: |
+    SELECT
+      name,
+      image_id,
+      mapping -> 'Ebs' ->> 'VolumeSize' AS volume_size,
+      mapping -> 'Ebs' ->> 'VolumeType' AS volume_type,
+      mapping -> 'Ebs' ->> 'Encrypted' AS encryption_status,
+      mapping -> 'Ebs' ->> 'KmsKeyId' AS kms_key,
+      mapping -> 'Ebs' ->> 'DeleteOnTermination' AS delete_on_termination
+    FROM
+      aws_ec2_ami
+    CROSS JOIN
+      jsonb_array_elements(block_device_mappings) AS mapping;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 AMI
+    - EC2 AMI
 Title: List all AWS EC2 AMIs with Detailed Information

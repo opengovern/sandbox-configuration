@@ -1,20 +1,24 @@
-Description: Allows users to query AWS Redshift Serverless Workgroup information,
-  including workgroup details, query execution settings, and enforce workgroup configuration.
+Description: Allows users to query AWS Redshift Serverless Workgroup information, including workgroup details, query execution settings, and enforce workgroup configuration.
 ID: aws_redshiftserverless_workgroup_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  sum(base_capacity) total_base_capacity\nfrom\n  aws_redshiftserverless_workgroup\n\
-    where\n  status = 'AVAILABLE';"
+  QueryToExecute: |
+    SELECT
+      SUM(base_capacity) AS total_base_capacity
+    FROM
+      aws_redshiftserverless_workgroup
+    WHERE
+      status = 'AVAILABLE';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift Serverless
+    - Redshift Serverless
 Title: List all AWS Redshift Serverless Workgroup details

@@ -1,23 +1,31 @@
-Description: Allows users to query AWS SSM Managed Instances to retrieve their configuration
-  and status information.
+Description: Allows users to query AWS SSM Managed Instances to retrieve their configuration and status information.
 ID: aws_ssm_managed_instance_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i.instance_id,\n  i.arn,\n  m.instance_id is not null\
-    \ as ssm_managed\nfrom\n  aws_ec2_instance i\nleft join aws_ssm_managed_instance\
-    \ m on m.instance_id = i.instance_id\nwhere \n  m.instance_id is null;"
+  QueryToExecute: |
+    SELECT
+      i.instance_id,
+      i.arn,
+      m.instance_id IS NOT NULL AS ssm_managed
+    FROM
+      aws_ec2_instance i
+    LEFT JOIN 
+      aws_ssm_managed_instance m 
+      ON m.instance_id = i.instance_id
+    WHERE
+      m.instance_id IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM Managed Instance
+    - SSM Managed Instance
 Title: List all AWS SSM Managed Instances with Configurations

@@ -1,25 +1,33 @@
-Description: Allows users to query AWS Global Accelerator Listener data, including
-  details about each listener that processes inbound connections based on the port
-  or port ranges that you configure.
+Description: Allows users to query AWS Global Accelerator Listener data, including details about each listener that processes inbound connections based on the port or port ranges that you configure.
 ID: aws_globalaccelerator_listener_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  a.name as accelerator_name,\n  a.status as accelerator_status,\n\
-    \  l.protocol,\n  port_range -> 'FromPort' as from_port,\n  port_range -> 'ToPort'\
-    \ as to_port\nfrom\n  aws_globalaccelerator_accelerator a,\n  aws_globalaccelerator_listener\
-    \ l,\n  jsonb_array_elements(l.port_ranges) as port_range\nwhere\n  l.accelerator_arn\
-    \ = a.arn\n  and l.protocol = 'TCP'\n  and (port_range -> 'FromPort')::int <=\
-    \ 443\n  and (port_range -> 'ToPort')::int >= 443;"
+  QueryToExecute: |
+    SELECT
+      a.name AS accelerator_name,
+      a.status AS accelerator_status,
+      l.protocol,
+      port_range -> 'FromPort' AS from_port,
+      port_range -> 'ToPort' AS to_port
+    FROM
+      aws_globalaccelerator_accelerator a,
+      aws_globalaccelerator_listener l,
+      jsonb_array_elements(l.port_ranges) AS port_range
+    WHERE
+      l.accelerator_arn = a.arn
+      AND l.protocol = 'TCP'
+      AND (port_range -> 'FromPort')::int <= 443
+      AND (port_range -> 'ToPort')::int >= 443;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Global Accelerator
+    - Global Accelerator
 Title: List all AWS Global Accelerator Listener including details

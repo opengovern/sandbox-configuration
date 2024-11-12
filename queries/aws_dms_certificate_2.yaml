@@ -1,27 +1,32 @@
-Description: Allows users to query AWS DMS (Database Migration Service) Certificates.
-  This table provides information about SSL/TLS certificates used in AWS DMS for encrypting
-  data during database migration tasks. Certificates play a crucial role in ensuring
-  the security and integrity of data transferred between source and target databases.
+Description: Allows users to query AWS DMS (Database Migration Service) Certificates. This table provides information about SSL/TLS certificates used in AWS DMS for encrypting data during database migration tasks. Certificates play a crucial role in ensuring the security and integrity of data transferred between source and target databases.
 ID: aws_dms_certificate_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  certificate_identifier,\n  arn,\n  key_length,\n  signing_algorithm,\n\
-    \  valid_to_date\nfrom\n  aws_dms_certificate\nwhere\n  valid_to_date <= current_date\
-    \ + interval '10' day;"
+  QueryToExecute: |
+    SELECT
+      certificate_identifier,
+      arn,
+      key_length,
+      signing_algorithm,
+      valid_to_date
+    FROM
+      aws_dms_certificate
+    WHERE
+      valid_to_date <= CURRENT_DATE + INTERVAL '10' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Database Migration Service
+    - Database Migration Service
 Title: Find all AWS DMS Certificates Expiring in 10 Days

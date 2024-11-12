@@ -1,22 +1,31 @@
-Description: Allows users to query AWS SSM Document Permissions, providing detailed
-  information about the permissions associated with Systems Manager (SSM) documents.
+Description: Allows users to query AWS SSM Document Permissions, providing detailed information about the permissions associated with Systems Manager (SSM) documents.
 ID: aws_ssm_document_permission_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  p.document_name,\n  p.shared_account_id,\n  p.shared_document_version,\n\
-    \  d.approved_version,\n  d.attachments_information,\n  d.created_date,\n  d.default_version\n\
-    from\n  aws_ssm_document_permission as p,\n  aws_ssm_document as d\nwhere\n  p.document_name\
-    \ = 'ConfigureS3BucketLogging';"
+  QueryToExecute: |
+    SELECT
+      p.document_name,
+      p.shared_account_id,
+      p.shared_document_version,
+      d.approved_version,
+      d.attachments_information,
+      d.created_date,
+      d.default_version
+    FROM
+      aws_ssm_document_permission AS p,
+      aws_ssm_document AS d
+    WHERE
+      p.document_name = 'ConfigureS3BucketLogging';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager
+    - Systems Manager
 Title: Find AWS SSM Document Permissions Information

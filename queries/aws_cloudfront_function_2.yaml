@@ -1,21 +1,28 @@
-Description: Allows users to query AWS CloudFront Functions to retrieve detailed information
-  about each function, including its ARN, stage, status, and more.
+Description: Allows users to query AWS CloudFront Functions to retrieve detailed information about each function, including its ARN, stage, status, and more.
 ID: aws_cloudfront_function_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  function_config ->> 'Comment' as comment,\n\
-    \  arn,\n  status,\n  e_tag\nfrom\n  aws_cloudfront_function\nwhere\n  function_metadata\
-    \ ->> 'Stage' = 'LIVE';"
+  QueryToExecute: |
+    SELECT
+      name,
+      function_config ->> 'Comment' AS comment,
+      arn,
+      status,
+      e_tag
+    FROM
+      aws_cloudfront_function
+    WHERE
+      function_metadata ->> 'Stage' = 'LIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: List All AWS CloudFront Functions with Detailed Info

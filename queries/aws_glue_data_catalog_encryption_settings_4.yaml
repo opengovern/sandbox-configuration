@@ -1,23 +1,33 @@
 Description: Allows users to query AWS Glue Data Catalog Encryption Settings.
 ID: aws_glue_data_catalog_encryption_settings_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  encryption_at_rest ->> 'SseAwsKmsKeyId' as key_arn,\n\
-    \  k.key_manager as key_manager,\n  k.creation_date as key_creation_date,\n  s.region,\n\
-    \  s.account_id\nfrom\n  aws_glue_data_catalog_encryption_settings s\n  join aws_kms_key\
-    \ k on s.encryption_at_rest ->> 'SseAwsKmsKeyId' = k.arn\n  and s.region = k.region;"
+  QueryToExecute: |
+    SELECT
+      encryption_at_rest ->> 'SseAwsKmsKeyId' AS key_arn,
+      k.key_manager AS key_manager,
+      k.creation_date AS key_creation_date,
+      s.region,
+      s.account_id
+    FROM
+      aws_glue_data_catalog_encryption_settings s
+    JOIN 
+      aws_kms_key k 
+    ON 
+      s.encryption_at_rest ->> 'SseAwsKmsKeyId' = k.arn
+      AND s.region = k.region;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue Data Catalog
+    - Glue Data Catalog
 Title: Query AWS Glue Data Catalog Encryption Settings

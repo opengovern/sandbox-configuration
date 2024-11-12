@@ -1,25 +1,32 @@
-Description: Allows users to query AWS Redshift Serverless Namespace data. This table
-  provides information about each namespace within an AWS Redshift Serverless cluster.
-  It allows DevOps engineers to query namespace-specific details, including the namespace
-  ARN, creation date, and associated metadata.
+Description: Allows users to query AWS Redshift Serverless Namespace data. This table provides information about each namespace within an AWS Redshift Serverless cluster. It allows DevOps engineers to query namespace-specific details, including the namespace ARN, creation date, and associated metadata.
 ID: aws_redshiftserverless_namespace_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  namespace_name,\n  namespace_arn,\n  namespace_id,\n\
-    \  creation_date,\n  db_name,\n  region,\n  status\nfrom\n  aws_redshiftserverless_namespace\n\
-    where\n  kms_key_id is null;"
+  QueryToExecute: |
+    SELECT
+      namespace_name,
+      namespace_arn,
+      namespace_id,
+      creation_date,
+      db_name,
+      region,
+      status
+    FROM
+      aws_redshiftserverless_namespace
+    WHERE
+      kms_key_id IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift Serverless
+    - Redshift Serverless
 Title: List all AWS Redshift Serverless Namespace Data

@@ -1,24 +1,29 @@
-Description: Allows users to query AWS EMR Instance Fleets to obtain detailed information
-  about each instance fleet, including its configuration, instance type specifications,
-  target capacities, and associated metadata.
+Description: Allows users to query AWS EMR Instance Fleets to obtain detailed information about each instance fleet, including its configuration, instance type specifications, target capacities, and associated metadata.
 ID: aws_emr_instance_fleet_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_id,\n  c.name as cluster_name,\n  c.state as\
-    \ cluster_state\nfrom\n  aws_emr_instance_fleet as f,\n  aws_emr_cluster as c\n\
-    where\n  f.cluster_id = c.id;"
+  QueryToExecute: |
+    SELECT
+      cluster_id,
+      c.name AS cluster_name,
+      c.state AS cluster_state
+    FROM
+      aws_emr_instance_fleet AS f,
+      aws_emr_cluster AS c
+    WHERE
+      f.cluster_id = c.id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EMR
+    - EMR
 Title: List all AWS EMR Instance Fleets with Configuration Details

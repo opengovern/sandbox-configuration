@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Pinpoint Applications to gather information
-  about the applications, such as application ID, name, and creation date. The table
-  also provides details about the application''s settings and limits.
+Description: Allows users to query AWS Pinpoint Applications to gather information about the applications, such as application ID, name, and creation date. The table also provides details about the application's settings and limits.
 ID: aws_pinpoint_app_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  limits -> 'Daily' as daily,\n  limits -> 'Total'\
-    \ as total,\n  limits -> 'Session' as session,\n  limits -> 'MaximumDuration'\
-    \ as maximum_duration,\n  limits -> 'MessagesPerSecond' as messages_per_second\n\
-    from\n  aws_pinpoint_app;"
+  QueryToExecute: |
+    SELECT
+      id,
+      limits -> 'Daily' AS daily,
+      limits -> 'Total' AS total,
+      limits -> 'Session' AS session,
+      limits -> 'MaximumDuration' AS maximum_duration,
+      limits -> 'MessagesPerSecond' AS messages_per_second
+    FROM
+      aws_pinpoint_app;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Pinpoint
+    - Pinpoint
 Title: List AWS Pinpoint Application Details and Limits

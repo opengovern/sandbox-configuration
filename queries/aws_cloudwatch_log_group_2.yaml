@@ -1,22 +1,27 @@
-Description: Allows users to query AWS CloudWatch Log Groups and retrieve their attributes
-  such as ARN, creation time, stored bytes, metric filter count, and more.
+Description: Allows users to query AWS CloudWatch Log Groups and retrieve their attributes such as ARN, creation time, stored bytes, metric filter count, and more.
 ID: aws_cloudwatch_log_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  retention_in_days\nfrom\n  aws_cloudwatch_log_group\n\
-    where\n  retention_in_days < 7;"
+  QueryToExecute: |
+    SELECT
+      name,
+      retention_in_days
+    FROM
+      aws_cloudwatch_log_group
+    WHERE
+      retention_in_days < 7;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Find AWS CloudWatch Log Groups with Retention Time < 7 Days

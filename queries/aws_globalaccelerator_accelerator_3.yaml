@@ -1,19 +1,25 @@
 Description: Allows users to query AWS Global Accelerator''s accelerators.
 ID: aws_globalaccelerator_accelerator_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  tags\nfrom\n  aws_globalaccelerator_accelerator\n\
-    where\n  not tags::JSONB ? 'owner';"
+  QueryToExecute: |
+    SELECT
+      name,
+      tags
+    FROM
+      aws_globalaccelerator_accelerator
+    WHERE
+      NOT tags::JSONB ? 'owner';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Global Accelerator
+    - Global Accelerator
 Title: Find AWS Global Accelerator's Accelerators

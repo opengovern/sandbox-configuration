@@ -1,22 +1,27 @@
-Description: Allows users to query AWS KMS Key data including cryptographic details,
-  key usage, key state, and associated metadata.
+Description: Allows users to query AWS KMS Key data including cryptographic details, key usage, key state, and associated metadata.
 ID: aws_kms_key_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  key_rotation_enabled\nfrom\n  aws_kms_key\nwhere\n\
-    \  not key_rotation_enabled;"
+  QueryToExecute: |
+    SELECT
+      id,
+      key_rotation_enabled
+    FROM
+      aws_kms_key
+    WHERE
+      NOT key_rotation_enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - KMS
+    - KMS
 Title: Find AWS KMS Key Data with Metadata & Key Usage

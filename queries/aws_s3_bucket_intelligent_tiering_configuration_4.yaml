@@ -1,24 +1,29 @@
-Description: Allows users to query Intelligent Tiering configurations for S3 buckets.
-  It provides information about each configuration, including the bucket name, the
-  ID of the configuration, and the status of the configuration.
+Description: Allows users to query Intelligent Tiering configurations for S3 buckets. It provides information about each configuration, including the bucket name, the ID of the configuration, and the status of the configuration.
 ID: aws_s3_bucket_intelligent_tiering_configuration_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.bucket_name,\n  s.id,\n  s.status,\n  t ->> 'AccessTier'\
-    \ as access_tier,\n  t ->> 'Days' as days\nfrom\n  aws_s3_bucket_intelligent_tiering_configuration\
-    \ as s,\n  jsonb_array_elements(tierings) as t;"
+  QueryToExecute: |
+    SELECT
+      s.bucket_name,
+      s.id,
+      s.status,
+      t ->> 'AccessTier' AS access_tier,
+      t ->> 'Days' AS days
+    FROM
+      aws_s3_bucket_intelligent_tiering_configuration AS s,
+      jsonb_array_elements(tierings) AS t;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find all Intelligent Tiering Configurations in AWS S3 Buckets

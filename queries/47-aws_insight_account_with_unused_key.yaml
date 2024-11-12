@@ -1,24 +1,35 @@
 Description: This insight returns a list of AWS accounts with unused access keys.
 ID: aws_insight_account_with_unused_key
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_iam_credential_report
+    - aws_iam_credential_report
   Parameters: []
   PrimaryTable: aws_iam_credential_report
-  QueryToExecute: select access_key_1_active, access_key_1_last_used_date, access_key_2_active,
-    access_key_2_last_used_date, user_arn, account_id, og_account_id, og_resource_id
-    from aws_iam_credential_report where ((access_key_1_active = true AND (access_key_1_last_used_date
-    IS NULL OR (current_date - DATE(access_key_1_last_used_date)) > 90)) OR (access_key_2_active
-    = true AND (access_key_2_last_used_date IS NULL OR (current_date - DATE(access_key_2_last_used_date))
-    > 90)))
+  QueryToExecute: |
+    SELECT
+      access_key_1_active,
+      access_key_1_last_used_date,
+      access_key_2_active,
+      access_key_2_last_used_date,
+      user_arn,
+      account_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      aws_iam_credential_report
+    WHERE
+      (
+        (access_key_1_active = TRUE AND (access_key_1_last_used_date IS NULL OR (CURRENT_DATE - DATE(access_key_1_last_used_date)) > 90)) OR
+        (access_key_2_active = TRUE AND (access_key_2_last_used_date IS NULL OR (CURRENT_DATE - DATE(access_key_2_last_used_date)) > 90))
+      )
 Tags:
   category:
-  - Security
+    - Security
   persona:
-  - DevOps
-  - Security
-  - Executive
+    - DevOps
+    - Security
+    - Executive
 Title: AWS Accounts with Unused Access Keys

@@ -1,23 +1,32 @@
-Description: Allows users to query AWS EKS Fargate Profiles and retrieve data such
-  as the Fargate profile name, ARN, status, and more.
+Description: Allows users to query AWS EKS Fargate Profiles and retrieve data such as the Fargate profile name, ARN, status, and more.
 ID: aws_eks_fargate_profile_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  f.fargate_profile_name,\n  f.cluster_name,\n  f.status\
-    \ as fargate_profile_status,\n  s.availability_zone,\n  s.available_ip_address_count,\n\
-    \  s.cidr_block,\n  s.vpc_id\nfrom\n  aws_eks_fargate_profile as f,\n  aws_vpc_subnet\
-    \ as s,\n  jsonb_array_elements(f.subnets) as subnet_id\nwhere\n  s.subnet_id\
-    \ = subnet_id;"
+  QueryToExecute: |
+    SELECT
+      f.fargate_profile_name,
+      f.cluster_name,
+      f.status AS fargate_profile_status,
+      s.availability_zone,
+      s.available_ip_address_count,
+      s.cidr_block,
+      s.vpc_id
+    FROM
+      aws_eks_fargate_profile AS f,
+      aws_vpc_subnet AS s,
+      jsonb_array_elements(f.subnets) AS subnet_id
+    WHERE
+      s.subnet_id = subnet_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EKS
+    - EKS
 Title: Find AWS EKS Fargate Profile Details with SQL

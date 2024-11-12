@@ -1,26 +1,41 @@
-Description: Allows users to query AWS Well-Architected Tool Milestones for detailed
-  information about the milestones of a workload.
+Description: Allows users to query AWS Well-Architected Tool Milestones for detailed information about the milestones of a workload.
 ID: aws_wellarchitected_milestone_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with latest_milestones as \n(\n  select\n    max(milestone_number)\
-    \ as milestone_number,\n    workload_id\n  from\n    aws_wellarchitected_milestone\n\
-    \  group by\n    workload_id\n) \nselect\n  m.workload_id,\n  m.milestone_name,\n\
-    \  m.milestone_number as latest_milestone_number,\n  m.recorded_at,\n  m.region\n\
-    from\n  aws_wellarchitected_milestone m,\n  latest_milestones l\nwhere\n  m.milestone_number\
-    \ = l.milestone_number\n  and m.workload_id = l.workload_id;"
+  QueryToExecute: |
+    WITH latest_milestones AS (
+      SELECT
+        MAX(milestone_number) AS milestone_number,
+        workload_id
+      FROM
+        aws_wellarchitected_milestone
+      GROUP BY
+        workload_id
+    )
+    SELECT
+      m.workload_id,
+      m.milestone_name,
+      m.milestone_number AS latest_milestone_number,
+      m.recorded_at,
+      m.region
+    FROM
+      aws_wellarchitected_milestone m,
+      latest_milestones l
+    WHERE
+      m.milestone_number = l.milestone_number
+      AND m.workload_id = l.workload_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List AWS Well-Architected Tool milestone details

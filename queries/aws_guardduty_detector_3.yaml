@@ -1,24 +1,28 @@
-Description: Allows users to query AWS GuardDuty Detector data, including detector
-  details, status, and associated metadata.
+Description: Allows users to query AWS GuardDuty Detector data, including detector details, status, and associated metadata.
 ID: aws_guardduty_detector_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  detector_id,\n  status as detector_status,\n  data_sources\
-    \ -> 'CloudTrail' ->> 'Status' as cloud_trail_status,\n  data_sources -> 'DNSLogs'\
-    \ ->> 'Status' as dns_logs_status,\n  data_sources -> 'FlowLogs' ->> 'Status'\
-    \ as flow_logs_status\nfrom\n  aws_guardduty_detector;"
+  QueryToExecute: |
+    SELECT
+      detector_id,
+      status AS detector_status,
+      data_sources -> 'CloudTrail' ->> 'Status' AS cloud_trail_status,
+      data_sources -> 'DNSLogs' ->> 'Status' AS dns_logs_status,
+      data_sources -> 'FlowLogs' ->> 'Status' AS flow_logs_status
+    FROM
+      aws_guardduty_detector;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - GuardDuty
+    - GuardDuty
 Title: List all AWS GuardDuty Detector details and status

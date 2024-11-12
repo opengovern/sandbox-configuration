@@ -1,29 +1,41 @@
-Description: Allows users to query AWS IAM Access Advisor to retrieve information
-  about the service last accessed data for IAM entities (users, groups, and roles).
+Description: Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles).
 ID: aws_iam_access_advisor_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  adv.service_name,\n  action as action_granted,\n  attached\
-    \ as granted_in,\n  adv.service_namespace\nfrom \n  aws_iam_access_advisor as\
-    \ adv,\n  aws_iam_role as r,\n  jsonb_array_elements_text(r.attached_policy_arns)\
-    \ as attached,\n  aws_iam_policy as p,  \n  jsonb_array_elements(p.policy_std\
-    \ -> 'Statement') as stmt,\n  jsonb_array_elements_text(stmt -> 'Action') as action\n\
-    where\n  principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'\n  and\
-    \ r.arn = adv.principal_arn\n  and last_authenticated is null\n  and attached\
-    \  = p.arn\n  and stmt ->> 'Effect' = 'Allow'\n  and action like adv.service_namespace\
-    \ || ':%'\norder by \n  adv.service_name;"
+  QueryToExecute: |
+    SELECT
+      adv.service_name,
+      action AS action_granted,
+      attached AS granted_in,
+      adv.service_namespace
+    FROM
+      aws_iam_access_advisor AS adv,
+      aws_iam_role AS r,
+      jsonb_array_elements_text(r.attached_policy_arns) AS attached,
+      aws_iam_policy AS p,
+      jsonb_array_elements(p.policy_std -> 'Statement') AS stmt,
+      jsonb_array_elements_text(stmt -> 'Action') AS action
+    WHERE
+      principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'
+      AND r.arn = adv.principal_arn
+      AND last_authenticated IS NULL
+      AND attached = p.arn
+      AND stmt ->> 'Effect' = 'Allow'
+      AND action LIKE adv.service_namespace || ':%'
+    ORDER BY
+      adv.service_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find AWS IAM Access Advisor Data for User Entities

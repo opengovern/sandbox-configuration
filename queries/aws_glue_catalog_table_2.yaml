@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Glue Catalog Tables for a comprehensive overview
-  of table metadata, including table names, database names, owner information, and
-  more.
+Description: Allows users to query AWS Glue Catalog Tables for a comprehensive overview of table metadata, including table names, database names, owner information, and more.
 ID: aws_glue_catalog_table_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  catalog_id,\n  count(name) as table_count\nfrom\n  aws_glue_catalog_table\n\
-    group by\n  catalog_id;"
+  QueryToExecute: |
+    SELECT
+      catalog_id,
+      COUNT(name) AS table_count
+    FROM
+      aws_glue_catalog_table
+    GROUP BY
+      catalog_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue Catalog
+    - Glue Catalog
 Title: List all AWS Glue Catalog Tables and Metadata

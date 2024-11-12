@@ -1,23 +1,30 @@
-Description: Allows users to query AWS EC2 Launch Template Versions, providing details
-  about each version of an Amazon EC2 launch template.
+Description: Allows users to query AWS EC2 Launch Template Versions, providing details about each version of an Amazon EC2 launch template.
 ID: aws_ec2_launch_template_version_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  launch_template_name,\n  launch_template_id,\n  create_time,\n\
-    \  default_version,\n  version_number\nfrom\n  aws_ec2_launch_template_version\n\
-    where\n  default_version;"
+  QueryToExecute: |
+    SELECT
+      launch_template_name,
+      launch_template_id,
+      create_time,
+      default_version,
+      version_number
+    FROM
+      aws_ec2_launch_template_version
+    WHERE
+      default_version;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon EC2
+    - Amazon EC2
 Title: List all AWS EC2 Launch Template Versions

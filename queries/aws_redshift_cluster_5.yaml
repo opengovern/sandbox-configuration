@@ -1,23 +1,25 @@
-Description: Allows users to query AWS Redshift Clusters and retrieve comprehensive
-  information about each cluster, including its configuration, status, performance,
-  and security settings.
+Description: Allows users to query AWS Redshift Clusters and retrieve comprehensive information about each cluster, including its configuration, status, performance, and security settings.
 ID: aws_redshift_cluster_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_identifier,\n  logging_status -> 'LoggingEnabled'\
-    \ as LoggingEnabled\nfrom\n  aws_redshift_cluster"
+  QueryToExecute: |
+    SELECT
+      cluster_identifier,
+      logging_status -> 'LoggingEnabled' AS LoggingEnabled
+    FROM
+      aws_redshift_cluster
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift
+    - Redshift
 Title: List all AWS Redshift Clusters and Their Status

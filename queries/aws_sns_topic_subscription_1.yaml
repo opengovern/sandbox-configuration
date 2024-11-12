@@ -1,21 +1,25 @@
-Description: Allows users to query AWS SNS Topic Subscriptions to obtain detailed
-  information about each subscription, including subscription ARN, owner, protocol,
-  endpoint, and more.
+Description: Allows users to query AWS SNS Topic Subscriptions to obtain detailed information about each subscription, including subscription ARN, owner, protocol, endpoint, and more.
 ID: aws_sns_topic_subscription_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  redrive_policy\nfrom\n  aws_sns_topic_subscription\n\
-    where\n  redrive_policy is null;"
+  QueryToExecute: |
+    SELECT
+      title,
+      redrive_policy
+    FROM
+      aws_sns_topic_subscription
+    WHERE
+      redrive_policy IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SNS
+    - SNS
 Title: Find AWS SNS Topic Subscriptions with No Redrive Policy

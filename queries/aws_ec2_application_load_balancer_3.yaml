@@ -1,22 +1,26 @@
-Description: Allows users to query AWS EC2 Application Load Balancer, providing detailed
-  information about each load balancer within an AWS account. This includes its current
-  state, availability zones, security groups, and other important attributes.
+Description: Allows users to query AWS EC2 Application Load Balancer, providing detailed information about each load balancer within an AWS account. This includes its current state, availability zones, security groups, and other important attributes.
 ID: aws_ec2_application_load_balancer_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  count(az ->> 'ZoneName') < 2 as zone_count_1\n\
-    from\n  aws_ec2_application_load_balancer\n  cross join jsonb_array_elements(availability_zones)\
-    \ as az\ngroup by\n  name;"
+  QueryToExecute: |
+    SELECT
+      name,
+      COUNT(az ->> 'ZoneName') < 2 AS zone_count_1
+    FROM
+      aws_ec2_application_load_balancer
+      CROSS JOIN JSONB_ARRAY_ELEMENTS(availability_zones) AS az
+    GROUP BY
+      name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Application Load Balancer
+    - EC2 Application Load Balancer
 Title: List All AWS EC2 ALBs with Detailed Information

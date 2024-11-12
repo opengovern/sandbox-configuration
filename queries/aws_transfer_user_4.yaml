@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Transfer for users in a server, equivalent
-  to list/describe user functions.
+Description: Allows users to query AWS Transfer for users in a server, equivalent to list/describe user functions.
 ID: aws_transfer_user_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  count(*) as total_users,\n  server_id\nfrom\n  aws_transfer_user\n\
-    group by\n  server_id\norder by\n  total_users desc;"
+  QueryToExecute: |
+    SELECT
+      COUNT(*) AS total_users,
+      server_id
+    FROM
+      aws_transfer_user
+    GROUP BY
+      server_id
+    ORDER BY
+      total_users DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Transfer
+    - AWS Transfer
 Title: List all AWS Transfer users in a server

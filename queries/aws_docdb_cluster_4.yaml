@@ -1,22 +1,25 @@
-Description: Allows users to query Amazon DocumentDB Clusters for detailed information
-  about their configuration, status, and associated metadata.
+Description: Allows users to query Amazon DocumentDB Clusters for detailed information about their configuration, status, and associated metadata.
 ID: aws_docdb_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  jsonb_array_length(availability_zones)\
-    \ as availability_zones_count\nfrom\n  aws_docdb_cluster;"
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier,
+      JSONB_ARRAY_LENGTH(availability_zones) AS availability_zones_count
+    FROM
+      aws_docdb_cluster;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon DocumentDB
+    - Amazon DocumentDB
 Title: List all Amazon DocumentDB Cluster Configuration and Status

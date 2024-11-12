@@ -1,22 +1,28 @@
-Description: Allows users to query AWS KMS Key data including cryptographic details,
-  key usage, key state, and associated metadata.
+Description: Allows users to query AWS KMS Key data including cryptographic details, key usage, key state, and associated metadata.
 ID: aws_kms_key_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  key_state,\n  deletion_date\nfrom\n  aws_kms_key\n\
-    where\n  key_state = 'PendingDeletion';"
+  QueryToExecute: |
+    SELECT
+      id,
+      key_state,
+      deletion_date
+    FROM
+      aws_kms_key
+    WHERE
+      key_state = 'PendingDeletion';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - KMS Key
+    - KMS Key
 Title: List AWS KMS Key data including cryptographic details

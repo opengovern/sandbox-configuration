@@ -1,21 +1,25 @@
 Description: Allows users to query Classic Load Balancers within Amazon EC2.
 ID: aws_ec2_classic_load_balancer_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  jsonb_array_elements_text(security_groups) as\
-    \ sg\nfrom\n  aws_ec2_classic_load_balancer;"
+  QueryToExecute: |
+    SELECT
+      name,
+      jsonb_array_elements_text(security_groups) AS sg
+    FROM
+      aws_ec2_classic_load_balancer;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all Classic Load Balancers within Amazon EC2

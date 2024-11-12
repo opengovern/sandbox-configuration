@@ -1,28 +1,28 @@
-Description: Allows users to query Amazon Simple Email Service Domain Identities.
-  The aws_ses_domain_identity table in Steampipe provides information about domain
-  identities within Amazon Simple Email Service (SES). This table allows DevOps engineers
-  to query domain-specific details, including verification status, DKIM attributes,
-  and associated metadata. Users can utilize this table to gather insights on domain
-  identities, such as verification status, DKIM tokens, and more. The schema outlines
-  the various attributes of the SES domain identity, including the identity name,
-  verification status, DKIM enabled status, and DKIM tokens.
+Description: Allows users to query Amazon Simple Email Service Domain Identities. The aws_ses_domain_identity table in Steampipe provides information about domain identities within Amazon Simple Email Service (SES). This table allows DevOps engineers to query domain-specific details, including verification status, DKIM attributes, and associated metadata. Users can utilize this table to gather insights on domain identities, such as verification status, DKIM tokens, and more. The schema outlines the various attributes of the SES domain identity, including the identity name, verification status, DKIM enabled status, and DKIM tokens.
 ID: aws_ses_domain_identity_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  identity,\n  region,\n  verification_status\nfrom\n \
-    \ aws_ses_domain_identity\nwhere\n  verification_status = 'Failed';"
+  QueryToExecute: |
+    SELECT
+      identity,
+      region,
+      verification_status
+    FROM
+      aws_ses_domain_identity
+    WHERE
+      verification_status = 'Failed';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Simple Email Service
+    - Amazon Simple Email Service
 Title: Find AWS SES Domain Identities with Verification Status Failed

@@ -1,21 +1,35 @@
-Description: List of lambda function whose retention period is less than 30 days
+Description: List of Lambda functions whose retention period is less than 30 days
 ID: aws_insight_lambda_function_retention_period_less_than_30_days
+Title: Lambda Functions with Retention Under 30 Days
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_lambda_function
-  - aws_cloudwatch_log_group
+    - aws_lambda_function
+    - aws_cloudwatch_log_group
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  fn.name,\n  lg.name,\n  lg.retention_in_days, fn.account_id,\
-    \ fn.og_account_id, fn.og_resource_id\nfrom\n  aws_lambda_function as fn\n  inner\
-    \ join aws_cloudwatch_log_group as lg on (\n lg.og_account_id = fn.og_account_id\
-    \ AND ((lg.name = '/aws/lambda/')\n    or (lg.name = fn.name))\n  )\nwhere\n \
-    \ lg.retention_in_days < 30"
+  QueryToExecute: |
+    SELECT
+      fn.name,
+      lg.name,
+      lg.retention_in_days,
+      fn.account_id,
+      fn.og_account_id,
+      fn.og_resource_id
+    FROM
+      aws_lambda_function AS fn
+      INNER JOIN aws_cloudwatch_log_group AS lg ON (
+        lg.og_account_id = fn.og_account_id
+        AND (
+          lg.name = '/aws/lambda/' OR
+          lg.name = fn.name
+        )
+      )
+    WHERE
+      lg.retention_in_days < 30
 Tags:
   category:
-  - Technical Debt
-  - Resiliency
-Title: ''
+    - Technical Debt
+    - Resiliency

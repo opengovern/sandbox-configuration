@@ -1,24 +1,26 @@
-Description: Allows users to query Config Rules in AWS Config service. It provides
-  information about each Config Rule, including its name, ARN, description, scope,
-  and compliance status.
+Description: Allows users to query Config Rules in AWS Config service. It provides information about each Config Rule, including its name, ARN, description, scope, and compliance status.
 ID: aws_config_rule_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as config_rule_name,\n  compliance_status -> 'Compliance'\
-    \ -> 'ComplianceType' as compliance_type\nfrom\n  aws_config_rule,\n  jsonb_array_elements(compliance_by_config_rule)\
-    \ as compliance_status;"
+  QueryToExecute: |
+    SELECT
+      name AS config_rule_name,
+      compliance_status -> 'Compliance' -> 'ComplianceType' AS compliance_type
+    FROM
+      aws_config_rule,
+      jsonb_array_elements(compliance_by_config_rule) AS compliance_status;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Config
+    - AWS Config
 Title: Find Config Rules in AWS with Compliance Status

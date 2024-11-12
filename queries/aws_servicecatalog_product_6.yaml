@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Service Catalog Product data including product
-  details, owner, type, and associated metadata.
+Description: Allows users to query AWS Service Catalog Product data including product details, owner, type, and associated metadata.
 ID: aws_servicecatalog_product_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  p ->> 'Id' as provisioning_artifact_id,\n\
-    \  p ->> 'Name' as provisioning_artifact_name,\n  p ->> 'CreatedTime' as provisioning_artifact_created_time,\n\
-    \  p ->> 'Description' as provisioning_artifact_description,\n  p ->> 'Guidance'\
-    \ as provisioning_artifact_guidance\nfrom\n  aws_servicecatalog_product,\n  jsonb_array_elements(provisioning_artifacts)\
-    \ as p;"
+  QueryToExecute: |
+    SELECT 
+      name, 
+      id, 
+      p ->> 'Id' AS provisioning_artifact_id, 
+      p ->> 'Name' AS provisioning_artifact_name, 
+      p ->> 'CreatedTime' AS provisioning_artifact_created_time, 
+      p ->> 'Description' AS provisioning_artifact_description, 
+      p ->> 'Guidance' AS provisioning_artifact_guidance
+    FROM 
+      aws_servicecatalog_product, 
+      jsonb_array_elements(provisioning_artifacts) AS p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Service Catalog
+    - Service Catalog
 Title: List AWS Service Catalog Product Data Including Details and Metadata

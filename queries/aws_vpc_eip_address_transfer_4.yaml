@@ -1,26 +1,39 @@
 Description: Allows users to query Elastic IP Address Transfers in AWS VPC.
 ID: aws_vpc_eip_address_transfer_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  t.allocation_id,\n  t.address_transfer_status,\n  t.transfer_account_id,\n\
-    \  i.vpc_id,\n  v.cidr_block,\n  v.state,\n  v.is_default\nfrom\n  aws_vpc_eip\
-    \ eip,\n  aws_ec2_instance i,\n  aws_vpc_eip_address_transfer t,\n  aws_vpc v\n\
-    where\n  eip.instance_id = i.instance_id\n  and t.allocation_id = eip.allocation_id\n\
-    \  and v.vpc_id = i.vpc_id;"
+  QueryToExecute: |
+    SELECT
+      t.allocation_id,
+      t.address_transfer_status,
+      t.transfer_account_id,
+      i.vpc_id,
+      v.cidr_block,
+      v.state,
+      v.is_default
+    FROM
+      aws_vpc_eip eip,
+      aws_ec2_instance i,
+      aws_vpc_eip_address_transfer t,
+      aws_vpc v
+    WHERE
+      eip.instance_id = i.instance_id
+      AND t.allocation_id = eip.allocation_id
+      AND v.vpc_id = i.vpc_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC Elastic IP Address Transfers

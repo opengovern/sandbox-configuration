@@ -1,24 +1,30 @@
-Description: Allows users to query AWS ECS Tasks to obtain detailed information about
-  each task, including its status, task definition, cluster, and other related metadata.
+Description: Allows users to query AWS ECS Tasks to obtain detailed information about each task, including its status, task definition, cluster, and other related metadata.
 ID: aws_ecs_task_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  task_arn,\n  a ->> 'Id' as attachment_id,\n\
-    \  a ->> 'Status' as attachment_status,\n  a ->> 'Type' as attachment_type,\n\
-    \  jsonb_pretty(a -> 'Details') as attachment_details\nfrom\n  aws_ecs_task,\n\
-    \  jsonb_array_elements(attachments) as a;"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      task_arn,
+      a ->> 'Id' AS attachment_id,
+      a ->> 'Status' AS attachment_status,
+      a ->> 'Type' AS attachment_type,
+      jsonb_pretty(a -> 'Details') AS attachment_details
+    FROM
+      aws_ecs_task,
+      jsonb_array_elements(attachments) AS a;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: List all AWS ECS Tasks with Status, Definition, and Metadata

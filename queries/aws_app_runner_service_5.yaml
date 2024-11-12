@@ -1,20 +1,27 @@
-Description: Allows users to query AWS App Runner services, providing detailed information
-  on service configurations, scaling, and network settings.
+Description: Allows users to query AWS App Runner services, providing detailed information on service configurations, scaling, and network settings.
 ID: aws_app_runner_service_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  arn,\n  created_at\nfrom\n  aws_app_runner_service\n\
-    where\n  created_at >= '2023-01-01T00:00:00Z' and created_at <= '2023-12-31T23:59:59Z';"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      arn,
+      created_at
+    FROM
+      aws_app_runner_service
+    WHERE
+      created_at >= '2023-01-01T00:00:00Z'
+      AND created_at <= '2023-12-31T23:59:59Z';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - App Runner
+    - App Runner
 Title: List All AWS App Runner Services with Configs and Networking

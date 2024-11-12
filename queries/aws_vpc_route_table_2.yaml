@@ -1,26 +1,30 @@
-Description: Allows users to query AWS VPC Route Tables and obtain detailed information
-  about each route table, including its associations, routes, and tags.
+Description: Allows users to query AWS VPC Route Tables and obtain detailed information about each route table, including its associations, routes, and tags.
 ID: aws_vpc_route_table_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  route_table_id,\n  associations_detail -> 'AssociationState'\
-    \ ->> 'State' as state,\n  associations_detail -> 'GatewayId' as gateway_id,\n\
-    \  associations_detail -> 'SubnetId' as subnet_id,\n  associations_detail -> 'RouteTableAssociationId'\
-    \ as route_table_association_id,\n  associations_detail -> 'Main' as main_route_table\n\
-    from\n  aws_vpc_route_table\n  cross join jsonb_array_elements(associations) as\
-    \ associations_detail;"
+  QueryToExecute: |
+    SELECT
+      route_table_id,
+      associations_detail -> 'AssociationState' ->> 'State' AS state,
+      associations_detail -> 'GatewayId' AS gateway_id,
+      associations_detail -> 'SubnetId' AS subnet_id,
+      associations_detail -> 'RouteTableAssociationId' AS route_table_association_id,
+      associations_detail -> 'Main' AS main_route_table
+    FROM
+      aws_vpc_route_table
+    CROSS JOIN jsonb_array_elements(associations) AS associations_detail;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Route Tables and Their Associations

@@ -1,21 +1,26 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  instance_type,\n  instance_state,\n \
-    \ l ->> 'LicenseConfigurationArn' as license_configuration_arn\nfrom\n  aws_ec2_instance,\n\
-    \  jsonb_array_elements(licenses) as l;"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      instance_type,
+      instance_state,
+      l ->> 'LicenseConfigurationArn' AS license_configuration_arn
+    FROM
+      aws_ec2_instance,
+      jsonb_array_elements(licenses) AS l;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 instances including detailed data

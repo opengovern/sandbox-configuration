@@ -1,23 +1,32 @@
-Description: Allows users to query AWS RDS DB Instance Automated Backups and retrieve
-  data about automated backups for RDS DB instances.
+Description: Allows users to query AWS RDS DB Instance Automated Backups and retrieve data about automated backups for RDS DB instances.
 ID: aws_rds_db_instance_automated_backup_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  arn,\n  status,\n  backup_target,\n\
-    \  instance_create_time,\n  encrypted,\n  engine\nfrom\n  aws_rds_db_instance_automated_backup\n\
-    where\n  not encrypted;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      arn,
+      status,
+      backup_target,
+      instance_create_time,
+      encrypted,
+      engine
+    FROM
+      aws_rds_db_instance_automated_backup
+    WHERE
+      NOT encrypted;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Instance Automated Backups

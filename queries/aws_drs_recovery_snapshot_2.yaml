@@ -1,25 +1,31 @@
-Description: Allows users to query DRS Recovery Snapshot data in AWS. It provides
-  information about recovery snapshots within AWS Disaster Recovery Service (DRS).
-  This table can be used to gather insights on recovery snapshots, including their
-  details, associated metadata, and more.
+Description: Allows users to query DRS Recovery Snapshot data in AWS. It provides information about recovery snapshots within AWS Disaster Recovery Service (DRS). This table can be used to gather insights on recovery snapshots, including their details, associated metadata, and more.
 ID: aws_drs_recovery_snapshot_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.snapshot_id,\n  r.source_server_id,\n  s.arn as source_server_arn,\n\
-    \  s.recovery_instance_id,\n  s.replication_direction\nfrom\n  aws_drs_recovery_snapshot\
-    \ r,\n  aws_drs_source_server as s\nwhere\n  r.source_server_id = s.source_server_id;"
+  QueryToExecute: |
+    SELECT
+      r.snapshot_id,
+      r.source_server_id,
+      s.arn AS source_server_arn,
+      s.recovery_instance_id,
+      s.replication_direction
+    FROM
+      aws_drs_recovery_snapshot r,
+      aws_drs_source_server AS s
+    WHERE
+      r.source_server_id = s.source_server_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Disaster Recovery Service
+    - Disaster Recovery Service
 Title: List AWS DRS Recovery Snapshot Details and Metadata

@@ -1,23 +1,30 @@
-Description: Allows users to query AWS WAF Regional Rule Groups to gather information
-  about each rule group''s metadata, associated rules, and other relevant details.
+Description: Allows users to query AWS WAF Regional Rule Groups to gather information about each rule group's metadata, associated rules, and other relevant details.
 ID: aws_wafregional_rule_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  rule_group_id,\n  metric_name,\n  activated_rules\n\
-    from\n  aws_wafregional_rule_group\nwhere\n  activated_rules is null or jsonb_array_length(activated_rules)\
-    \ = 0;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      rule_group_id,
+      metric_name,
+      activated_rules
+    FROM
+      aws_wafregional_rule_group
+    WHERE
+      activated_rules IS NULL OR jsonb_array_length(activated_rules) = 0;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - WAF Regional
+    - WAF Regional
 Title: List all AWS WAF Regional Rule Groups

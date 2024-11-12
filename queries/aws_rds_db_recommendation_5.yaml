@@ -1,20 +1,27 @@
-Description: Allows users to query AWS RDS DB Recommendations and retrieve valuable
-  information about each recommendation''s status, impact, and suggested actions.
+Description: Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation's status, impact, and suggested actions.
 ID: aws_rds_db_recommendation_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  recommendation_id,\n  title,\n  status,\n  updated_time\n\
-    from\n  aws_rds_db_recommendation\nwhere\n  status != 'resolved';"
+  QueryToExecute: |
+    SELECT
+      recommendation_id,
+      title,
+      status,
+      updated_time
+    FROM
+      aws_rds_db_recommendation
+    WHERE
+      status != 'resolved';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Recommendations and Statuses

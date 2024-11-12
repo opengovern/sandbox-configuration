@@ -1,26 +1,34 @@
-Description: Allows users to query AWS Backup Report Plan data, including details
-  about backup jobs, recovery points, and backup vaults.
+Description: Allows users to query AWS Backup Report Plan data, including details about backup jobs, recovery points, and backup vaults.
 ID: aws_backup_report_plan_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  description,\n  creation_time,\n  report_setting\
-    \ ->> 'ReportTemplate' as report_template,\n  report_setting ->> 'Accounts' as\
-    \ accounts,\n  report_setting ->> 'FrameworkArns' as framework_arns,\n  report_setting\
-    \ ->> 'NumberOfFrameworks' as number_of_frameworks,\n  report_setting ->> 'OrganizationUnits'\
-    \ as organization_units,\n  report_setting ->> 'Regions' as regions\nfrom\n  aws_backup_report_plan\n\
-    where\n  title = 'backup_jobs_report_12_07_2023';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      description,
+      creation_time,
+      report_setting ->> 'ReportTemplate' AS report_template,
+      report_setting ->> 'Accounts' AS accounts,
+      report_setting ->> 'FrameworkArns' AS framework_arns,
+      report_setting ->> 'NumberOfFrameworks' AS number_of_frameworks,
+      report_setting ->> 'OrganizationUnits' AS organization_units,
+      report_setting ->> 'Regions' AS regions
+    FROM
+      aws_backup_report_plan
+    WHERE
+      title = 'backup_jobs_report_12_07_2023';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Backup
+    - Backup
 Title: List AWS Backup Report Plan Data Details

@@ -1,25 +1,30 @@
-Description: Allows users to query AWS CodeBuild Build to retrieve information about
-  AWS CodeBuild projects'' builds.
+Description: Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects' builds.
 ID: aws_codebuild_build_11
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  f ->> 'Identifier' as file_system_identifier,\n\
-    \  f ->> 'Location' as file_system_location,\n  f ->> 'MountOptions' as file_system_mount_options,\n\
-    \  f ->> 'MountPoint' as file_system_mount_point,\n  f ->> 'Type' as file_system_type\n\
-    from\n  aws_codebuild_build,\n  jsonb_array_elements(file_system_locations) as\
-    \ f;"
+  QueryToExecute: |
+    SELECT
+      id,
+      f ->> 'Identifier' AS file_system_identifier,
+      f ->> 'Location' AS file_system_location,
+      f ->> 'MountOptions' AS file_system_mount_options,
+      f ->> 'MountPoint' AS file_system_mount_point,
+      f ->> 'Type' AS file_system_type
+    FROM
+      aws_codebuild_build,
+      jsonb_array_elements(file_system_locations) AS f;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS CodeBuild
+    - AWS CodeBuild
 Title: Find all AWS CodeBuild project builds information

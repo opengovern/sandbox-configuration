@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Cloud Control API Resource data, providing
-  detailed insights into resource properties, types, and statuses.
+Description: Allows users to query AWS Cloud Control API Resource data, providing detailed insights into resource properties, types, and statuses.
 ID: aws_cloudcontrol_resource_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  properties ->> 'RoleName' as name\nfrom\n  aws_cloudcontrol_resource\n\
-    where\n  type_name = 'AWS::IAM::Role'\n  and region = 'us-east-1'\norder by\n\
-    \  name;"
+  QueryToExecute: |
+    SELECT
+      properties ->> 'RoleName' AS name
+    FROM
+      aws_cloudcontrol_resource
+    WHERE
+      type_name = 'AWS::IAM::Role'
+      AND region = 'us-east-1'
+    ORDER BY
+      name;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cloud Control API
+    - Cloud Control API
 Title: List all AWS IAM Roles in us-east-1 using SQL

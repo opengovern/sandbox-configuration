@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Backup Jobs, providing detailed information
-  about the status of backups jobs.
+Description: Allows users to query AWS Backup Jobs, providing detailed information about the status of backups jobs.
 ID: aws_backup_job_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  job_id,\n  recovery_point_arn,\n  backup_vault_arn,\n\
-    \  status,\n  current_date\nfrom\n  aws_backup_job\nwhere\n  status != 'COMPLETED'\n\
-    \  and creation_date > current_date"
+  QueryToExecute: |
+    SELECT
+      job_id,
+      recovery_point_arn,
+      backup_vault_arn,
+      status,
+      current_date
+    FROM
+      aws_backup_job
+    WHERE
+      status != 'COMPLETED'
+      AND creation_date > current_date
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Backup
+    - Backup
 Title: List All Incomplete AWS Backup Jobs

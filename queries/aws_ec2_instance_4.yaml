@@ -1,23 +1,30 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  instance_state,\n  launch_time,\n  state_transition_time\n\
-    from\n  aws_ec2_instance\nwhere\n  instance_state = 'stopped'\n  and state_transition_time\
-    \ <= (current_date - interval '30' day);"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      instance_state,
+      launch_time,
+      state_transition_time
+    FROM
+      aws_ec2_instance
+    WHERE
+      instance_state = 'stopped'
+      AND state_transition_time <= (CURRENT_DATE - INTERVAL '30' DAY);
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find AWS EC2 Instances Stopped Over 30 days Ago

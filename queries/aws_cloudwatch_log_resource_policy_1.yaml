@@ -1,20 +1,25 @@
-Description: Allows users to query AWS CloudWatch Log Resource Policies, providing
-  details such as the policy name, policy document, and last updated timestamp.
+Description: Allows users to query AWS CloudWatch Log Resource Policies, providing details such as the policy name, policy document, and last updated timestamp.
 ID: aws_cloudwatch_log_resource_policy_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  policy_name,\n  last_updated_time,\n  jsonb_pretty(policy)\
-    \ as policy,\n  jsonb_pretty(policy_std) as policy_std\nfrom\n  aws_cloudwatch_log_resource_policy;"
+  QueryToExecute: |
+    SELECT
+      policy_name,
+      last_updated_time,
+      JSONB_PRETTY(policy) AS policy,
+      JSONB_PRETTY(policy_std) AS policy_std
+    FROM
+      aws_cloudwatch_log_resource_policy;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Find all AWS CloudWatch Log Resource Policies

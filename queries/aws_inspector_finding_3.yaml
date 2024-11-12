@@ -1,21 +1,27 @@
-Description: Allows users to query AWS Inspector Findings to obtain detailed information
-  about the Amazon Inspector findings that are generated during the assessment of
-  the target applications.
+Description: Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications.
 ID: aws_inspector_finding_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  severity,\n  count(severity)\nfrom\n  aws_inspector_finding\n\
-    group by\n  severity\norder by\n  severity;"
+  QueryToExecute: |
+    SELECT
+      severity,
+      COUNT(severity)
+    FROM
+      aws_inspector_finding
+    GROUP BY
+      severity
+    ORDER BY
+      severity;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Inspector
+    - Inspector
 Title: Find AWS Inspector Findings by Severity

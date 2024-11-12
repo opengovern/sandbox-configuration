@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Route 53 Health Check data, providing information
-  about health checks within AWS Route 53. This includes details such as health check
-  configuration, health check status, and associated metadata.
+Description: Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata.
 ID: aws_route53_health_check_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  health_check_version,\n  linked_service_description,\n\
-    \  linked_service_principal\nfrom \n  aws_route53_health_check\nwhere\n  linked_service_description\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      id,
+      health_check_version,
+      linked_service_description,
+      linked_service_principal
+    FROM
+      aws_route53_health_check
+    WHERE
+      linked_service_description IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: Find AWS Route 53 Health Check Configuration and Status

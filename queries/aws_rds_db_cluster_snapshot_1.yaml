@@ -1,23 +1,29 @@
-Description: Allows users to query AWS RDS DB Cluster Snapshots for detailed information
-  on each snapshot, such as the snapshot identifier, creation time, status, and more.
+Description: Allows users to query AWS RDS DB Cluster Snapshots for detailed information on each snapshot, such as the snapshot identifier, creation time, status, and more.
 ID: aws_rds_db_cluster_snapshot_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_snapshot_identifier,\n  type,\n  storage_encrypted,\n\
-    \  split_part(kms_key_id, '/', 1) kms_key_id\nfrom\n  aws_rds_db_cluster_snapshot\n\
-    where\n  not storage_encrypted;"
+  QueryToExecute: |
+    SELECT
+      db_cluster_snapshot_identifier,
+      type,
+      storage_encrypted,
+      SPLIT_PART(kms_key_id, '/', 1) AS kms_key_id
+    FROM
+      aws_rds_db_cluster_snapshot
+    WHERE
+      NOT storage_encrypted;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Cluster Snapshot Details

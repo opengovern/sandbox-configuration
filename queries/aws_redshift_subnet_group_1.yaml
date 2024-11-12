@@ -1,21 +1,25 @@
-Description: Allows users to query AWS Redshift Subnet Groups and get detailed information
-  about each subnet group, including its name, description, VPC ID, subnet IDs, and
-  status.
+Description: Allows users to query AWS Redshift Subnet Groups and get detailed information about each subnet group, including its name, description, VPC ID, subnet IDs, and status.
 ID: aws_redshift_subnet_group_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_subnet_group_name,\n  description,\n  subnet_group_status,\n\
-    \  vpc_id\nfrom\n  aws_redshift_subnet_group;"
+  QueryToExecute: |
+    SELECT
+      cluster_subnet_group_name,
+      description,
+      subnet_group_status,
+      vpc_id
+    FROM
+      aws_redshift_subnet_group;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift
+    - Redshift
 Title: List all AWS Redshift Subnet Groups and their details

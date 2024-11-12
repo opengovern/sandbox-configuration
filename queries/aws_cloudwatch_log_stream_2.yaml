@@ -1,20 +1,25 @@
-Description: Allows users to query AWS CloudWatch Log Stream to retrieve detailed
-  information about each log stream within a log group.
+Description: Allows users to query AWS CloudWatch Log Stream to retrieve detailed information about each log stream within a log group.
 ID: aws_cloudwatch_log_stream_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  log_group_name,\n  count(*) as log_stream_count\nfrom\n\
-    \  aws_cloudwatch_log_stream\ngroup by\n  log_group_name;"
+  QueryToExecute: |
+    SELECT
+      log_group_name,
+      COUNT(*) AS log_stream_count
+    FROM
+      aws_cloudwatch_log_stream
+    GROUP BY
+      log_group_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch Log Stream
+    - CloudWatch Log Stream
 Title: List all AWS CloudWatch Log Stream information

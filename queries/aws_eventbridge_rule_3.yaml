@@ -1,23 +1,28 @@
-Description: Allows users to query AWS EventBridge Rule to access information regarding
-  the EventBridge rules defined within an AWS account.
+Description: Allows users to query AWS EventBridge Rule to access information regarding the EventBridge rules defined within an AWS account.
 ID: aws_eventbridge_rule_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  cd ->> 'Id' as target_id,\n  cd ->> 'Arn' as\
-    \ target_arn,\n  cd ->> 'RoleArn' as role_arn\nfrom\n  aws_eventbridge_rule,\n\
-    \  jsonb_array_elements(targets) as cd;"
+  QueryToExecute: |
+    SELECT
+      name,
+      cd ->> 'Id' AS target_id,
+      cd ->> 'Arn' AS target_arn,
+      cd ->> 'RoleArn' AS role_arn
+    FROM
+      aws_eventbridge_rule,
+      jsonb_array_elements(targets) AS cd;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EventBridge
+    - EventBridge
 Title: Find AWS EventBridge Rules using SQL

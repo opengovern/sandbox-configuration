@@ -1,26 +1,35 @@
-Description: Allows users to query AWS EC2 Load Balancer Listener Rules, providing
-  detailed information on rule actions, conditions, and priority.
+Description: Allows users to query AWS EC2 Load Balancer Listener Rules, providing detailed information on rule actions, conditions, and priority.
 ID: aws_ec2_load_balancer_listener_rule_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  a ->> 'Type' as action_type,\n  a ->> 'Order'\
-    \ as action_order,\n  a ->> 'TargetGroupArn' as target_group_arn,\n  a -> 'RedirectConfig'\
-    \ as redirect_config,\n  a -> 'ForwardConfig' as forward_config,\n  a -> 'FixedResponseConfig'\
-    \ as fixed_response_config,\n  a -> 'AuthenticateOidcConfig' as authenticate_oidc_config,\n\
-    \  a -> 'AuthenticateCognitoConfig' as authenticate_cognito_config\nfrom\n  aws_ec2_load_balancer_listener_rule,\n\
-    \  jsonb_array_elements(actions) as a\nwhere\n  listener_arn = 'arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-load-balancer/50dc6c495c0c9188/70d7923f8398b272';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      a ->> 'Type' AS action_type,
+      a ->> 'Order' AS action_order,
+      a ->> 'TargetGroupArn' AS target_group_arn,
+      a -> 'RedirectConfig' AS redirect_config,
+      a -> 'ForwardConfig' AS forward_config,
+      a -> 'FixedResponseConfig' AS fixed_response_config,
+      a -> 'AuthenticateOidcConfig' AS authenticate_oidc_config,
+      a -> 'AuthenticateCognitoConfig' AS authenticate_cognito_config
+    FROM
+      aws_ec2_load_balancer_listener_rule,
+      jsonb_array_elements(actions) AS a
+    WHERE
+      listener_arn = 'arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-load-balancer/50dc6c495c0c9188/70d7923f8398b272';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Load Balancer
+    - EC2 Load Balancer
 Title: Find All AWS EC2 Load Balancer Listener Rules Details

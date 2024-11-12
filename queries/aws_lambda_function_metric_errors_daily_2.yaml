@@ -1,21 +1,32 @@
 Description: Allows users to query AWS Lambda Function error metrics on a daily basis.
 ID: aws_lambda_function_metric_errors_daily_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  timestamp,\n  round(minimum::numeric,2) as min_error,\n\
-    \  round(maximum::numeric,2) as max_error,\n  round(average::numeric,2) as avg_error,\n\
-    \  sample_count\nfrom\n  aws_lambda_function_metric_errors_daily\nwhere average\
-    \ < 1\norder by\n  name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      timestamp,
+      ROUND(MINIMUM::NUMERIC, 2) AS min_error,
+      ROUND(MAXIMUM::NUMERIC, 2) AS max_error,
+      ROUND(AVERAGE::NUMERIC, 2) AS avg_error,
+      sample_count
+    FROM
+      aws_lambda_function_metric_errors_daily
+    WHERE
+      AVERAGE < 1
+    ORDER BY
+      name,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda
+    - Lambda
 Title: List All AWS Lambda Function Errors Metrics Daily

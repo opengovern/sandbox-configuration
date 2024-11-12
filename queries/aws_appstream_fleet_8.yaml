@@ -1,22 +1,27 @@
-Description: Allows users to query AWS AppStream Fleets for detailed information about
-  each fleet, including its state, instance type, and associated stack details.
+Description: Allows users to query AWS AppStream Fleets for detailed information about each fleet, including its state, instance type, and associated stack details.
 ID: aws_appstream_fleet_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  vpc_config -> 'SecurityGroupIds' as\
-    \ security_group_ids,\n  vpc_config -> 'SubnetIds' as subnet_ids\nfrom\n  aws_appstream_fleet;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      vpc_config -> 'SecurityGroupIds' AS security_group_ids,
+      vpc_config -> 'SubnetIds' AS subnet_ids
+    FROM
+      aws_appstream_fleet;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS AppStream Fleet
+    - AWS AppStream Fleet
 Title: Find All AWS AppStream Fleet Details and States

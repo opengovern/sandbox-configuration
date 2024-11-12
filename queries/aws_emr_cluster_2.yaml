@@ -1,19 +1,26 @@
 Description: Allows users to query AWS Elastic MapReduce Cluster data.
 ID: aws_emr_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  cluster_arn,\n  auto_terminate\nfrom\n  aws_emr_cluster\n\
-    where\n  not auto_terminate;"
+  QueryToExecute: |
+    SELECT
+      name,
+      cluster_arn,
+      auto_terminate
+    FROM
+      aws_emr_cluster
+    WHERE
+      NOT auto_terminate;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic MapReduce
+    - Elastic MapReduce
 Title: Find AWS EMR Clusters That Do Not Auto-Terminate

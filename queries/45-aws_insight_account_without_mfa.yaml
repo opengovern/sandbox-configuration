@@ -1,20 +1,26 @@
 Description: AWS accounts without MFA enabled
 ID: aws_insight_account_without_mfa
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_iam_credential_report
+    - aws_iam_credential_report
   Parameters: []
   PrimaryTable: aws_iam_credential_report
-  QueryToExecute: select account_id, og_account_id from aws_iam_account_summary where
-    account_mfa_enabled = false
+  QueryToExecute: |
+    SELECT 
+      account_id, 
+      og_account_id 
+    FROM 
+      aws_iam_account_summary 
+    WHERE 
+      account_mfa_enabled = FALSE
 Tags:
   category:
-  - Security
+    - Security
   persona:
-  - DevOps
-  - Security
-  - Executive
+    - DevOps
+    - Security
+    - Executive
 Title: AWS Account without MFA

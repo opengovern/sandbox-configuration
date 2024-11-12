@@ -1,24 +1,31 @@
-Description: Allows users to query details of enabled product subscriptions in AWS
-  Security Hub, providing insights into their activation, integration types, and company
-  information.
+Description: Allows users to query details of enabled product subscriptions in AWS Security Hub, providing insights into their activation, integration types, and company information.
 ID: aws_securityhub_enabled_product_subscription_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.arn as subscription_arn,\n  p.product_arn,\n  p.name\
-    \ as product_name,\n  p.company_name as product_company_name,\n  p.marketplace_url,\n\
-    \  p.integration_types\nfrom\n  aws_securityhub_enabled_product_subscription as\
-    \ s,\n  aws_securityhub_product as p,\n  jsonb_array_elements(p.product_subscription_resource_policy\
-    \ -> 'Statement') as m\nwhere\n  (m ->> 'Resource') = s.arn;"
+  QueryToExecute: |
+    SELECT
+      s.arn AS subscription_arn,
+      p.product_arn,
+      p.name AS product_name,
+      p.company_name AS product_company_name,
+      p.marketplace_url,
+      p.integration_types
+    FROM
+      aws_securityhub_enabled_product_subscription AS s,
+      aws_securityhub_product AS p,
+      jsonb_array_elements(p.product_subscription_resource_policy -> 'Statement') AS m
+    WHERE
+      (m ->> 'Resource') = s.arn;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Query AWS Security Hub Enabled Product Subscriptions

@@ -1,25 +1,40 @@
-Description: Allows users to query AWS S3 Objects and retrieve metadata and details
-  about each object stored in S3 buckets.
+Description: Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets.
 ID: aws_s3_object_12
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  key,\n  arn,\n  bucket_name,\n  last_modified,\n  storage_class\n\
-    from\n  aws_s3_object\nwhere\n  bucket_name in\n  (\n    select\n      name\n\
-    \    from\n      aws_s3_bucket\n    where\n      not block_public_acls\n     \
-    \ or not block_public_policy\n      or not ignore_public_acls\n      or not restrict_public_buckets\n\
-    \  );"
+  QueryToExecute: |
+    SELECT
+      key,
+      arn,
+      bucket_name,
+      last_modified,
+      storage_class
+    FROM
+      aws_s3_object
+    WHERE
+      bucket_name IN (
+        SELECT
+          name
+        FROM
+          aws_s3_bucket
+        WHERE
+          NOT block_public_acls
+          OR NOT block_public_policy
+          OR NOT ignore_public_acls
+          OR NOT restrict_public_buckets
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find all AWS S3 Object Metadata and Details

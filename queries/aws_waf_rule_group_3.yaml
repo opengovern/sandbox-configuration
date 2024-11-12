@@ -1,26 +1,29 @@
-Description: Allows users to query AWS WAF Rule Groups to provide information about
-  Web Application Firewall (WAF) rule groups within AWS WAF. This table enables security
-  and DevOps engineers to query rule group-specific details, including rules, actions,
-  and associated metadata.
+Description: Allows users to query AWS WAF Rule Groups to provide information about Web Application Firewall (WAF) rule groups within AWS WAF. This table enables security and DevOps engineers to query rule group-specific details, including rules, actions, and associated metadata.
 ID: aws_waf_rule_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as rule_group_name,\n  rule_group_id,\n  a ->> 'RuleId'\
-    \ as rule_id,\n  a -> 'Action' ->> 'Type' as rule_action_type,\n  a ->> 'Type'\
-    \ as rule_type\nfrom\n  aws_waf_rule_group,\n  jsonb_array_elements(activated_rules)\
-    \ as a;"
+  QueryToExecute: |
+    SELECT
+      name AS rule_group_name,
+      rule_group_id,
+      a ->> 'RuleId' AS rule_id,
+      a -> 'Action' ->> 'Type' AS rule_action_type,
+      a ->> 'Type' AS rule_type
+    FROM
+      aws_waf_rule_group,
+      jsonb_array_elements(activated_rules) AS a;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - WAF
+    - WAF
 Title: Query AWS WAF Rule Groups for Security Details

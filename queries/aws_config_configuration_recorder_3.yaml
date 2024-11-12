@@ -1,22 +1,28 @@
 Description: Allows users to query AWS Config Configuration Recorder
 ID: aws_config_configuration_recorder_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  status ->> 'LastStatus' as last_status,\n  status\
-    \ ->> 'LastStatusChangeTime' as last_status_change_time,\n  status ->> 'LastErrorCode'\
-    \ as last_error_code,\n  status ->> 'LastErrorMessage' as last_error_message\n\
-    from\n  aws_config_configuration_recorder\nwhere\n  status ->> 'LastStatus' =\
-    \ 'FAILURE';"
+  QueryToExecute: |
+    SELECT
+      name,
+      status ->> 'LastStatus' AS last_status,
+      status ->> 'LastStatusChangeTime' AS last_status_change_time,
+      status ->> 'LastErrorCode' AS last_error_code,
+      status ->> 'LastErrorMessage' AS last_error_message
+    FROM
+      aws_config_configuration_recorder
+    WHERE
+      status ->> 'LastStatus' = 'FAILURE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Config
+    - AWS Config
 Title: Find all AWS Config Configuration Recorder using SQL

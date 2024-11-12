@@ -1,25 +1,27 @@
-Description: Allows users to query AWS Elasticsearch Service Domains for detailed
-  information related to the configuration, status, and access policies of the Elasticsearch
-  domains.
+Description: Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains.
 ID: aws_elasticsearch_domain_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  domain_id,\n  log_publishing_options\
-    \ -> 'SEARCH_SLOW_LOGS' -> 'Enabled' as enabled,\n  log_publishing_options ->\
-    \ 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' as cloud_watch_logs_log_group_arn\n\
-    from\n  aws_elasticsearch_domain;"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      domain_id,
+      log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' AS enabled,
+      log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' AS cloud_watch_logs_log_group_arn
+    FROM
+      aws_elasticsearch_domain;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elasticsearch Service
+    - Elasticsearch Service
 Title: Find AWS Elasticsearch Service Domain Configuration

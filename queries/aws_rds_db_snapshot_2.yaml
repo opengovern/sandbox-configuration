@@ -1,20 +1,25 @@
-Description: Allows users to query Amazon RDS DB Snapshots for information regarding
-  manual and automatic snapshots of an Amazon RDS DB instance.
+Description: Allows users to query Amazon RDS DB Snapshots for information regarding manual and automatic snapshots of an Amazon RDS DB instance.
 ID: aws_rds_db_snapshot_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_snapshot_identifier,\n  type\nfrom\n  aws_rds_db_snapshot\n\
-    where\n  type = 'manual';"
+  QueryToExecute: |
+    SELECT
+      db_snapshot_identifier,
+      type
+    FROM
+      aws_rds_db_snapshot
+    WHERE
+      type = 'manual';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon RDS
+    - Amazon RDS
 Title: List Amazon RDS DB manual snapshots

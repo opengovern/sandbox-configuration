@@ -1,22 +1,25 @@
-Description: Allows users to query AWS SimSpace Simulation data. This table provides
-  information about simulations within AWS SimSpace. Engineers can use it to query
-  simulation-specific details, including simulation status, configuration, and associated
-  metadata.
+Description: Allows users to query AWS SimSpace Simulation data. This table provides information about simulations within AWS SimSpace. Engineers can use it to query simulation-specific details, including simulation status, configuration, and associated metadata.
 ID: aws_simspaceweaver_simulation_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  jsonb_pretty(d)\nfrom\n  aws_simspaceweaver_simulation,\n\
-    \  jsonb_array_elements(logging_configuration -> 'Destinations') as d;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      jsonb_pretty(d)
+    FROM
+      aws_simspaceweaver_simulation,
+      JSONB_ARRAY_ELEMENTS(logging_configuration -> 'Destinations') AS d;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SimSpace Simulation
+    - SimSpace Simulation
 Title: List AWS SimSpace Simulations and Details

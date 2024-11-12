@@ -1,26 +1,39 @@
-Description: Allows users to query AWS Elastic File System (EFS) file systems, providing
-  detailed information about each file system such as its ID, ARN, creation token,
-  performance mode, and lifecycle state.
+Description: Allows users to query AWS Elastic File System (EFS) file systems, providing detailed information about each file system such as its ID, ARN, creation token, performance mode, and lifecycle state.
 ID: aws_efs_file_system_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title\nfrom\n  aws_efs_file_system\nwhere\n  title not\
-    \ in (\n    select\n      title\n    from\n      aws_efs_file_system,\n      jsonb_array_elements(policy_std\
-    \ -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Principal' -> 'AWS')\
-    \ as p,\n      jsonb_array_elements_text(s -> 'Action') as a,\n      jsonb_array_elements_text(\n\
-    \        s -> 'Condition' -> 'Bool' -> 'aws:securetransport'\n      ) as ssl\n\
-    \    where\n      p = '*'\n      and s ->> 'Effect' = 'Deny'\n      and ssl ::\
-    \ bool = false\n  );"
+  QueryToExecute: |
+    SELECT
+      title
+    FROM
+      aws_efs_file_system
+    WHERE
+      title NOT IN (
+        SELECT
+          title
+        FROM
+          aws_efs_file_system,
+          jsonb_array_elements(policy_std -> 'Statement') AS s,
+          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+          jsonb_array_elements_text(s -> 'Action') AS a,
+          jsonb_array_elements_text(
+            s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+          ) AS ssl
+        WHERE
+          p = '*'
+          AND s ->> 'Effect' = 'Deny'
+          AND ssl::bool = FALSE
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic File System
+    - Elastic File System
 Title: List all AWS EFS File Systems with Detailed Information

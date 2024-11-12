@@ -1,22 +1,27 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  instance_state,\n  launch_time,\n  maintenance_options\
-    \ ->> 'AutoRecovery' as auto_recovery\nfrom\n  aws_ec2_instance;"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      instance_state,
+      launch_time,
+      maintenance_options ->> 'AutoRecovery' AS auto_recovery
+    FROM
+      aws_ec2_instance;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find all EC2 Instances with Detailed Information

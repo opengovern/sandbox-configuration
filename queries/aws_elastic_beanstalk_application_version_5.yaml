@@ -1,21 +1,27 @@
-Description: Allows users to query AWS Elastic Beanstalk Application Versions to obtain
-  details about their configurations, environments, and other metadata.
+Description: Allows users to query AWS Elastic Beanstalk Application Versions to obtain details about their configurations, environments, and other metadata.
 ID: aws_elastic_beanstalk_application_version_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  application_name,\n  application_version_arn,\n  version_label,\n\
-    \  tags\nfrom\n  aws_elastic_beanstalk_application_version\nwhere\n  tags ->>\
-    \ 'Environment' = 'Production';"
+  QueryToExecute: |
+    SELECT
+      application_name,
+      application_version_arn,
+      version_label,
+      tags
+    FROM
+      aws_elastic_beanstalk_application_version
+    WHERE
+      tags ->> 'Environment' = 'Production';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Elastic Beanstalk
+    - AWS Elastic Beanstalk
 Title: Find Elastic Beanstalk App Version Details and Metadata

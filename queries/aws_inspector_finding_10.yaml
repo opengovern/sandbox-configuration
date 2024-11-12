@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Inspector Findings to obtain detailed information
-  about the Amazon Inspector findings that are generated during the assessment of
-  the target applications.
+Description: Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications.
 ID: aws_inspector_finding_10
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  arn,\n  agent_id as instance_id,\n  asset_type,\n\
-    \  confidence,\n  severity\nfrom\n  aws_inspector_finding\norder by\n  confidence;"
+  QueryToExecute: |
+    SELECT
+      id,
+      arn,
+      agent_id AS instance_id,
+      asset_type,
+      confidence,
+      severity
+    FROM
+      aws_inspector_finding
+    ORDER BY
+      confidence;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Inspector
+    - Amazon Inspector
 Title: List all AWS Inspector Findings with Details

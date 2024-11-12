@@ -1,20 +1,26 @@
-Description: Allows users to query DHCP Options associated with Virtual Private Cloud
-  (VPC) in AWS.
+Description: Allows users to query DHCP Options associated with Virtual Private Cloud (VPC) in AWS.
 ID: aws_vpc_dhcp_options_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  dhcp_options_id,\n  domain_name,\n  domain_name_servers\n\
-    from\n  aws_vpc_dhcp_options\nwhere\n  domain_name_servers ? 'AmazonProvidedDNS';"
+  QueryToExecute: |
+    SELECT
+      dhcp_options_id,
+      domain_name,
+      domain_name_servers
+    FROM
+      aws_vpc_dhcp_options
+    WHERE
+      domain_name_servers ? 'AmazonProvidedDNS';
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List AWS VPC DHCP Options with Domain Name Servers

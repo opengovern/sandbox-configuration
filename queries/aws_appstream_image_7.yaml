@@ -1,23 +1,27 @@
-Description: Allows users to query AWS AppStream Images to gain insights into their
-  properties, states, and associated metadata.
+Description: Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata.
 ID: aws_appstream_image_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  image_permissions ->> 'AllowFleet' as\
-    \ allow_fleet,\n  image_permissions ->> 'AllowImageBuilder' as allow_image_builder\n\
-    from\n  aws_appstream_image;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      image_permissions ->> 'AllowFleet' AS allow_fleet,
+      image_permissions ->> 'AllowImageBuilder' AS allow_image_builder
+    FROM
+      aws_appstream_image;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AppStream
+    - AppStream
 Title: Find AWS AppStream Images Properties and States

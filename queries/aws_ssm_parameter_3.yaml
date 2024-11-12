@@ -1,20 +1,25 @@
-Description: Allows users to query AWS Systems Manager Parameter Store to retrieve
-  information about parameters, their types, values, and associated metadata.
+Description: Allows users to query AWS Systems Manager Parameter Store to retrieve information about parameters, their types, values, and associated metadata.
 ID: aws_ssm_parameter_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name\nfrom\n  aws_ssm_parameter\nwhere\n  tags -> 'owner'\
-    \ is null\n  or tags -> 'app_id' is null;"
+  QueryToExecute: |
+    SELECT
+      name
+    FROM
+      aws_ssm_parameter
+    WHERE
+      tags -> 'owner' IS NULL
+      OR tags -> 'app_id' IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager Parameter Store
+    - Systems Manager Parameter Store
 Title: List all AWS SSM Parameters missing owner or app_id

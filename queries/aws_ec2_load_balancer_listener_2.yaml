@@ -1,25 +1,30 @@
-Description: Allows users to query AWS EC2 Load Balancer Listener data, which provides
-  information about listeners for an Application Load Balancer or Network Load Balancer.
+Description: Allows users to query AWS EC2 Load Balancer Listener data, which provides information about listeners for an Application Load Balancer or Network Load Balancer.
 ID: aws_ec2_load_balancer_listener_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  action ->> 'AuthenticateCognitoConfig'\
-    \ as authenticate_cognito_config,\n  action ->> 'AuthenticateOidcConfig' as authenticate_Oidc_config,\n\
-    \  action ->> 'FixedResponseConfig' as fixed_response_config,\n  action -> 'ForwardConfig'\
-    \ -> 'TargetGroupStickinessConfig' ->> 'DurationSeconds' as duration_seconds,\n\
-    \  action -> 'ForwardConfig' -> 'TargetGroupStickinessConfig' ->> 'Enabled' as\
-    \ target_group_stickiness_config_enabled\nfrom\n  aws_ec2_load_balancer_listener\n\
-    \  cross join jsonb_array_elements(default_actions) as action;"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      action ->> 'AuthenticateCognitoConfig' AS authenticate_cognito_config,
+      action ->> 'AuthenticateOidcConfig' AS authenticate_oidc_config,
+      action ->> 'FixedResponseConfig' AS fixed_response_config,
+      action -> 'ForwardConfig' -> 'TargetGroupStickinessConfig' ->> 'DurationSeconds' AS duration_seconds,
+      action -> 'ForwardConfig' -> 'TargetGroupStickinessConfig' ->> 'Enabled' AS target_group_stickiness_config_enabled
+    FROM
+      aws_ec2_load_balancer_listener
+    CROSS JOIN
+      jsonb_array_elements(default_actions) AS action;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 Load Balancer Listeners

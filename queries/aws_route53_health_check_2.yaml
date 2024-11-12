@@ -1,28 +1,32 @@
-Description: Allows users to query AWS Route 53 Health Check data, providing information
-  about health checks within AWS Route 53. This includes details such as health check
-  configuration, health check status, and associated metadata.
+Description: Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata.
 ID: aws_route53_health_check_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  health_check_version,\n  cloud_watch_alarm_configuration\
-    \ ->> 'ComparisonOperator' as cloud_watch_comparison_operator,\n  cloud_watch_alarm_configuration\
-    \ ->> 'Dimensions' as cloud_watch_dimensions,\n  cloud_watch_alarm_configuration\
-    \ ->> 'EvaluationPeriods' as cloud_watch_evaluation_periods,\n  cloud_watch_alarm_configuration\
-    \ ->> 'MetricName' as cloud_watch_metric_name,\n  cloud_watch_alarm_configuration\
-    \ ->> 'Period' as cloud_watch_period,\n  cloud_watch_alarm_configuration ->> 'Statistic'\
-    \ as cloud_watch_statistic,\n  cloud_watch_alarm_configuration ->> 'Threshold'\
-    \ as cloud_watch_threshold\nfrom \n  aws_route53_health_check\nwhere\n  cloud_watch_alarm_configuration\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      id,
+      health_check_version,
+      cloud_watch_alarm_configuration ->> 'ComparisonOperator' AS cloud_watch_comparison_operator,
+      cloud_watch_alarm_configuration ->> 'Dimensions' AS cloud_watch_dimensions,
+      cloud_watch_alarm_configuration ->> 'EvaluationPeriods' AS cloud_watch_evaluation_periods,
+      cloud_watch_alarm_configuration ->> 'MetricName' AS cloud_watch_metric_name,
+      cloud_watch_alarm_configuration ->> 'Period' AS cloud_watch_period,
+      cloud_watch_alarm_configuration ->> 'Statistic' AS cloud_watch_statistic,
+      cloud_watch_alarm_configuration ->> 'Threshold' AS cloud_watch_threshold
+    FROM
+      aws_route53_health_check
+    WHERE
+      cloud_watch_alarm_configuration IS NOT NULL;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: List all AWS Route 53 Health Check Data and Configuration

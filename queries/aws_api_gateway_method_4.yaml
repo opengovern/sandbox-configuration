@@ -1,39 +1,41 @@
-Description: Represents a client-facing interface by which the client calls the API
-  to access back-end resources. A Method resource is integrated with an Integration
-  resource. Both consist of a request and one or more responses. The method request
-  takes the client input that is passed to the back end through the integration request.
-  A method response returns the output from the back end to the client through an
-  integration response. A method request is embodied in a Method resource, whereas
-  an integration request is embodied in an Integration resource. On the other hand,
-  a method response is represented by a MethodResponse resource, whereas an integration
-  response is represented by an IntegrationResponse resource.
+Description: Represents a client-facing interface by which the client calls the API to access back-end resources. A Method resource is integrated with an Integration resource. Both consist of a request and one or more responses. The method request takes the client input that is passed to the back end through the integration request. A method response returns the output from the back end to the client through an integration response. A method request is embodied in a Method resource, whereas an integration request is embodied in an Integration resource. On the other hand, a method response is represented by a MethodResponse resource, whereas an integration response is represented by an IntegrationResponse resource.
 ID: aws_api_gateway_method_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  rest_api_id,\n  resource_id,\n  http_method,\n  method_integration\
-    \ -> 'CacheKeyParameters' as cache_key_parameters,\n  method_integration ->> 'CacheNamespace'\
-    \ as cache_namespace,\n  method_integration ->> 'ConnectionId' as connection_id,\n\
-    \  method_integration ->> 'ConnectionType' as connection_type,\n  method_integration\
-    \ ->> 'ContentHandling' as content_handling,\n  method_integration ->> 'Credentials'\
-    \ as credentials,\n  method_integration ->> 'HttpMethod' as http_method,\n  method_integration\
-    \ ->> 'PassthroughBehavior' as passthrough_behavior,\n  method_integration ->>\
-    \ 'RequestParameters' as request_parameters,\n  method_integration -> 'RequestTemplates'\
-    \ as request_templates,\n  method_integration ->> 'TimeoutInMillis' as timeout_in_millis,\n\
-    \  method_integration ->> 'tls_config' as tls_config,\n  method_integration ->>\
-    \ 'Type' as type,\n  method_integration ->> 'Uri' as uri,\n  method_integration\
-    \ -> 'IntegrationResponses' as integration_responses\nfrom\n  aws_api_gateway_method;"
+  QueryToExecute: |
+    SELECT
+      rest_api_id,
+      resource_id,
+      http_method,
+      method_integration -> 'CacheKeyParameters' AS cache_key_parameters,
+      method_integration ->> 'CacheNamespace' AS cache_namespace,
+      method_integration ->> 'ConnectionId' AS connection_id,
+      method_integration ->> 'ConnectionType' AS connection_type,
+      method_integration ->> 'ContentHandling' AS content_handling,
+      method_integration ->> 'Credentials' AS credentials,
+      method_integration ->> 'HttpMethod' AS http_method,
+      method_integration ->> 'PassthroughBehavior' AS passthrough_behavior,
+      method_integration ->> 'RequestParameters' AS request_parameters,
+      method_integration -> 'RequestTemplates' AS request_templates,
+      method_integration ->> 'TimeoutInMillis' AS timeout_in_millis,
+      method_integration ->> 'tls_config' AS tls_config,
+      method_integration ->> 'Type' AS type,
+      method_integration ->> 'Uri' AS uri,
+      method_integration -> 'IntegrationResponses' AS integration_responses
+    FROM
+      aws_api_gateway_method;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: List all AWS API Gateway Methods using SQL

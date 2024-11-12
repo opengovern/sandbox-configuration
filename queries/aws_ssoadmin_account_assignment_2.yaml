@@ -1,29 +1,55 @@
-Description: Allows users to query AWS SSO Admin Account Assignments. This table provides
-  information about each AWS SSO admin account assignment within an AWS account.
+Description: Allows users to query AWS SSO Admin Account Assignments. This table provides information about each AWS SSO admin account assignment within an AWS account.
 ID: aws_ssoadmin_account_assignment_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with aws_ssoadmin_principal as\n(\n  select\n    i.arn as instance_arn,\n\
-    \    'GROUP' as \"type\",\n    g.id,\n    g.title\n  from\n    aws_ssoadmin_instance\
-    \ i\n    left join\n      aws_identitystore_group g\n      on i.identity_store_id\
-    \ = g.identity_store_id\n    union\n    select\n      i.arn as instance_arn,\n\
-    \      'USER' as \"type\",\n      u.id,\n      u.title\n    from\n      aws_ssoadmin_instance\
-    \ i\n      left join\n        aws_identitystore_user u\n        on i.identity_store_id\
-    \ = u.identity_store_id\n)\nselect\n  a.target_account_id,\n  a.principal_type,\n\
-    \  p.title as principal_title\nfrom\n  aws_ssoadmin_account_assignment a\n  left\
-    \ join\n    aws_ssoadmin_principal p\n    on a.principal_type = p.type\n    and\
-    \ a.principal_id = p.id\n    and a.instance_arn = p.instance_arn\nwhere\n  a.target_account_id\
-    \ = '012345678901' and a.permission_set_arn = 'arn:aws:sso:::permissionSet/ssoins-0123456789abcdef/ps-0123456789abcdef';"
+  QueryToExecute: |
+    WITH aws_ssoadmin_principal AS (
+      SELECT
+        i.arn AS instance_arn,
+        'GROUP' AS "type",
+        g.id,
+        g.title
+      FROM
+        aws_ssoadmin_instance i
+        LEFT JOIN aws_identitystore_group g
+          ON i.identity_store_id = g.identity_store_id
+      
+      UNION
+
+      SELECT
+        i.arn AS instance_arn,
+        'USER' AS "type",
+        u.id,
+        u.title
+      FROM
+        aws_ssoadmin_instance i
+        LEFT JOIN aws_identitystore_user u
+          ON i.identity_store_id = u.identity_store_id
+    )
+
+    SELECT
+      a.target_account_id,
+      a.principal_type,
+      p.title AS principal_title
+    FROM
+      aws_ssoadmin_account_assignment a
+    LEFT JOIN aws_ssoadmin_principal p
+      ON a.principal_type = p.type
+      AND a.principal_id = p.id
+      AND a.instance_arn = p.instance_arn
+    WHERE
+      a.target_account_id = '012345678901'
+      AND a.permission_set_arn = 'arn:aws:sso:::permissionSet/ssoins-0123456789abcdef/ps-0123456789abcdef';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSO Admin
+    - SSO Admin
 Title: Find All AWS SSO Admin Account Assignments with SQL

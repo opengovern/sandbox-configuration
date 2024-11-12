@@ -1,20 +1,25 @@
-Description: Allows users to query AWS VPC Customer Gateway, providing detailed information
-  about each Customer Gateway in a Virtual Private Cloud (VPC).
+Description: Allows users to query AWS VPC Customer Gateway, providing detailed information about each Customer Gateway in a Virtual Private Cloud (VPC).
 ID: aws_vpc_customer_gateway_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  type,\n  count(customer_gateway_id) as customer_gateway_id_count\n\
-    from\n  aws_vpc_customer_gateway\ngroup by\n  type;"
+  QueryToExecute: |
+    SELECT
+      type,
+      COUNT(customer_gateway_id) AS customer_gateway_id_count
+    FROM
+      aws_vpc_customer_gateway
+    GROUP BY
+      type;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Virtual Private Cloud
+    - AWS Virtual Private Cloud
 Title: List all AWS VPC Customer Gateway details in VPC

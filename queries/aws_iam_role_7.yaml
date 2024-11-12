@@ -1,36 +1,81 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with roles as (\n  select\n    name,\n    attached_policy_arns\n\
-    \  from\n    aws_iam_role\n  where\n    name in ('AWSServiceRoleForSSO', 'AWSServiceRoleForRDS')\n\
-    ),\npolicies as (\n  select\n    name,\n    arn,\n    policy_std\n  from\n   \
-    \ aws_iam_policy\n),\nrole1_permissions as (\n  select\n    r.name,\n    a.action,\n\
-    \    a.access_level,\n    a.description\n  from\n    roles as r,\n    jsonb_array_elements_text(r.attached_policy_arns)\
-    \ as pol_arn,\n    policies as p,\n    jsonb_array_elements(p.policy_std -> 'Statement')\
-    \ as stmt,\n    jsonb_array_elements_text(stmt -> 'Action') as action_glob,\n\
-    \    glob (action_glob) as action_regex\n    join aws_iam_action a on a.action\
-    \ like action_regex\n  where\n    pol_arn = p.arn\n    and stmt ->> 'Effect' =\
-    \ 'Allow'\n    and r.name = 'AWSServiceRoleForSSO'\n),\nrole2_permissions as (\n\
-    \  select\n    r.name,\n    a.action,\n    a.access_level,\n    a.description\n\
-    \  from\n    roles as r,\n    jsonb_array_elements_text(r.attached_policy_arns)\
-    \ as pol_arn,\n    policies as p,\n    jsonb_array_elements(p.policy_std -> 'Statement')\
-    \ as stmt,\n    jsonb_array_elements_text(stmt -> 'Action') as action_glob,\n\
-    \    glob (action_glob) as action_regex\n    join aws_iam_action a on a.action\
-    \ like action_regex\n  where\n    pol_arn = p.arn\n    and stmt ->> 'Effect' =\
-    \ 'Allow'\n    and r.name = 'AWSServiceRoleForRDS'\n)\nselect\n  *\nfrom\n  role2_permissions\n\
-    where\n  action not in ( select action from role1_permissions)\norder by\n  action;"
+  QueryToExecute: |
+    WITH roles AS (
+      SELECT
+        name,
+        attached_policy_arns
+      FROM
+        aws_iam_role
+      WHERE
+        name IN ('AWSServiceRoleForSSO', 'AWSServiceRoleForRDS')
+    ),
+    policies AS (
+      SELECT
+        name,
+        arn,
+        policy_std
+      FROM
+        aws_iam_policy
+    ),
+    role1_permissions AS (
+      SELECT
+        r.name,
+        a.action,
+        a.access_level,
+        a.description
+      FROM
+        roles AS r,
+        jsonb_array_elements_text(r.attached_policy_arns) AS pol_arn,
+        policies AS p,
+        jsonb_array_elements(p.policy_std -> 'Statement') AS stmt,
+        jsonb_array_elements_text(stmt -> 'Action') AS action_glob,
+        glob(action_glob) AS action_regex
+        JOIN aws_iam_action a ON a.action LIKE action_regex
+      WHERE
+        pol_arn = p.arn
+        AND stmt ->> 'Effect' = 'Allow'
+        AND r.name = 'AWSServiceRoleForSSO'
+    ),
+    role2_permissions AS (
+      SELECT
+        r.name,
+        a.action,
+        a.access_level,
+        a.description
+      FROM
+        roles AS r,
+        jsonb_array_elements_text(r.attached_policy_arns) AS pol_arn,
+        policies AS p,
+        jsonb_array_elements(p.policy_std -> 'Statement') AS stmt,
+        jsonb_array_elements_text(stmt -> 'Action') AS action_glob,
+        glob(action_glob) AS action_regex
+        JOIN aws_iam_action a ON a.action LIKE action_regex
+      WHERE
+        pol_arn = p.arn
+        AND stmt ->> 'Effect' = 'Allow'
+        AND r.name = 'AWSServiceRoleForRDS'
+    )
+    SELECT
+      *
+    FROM
+      role2_permissions
+    WHERE
+      action NOT IN (SELECT action FROM role1_permissions)
+    ORDER BY
+      action;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find All AWS IAM Roles Permissions and Trust Policies

@@ -1,26 +1,33 @@
-Description: Allows users to query AWS SimSpace Simulation data. This table provides
-  information about simulations within AWS SimSpace. Engineers can use it to query
-  simulation-specific details, including simulation status, configuration, and associated
-  metadata.
+Description: Allows users to query AWS SimSpace Simulation data. This table provides information about simulations within AWS SimSpace. Engineers can use it to query simulation-specific details, including simulation status, configuration, and associated metadata.
 ID: aws_simspaceweaver_simulation_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.name,\n  s.arn,\n  s.schema_s3_location ->> 'BucketName'\
-    \ as bucket_name,\n  s.schema_s3_location ->> 'ObjectKey' as object_key,\n  b.versioning_enabled,\n\
-    \  b.block_public_acls,\n  b.acl\nfrom\n  aws_simspaceweaver_simulation as s,\n\
-    \  aws_s3_bucket as b\nwhere\n  s.schema_s3_location ->> 'BucketName' = b.name;"
+  QueryToExecute: |
+    SELECT
+      s.name,
+      s.arn,
+      s.schema_s3_location ->> 'BucketName' AS bucket_name,
+      s.schema_s3_location ->> 'ObjectKey' AS object_key,
+      b.versioning_enabled,
+      b.block_public_acls,
+      b.acl
+    FROM
+      aws_simspaceweaver_simulation AS s,
+      aws_s3_bucket AS b
+    WHERE
+      s.schema_s3_location ->> 'BucketName' = b.name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SimSpace Weaver
+    - SimSpace Weaver
 Title: Find AWS SimSpace Simulation Specific Details

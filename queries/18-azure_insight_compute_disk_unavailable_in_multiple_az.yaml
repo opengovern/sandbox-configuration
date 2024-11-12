@@ -1,19 +1,29 @@
 Description: List of compute disks which are not available in multiple az
 ID: azure_insight_compute_disk_unavailable_in_multiple_az
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_compute_disk
+    - azure_compute_disk
   Parameters: []
   PrimaryTable: azure_compute_disk
-  QueryToExecute: "select\n  name,\n  az,\n  region, subscription_id, og_account_id,\
-    \ og_resource_id\nfrom\n  azure_compute_disk\n  cross join jsonb_array_elements(zones)\
-    \ az\nwhere\n  zones is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      az,
+      region,
+      subscription_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      azure_compute_disk
+      CROSS JOIN jsonb_array_elements(zones) az
+    WHERE
+      zones IS NOT NULL;
 Tags:
   category:
-  - Security
-  - Technical Debt
-  - Resiliency
+    - Security
+    - Technical Debt
+    - Resiliency
 Title: Non-Resiliency Azure Disks

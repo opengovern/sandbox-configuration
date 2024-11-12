@@ -1,24 +1,28 @@
-Description: Allows users to query AWS Glue Security Configurations and gain insights
-  into the security configurations of Glue resources.
+Description: Allows users to query AWS Glue Security Configurations and gain insights into the security configurations of Glue resources.
 ID: aws_glue_security_configuration_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  cloud_watch_encryption ->> 'CloudWatchEncryptionMode'\
-    \ as encyption_mode,\n  cloud_watch_encryption ->> 'KmsKeyArn' as kms_key_arn\n\
-    from\n  aws_glue_security_configuration\nwhere\n  cloud_watch_encryption ->> 'CloudWatchEncryptionMode'\
-    \ != 'DISABLED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      cloud_watch_encryption ->> 'CloudWatchEncryptionMode' AS encryption_mode,
+      cloud_watch_encryption ->> 'KmsKeyArn' AS kms_key_arn
+    FROM
+      aws_glue_security_configuration
+    WHERE
+      cloud_watch_encryption ->> 'CloudWatchEncryptionMode' != 'DISABLED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue Security
+    - Glue Security
 Title: Find AWS Glue Security Configurations with Encryption

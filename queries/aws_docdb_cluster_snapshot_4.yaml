@@ -1,20 +1,26 @@
-Description: Allows users to query Amazon DocumentDB Cluster Snapshots for detailed
-  information about their configuration, status, and associated metadata.
+Description: Allows users to query Amazon DocumentDB Cluster Snapshots for detailed information about their configuration, status, and associated metadata.
 ID: aws_docdb_cluster_snapshot_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_snapshot_identifier,\n  engine,\n  snapshot_type\n\
-    from\n  aws_docdb_cluster_snapshot\nwhere\n  snapshot_type = 'manual';"
+  QueryToExecute: |
+    SELECT
+      db_cluster_snapshot_identifier,
+      engine,
+      snapshot_type
+    FROM
+      aws_docdb_cluster_snapshot
+    WHERE
+      snapshot_type = 'manual';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon DocumentDB
+    - Amazon DocumentDB
 Title: Find Amazon DocumentDB Cluster Snapshot details

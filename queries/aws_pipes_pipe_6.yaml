@@ -1,23 +1,33 @@
-Description: Allows users to query AWS Pipes to obtain detailed information about
-  individual pipes.
+Description: Allows users to query AWS Pipes to obtain detailed information about individual pipes.
 ID: aws_pipes_pipe_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  p.name,\n  r.arn as role_arn,\n  r.role_id,\n  r.permissions_boundary_arn,\n\
-    \  r.role_last_used_region,\n  r.inline_policies,\n  r.assume_role_policy\nfrom\n\
-    \  aws_pipes_pipe as p,\n  aws_iam_role as r\nwhere\n  p.role_arn = r.arn;"
+  QueryToExecute: |
+    SELECT
+      p.name,
+      r.arn AS role_arn,
+      r.role_id,
+      r.permissions_boundary_arn,
+      r.role_last_used_region,
+      r.inline_policies,
+      r.assume_role_policy
+    FROM
+      aws_pipes_pipe AS p,
+      aws_iam_role AS r
+    WHERE
+      p.role_arn = r.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Pipes
+    - AWS Pipes
 Title: List AWS Pipes and Their Associated IAM Roles

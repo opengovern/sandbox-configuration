@@ -1,23 +1,28 @@
-Description: Allows users to query AWS App Runner services, providing detailed information
-  on service configurations, scaling, and network settings.
+Description: Allows users to query AWS App Runner services, providing detailed information on service configurations, scaling, and network settings.
 ID: aws_app_runner_service_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  arn,\n  auto_scaling_configuration_summary\n\
-    from\n  aws_app_runner_service\nwhere\n  jsonb_path_exists(auto_scaling_configuration_summary,\
-    \ '$.AutoScalingConfigurationArn');"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      arn,
+      auto_scaling_configuration_summary
+    FROM
+      aws_app_runner_service
+    WHERE
+      jsonb_path_exists(auto_scaling_configuration_summary, '$.AutoScalingConfigurationArn');
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - App Runner
+    - App Runner
 Title: List all AWS App Runner Services with Auto Scaling Info

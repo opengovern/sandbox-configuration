@@ -1,24 +1,30 @@
-Description: Allows users to query AWS EC2 Gateway Load Balancer details, including
-  its configuration, state, type, and associated tags.
+Description: Allows users to query AWS EC2 Gateway Load Balancer details, including its configuration, state, type, and associated tags.
 ID: aws_ec2_gateway_load_balancer_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  lb ->> 'Key' as deletion_protection_key,\n \
-    \ lb ->> 'Value' as deletion_protection_value\nfrom\n  aws_ec2_gateway_load_balancer,\n\
-    \  jsonb_array_elements(load_balancer_attributes) as lb\nwhere\n  lb ->> 'Key'\
-    \ = 'deletion_protection.enabled'\n  and lb ->> 'Value' = 'false';"
+  QueryToExecute: |
+    SELECT
+      name,
+      lb ->> 'Key' AS deletion_protection_key,
+      lb ->> 'Value' AS deletion_protection_value
+    FROM
+      aws_ec2_gateway_load_balancer,
+      jsonb_array_elements(load_balancer_attributes) AS lb
+    WHERE
+      lb ->> 'Key' = 'deletion_protection.enabled'
+      AND lb ->> 'Value' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Gateway Load Balancer
+    - EC2 Gateway Load Balancer
 Title: Find AWS EC2 Gateway Load Balancer with deletion protection

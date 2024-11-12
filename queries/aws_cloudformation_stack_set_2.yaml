@@ -1,22 +1,30 @@
-Description: Allows users to query AWS CloudFormation StackSets, providing detailed
-  information about each StackSet''s configuration, status, and associated AWS resources.
+Description: Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet's configuration, status, and associated AWS resources.
 ID: aws_cloudformation_stack_set_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stack_set_id,\n  stack_set_name,\n  status,\n  permission_model,\n\
-    \  auto_deployment\nfrom\n  aws_cloudformation_stack_set\nwhere\n  status = 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      stack_set_id,
+      stack_set_name,
+      status,
+      permission_model,
+      auto_deployment
+    FROM
+      aws_cloudformation_stack_set
+    WHERE
+      status = 'ACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: List all AWS CloudFormation StackSets and Associated Resources

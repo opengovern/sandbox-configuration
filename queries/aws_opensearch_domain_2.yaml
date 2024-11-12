@@ -1,24 +1,29 @@
-Description: Allows users to query AWS OpenSearch Service Domains for detailed information
-  on their configuration, status, and associated resources.
+Description: Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources.
 ID: aws_opensearch_domain_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  domain_id,\n  encryption_at_rest_options\
-    \ ->> 'Enabled' as enabled,\n  encryption_at_rest_options ->> 'KmsKeyId' as kms_key_id\n\
-    from\n  aws_opensearch_domain\nwhere\n  encryption_at_rest_options ->> 'Enabled'\
-    \ = 'false';"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      domain_id,
+      encryption_at_rest_options ->> 'Enabled' AS enabled,
+      encryption_at_rest_options ->> 'KmsKeyId' AS kms_key_id
+    FROM
+      aws_opensearch_domain
+    WHERE
+      encryption_at_rest_options ->> 'Enabled' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - OpenSearch Service
+    - OpenSearch Service
 Title: Find All AWS OpenSearch Service Domains and Their Details

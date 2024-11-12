@@ -1,19 +1,27 @@
 Description: Allows users to query AWS Managed Streaming for Apache Kafka (MSK) clusters.
 ID: aws_msk_cluster_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  cluster_name,\n  state,\n  creation_time\nfrom\n\
-    \  aws_msk_cluster\nwhere\n  provisioned -> 'LoggingInfo' is null;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      cluster_name,
+      state,
+      creation_time
+    FROM
+      aws_msk_cluster
+    WHERE
+      provisioned -> 'LoggingInfo' IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Managed Streaming for Apache Kafka
+    - Managed Streaming for Apache Kafka
 Title: List all AWS MSK Clusters with Missing Logging Info

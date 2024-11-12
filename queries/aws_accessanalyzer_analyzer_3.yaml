@@ -1,23 +1,30 @@
-Description: Allows users to query Access Analyzer Analyzer in AWS IAM to retrieve
-  information about analyzers.
+Description: Allows users to query Access Analyzer Analyzer in AWS IAM to retrieve information about analyzers.
 ID: aws_accessanalyzer_analyzer_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  status,\n  type,\n  last_resource_analyzed\n\
-    from\n  aws_accessanalyzer_analyzer\nwhere\n  status = 'ACTIVE'\n  and findings\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      status,
+      type,
+      last_resource_analyzed
+    FROM
+      aws_accessanalyzer_analyzer
+    WHERE
+      status = 'ACTIVE'
+      AND findings IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Access Analyzer
+    - Access Analyzer
 Title: Find AWS IAM Access Analyzer Details

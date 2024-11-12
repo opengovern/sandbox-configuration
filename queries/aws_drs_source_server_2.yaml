@@ -1,24 +1,28 @@
-Description: Allows users to query AWS Database Migration Service Source Servers for
-  detailed information about the replication servers used in database migrations.
+Description: Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations.
 ID: aws_drs_source_server_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  title,\n  source_cloud_properties ->> 'OriginAccountID'\
-    \ as source_cloud_origin_account_id,\n  source_cloud_properties ->> 'OriginAvailabilityZone'\
-    \ as source_cloud_origin_availability_zone,\n  source_cloud_properties ->> 'OriginRegion'\
-    \ as source_cloud_origin_region\nfrom\n  aws_drs_source_server;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      title,
+      source_cloud_properties ->> 'OriginAccountID' AS source_cloud_origin_account_id,
+      source_cloud_properties ->> 'OriginAvailabilityZone' AS source_cloud_origin_availability_zone,
+      source_cloud_properties ->> 'OriginRegion' AS source_cloud_origin_region
+    FROM
+      aws_drs_source_server;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Database Migration Service
+    - Database Migration Service
 Title: List all AWS DMS Source Servers for Detailed Info

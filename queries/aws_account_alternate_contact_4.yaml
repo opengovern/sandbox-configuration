@@ -1,23 +1,32 @@
-Description: Allows users to query AWS Account Alternate Contact to fetch details
-  about the alternate contacts associated with an AWS account.
+Description: Allows users to query AWS Account Alternate Contact to fetch details about the alternate contacts associated with an AWS account.
 ID: aws_account_alternate_contact_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  linked_account_id,\n  contact_type,\n  email_address,\n\
-    \  phone_number,\n  contact_title\nfrom\n  aws_account_alternate_contact\nwhere\n\
-    \  linked_account_id = '123456789012'\n  and contact_type = 'SECURITY';"
+  QueryToExecute: |
+    SELECT
+      name,
+      linked_account_id,
+      contact_type,
+      email_address,
+      phone_number,
+      contact_title
+    FROM
+      aws_account_alternate_contact
+    WHERE
+      linked_account_id = '123456789012'
+      AND contact_type = 'SECURITY';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Account Management
+    - Account Management
 Title: Find all AWS Account Alternate Contacts using SQL

@@ -1,22 +1,27 @@
-Description: Allows users to query Amazon RDS DB Snapshots for information regarding
-  manual and automatic snapshots of an Amazon RDS DB instance.
+Description: Allows users to query Amazon RDS DB Snapshots for information regarding manual and automatic snapshots of an Amazon RDS DB instance.
 ID: aws_rds_db_snapshot_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_snapshot_identifier,\n  encrypted\nfrom\n  aws_rds_db_snapshot\n\
-    where\n  not encrypted;"
+  QueryToExecute: |
+    SELECT
+      db_snapshot_identifier,
+      encrypted
+    FROM
+      aws_rds_db_snapshot
+    WHERE
+      NOT encrypted;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon RDS
+    - Amazon RDS
 Title: Find Non-encrypted RDS DB Snapshots for AWS

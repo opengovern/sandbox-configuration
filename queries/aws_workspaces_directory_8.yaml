@@ -1,30 +1,36 @@
-Description: Allows users to query AWS WorkSpaces Directory information to retrieve
-  details such as directory ID, directory type, workspace creation properties, and
-  more.
+Description: Allows users to query AWS WorkSpaces Directory information to retrieve details such as directory ID, directory type, workspace creation properties, and more.
 ID: aws_workspaces_directory_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  directory_id,\n  arn,\n  workspace_access_properties\
-    \ ->> 'DeviceTypeAndroid' as device_type_android,\n  workspace_access_properties\
-    \ ->> 'DeviceTypeChromeOs' as device_type_chrome_os,\n  workspace_access_properties\
-    \ ->> 'DeviceTypeIos' as device_type_ios,\n  workspace_access_properties ->> 'DeviceTypeLinux'\
-    \ as device_type_linux,\n  workspace_access_properties ->> 'DeviceTypeOsx' as\
-    \ device_type_osx,\n  workspace_access_properties ->> 'DeviceTypeWeb' as device_type_web,\n\
-    \  workspace_access_properties ->> 'DeviceTypeWindows' as device_type_windows,\n\
-    \  workspace_access_properties ->> 'DeviceTypeZeroClient' as device_type_zero_client\n\
-    from\n  aws_workspaces_directory\nwhere\n  directory_id = 'd-96676995ea';"
+  QueryToExecute: |
+    SELECT
+      name,
+      directory_id,
+      arn,
+      workspace_access_properties ->> 'DeviceTypeAndroid' AS device_type_android,
+      workspace_access_properties ->> 'DeviceTypeChromeOs' AS device_type_chrome_os,
+      workspace_access_properties ->> 'DeviceTypeIos' AS device_type_ios,
+      workspace_access_properties ->> 'DeviceTypeLinux' AS device_type_linux,
+      workspace_access_properties ->> 'DeviceTypeOsx' AS device_type_osx,
+      workspace_access_properties ->> 'DeviceTypeWeb' AS device_type_web,
+      workspace_access_properties ->> 'DeviceTypeWindows' AS device_type_windows,
+      workspace_access_properties ->> 'DeviceTypeZeroClient' AS device_type_zero_client
+    FROM
+      aws_workspaces_directory
+    WHERE
+      directory_id = 'd-96676995ea';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS WorkSpaces
+    - AWS WorkSpaces
 Title: List AWS WorkSpaces Directory Details Using SQL

@@ -1,21 +1,29 @@
-Description: Allows users to query AWS Kinesis Stream data, including stream name,
-  status, creation time, and associated tags.
+Description: Allows users to query AWS Kinesis Stream data, including stream name, status, creation time, and associated tags.
 ID: aws_kinesis_stream_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stream_name,\n  stream_arn,\n  stream_status,\n  consumer_count,\n\
-    \  stream_creation_timestamp,\n  region\nfrom\n  aws_kinesis_stream\nwhere\n \
-    \ consumer_count = 0;"
+  QueryToExecute: |
+    SELECT
+      stream_name,
+      stream_arn,
+      stream_status,
+      consumer_count,
+      stream_creation_timestamp,
+      region
+    FROM
+      aws_kinesis_stream
+    WHERE
+      consumer_count = 0;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Kinesis Stream
+    - Kinesis Stream
 Title: List all AWS Kinesis Streams with Consumer Count Zero

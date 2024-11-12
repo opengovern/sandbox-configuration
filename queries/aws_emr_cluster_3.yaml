@@ -1,22 +1,29 @@
 Description: Allows users to query AWS Elastic MapReduce Cluster data.
 ID: aws_emr_cluster_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  status ->> 'State' as state,\n  status\
-    \ -> 'StateChangeReason' ->> 'Message' as state_change_reason\nfrom\n  aws_emr_cluster\n\
-    where\n  status ->> 'State' = 'TERMINATED_WITH_ERRORS';"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      status ->> 'State' AS state,
+      status -> 'StateChangeReason' ->> 'Message' AS state_change_reason
+    FROM
+      aws_emr_cluster
+    WHERE
+      status ->> 'State' = 'TERMINATED_WITH_ERRORS';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic MapReduce
+    - Elastic MapReduce
 Title: Find AWS Elastic MapReduce Clusters with Errors

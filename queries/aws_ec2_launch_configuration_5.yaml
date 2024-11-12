@@ -1,23 +1,28 @@
-Description: Allows users to query AWS EC2 Launch Configurations to gain insights
-  into their configurations, metadata, and associated instances.
+Description: Allows users to query AWS EC2 Launch Configurations to gain insights into their configurations, metadata, and associated instances.
 ID: aws_ec2_launch_configuration_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  user_data\nfrom\n  aws_ec2_launch_configuration\n\
-    where\n  user_data like any (array ['%pass%', '%secret%','%token%','%key%'])\n\
-    \  or user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]';"
+  QueryToExecute: |
+    SELECT
+      name,
+      user_data
+    FROM
+      aws_ec2_launch_configuration
+    WHERE
+      user_data LIKE ANY (ARRAY ['%pass%', '%secret%', '%token%', '%key%'])
+      OR user_data ~ '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find AWS EC2 Launch Configurations With Sensitive Data

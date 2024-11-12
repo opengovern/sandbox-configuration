@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Cognito User Pools to fetch detailed information
-  about each user pool, including the pool''s configuration, status, and associated
-  metadata.
+Description: Allows users to query AWS Cognito User Pools to fetch detailed information about each user pool, including the pool's configuration, status, and associated metadata.
 ID: aws_cognito_user_pool_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  mfa_configuration\nfrom\n  aws_cognito_user_pool\n\
-    where\n  mfa_configuration != 'OFF';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      mfa_configuration
+    FROM
+      aws_cognito_user_pool
+    WHERE
+      mfa_configuration != 'OFF';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cognito
+    - Cognito
 Title: List All AWS Cognito User Pools with MFA Configuration

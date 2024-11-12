@@ -1,24 +1,27 @@
-Description: Allows users to query NAT Gateways within Amazon Virtual Private Cloud
-  (VPC). The `aws_vpc_nat_gateway` table in Steampipe provides information about each
-  NAT Gateway within a VPC. This table can be used to gather insights on NAT Gateways,
-  such as their state, subnet association, and associated Elastic IP addresses.
+Description: Allows users to query NAT Gateways within Amazon Virtual Private Cloud (VPC). The `aws_vpc_nat_gateway` table in Steampipe provides information about each NAT Gateway within a VPC. This table can be used to gather insights on NAT Gateways, such as their state, subnet association, and associated Elastic IP addresses.
 ID: aws_vpc_nat_gateway_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpc_id,\n  count(nat_gateway_id) as nat_gateway_id\n\
-    from\n  aws_vpc_nat_gateway\ngroup by\n  vpc_id;"
+  QueryToExecute: |
+    SELECT
+      vpc_id,
+      COUNT(nat_gateway_id) AS nat_gateway_id
+    FROM
+      aws_vpc_nat_gateway
+    GROUP BY
+      vpc_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon VPC
+    - Amazon VPC
 Title: List All AWS VPC NAT Gateways and Their Subnet Associations

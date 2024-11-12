@@ -1,30 +1,35 @@
-Description: Allows users to query AWS VPC Verified Access Instances and provides
-  information about the Amazon VPC verified access instances. This table can be used
-  to gather details such as the instance ID, instance state, instance type, and associated
-  tags.
+Description: Allows users to query AWS VPC Verified Access Instances and provides information about the Amazon VPC verified access instances. This table can be used to gather details such as the instance ID, instance state, instance type, and associated tags.
 ID: aws_vpc_verified_access_instance_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i.verified_access_instance_id,\n  i.creation_time,\n\
-    \  p ->> 'Description' as trust_provider_description,\n  p ->> 'TrustProviderType'\
-    \ as trust_provider_type,\n  p ->> 'UserTrustProviderType' as user_trust_provider_type,\n\
-    \  p ->> 'DeviceTrustProviderType' as device_trust_provider_type,\n  p ->> 'VerifiedAccessTrustProviderId'\
-    \ as verified_access_trust_provider_id,\n  t.policy_reference_name as trust_access_policy_reference_name\n\
-    from\n  aws_vpc_verified_access_instance as i,\n  aws_vpc_verified_access_trust_provider\
-    \ as t,\n  jsonb_array_elements(verified_access_trust_providers) as p\nwhere\n\
-    \  p ->> 'VerifiedAccessTrustProviderId' = t.verified_access_trust_provider_id;"
+  QueryToExecute: |
+    SELECT
+      i.verified_access_instance_id,
+      i.creation_time,
+      p ->> 'Description' AS trust_provider_description,
+      p ->> 'TrustProviderType' AS trust_provider_type,
+      p ->> 'UserTrustProviderType' AS user_trust_provider_type,
+      p ->> 'DeviceTrustProviderType' AS device_trust_provider_type,
+      p ->> 'VerifiedAccessTrustProviderId' AS verified_access_trust_provider_id,
+      t.policy_reference_name AS trust_access_policy_reference_name
+    FROM
+      aws_vpc_verified_access_instance AS i,
+      aws_vpc_verified_access_trust_provider AS t,
+      jsonb_array_elements(verified_access_trust_providers) AS p
+    WHERE
+      p ->> 'VerifiedAccessTrustProviderId' = t.verified_access_trust_provider_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Verified Access Instances and Details

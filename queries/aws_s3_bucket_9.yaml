@@ -1,27 +1,41 @@
-Description: Allows users to query AWS S3 buckets for detailed information about their
-  configuration, policies, and permissions.
+Description: Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions.
 ID: aws_s3_bucket_9
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name\nfrom\n  aws_s3_bucket\nwhere\n  name not in (\n\
-    \    select\n      name\n    from\n      aws_s3_bucket,\n      jsonb_array_elements(policy_std\
-    \ -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Principal' -> 'AWS')\
-    \ as p,\n      jsonb_array_elements_text(s -> 'Action') as a,\n      jsonb_array_elements_text(\n\
-    \        s -> 'Condition' -> 'Bool' -> 'aws:securetransport'\n      ) as ssl\n\
-    \    where\n      p = '*'\n      and s ->> 'Effect' = 'Deny'\n      and ssl ::\
-    \ bool = false\n  );"
+  QueryToExecute: |
+    SELECT
+      name
+    FROM
+      aws_s3_bucket
+    WHERE
+      name NOT IN (
+        SELECT
+          name
+        FROM
+          aws_s3_bucket,
+          jsonb_array_elements(policy_std -> 'Statement') AS s,
+          jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+          jsonb_array_elements_text(s -> 'Action') AS a,
+          jsonb_array_elements_text(
+            s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+          ) AS ssl
+        WHERE
+          p = '*'
+          AND s ->> 'Effect' = 'Deny'
+          AND ssl::bool = FALSE
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find AWS S3 Buckets with Specific Policies and Permissions

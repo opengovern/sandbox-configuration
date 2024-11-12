@@ -1,22 +1,30 @@
-Description: Allows users to query AWS SNS Topics to gather information about each
-  topic, including its name, owner, ARN, and other related data.
+Description: Allows users to query AWS SNS Topics to gather information about each topic, including its name, owner, ARN, and other related data.
 ID: aws_sns_topic_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  topic_arn,\n  region\nfrom \n  aws_sns_topic\n\
-    where\n  application_failure_feedback_role_arn is null and\n  firehose_failure_feedback_role_arn\
-    \ is null and\n  http_failure_feedback_role_arn is null and\n  lambda_failure_feedback_role_arn\
-    \ is null and\n  sqs_failure_feedback_role_arn is null;"
+  QueryToExecute: |
+    SELECT
+      title,
+      topic_arn,
+      region
+    FROM
+      aws_sns_topic
+    WHERE
+      application_failure_feedback_role_arn IS NULL AND
+      firehose_failure_feedback_role_arn IS NULL AND
+      http_failure_feedback_role_arn IS NULL AND
+      lambda_failure_feedback_role_arn IS NULL AND
+      sqs_failure_feedback_role_arn IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SNS
+    - SNS
 Title: Find AWS SNS Topics Without Failure Feedback Roles

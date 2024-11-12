@@ -1,18 +1,27 @@
 Description: List storage accounts that allow blob public access
 ID: azure_insight_storage_account_with_public_blob_access
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_storage_account
+    - azure_storage_account
   Parameters: []
   PrimaryTable: azure_storage_account
-  QueryToExecute: "select\n  name,\n  allow_blob_public_access, subscription_id, og_account_id,\
-    \ og_resource_id\nfrom\n  azure_storage_account\nwhere\n  allow_blob_public_access;"
+  QueryToExecute: |
+    SELECT
+      name,
+      allow_blob_public_access,
+      subscription_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      azure_storage_account
+    WHERE
+      allow_blob_public_access;
 Tags:
   category:
-  - Security
-  - Technical Debt
-  - Resiliency
+    - Security
+    - Technical Debt
+    - Resiliency
 Title: Storage Accounts with Public Internet

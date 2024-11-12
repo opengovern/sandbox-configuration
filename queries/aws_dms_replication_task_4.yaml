@@ -1,28 +1,34 @@
-Description: Enables users to query AWS DMS Replication Tasks to retrieve detailed
-  information on data migration activities between source and target databases.
+Description: Enables users to query AWS DMS Replication Tasks to retrieve detailed information on data migration activities between source and target databases.
 ID: aws_dms_replication_task_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  replication_task_identifier,\n  status,\n  replication_task_stats\
-    \ -> 'ElapsedTimeMillis' as elapsed_time_millis,\n  replication_task_stats ->\
-    \ 'FreshStartDate' as fresh_start_date,\n  replication_task_stats -> 'FullLoadFinishDate'\
-    \ as full_load_finish_date,\n  replication_task_stats -> 'FullLoadProgressPercent'\
-    \ as full_load_progress_percent,\n  replication_task_stats -> 'FullLoadStartDate'\
-    \ as full_load_start_date,\n  replication_task_stats -> 'StartDate' as start_date,\n\
-    \  replication_task_stats -> 'StopDate' as stop_date,\n  replication_task_stats\
-    \ -> 'TablesErrored' as tables_errored,\n  replication_task_stats -> 'TablesLoaded'\
-    \ as tables_loaded,\n  replication_task_stats -> 'TablesLoading' as tables_loading,\n\
-    \  replication_task_stats -> 'TablesQueued' as tables_queued\nfrom\n  aws_dms_replication_task;"
+  QueryToExecute: |
+    SELECT 
+      replication_task_identifier,
+      status,
+      replication_task_stats -> 'ElapsedTimeMillis' AS elapsed_time_millis,
+      replication_task_stats -> 'FreshStartDate' AS fresh_start_date,
+      replication_task_stats -> 'FullLoadFinishDate' AS full_load_finish_date,
+      replication_task_stats -> 'FullLoadProgressPercent' AS full_load_progress_percent,
+      replication_task_stats -> 'FullLoadStartDate' AS full_load_start_date,
+      replication_task_stats -> 'StartDate' AS start_date,
+      replication_task_stats -> 'StopDate' AS stop_date,
+      replication_task_stats -> 'TablesErrored' AS tables_errored,
+      replication_task_stats -> 'TablesLoaded' AS tables_loaded,
+      replication_task_stats -> 'TablesLoading' AS tables_loading,
+      replication_task_stats -> 'TablesQueued' AS tables_queued
+    FROM 
+      aws_dms_replication_task;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DMS
+    - DMS
 Title: Find AWS DMS Replication Task Details for Data Migration

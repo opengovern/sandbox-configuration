@@ -1,20 +1,27 @@
-Description: Allows users to query AWS CloudWatch Alarms, providing detailed information
-  about each alarm, including its configuration, state, and associated actions.
+Description: Allows users to query AWS CloudWatch Alarms, providing detailed information about each alarm, including its configuration, state, and associated actions.
 ID: aws_cloudwatch_alarm_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  state_value,\n  state_reason\nfrom\n\
-    \  aws_cloudwatch_alarm\nwhere\n state_value = 'ALARM';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      state_value,
+      state_reason
+    FROM
+      aws_cloudwatch_alarm
+    WHERE
+      state_value = 'ALARM';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List AWS CloudWatch Alarms with Detailed Information

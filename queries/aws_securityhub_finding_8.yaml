@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  id,\n  product_arn,\n  product_name,\n  company_name\n\
-    from\n  aws_securityhub_finding\nwhere \n  company_name = 'Turbot';"
+  QueryToExecute: |
+    SELECT
+      title,
+      id,
+      product_arn,
+      product_name,
+      company_name
+    FROM
+      aws_securityhub_finding
+    WHERE
+      company_name = 'Turbot';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find all AWS Security Hub Findings with Issues

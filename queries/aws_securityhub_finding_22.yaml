@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_22
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  source_account_id,\n  count(*) as finding_count\nfrom\n\
-    \  aws_securityhub_finding\ngroup by\n  source_account_id\norder by\n  source_account_id;"
+  QueryToExecute: |
+    SELECT
+      source_account_id,
+      COUNT(*) AS finding_count
+    FROM
+      aws_securityhub_finding
+    GROUP BY
+      source_account_id
+    ORDER BY
+      source_account_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find all Security Hub Findings and Details

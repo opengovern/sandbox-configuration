@@ -1,28 +1,45 @@
-Description: Allows users to query AWS Backup Recovery Points to gather comprehensive
-  information about each recovery point within an AWS Backup vault.
+Description: Allows users to query AWS Backup Recovery Points to gather comprehensive information about each recovery point within an AWS Backup vault.
 ID: aws_backup_recovery_point_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.backup_vault_name as backup_vault_name,\n  r.recovery_point_arn\
-    \ as recovery_point_arn,\n  r.resource_type as resource_type,\ncase\n    when\
-    \ r.resource_type = 'EBS' then (\n      select tags from aws_ebs_snapshot where\
-    \ arn = concat(\n        (string_to_array(r.recovery_point_arn, '::'))[1],\n \
-    \       ':',\n        r.account_id,\n        ':',\n        (string_to_array(r.recovery_point_arn,\
-    \ '::'))[2]\n      )\n    )\n    when r.resource_type = 'EC2' then (\n      select\
-    \ tags from aws_ec2_ami where image_id = (string_to_array(r.recovery_point_arn,\
-    \ '::image/'))[2]\n    )\n    when r.resource_type in ('S3', 'EFS') then r.tags\n\
-    end as tags,\n  r.region,\n  r.account_id\nfrom\n  aws_backup_recovery_point as\
-    \ r;"
+  QueryToExecute: |
+    SELECT
+      r.backup_vault_name AS backup_vault_name,
+      r.recovery_point_arn AS recovery_point_arn,
+      r.resource_type AS resource_type,
+      CASE
+        WHEN r.resource_type = 'EBS' THEN (
+          SELECT tags 
+          FROM aws_ebs_snapshot 
+          WHERE arn = CONCAT(
+            (STRING_TO_ARRAY(r.recovery_point_arn, '::'))[1],
+            ':',
+            r.account_id,
+            ':',
+            (STRING_TO_ARRAY(r.recovery_point_arn, '::'))[2]
+          )
+        )
+        WHEN r.resource_type = 'EC2' THEN (
+          SELECT tags 
+          FROM aws_ec2_ami 
+          WHERE image_id = (STRING_TO_ARRAY(r.recovery_point_arn, '::image/'))[2]
+        )
+        WHEN r.resource_type IN ('S3', 'EFS') THEN r.tags
+      END AS tags,
+      r.region,
+      r.account_id
+    FROM
+      aws_backup_recovery_point AS r;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Backup
+    - AWS Backup
 Title: List all AWS Backup Recovery Points in a Vault

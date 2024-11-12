@@ -1,25 +1,33 @@
-Description: Allows users to query AWS Well-Architected Tool Lens Reviews to obtain
-  detailed information about each review, including its associated workload, lens,
-  and milestone information.
+Description: Allows users to query AWS Well-Architected Tool Lens Reviews to obtain detailed information about each review, including its associated workload, lens, and milestone information.
 ID: aws_wellarchitected_lens_review_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.lens_name,\n  r.workload_id,\n  r.lens_status,\n  r.lens_version,\n\
-    \  w.architectural_design,\n  w.environment,\n  w.review_restriction_date\nfrom\n\
-    \  aws_wellarchitected_lens_review as r,\n  aws_wellarchitected_workload as w\n\
-    where\n  r.workload_id = w.workload_id;"
+  QueryToExecute: |
+    SELECT
+      r.lens_name,
+      r.workload_id,
+      r.lens_status,
+      r.lens_version,
+      w.architectural_design,
+      w.environment,
+      w.review_restriction_date
+    FROM
+      aws_wellarchitected_lens_review AS r,
+      aws_wellarchitected_workload AS w
+    WHERE
+      r.workload_id = w.workload_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: Query AWS Well-Architected Lens Reviews using SQL

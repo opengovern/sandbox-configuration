@@ -1,22 +1,27 @@
-Description: Allows users to query AWS Network Firewall Rule Group details, including
-  rule group ARN, capacity, rule group name, and associated tags.
+Description: Allows users to query AWS Network Firewall Rule Group details, including rule group ARN, capacity, rule group name, and associated tags.
 ID: aws_networkfirewall_rule_group_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  rule_group_name,\n  rule_group_status,\n  type,\n  jsonb_pretty(rules_source)\
-    \ as rules_source\nfrom\n  aws_networkfirewall_rule_group;"
+  QueryToExecute: |
+    SELECT
+      rule_group_name,
+      rule_group_status,
+      type,
+      jsonb_pretty(rules_source) AS rules_source
+    FROM
+      aws_networkfirewall_rule_group;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Network Firewall
+    - Network Firewall
 Title: Find AWS Network Firewall Rule Group Details

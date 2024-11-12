@@ -1,21 +1,28 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_11
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  sg ->> 'GroupId' as group_id,\n  sg ->>\
-    \ 'GroupName' as group_name\nfrom\n  aws_ec2_instance\n  cross join jsonb_array_elements(security_groups)\
-    \ as sg\nwhere\n  sg ->> 'GroupName' = 'default';"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      sg ->> 'GroupId' AS group_id,
+      sg ->> 'GroupName' AS group_name
+    FROM
+      aws_ec2_instance
+    CROSS JOIN
+      jsonb_array_elements(security_groups) AS sg
+    WHERE
+      sg ->> 'GroupName' = 'default';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 Instances with Group Details

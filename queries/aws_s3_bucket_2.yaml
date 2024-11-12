@@ -1,22 +1,29 @@
-Description: Allows users to query AWS S3 buckets for detailed information about their
-  configuration, policies, and permissions.
+Description: Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions.
 ID: aws_s3_bucket_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  region,\n  account_id,\n  versioning_enabled\n\
-    from\n  aws_s3_bucket\nwhere\n  not versioning_enabled;"
+  QueryToExecute: |
+    SELECT
+      name,
+      region,
+      account_id,
+      versioning_enabled
+    FROM
+      aws_s3_bucket
+    WHERE
+      NOT versioning_enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find AWS S3 Buckets Missing Versioning Using SQL

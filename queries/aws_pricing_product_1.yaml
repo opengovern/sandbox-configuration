@@ -1,27 +1,47 @@
-Description: Allows users to query AWS Pricing Product details such as the product''s
-  description, pricing details, and associated attributes.
+Description: Allows users to query AWS Pricing Product details such as the product's description, pricing details, and associated attributes.
 ID: aws_pricing_product_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  term,\n  purchase_option,\n  lease_contract_length,\n\
-    \  unit,\n  price_per_unit::numeric::money,\n  currency,\n  begin_range,\n  end_range,\n\
-    \  effective_date,\n  description,\n  attributes ->> 'instanceType',\n  attributes\
-    \ ->> 'vcpu',\n  attributes ->> 'memory',\n  attributes ->> 'operatingSystem',\n\
-    \  attributes ->> 'preInstalledSw'\nfrom\n  aws_pricing_product\nwhere\n  service_code\
-    \ = 'AmazonEC2'\n  and filters = '{\n  \"regionCode\": \"eu-west-3\",\n  \"locationType\"\
-    : \"AWS Region\",\n  \"instanceType\": \"c5.2xlarge\",\n  \"operatingSystem\"\
-    : \"Linux\",\n  \"tenancy\": \"Shared\",\n  \"preInstalledSw\": \"NA\",\n  \"\
-    capacityStatus\": \"Used\" }'::jsonb;"
+  QueryToExecute: |
+    SELECT
+      term,
+      purchase_option,
+      lease_contract_length,
+      unit,
+      price_per_unit::numeric::money,
+      currency,
+      begin_range,
+      end_range,
+      effective_date,
+      description,
+      attributes ->> 'instanceType',
+      attributes ->> 'vcpu',
+      attributes ->> 'memory',
+      attributes ->> 'operatingSystem',
+      attributes ->> 'preInstalledSw'
+    FROM
+      aws_pricing_product
+    WHERE
+      service_code = 'AmazonEC2'
+      AND filters = '{
+        "regionCode": "eu-west-3",
+        "locationType": "AWS Region",
+        "instanceType": "c5.2xlarge",
+        "operatingSystem": "Linux",
+        "tenancy": "Shared",
+        "preInstalledSw": "NA",
+        "capacityStatus": "Used"
+      }'::jsonb;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Pricing
+    - AWS Pricing
 Title: Find AWS Pricing Product Details with Attributes

@@ -1,24 +1,28 @@
-Description: Allows users to query AWS Organizations Root to retrieve detailed information
-  on AWS Organizations Root account. This table can be utilized to gain insights on
-  organizations root account.
+Description: Allows users to query AWS Organizations Root to retrieve detailed information on AWS Organizations Root account. This table can be utilized to gain insights on organizations root account.
 ID: aws_organizations_root_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  p ->> 'Status' as policy_status,\n  p\
-    \ ->> 'Type' as policy_type\nfrom\n  aws_organizations_root,\n  jsonb_array_elements(policy_types)\
-    \ as p;"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      p ->> 'Status' AS policy_status,
+      p ->> 'Type' AS policy_type
+    FROM
+      aws_organizations_root,
+      jsonb_array_elements(policy_types) AS p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Organizations
+    - Organizations
 Title: Find AWS Organizations Root and Policy Details

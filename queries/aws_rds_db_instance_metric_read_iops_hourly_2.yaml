@@ -1,23 +1,35 @@
-Description: Allows users to query AWS RDS DB Instances and retrieve hourly metrics
-  related to read IOPS (Input/Output Operations Per Second).
+Description: Allows users to query AWS RDS DB Instances and retrieve hourly metrics related to read IOPS (Input/Output Operations Per Second).
 ID: aws_rds_db_instance_metric_read_iops_hourly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  timestamp,\n  minimum,\n \
-    \ maximum,\n  average,\n  sum,\n  sample_count\nfrom\n  aws_rds_db_instance_metric_read_iops_hourly\n\
-    where\n  average > 1000\norder by\n  db_instance_identifier,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    FROM
+      aws_rds_db_instance_metric_read_iops_hourly
+    WHERE
+      average > 1000
+    ORDER BY
+      db_instance_identifier,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Instances Hourly Read IOPS Over 1000

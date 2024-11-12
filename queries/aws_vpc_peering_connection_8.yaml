@@ -1,22 +1,28 @@
-Description: Allows users to query VPC Peering Connections in Amazon Virtual Private
-  Cloud (VPC).
+Description: Allows users to query VPC Peering Connections in Amazon Virtual Private Cloud (VPC).
 ID: aws_vpc_peering_connection_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  v.id,\n  jsonb_pretty(tags) as tags\nfrom\n  aws_vpc_peering_connection\
-    \ as v,\n  jsonb_each(tags)\nwhere\n  key = 'turbot:TurbotCreatedPeeringConnection';"
+  QueryToExecute: |
+    SELECT
+      v.id,
+      JSONB_PRETTY(tags) AS tags
+    FROM
+      aws_vpc_peering_connection AS v,
+      JSONB_EACH(tags)
+    WHERE
+      key = 'turbot:TurbotCreatedPeeringConnection';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Virtual Private Cloud (VPC)
+    - Amazon Virtual Private Cloud (VPC)
 Title: List all VPC Peering Connections in AWS VPC

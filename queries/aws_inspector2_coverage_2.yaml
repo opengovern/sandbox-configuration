@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Inspector Coverage data that provides details
-  on the assessment targets and the assessment templates that are associated with
-  the AWS Inspector service.
+Description: Allows users to query AWS Inspector Coverage data that provides details on the assessment targets and the assessment templates that are associated with the AWS Inspector service.
 ID: aws_inspector2_coverage_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  source_account_id,\n  resource_id,\n  resource_type,\n\
-    \  scan_status_code\nfrom\n  aws_inspector2_coverage\nwhere\n  scan_status_code\
-    \ = 'INACTIVE';"
+  QueryToExecute: |
+    SELECT
+      source_account_id,
+      resource_id,
+      resource_type,
+      scan_status_code
+    FROM
+      aws_inspector2_coverage
+    WHERE
+      scan_status_code = 'INACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector
+    - AWS Inspector
 Title: Find all AWS Inspector Coverage Details

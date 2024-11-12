@@ -1,21 +1,26 @@
-Description: Allows users to query AWS Timestream tables, providing detailed information
-  on table configurations, statuses, and retention properties.
+Description: Allows users to query AWS Timestream tables, providing detailed information on table configurations, statuses, and retention properties.
 ID: aws_timestreamwrite_table_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  table_name,\n  arn,\n  magnetic_store_write_properties\n\
-    from\n  aws_timestreamwrite_table\nwhere\n  magnetic_store_write_properties ->>\
-    \ 'EnableMagneticStoreWrites' = 'true';"
+  QueryToExecute: |
+    SELECT
+      table_name,
+      arn,
+      magnetic_store_write_properties
+    FROM
+      aws_timestreamwrite_table
+    WHERE
+      magnetic_store_write_properties ->> 'EnableMagneticStoreWrites' = 'true';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Timestream
+    - Timestream
 Title: List AWS Timestream Tables with Specific Write Properties

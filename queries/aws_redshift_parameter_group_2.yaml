@@ -1,27 +1,35 @@
-Description: Allows users to query Amazon Redshift Parameter Groups to obtain detailed
-  information about the configuration parameters and settings for Redshift clusters.
-  This can be useful for managing and optimizing the performance of Redshift databases.
+Description: Allows users to query Amazon Redshift Parameter Groups to obtain detailed information about the configuration parameters and settings for Redshift clusters. This can be useful for managing and optimizing the performance of Redshift databases.
 ID: aws_redshift_parameter_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  p ->> 'ParameterName' as parameter_name,\n \
-    \ p ->> 'ParameterValue' as parameter_value,\n  p ->> 'Description' as description,\n\
-    \  p ->> 'Source' as source,\n  p ->> 'DataType' as data_type,\n  p ->> 'ApplyType'\
-    \ as apply_type,\n  p ->> 'IsModifiable' as is_modifiable,\n  p ->> 'AllowedValues'\
-    \ as allowed_values,\n  p ->> 'MinimumEngineVersion' as minimum_engine_version\n\
-    from\n  aws_redshift_parameter_group,\n  jsonb_array_elements(parameters) as p\n\
-    where\n  p ->> 'ParameterName' = 'require_ssl'\n  and p ->> 'ParameterValue' =\
-    \ 'false';"
+  QueryToExecute: |
+    SELECT
+      name,
+      p ->> 'ParameterName' AS parameter_name,
+      p ->> 'ParameterValue' AS parameter_value,
+      p ->> 'Description' AS description,
+      p ->> 'Source' AS source,
+      p ->> 'DataType' AS data_type,
+      p ->> 'ApplyType' AS apply_type,
+      p ->> 'IsModifiable' AS is_modifiable,
+      p ->> 'AllowedValues' AS allowed_values,
+      p ->> 'MinimumEngineVersion' AS minimum_engine_version
+    FROM
+      aws_redshift_parameter_group,
+      jsonb_array_elements(parameters) AS p
+    WHERE
+      p ->> 'ParameterName' = 'require_ssl'
+      AND p ->> 'ParameterValue' = 'false';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Redshift
+    - Amazon Redshift
 Title: Find Amazon Redshift Parameter Groups Configuration

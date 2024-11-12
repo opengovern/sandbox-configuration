@@ -1,23 +1,27 @@
-Description: Allows users to query monthly AWS costs per account. It provides cost
-  details for each AWS account, allowing users to monitor and manage their AWS spending.
+Description: Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending.
 ID: aws_cost_by_account_monthly_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  linked_account_id,\n  period_start,\n  unblended_cost_amount::numeric::money,\n\
-    \  rank() over(partition by linked_account_id order by unblended_cost_amount desc)\n\
-    from \n  aws_cost_by_account_monthly;"
+  QueryToExecute: |
+    SELECT 
+      linked_account_id, 
+      period_start, 
+      unblended_cost_amount::numeric::money, 
+      RANK() OVER (PARTITION BY linked_account_id ORDER BY unblended_cost_amount DESC)
+    FROM 
+      aws_cost_by_account_monthly;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer Service
+    - Cost Explorer Service
 Title: List all Monthly AWS Costs Per Account

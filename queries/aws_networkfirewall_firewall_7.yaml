@@ -1,24 +1,32 @@
-Description: Allows users to query AWS Network Firewalls for detailed information
-  about each firewall''s properties and settings.
+Description: Allows users to query AWS Network Firewalls for detailed information about each firewall's properties and settings.
 ID: aws_networkfirewall_firewall_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  f.arn,\n  f.name,\n  f.vpc_id,\n  k.arn as key_arn,\n\
-    \  key_rotation_enabled\nfrom\n  aws_networkfirewall_firewall f,\n  aws_kms_key\
-    \ k\nwhere\n  k.id = encryption_configuration ->> 'KeyId'\n  and not f.encryption_configuration\
-    \ ->> 'Type' = `AWS_OWNED_KMS_KEY';"
+  QueryToExecute: |
+    SELECT
+      f.arn,
+      f.name,
+      f.vpc_id,
+      k.arn AS key_arn,
+      key_rotation_enabled
+    FROM
+      aws_networkfirewall_firewall f,
+      aws_kms_key k
+    WHERE
+      k.id = encryption_configuration ->> 'KeyId'
+      AND NOT f.encryption_configuration ->> 'Type' = 'AWS_OWNED_KMS_KEY';
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Network Firewall
+    - Network Firewall
 Title: Find details of AWS Network Firewalls properties and settings

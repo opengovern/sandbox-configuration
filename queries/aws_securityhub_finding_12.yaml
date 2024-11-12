@@ -1,34 +1,40 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_12
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  id,\n  patch_summary ->> 'Id' as patch_id,\n\
-    \  patch_summary ->> 'FailedCount' as failed_count,\n  patch_summary ->> 'InstalledCount'\
-    \ as installed_count,\n  patch_summary ->> 'InstalledOtherCount' as installed_other_count,\n\
-    \  patch_summary ->> 'InstalledPendingReboot' as installed_pending_reboot,\n \
-    \ patch_summary ->> 'InstalledRejectedCount' as installed_rejected_count,\n  patch_summary\
-    \ ->> 'MissingCount' as missing_count,\n  patch_summary ->> 'Operation' as operation,\n\
-    \  patch_summary ->> 'OperationEndTime' as operation_end_time,\n  patch_summary\
-    \ ->> 'OperationStartTime' as operation_start_time,\n  patch_summary ->> 'RebootOption'\
-    \ as reboot_option\nfrom\n  aws_securityhub_finding\nwhere \n  title = 'EC2 instance\
-    \ involved in SSH brute force attacks.';"
+  QueryToExecute: |
+    SELECT 
+      title,
+      id,
+      patch_summary ->> 'Id' AS patch_id,
+      patch_summary ->> 'FailedCount' AS failed_count,
+      patch_summary ->> 'InstalledCount' AS installed_count,
+      patch_summary ->> 'InstalledOtherCount' AS installed_other_count,
+      patch_summary ->> 'InstalledPendingReboot' AS installed_pending_reboot,
+      patch_summary ->> 'InstalledRejectedCount' AS installed_rejected_count,
+      patch_summary ->> 'MissingCount' AS missing_count,
+      patch_summary ->> 'Operation' AS operation,
+      patch_summary ->> 'OperationEndTime' AS operation_end_time,
+      patch_summary ->> 'OperationStartTime' AS operation_start_time,
+      patch_summary ->> 'RebootOption' AS reboot_option
+    FROM 
+      aws_securityhub_finding
+    WHERE 
+      title = 'EC2 instance involved in SSH brute force attacks.';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: List AWS Security Hub Findings with Details

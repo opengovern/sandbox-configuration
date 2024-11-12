@@ -1,20 +1,25 @@
-Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed
-  information about each queue.
+Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed information about each queue.
 ID: aws_sqs_queue_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  message_retention_seconds\nfrom\n  aws_sqs_queue\n\
-    where\n  message_retention_seconds < '604800';"
+  QueryToExecute: |
+    SELECT
+      title,
+      message_retention_seconds
+    FROM
+      aws_sqs_queue
+    WHERE
+      message_retention_seconds < '604800';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Simple Queue Service
+    - Simple Queue Service
 Title: List all SQS queues with retention < 7 days in AWS

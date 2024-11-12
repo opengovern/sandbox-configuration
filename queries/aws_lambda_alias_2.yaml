@@ -1,20 +1,25 @@
-Description: Allows users to query AWS Lambda Alias, providing detailed information
-  about each alias associated with AWS Lambda functions.
+Description: Allows users to query AWS Lambda Alias, providing detailed information about each alias associated with AWS Lambda functions.
 ID: aws_lambda_alias_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  function_name,\n  count(function_name) count\nfrom\n\
-    \  aws_lambda_alias\ngroup by\n  function_name;"
+  QueryToExecute: |
+    SELECT
+      function_name,
+      COUNT(function_name) AS count
+    FROM
+      aws_lambda_alias
+    GROUP BY
+      function_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Lambda
+    - AWS Lambda
 Title: List all AWS Lambda Aliases with Detailed Information

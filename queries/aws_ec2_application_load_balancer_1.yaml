@@ -1,23 +1,25 @@
-Description: Allows users to query AWS EC2 Application Load Balancer, providing detailed
-  information about each load balancer within an AWS account. This includes its current
-  state, availability zones, security groups, and other important attributes.
+Description: Allows users to query AWS EC2 Application Load Balancer, providing detailed information about each load balancer within an AWS account. This includes its current state, availability zones, security groups, and other important attributes.
 ID: aws_ec2_application_load_balancer_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  jsonb_array_elements_text(security_groups) as\
-    \ attached_security_group\nfrom\n  aws_ec2_application_load_balancer;"
+  QueryToExecute: |
+    SELECT
+      name,
+      JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS attached_security_group
+    FROM
+      aws_ec2_application_load_balancer;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Application Load Balancer
+    - EC2 Application Load Balancer
 Title: Find AWS EC2 Load Balancers with Security Groups

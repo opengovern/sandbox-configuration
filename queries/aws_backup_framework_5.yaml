@@ -1,35 +1,49 @@
-Description: Allows users to query AWS Backup Frameworks and retrieve comprehensive
-  data about each backup plan, including its unique ARN, version, creation and deletion
-  dates, and more.
+Description: Allows users to query AWS Backup Frameworks and retrieve comprehensive data about each backup plan, including its unique ARN, version, creation and deletion dates, and more.
 ID: aws_backup_framework_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  rule_name,\n  compliance_result -> 'Compliance' ->> 'ComplianceType'\
-    \ as compliance_type,\n  compliance_result -> 'Compliance' -> 'ComplianceContributorCount'\
-    \ ->> 'CappedCount' as count_of_noncompliant_resources\nfrom\n  aws_config_rule\n\
-    inner join\n(\n  -- The sub-query will create the AWS Config rule name from information\
-    \ stored in the AWS Backup framework table.\n  select\n    case when framework_information.control_scope\
-    \ = '' then concat(framework_information.control_name, '-', framework_information.framework_uuid)\n\
-    \    else concat(upper(framework_information.control_scope), '-', framework_information.control_name,\
-    \ '-', framework_information.framework_uuid)\n    end as rule_name\n  from\n \
-    \ (\n    select\n      framework_name,\n      controls ->> 'ControlName' as control_name,\n\
-    \      control_scope,\n      right(arn, 36) as framework_uuid\n    from\n    \
-    \  aws_backup_framework,\n      jsonb_array_elements(framework_controls) as controls,\n\
-    \      json_array_elements_text(coalesce(controls -> 'ControlScope' ->> 'ComplianceResourceTypes',\
-    \ '[\"\"]')::json) as control_scope\n  ) as framework_information\n) as backup_framework\n\
-    on\n  aws_config_rule.name = backup_framework.rule_name,\n  jsonb_array_elements(compliance_by_config_rule)\
-    \ as compliance_result\nwhere\n  compliance_result -> 'Compliance' ->> 'ComplianceType'\
-    \ = 'NON_COMPLIANT';"
+  QueryToExecute: |
+    SELECT
+      rule_name,
+      compliance_result -> 'Compliance' ->> 'ComplianceType' AS compliance_type,
+      compliance_result -> 'Compliance' -> 'ComplianceContributorCount' ->> 'CappedCount' AS count_of_noncompliant_resources
+    FROM
+      aws_config_rule
+    INNER JOIN
+    (
+      SELECT
+        CASE 
+          WHEN framework_information.control_scope = '' THEN CONCAT(framework_information.control_name, '-', framework_information.framework_uuid)
+          ELSE CONCAT(UPPER(framework_information.control_scope), '-', framework_information.control_name, '-', framework_information.framework_uuid)
+        END AS rule_name
+      FROM
+      (
+        SELECT
+          framework_name,
+          controls ->> 'ControlName' AS control_name,
+          control_scope,
+          RIGHT(arn, 36) AS framework_uuid
+        FROM
+          aws_backup_framework,
+          jsonb_array_elements(framework_controls) AS controls,
+          json_array_elements_text(COALESCE(controls -> 'ControlScope' ->> 'ComplianceResourceTypes', '[""]')::json) AS control_scope
+      ) AS framework_information
+    ) AS backup_framework
+    ON
+      aws_config_rule.name = backup_framework.rule_name
+    , jsonb_array_elements(compliance_by_config_rule) AS compliance_result
+    WHERE
+      compliance_result -> 'Compliance' ->> 'ComplianceType' = 'NON_COMPLIANT';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Backup
+    - AWS Backup
 Title: Find AWS Backup Frameworks and Compliance Types

@@ -1,22 +1,26 @@
-Description: Allows users to query AWS Amplify Apps to retrieve detailed information
-  about each application, including its name, ARN, creation date, default domain,
-  and more.
+Description: Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more.
 ID: aws_amplify_app_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  production_branch ->> 'BranchName' as branch_name,\n\
-    \  production_branch ->> 'LastDeployTime' as last_deploy_time,\n  production_branch\
-    \ ->> 'Status' as status\nfrom\n  aws_amplify_app\nwhere\n  name = 'amplify_app_name';"
+  QueryToExecute: |
+    SELECT
+      production_branch ->> 'BranchName' AS branch_name,
+      production_branch ->> 'LastDeployTime' AS last_deploy_time,
+      production_branch ->> 'Status' AS status
+    FROM
+      aws_amplify_app
+    WHERE
+      name = 'amplify_app_name';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amplify
+    - Amplify
 Title: Find AWS Amplify Apps with Branch Details

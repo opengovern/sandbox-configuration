@@ -1,26 +1,33 @@
-Description: Allows users to query consolidated reports from the AWS Well-Architected
-  Tool, providing a comprehensive view of a workload''s alignment with AWS architectural
-  best practices.
+Description: Allows users to query consolidated reports from the AWS Well-Architected Tool, providing a comprehensive view of a workload's alignment with AWS architectural best practices.
 ID: aws_wellarchitected_consolidated_report_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.workload_name,\n  r.workload_arn,\n  r.workload_id,\n\
-    \  r.lenses_applied_count,\n  w.environment as workload_environment,\n  w.improvement_status\
-    \ as workload_improvement_status,\n  w.review_restriction_date as workload_review_restriction_date\n\
-    from\n  aws_wellarchitected_consolidated_report as r,\n  aws_wellarchitected_workload\
-    \ as w\nwhere\n  w.workload_id = r.workload_id;"
+  QueryToExecute: |
+    SELECT
+      r.workload_name,
+      r.workload_arn,
+      r.workload_id,
+      r.lenses_applied_count,
+      w.environment AS workload_environment,
+      w.improvement_status AS workload_improvement_status,
+      w.review_restriction_date AS workload_review_restriction_date
+    FROM
+      aws_wellarchitected_consolidated_report AS r,
+      aws_wellarchitected_workload AS w
+    WHERE
+      w.workload_id = r.workload_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: Find All AWS Well-Architected Consolidated Reports

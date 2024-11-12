@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Glue Development Endpoints to retrieve detailed
-  information about individual endpoints, their configurations, and related metadata.
+Description: Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata.
 ID: aws_glue_dev_endpoint_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  status,\n  glue_version,\n  last_modified_timestamp\n\
-    from\n  aws_glue_dev_endpoint\nwhere\n   last_modified_timestamp >= now() - interval\
-    \ '30' day;"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      status,
+      glue_version,
+      last_modified_timestamp
+    FROM
+      aws_glue_dev_endpoint
+    WHERE
+      last_modified_timestamp >= NOW() - INTERVAL '30' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue Development Endpoint
+    - Glue Development Endpoint
 Title: List all AWS Glue Development Endpoints with Metadata

@@ -1,22 +1,27 @@
-Description: Allows users to query Security Hub to retrieve information about the
-  Hub resources.
+Description: Allows users to query Security Hub to retrieve information about the Hub resources.
 ID: aws_securityhub_hub_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  hub_arn,\n  auto_enable_controls\nfrom\n  aws_securityhub_hub\n\
-    where\n  not auto_enable_controls;"
+  QueryToExecute: |
+    SELECT
+      hub_arn,
+      auto_enable_controls
+    FROM
+      aws_securityhub_hub
+    WHERE
+      NOT auto_enable_controls;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: List all Hub resources from AWS Security Hub

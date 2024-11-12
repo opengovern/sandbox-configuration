@@ -1,23 +1,32 @@
-Description: Allows users to query AWS SSM Patch Baseline data to retrieve information
-  about each patch baseline in your AWS account.
+Description: Allows users to query AWS SSM Patch Baseline data to retrieve information about each patch baseline in your AWS account.
 ID: aws_ssm_patch_baseline_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  baseline_id,\n  name,\n  description,\n  operating_system,\n\
-    \  created_date,\n  rejected_patches,\n  region\nfrom\n  aws_ssm_patch_baseline\n\
-    where\n  rejected_patches != '[]';"
+  QueryToExecute: |
+    SELECT
+      baseline_id,
+      name,
+      description,
+      operating_system,
+      created_date,
+      rejected_patches,
+      region
+    FROM
+      aws_ssm_patch_baseline
+    WHERE
+      rejected_patches != '[]';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM Patch Baseline
+    - SSM Patch Baseline
 Title: List all AWS SSM Patch Baseline Details

@@ -1,19 +1,33 @@
+Description: Allows querying information about versions of objects stored in Amazon S3 buckets. This table provides details such as bucket name, delimiter, encoding type, version ID marker, prefix, whether the results are truncated, common prefixes, delete markers, and version information.
 ID: aws_s3_object_version_3
-Title: "Find AWS S3 Object Versions and Details"
-Description: "Allows querying information about versions of objects stored in Amazon S3 buckets. This table provides details such as bucket name, delimiter, encoding type, version ID marker, prefix, whether the results are truncated, common prefixes, delete markers, and version information."
 IntegrationType: []
 Query:
   Engine: ""
-  QueryToExecute: ""
-  PrimaryTable: null
   ListOfTables: []
   Parameters: []
+  PrimaryTable: null
+  QueryToExecute: |
+    SELECT 
+        bucket_name,
+        delimiter,
+        encoding_type,
+        version_id_marker,
+        prefix,
+        is_truncated,
+        common_prefixes,
+        delete_markers,
+        version_info
+    FROM 
+        aws_s3_object_versions
+    WHERE 
+        bucket_name IS NOT NULL
 Tags:
   cloud_asset_management:
-  - "true"
+    - "true"
   cloud_data_security:
-  - "true"
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
+Title: Find AWS S3 Object Versions and Details

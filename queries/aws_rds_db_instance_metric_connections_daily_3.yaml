@@ -1,24 +1,31 @@
-Description: Allows users to query AWS RDS DB Instance Metrics on a daily basis, retrieving
-  information about the number of database connections.
+Description: Allows users to query AWS RDS DB Instance Metrics on a daily basis, retrieving information about the number of database connections.
 ID: aws_rds_db_instance_metric_connections_daily_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  sum(maximum) as total_connections\n\
-    from\n  aws_rds_db_instance_metric_connections\nwhere \n  timestamp > (current_date\
-    \ - interval '7' day)\ngroup by\n  db_instance_identifier\nhaving\n  sum(maximum)\
-    \ = 0 \n;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      SUM(maximum) AS total_connections
+    FROM
+      aws_rds_db_instance_metric_connections
+    WHERE
+      timestamp > (CURRENT_DATE - INTERVAL '7' DAY)
+    GROUP BY
+      db_instance_identifier
+    HAVING
+      SUM(maximum) = 0;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List all AWS RDS DB Instances with Zero Connections Daily

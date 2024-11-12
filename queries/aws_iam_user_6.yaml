@@ -1,23 +1,27 @@
-Description: Allows users to query AWS IAM User data, providing details such as user
-  ID, name, path, creation date, and more. This table is useful for security audits,
-  policy enforcement, and operational troubleshooting.
+Description: Allows users to query AWS IAM User data, providing details such as user ID, name, path, creation date, and more. This table is useful for security audits, policy enforcement, and operational troubleshooting.
 ID: aws_iam_user_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as user_name,\n  inline_policies\nfrom\n  aws_iam_user\n\
-    where\n  inline_policies is not null;"
+  QueryToExecute: |
+    SELECT
+      name AS user_name,
+      inline_policies
+    FROM
+      aws_iam_user
+    WHERE
+      inline_policies IS NOT NULL;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find AWS IAM Users with Inline Policies

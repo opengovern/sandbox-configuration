@@ -1,22 +1,27 @@
-Description: Allows users to query AppSync GraphQL APIs to retrieve detailed information
-  about each individual GraphQL API.
+Description: Allows users to query AppSync GraphQL APIs to retrieve detailed information about each individual GraphQL API.
 ID: aws_appsync_graphql_api_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  api_id,\n  owner,\n  log_config ->> 'CloudWatchLogsRoleArn'\
-    \ as cloud_watch_logs_role_arn,\n  log_config ->> 'FieldLogLevel' as field_log_level,\n\
-    \  log_config ->> 'ExcludeVerboseContent' as exclude_verbose_content\nfrom\n \
-    \ aws_appsync_graphql_api;"
+  QueryToExecute: |
+    SELECT
+      name,
+      api_id,
+      owner,
+      log_config ->> 'CloudWatchLogsRoleArn' AS cloud_watch_logs_role_arn,
+      log_config ->> 'FieldLogLevel' AS field_log_level,
+      log_config ->> 'ExcludeVerboseContent' AS exclude_verbose_content
+    FROM
+      aws_appsync_graphql_api;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AppSync
+    - AppSync
 Title: Find AWS AppSync GraphQL API Details

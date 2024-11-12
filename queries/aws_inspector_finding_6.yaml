@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Inspector Findings to obtain detailed information
-  about the Amazon Inspector findings that are generated during the assessment of
-  the target applications.
+Description: Allows users to query AWS Inspector Findings to obtain detailed information about the Amazon Inspector findings that are generated during the assessment of the target applications.
 ID: aws_inspector_finding_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  title,\n  asset_attributes ->> 'AgentId' as agent_id,\n\
-    \  asset_attributes ->> 'AmiId' as ami_id,\n  asset_attributes ->> 'Hostname'\
-    \ as hostname,\n  asset_attributes ->> 'Tags' as tags\nfrom\n  aws_inspector_finding;"
+  QueryToExecute: |
+    SELECT
+      id,
+      title,
+      asset_attributes ->> 'AgentId' AS agent_id,
+      asset_attributes ->> 'AmiId' AS ami_id,
+      asset_attributes ->> 'Hostname' AS hostname,
+      asset_attributes ->> 'Tags' AS tags
+    FROM
+      aws_inspector_finding;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Inspector
+    - Amazon Inspector
 Title: Find AWS Inspector Findings with Detailed Information

@@ -1,19 +1,27 @@
 Description: Allows users to query AWS Lambda Function Metrics on a daily basis.
 ID: aws_lambda_function_metric_invocations_daily_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  timestamp,\n  sum\nfrom\n  aws_lambda_function_metric_invocations_daily\n\
-    order by\n  name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      timestamp,
+      SUM
+    FROM
+      aws_lambda_function_metric_invocations_daily
+    ORDER BY
+      name,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Lambda Function
+    - AWS Lambda Function
 Title: Find All Daily AWS Lambda Function Metrics Using SQL

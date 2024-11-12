@@ -1,20 +1,28 @@
-Description: Allows users to query AppSync GraphQL APIs to retrieve detailed information
-  about each individual GraphQL API.
+Description: Allows users to query AppSync GraphQL APIs to retrieve detailed information about each individual GraphQL API.
 ID: aws_appsync_graphql_api_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  api_id,\n  api_type,\n  visibility\nfrom\n \
-    \ aws_appsync_graphql_api\nwhere\n  visibility = 'GLOBAL'\n  and owner = account_id;"
+  QueryToExecute: |
+    SELECT
+      name,
+      api_id,
+      api_type,
+      visibility
+    FROM
+      aws_appsync_graphql_api
+    WHERE
+      visibility = 'GLOBAL'
+      AND owner = account_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AppSync
+    - AppSync
 Title: List all AWS AppSync GraphQL API details

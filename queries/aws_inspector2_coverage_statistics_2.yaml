@@ -1,21 +1,24 @@
-Description: Allows users to query AWS Inspector2 Coverage Statistics to obtain detailed
-  information about the assessment targets and the number of instances they cover.
+Description: Allows users to query AWS Inspector2 Coverage Statistics to obtain detailed information about the assessment targets and the number of instances they cover.
 ID: aws_inspector2_coverage_statistics_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  g ->> 'Count' as count,\n  g ->> 'GroupKey' as group_key\n\
-    from\n  aws_inspector2_coverage_statistics,\n  jsonb_array_elements(counts_by_group)\
-    \ as g;"
+  QueryToExecute: |
+    SELECT
+      g ->> 'Count' AS count,
+      g ->> 'GroupKey' AS group_key
+    FROM
+      aws_inspector2_coverage_statistics,
+      jsonb_array_elements(counts_by_group) AS g;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector2
+    - AWS Inspector2
 Title: Find AWS Inspector2 Coverage Statistics Details

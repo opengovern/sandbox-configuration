@@ -1,22 +1,27 @@
-Description: Allows users to query AWS GuardDuty Detector data, including detector
-  details, status, and associated metadata.
+Description: Allows users to query AWS GuardDuty Detector data, including detector details, status, and associated metadata.
 ID: aws_guardduty_detector_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  detector_id,\n  master_account ->> 'AccountId' as master_account_id,\n\
-    \  master_account ->> 'InvitationId' as invitation_id, \n  master_account ->>\
-    \ 'RelationshipStatus' as relationship_status \nfrom    \n  aws_guardduty_detector\n\
-    where master_account is not null;"
+  QueryToExecute: |
+    SELECT 
+      detector_id,
+      master_account ->> 'AccountId' AS master_account_id,
+      master_account ->> 'InvitationId' AS invitation_id,
+      master_account ->> 'RelationshipStatus' AS relationship_status
+    FROM 
+      aws_guardduty_detector
+    WHERE 
+      master_account IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - GuardDuty
+    - GuardDuty
 Title: Find AWS GuardDuty Detector with SQL

@@ -1,23 +1,32 @@
-Description: Allows users to query AWS Well-Architected Tool Answer data, including
-  information about the workloads, lens, and questions associated with each answer.
+Description: Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer.
 ID: aws_wellarchitected_answer_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workload_id,\n  risk,\n  count(question_id) as total_questions\n\
-    from\n  aws_wellarchitected_answer\nwhere\n  risk = 'HIGH'\n  or risk = 'MEDIUM'\n\
-    group by\n  workload_id,\n  risk;"
+  QueryToExecute: |
+    SELECT
+      workload_id,
+      risk,
+      COUNT(question_id) AS total_questions
+    FROM
+      aws_wellarchitected_answer
+    WHERE
+      risk = 'HIGH'
+      OR risk = 'MEDIUM'
+    GROUP BY
+      workload_id,
+      risk;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Tool Answers by Risk

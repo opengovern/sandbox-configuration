@@ -1,26 +1,35 @@
-Description: Allows users to query Network Load Balancer Metrics in EC2, specifically
-  the daily net flow count, providing insights into network traffic patterns and potential
-  anomalies.
+Description: Allows users to query Network Load Balancer Metrics in EC2, specifically the daily net flow count, providing insights into network traffic patterns and potential anomalies.
 ID: aws_ec2_network_load_balancer_metric_net_flow_count_daily_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  metric_name,\n  namespace,\n  maximum,\n  minimum,\n\
-    \  sample_count,\n  timestamp\nfrom\n  aws_ec2_network_load_balancer_metric_net_flow_count_daily\n\
-    order by\n  name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      metric_name,
+      namespace,
+      maximum,
+      minimum,
+      sample_count,
+      timestamp
+    FROM
+      aws_ec2_network_load_balancer_metric_net_flow_count_daily
+    ORDER BY
+      name,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Network Load Balancer
+    - EC2 Network Load Balancer
 Title: Find Network Load Balancer Metrics and Traffic Patterns

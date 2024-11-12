@@ -1,23 +1,30 @@
-Description: Allows users to query AWS EC2 Client VPN Endpoints to retrieve detailed
-  information about the configuration, status, and associated network details of each
-  endpoint.
+Description: Allows users to query AWS EC2 Client VPN Endpoints to retrieve detailed information about the configuration, status, and associated network details of each endpoint.
 ID: aws_ec2_client_vpn_endpoint_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  status,\n  client_vpn_endpoint_id,\n  transport_protocol,\n\
-    \  tags\nfrom\n  aws_ec2_client_vpn_endpoint\nwhere\n  status ->> 'Code' <> 'available';"
+  QueryToExecute: |
+    SELECT
+      title,
+      status,
+      client_vpn_endpoint_id,
+      transport_protocol,
+      tags
+    FROM
+      aws_ec2_client_vpn_endpoint
+    WHERE
+      status ->> 'Code' <> 'available';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Client VPN
+    - EC2 Client VPN
 Title: Find AWS EC2 Client VPN Endpoint Network Details

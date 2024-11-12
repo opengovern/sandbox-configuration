@@ -1,22 +1,28 @@
-Description: Allows users to query AWS S3 Access Point details such as name, bucket,
-  network origin, policy status, creation time, and more.
+Description: Allows users to query AWS S3 Access Point details such as name, bucket, network origin, policy status, creation time, and more.
 ID: aws_s3_access_point_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  access_point_arn,\n  vpc_id\nfrom\n  aws_s3_access_point\n\
-    where\n  vpc_id is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      access_point_arn,
+      vpc_id
+    FROM
+      aws_s3_access_point
+    WHERE
+      vpc_id IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: List all AWS S3 Access Point details

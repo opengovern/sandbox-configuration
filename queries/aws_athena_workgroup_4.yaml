@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Athena Workgroup details such as workgroup
-  name, state, description, creation time, and more.
+Description: Allows users to query AWS Athena Workgroup details such as workgroup name, state, description, creation time, and more.
 ID: aws_athena_workgroup_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  name, \n  description, \n  creation_time\nfrom \n  aws_athena_workgroup\
-    \ \nwhere\n  state = 'DISABLED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      description,
+      creation_time
+    FROM
+      aws_athena_workgroup
+    WHERE
+      state = 'DISABLED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Athena
+    - Athena
 Title: List all AWS Athena Workgroup details using SQL

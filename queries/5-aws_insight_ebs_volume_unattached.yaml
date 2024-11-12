@@ -1,17 +1,26 @@
 Description: List of unattached EBS Volumes
 ID: aws_insight_ebs_volume_unattached
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_ebs_volume
+    - aws_ebs_volume
   Parameters: []
   PrimaryTable: aws_ebs_volume
-  QueryToExecute: "select volume_id, volume_type, account_id, og_account_id, og_resource_id\n\
-    from\n  aws_ebs_volume\nwhere\n  jsonb_array_length(attachments) = 0;"
+  QueryToExecute: |
+    SELECT
+      volume_id,
+      volume_type,
+      account_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      aws_ebs_volume
+    WHERE
+      jsonb_array_length(attachments) = 0;
 Tags:
   category:
-  - Technical Debt
-  - Cost Management
+    - Technical Debt
+    - Cost Management
 Title: Unused EBS Disks

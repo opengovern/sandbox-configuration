@@ -1,26 +1,30 @@
-Description: Allows users to query AWS VPC Endpoint Services to retrieve detailed
-  information about each service, including service name, service type, and whether
-  or not the service is private.
+Description: Allows users to query AWS VPC Endpoint Services to retrieve detailed information about each service, including service name, service type, and whether or not the service is private.
 ID: aws_vpc_endpoint_service_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  service_id,\n  c ->> 'VpcEndpointId'\
-    \ as vpc_endpoint_id,\n  c ->> 'VpcEndpointOwner' as vpc_endpoint_owner,\n  c\
-    \ ->> 'VpcEndpointState' as vpc_endpoint_state,\n  jsonb_array_elements_text(c\
-    \ -> 'NetworkLoadBalancerArns') as network_loadBalancer_arns\nfrom\n  aws_vpc_endpoint_service,\n\
-    \  jsonb_array_elements(vpc_endpoint_connections) as c"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      service_id,
+      c ->> 'VpcEndpointId' AS vpc_endpoint_id,
+      c ->> 'VpcEndpointOwner' AS vpc_endpoint_owner,
+      c ->> 'VpcEndpointState' AS vpc_endpoint_state,
+      jsonb_array_elements_text(c -> 'NetworkLoadBalancerArns') AS network_loadBalancer_arns
+    FROM
+      aws_vpc_endpoint_service,
+      jsonb_array_elements(vpc_endpoint_connections) AS c
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC Endpoint Service
+    - VPC Endpoint Service
 Title: List all AWS VPC Endpoint Services Information

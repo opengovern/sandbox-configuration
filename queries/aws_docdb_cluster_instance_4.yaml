@@ -1,25 +1,32 @@
-Description: Allows users to query Amazon DocumentDB Cluster Instances to gather detailed
-  information such as instance identifier, cluster identifier, instance class, availability
-  zone, engine version, and more.
+Description: Allows users to query Amazon DocumentDB Cluster Instances to gather detailed information such as instance identifier, cluster identifier, instance class, availability zone, engine version, and more.
 ID: aws_docdb_cluster_instance_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier as attached_vpc,\n  vsg ->> 'VpcSecurityGroupId'\
-    \ as vpc_security_group_id,\n  vsg ->> 'Status' as status,\n  sub -> 'SubnetAvailabilityZone'\
-    \ ->> 'Name' as subnet_availability_zone,\n  sub ->> 'SubnetIdentifier' as subnet_identifier,\n\
-    \  sub -> 'SubnetOutpost' ->> 'Arn' as subnet_outpost,\n  sub ->> 'SubnetStatus'\
-    \ as subnet_status\nfrom\n  aws_docdb_cluster_instance\n  cross join jsonb_array_elements(vpc_security_groups)\
-    \ as vsg\n  cross join jsonb_array_elements(subnets) as sub;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier AS attached_vpc,
+      vsg ->> 'VpcSecurityGroupId' AS vpc_security_group_id,
+      vsg ->> 'Status' AS status,
+      sub -> 'SubnetAvailabilityZone' ->> 'Name' AS subnet_availability_zone,
+      sub ->> 'SubnetIdentifier' AS subnet_identifier,
+      sub -> 'SubnetOutpost' ->> 'Arn' AS subnet_outpost,
+      sub ->> 'SubnetStatus' AS subnet_status
+    FROM
+      aws_docdb_cluster_instance
+    CROSS JOIN
+      jsonb_array_elements(vpc_security_groups) AS vsg
+    CROSS JOIN
+      jsonb_array_elements(subnets) AS sub;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon DocumentDB
+    - Amazon DocumentDB
 Title: List all Information of Amazon DocumentDB Clusters

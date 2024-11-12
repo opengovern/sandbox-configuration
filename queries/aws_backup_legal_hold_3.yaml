@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Backup Legal Hold to obtain information about
-  the legal hold settings of AWS backup resources.
+Description: Allows users to query AWS Backup Legal Hold to obtain information about the legal hold settings of AWS backup resources.
 ID: aws_backup_legal_hold_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  legal_hold_id,\n  recovery_point_selection\
-    \ -> 'DateRange' ->> 'ToDate' as to_date,\n  recovery_point_selection -> 'DateRange'\
-    \ ->> 'FromDate' as from_date,\n  recovery_point_selection -> 'VaultNames' as\
-    \ vault_names,\n  recovery_point_selection ->> 'ResourceIdentifiers' as resource_identifiers\n\
-    from\n  aws_backup_legal_hold;"
+  QueryToExecute: |
+    SELECT
+      title,
+      legal_hold_id,
+      recovery_point_selection -> 'DateRange' ->> 'ToDate' AS to_date,
+      recovery_point_selection -> 'DateRange' ->> 'FromDate' AS from_date,
+      recovery_point_selection -> 'VaultNames' AS vault_names,
+      recovery_point_selection ->> 'ResourceIdentifiers' AS resource_identifiers
+    FROM
+      aws_backup_legal_hold;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Backup
+    - AWS Backup
 Title: List all AWS Backup Legal Hold settings

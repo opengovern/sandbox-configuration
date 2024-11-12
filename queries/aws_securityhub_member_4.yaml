@@ -1,24 +1,33 @@
-Description: Allows users to query AWS Security Hub Members for detailed information
-  about each member''s account, including its ID, email, status, and more.
+Description: Allows users to query AWS Security Hub Members for detailed information about each member's account, including its ID, email, status, and more.
 ID: aws_securityhub_member_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  member_account_id,\n  email,\n  administrator_id,\n \
-    \ member_status,\n  updated_at,\n  invited_at\nfrom\n  aws_securityhub_member\n\
-    where\n  member_status = 'Enabled'\nand\n  invited_at <= (now() - interval '10'\
-    \ day);"
+  QueryToExecute: |
+    SELECT 
+      member_account_id,
+      email,
+      administrator_id,
+      member_status,
+      updated_at,
+      invited_at
+    FROM 
+      aws_securityhub_member
+    WHERE 
+      member_status = 'Enabled'
+    AND 
+      invited_at <= (NOW() - INTERVAL '10' DAY);
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: List all AWS Security Hub Members with details

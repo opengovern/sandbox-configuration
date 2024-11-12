@@ -1,21 +1,25 @@
-Description: Allows users to query AWS EC2 Auto Scaling Groups and access detailed
-  information about each group''s configuration, instances, policies, and more.
+Description: Allows users to query AWS EC2 Auto Scaling Groups and access detailed information about each group's configuration, instances, policies, and more.
 ID: aws_ec2_autoscaling_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  jsonb_array_length(availability_zones) as az_count\n\
-    from\n  aws_ec2_autoscaling_group\nwhere\n  jsonb_array_length(availability_zones)\
-    \ < 2;"
+  QueryToExecute: |
+    SELECT
+      name,
+      JSONB_ARRAY_LENGTH(availability_zones) AS az_count
+    FROM
+      aws_ec2_autoscaling_group
+    WHERE
+      JSONB_ARRAY_LENGTH(availability_zones) < 2;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Auto Scaling
+    - EC2 Auto Scaling
 Title: Find AWS EC2 Auto Scaling Groups with Less than 2 AZs

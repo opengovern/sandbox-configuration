@@ -1,24 +1,34 @@
-Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to
-  obtain detailed metrics data.
+Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data.
 ID: aws_cloudwatch_metric_statistic_data_point_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n\
-    \  round(average::numeric, 2) as avg_cpu\nfrom\n  aws_cloudwatch_metric_statistic_data_point\n\
-    where\n  namespace = 'AWS/RDS'\n  and metric_name = 'CPUUtilization'\n  and average\
-    \ > 80\n  and timestamp >= now() - interval '30 day'\n  and dimensions = '[\n\
-    \    {\"Name\": \"DBInstanceIdentifier\", \"Value\": \"database-1\"}\n    ]'\n\
-    order by\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      jsonb_pretty(dimensions) AS dimensions,
+      timestamp,
+      ROUND(average::NUMERIC, 2) AS avg_cpu
+    FROM
+      aws_cloudwatch_metric_statistic_data_point
+    WHERE
+      namespace = 'AWS/RDS'
+      AND metric_name = 'CPUUtilization'
+      AND average > 80
+      AND timestamp >= NOW() - INTERVAL '30 day'
+      AND dimensions = '[
+        {"Name": "DBInstanceIdentifier", "Value": "database-1"}
+        ]'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Find AWS CloudWatch Metric Statistics Data for RDS CPU Utilization

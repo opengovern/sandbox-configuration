@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Systems Manager Managed Instance Patch State
-  to gather information about the patch state of managed instances. This includes
-  the instance ID, patch group, owner information, installed patches, and more.
+Description: Allows users to query AWS Systems Manager Managed Instance Patch State to gather information about the patch state of managed instances. This includes the instance ID, patch group, owner information, installed patches, and more.
 ID: aws_ssm_managed_instance_patch_state_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  baseline_id,\n  operation\nfrom\n  aws_ssm_managed_instance_patch_state\n\
-    where\n  operation = 'Scan';"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      baseline_id,
+      operation
+    FROM
+      aws_ssm_managed_instance_patch_state
+    WHERE
+      operation = 'Scan';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager
+    - Systems Manager
 Title: Find AWS Systems Manager Managed Instance Patch State

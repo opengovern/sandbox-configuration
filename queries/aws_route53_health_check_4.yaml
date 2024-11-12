@@ -1,22 +1,26 @@
-Description: Allows users to query AWS Route 53 Health Check data, providing information
-  about health checks within AWS Route 53. This includes details such as health check
-  configuration, health check status, and associated metadata.
+Description: Allows users to query AWS Route 53 Health Check data, providing information about health checks within AWS Route 53. This includes details such as health check configuration, health check status, and associated metadata.
 ID: aws_route53_health_check_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  health_check_version,\n  health_check_config ->>\
-    \ 'Disabled' as disabled\nfrom \n  aws_route53_health_check \nwhere\n  cast(health_check_config\
-    \ ->> 'Disabled' as boolean);"
+  QueryToExecute: |
+    SELECT
+      id,
+      health_check_version,
+      health_check_config ->> 'Disabled' AS disabled
+    FROM
+      aws_route53_health_check
+    WHERE
+      CAST(health_check_config ->> 'Disabled' AS BOOLEAN);
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Route 53
+    - AWS Route 53
 Title: List all AWS Route 53 Health Check using SQL

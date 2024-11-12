@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Redshift Serverless Workgroup information,
-  including workgroup details, query execution settings, and enforce workgroup configuration.
+Description: Allows users to query AWS Redshift Serverless Workgroup information, including workgroup details, query execution settings, and enforce workgroup configuration.
 ID: aws_redshiftserverless_workgroup_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workgroup_arn,\n  p ->> 'ParameterKey' as parameter_key,\n\
-    \  p ->> 'ParameterValue' as parameter_value\nfrom\n  aws_redshiftserverless_workgroup,\n\
-    \  jsonb_array_elements(config_parameters) p;"
+  QueryToExecute: |
+    SELECT
+      workgroup_arn,
+      p ->> 'ParameterKey' AS parameter_key,
+      p ->> 'ParameterValue' AS parameter_value
+    FROM
+      aws_redshiftserverless_workgroup,
+      JSONB_ARRAY_ELEMENTS(config_parameters) p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift Serverless
+    - Redshift Serverless
 Title: List All Details of AWS Redshift Serverless Workgroup

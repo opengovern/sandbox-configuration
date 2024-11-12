@@ -1,21 +1,27 @@
-Description: Allows users to query AWS EC2 Load Balancer Listener Rules, providing
-  detailed information on rule actions, conditions, and priority.
+Description: Allows users to query AWS EC2 Load Balancer Listener Rules, providing detailed information on rule actions, conditions, and priority.
 ID: aws_ec2_load_balancer_listener_rule_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  listener_arn,\n  priority\nfrom\n  aws_ec2_load_balancer_listener_rule\n\
-    where\n  listener_arn = 'arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-load-balancer/50dc6c495c0c9188/70d7923f8398b272'\n\
-    \  and is_default = true;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      listener_arn,
+      priority
+    FROM
+      aws_ec2_load_balancer_listener_rule
+    WHERE
+      listener_arn = 'arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/app/my-load-balancer/50dc6c495c0c9188/70d7923f8398b272'
+      AND is_default = TRUE;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Load Balancer
+    - EC2 Load Balancer
 Title: List all AWS EC2 Load Balancer Listener Rules

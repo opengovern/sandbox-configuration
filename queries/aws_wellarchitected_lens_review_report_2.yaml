@@ -1,21 +1,29 @@
-Description: Allows users to query Lens Review Reports in the AWS Well-Architected
-  Tool.
+Description: Allows users to query Lens Review Reports in the AWS Well-Architected Tool.
 ID: aws_wellarchitected_lens_review_report_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  w.workload_name,\n  r.workload_id,\n  r.base64_string,\n\
-    \  w.environment,\n  w.is_review_owner_update_acknowledged\nfrom\n  aws_wellarchitected_lens_review_report\
-    \ as r,\n  aws_wellarchitected_workload as w\nwhere\n  r.workload_id = w.workload_id;"
+  QueryToExecute: |
+    SELECT
+      w.workload_name,
+      r.workload_id,
+      r.base64_string,
+      w.environment,
+      w.is_review_owner_update_acknowledged
+    FROM
+      aws_wellarchitected_lens_review_report AS r,
+      aws_wellarchitected_workload AS w
+    WHERE
+      r.workload_id = w.workload_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Tool Lens Review Reports

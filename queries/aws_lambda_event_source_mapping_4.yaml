@@ -1,21 +1,26 @@
-Description: Allows users to query AWS Lambda Event Source Mappings, providing a detailed
-  view of each mapping configuration.
+Description: Allows users to query AWS Lambda Event Source Mappings, providing a detailed view of each mapping configuration.
 ID: aws_lambda_event_source_mapping_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  uuid,\n  arn,\n  a ->> 'Type' as source_access_type,\n\
-    \  a ->> 'URL' as source_access_url\nfrom\n  aws_lambda_event_source_mapping,\n\
-    \  jsonb_array_elements(source_access_configurations) as a;"
+  QueryToExecute: |
+    SELECT
+      uuid,
+      arn,
+      a ->> 'Type' AS source_access_type,
+      a ->> 'URL' AS source_access_url
+    FROM
+      aws_lambda_event_source_mapping,
+      jsonb_array_elements(source_access_configurations) AS a;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda
+    - Lambda
 Title: Find AWS Lambda Event Source Mappings and Configurations

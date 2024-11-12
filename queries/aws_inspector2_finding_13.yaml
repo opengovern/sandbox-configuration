@@ -1,27 +1,28 @@
-Description: Allows users to query AWS Inspector findings to gain insights into potential
-  security issues and vulnerabilities within their AWS resources. The table provides
-  detailed information about each finding, including its severity, status, and associated
-  resources.
+Description: Allows users to query AWS Inspector findings to gain insights into potential security issues and vulnerabilities within their AWS resources. The table provides detailed information about each finding, including its severity, status, and associated resources.
 ID: aws_inspector2_finding_13
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  network_reachability_details -> 'NetworkPath'\
-    \ -> 'Steps' as network_pathsteps,\n  network_reachability_details -> 'OpenPortRange'\
-    \ ->> 'Begin' as open_port_range_begin,\n  network_reachability_details -> 'OpenPortRange'\
-    \ ->> 'End' as open_port_range_end,\n  network_reachability_details -> 'Protocol'\
-    \ as protocol\nfrom\n  aws_inspector2_finding;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      network_reachability_details -> 'NetworkPath' -> 'Steps' AS network_pathsteps,
+      network_reachability_details -> 'OpenPortRange' ->> 'Begin' AS open_port_range_begin,
+      network_reachability_details -> 'OpenPortRange' ->> 'End' AS open_port_range_end,
+      network_reachability_details -> 'Protocol' AS protocol
+    FROM
+      aws_inspector2_finding;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector
+    - AWS Inspector
 Title: Find all AWS Inspector findings for security insights

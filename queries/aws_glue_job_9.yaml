@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Glue Jobs to retrieve detailed information
-  related to job properties, execution, and status.
+Description: Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status.
 ID: aws_glue_job_9
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  created_on,\n  command ->> 'Name' as\
-    \ script_name,\n  command ->> 'ScriptLocation' as script_location,\n  default_arguments\
-    \ ->> '--job-language' as job_language\nfrom\n  aws_glue_job;"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      created_on,
+      command ->> 'Name' AS script_name,
+      command ->> 'ScriptLocation' AS script_location,
+      default_arguments ->> '--job-language' AS job_language
+    FROM
+      aws_glue_job;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue
+    - Glue
 Title: List all AWS Glue Job Properties and Execution Details

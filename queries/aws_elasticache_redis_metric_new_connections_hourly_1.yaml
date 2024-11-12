@@ -1,21 +1,29 @@
-Description: Allows users to query AWS ElastiCache Redis Metrics to get hourly data
-  on new connections.
+Description: Allows users to query AWS ElastiCache Redis Metrics to get hourly data on new connections.
 ID: aws_elasticache_redis_metric_new_connections_hourly_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  timestamp,\n  minimum,\n  maximum,\n\
-    \  average\nfrom\n  aws_elasticache_redis_metric_new_connections_hourly\norder\
-    \ by\n  cache_cluster_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      timestamp,
+      minimum,
+      maximum,
+      average
+    FROM
+      aws_elasticache_redis_metric_new_connections_hourly
+    ORDER BY
+      cache_cluster_id,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS ElastiCache
+    - AWS ElastiCache
 Title: List hourly AWS ElastiCache Redis new connection metrics

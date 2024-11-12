@@ -1,21 +1,28 @@
 Description: Allows users to query AWS VPC Elastic IP Addresses
 ID: aws_vpc_eip_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  public_ip,\n  domain association_id\nfrom\n  aws_vpc_eip\n\
-    where\n  association_id is null;"
+  QueryToExecute: |
+    SELECT
+      public_ip,
+      domain,
+      association_id
+    FROM
+      aws_vpc_eip
+    WHERE
+      association_id IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon VPC
+    - Amazon VPC
 Title: Find all AWS VPC Elastic IP Addresses

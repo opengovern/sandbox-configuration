@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Security Hub Standards Control data including
-  details about each security standard control available in an AWS account.
+Description: Allows users to query AWS Security Hub Standards Control data including details about each security standard control available in an AWS account.
 ID: aws_securityhub_standards_control_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  control_id,\n  control_status,\n  severity_rating\nfrom\n\
-    \  aws_securityhub_standards_control\nwhere\n  severity_rating = 'CRITICAL'\n\
-    \  and arn like '%cis-aws-foundations-benchmark%';"
+  QueryToExecute: |
+    SELECT
+      control_id,
+      control_status,
+      severity_rating
+    FROM
+      aws_securityhub_standards_control
+    WHERE
+      severity_rating = 'CRITICAL'
+      AND arn LIKE '%cis-aws-foundations-benchmark%';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Security Hub
+    - AWS Security Hub
 Title: List AWS Security Hub Standards Control Data

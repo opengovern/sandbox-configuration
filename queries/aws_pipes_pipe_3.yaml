@@ -1,31 +1,34 @@
-Description: Allows users to query AWS Pipes to obtain detailed information about
-  individual pipes.
+Description: Allows users to query AWS Pipes to obtain detailed information about individual pipes.
 ID: aws_pipes_pipe_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  target_parameters ->> 'BatchJobParameters' as\
-    \ batch_job_parameters,\n  target_parameters ->> 'CloudWatchLogsParameters' as\
-    \ cloudwatch_logs_parameters,\n  target_parameters ->> 'EcsTaskParameters' as\
-    \ ecs_task_parameters,\n  target_parameters ->> 'EventBridgeEventBusParameters'\
-    \ as eventbridge_event_bus_parameters,\n  target_parameters ->> 'HttpParameters'\
-    \ as http_parameters,\n  target_parameters ->> 'InputTemplate' as input_template,\n\
-    \  target_parameters ->> 'KinesisStreamParameters' as kinesis_stream_parameters,\n\
-    \  target_parameters ->> 'LambdaFunctionParameters' as lambda_function_parameters,\n\
-    \  target_parameters ->> 'RedshiftDataParameters' as redshift_data_parameters,\n\
-    \  target_parameters ->> 'SageMakerPipelineParameters' as sage_maker_pipeline_parameters,\n\
-    \  target_parameters ->> 'SqsQueueParameters' as sqs_queue_parameters,\n  target_parameters\
-    \ ->> 'StepFunctionStateMachineParameters' as step_function_state_machine_parameters\n\
-    from\n  aws_pipes_pipe;"
+  QueryToExecute: |
+    SELECT
+      name,
+      target_parameters ->> 'BatchJobParameters' AS batch_job_parameters,
+      target_parameters ->> 'CloudWatchLogsParameters' AS cloudwatch_logs_parameters,
+      target_parameters ->> 'EcsTaskParameters' AS ecs_task_parameters,
+      target_parameters ->> 'EventBridgeEventBusParameters' AS eventbridge_event_bus_parameters,
+      target_parameters ->> 'HttpParameters' AS http_parameters,
+      target_parameters ->> 'InputTemplate' AS input_template,
+      target_parameters ->> 'KinesisStreamParameters' AS kinesis_stream_parameters,
+      target_parameters ->> 'LambdaFunctionParameters' AS lambda_function_parameters,
+      target_parameters ->> 'RedshiftDataParameters' AS redshift_data_parameters,
+      target_parameters ->> 'SageMakerPipelineParameters' AS sage_maker_pipeline_parameters,
+      target_parameters ->> 'SqsQueueParameters' AS sqs_queue_parameters,
+      target_parameters ->> 'StepFunctionStateMachineParameters' AS step_function_state_machine_parameters
+    FROM
+      aws_pipes_pipe;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Pipes
+    - Pipes
 Title: List all AWS Pipes with Detailed Parameters

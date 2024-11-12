@@ -1,20 +1,27 @@
 Description: Allows users to query AWS Web Application Firewall (WAF) rules.
 ID: aws_waf_rule_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  rule_id,\n  p ->> 'DataId' as data_id,\n  p\
-    \ ->> 'Negated' as negated,\n  p ->> 'Type' as type\nfrom\n  aws_waf_rule,\n \
-    \ jsonb_array_elements(predicates) as p;"
+  QueryToExecute: |
+    SELECT
+      name,
+      rule_id,
+      p ->> 'DataId' AS data_id,
+      p ->> 'Negated' AS negated,
+      p ->> 'Type' AS type
+    FROM
+      aws_waf_rule,
+      jsonb_array_elements(predicates) AS p;
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Web Application Firewall
+    - Web Application Firewall
 Title: Find all AWS WAF rules with specific details

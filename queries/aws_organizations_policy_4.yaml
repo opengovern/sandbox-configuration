@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Organizations Policy to retrieve detailed information
-  on policies within AWS Organizations. This table can be utilized to gain insights
-  on policy-specific details, such as policy type, content, and associated metadata.
+Description: Allows users to query AWS Organizations Policy to retrieve detailed information on policies within AWS Organizations. This table can be utilized to gain insights on policy-specific details, such as policy type, content, and associated metadata.
 ID: aws_organizations_policy_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  content ->> 'Version' as policy_version,\n\
-    \  content ->> 'Statement' as policy_statement\nfrom\n  aws_organizations_policy\n\
-    where\n  type = 'SERVICE_CONTROL_POLICY';"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      content ->> 'Version' AS policy_version,
+      content ->> 'Statement' AS policy_statement
+    FROM
+      aws_organizations_policy
+    WHERE
+      type = 'SERVICE_CONTROL_POLICY';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Organizations
+    - Organizations
 Title: Find AWS Organizations Policy Details

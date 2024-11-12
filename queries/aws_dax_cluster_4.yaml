@@ -1,23 +1,29 @@
-Description: Allows users to query AWS DAX Clusters to fetch details about their configurations,
-  status, nodes, and other associated metadata.
+Description: Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata.
 ID: aws_dax_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  subnet_group,\n  sg ->> 'SecurityGroupIdentifier'\
-    \ as sg_id,\n  n ->> 'AvailabilityZone' as az_name,\n  cluster_discovery_endpoint\
-    \ ->> 'Address' as cluster_discovery_endpoint_address,\n  cluster_discovery_endpoint\
-    \ ->> 'Port' as cluster_discovery_endpoint_port\nfrom\n  aws_dax_cluster,\n  jsonb_array_elements(security_groups)\
-    \ as sg,\n  jsonb_array_elements(nodes) as n;"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      subnet_group,
+      sg ->> 'SecurityGroupIdentifier' AS sg_id,
+      n ->> 'AvailabilityZone' AS az_name,
+      cluster_discovery_endpoint ->> 'Address' AS cluster_discovery_endpoint_address,
+      cluster_discovery_endpoint ->> 'Port' AS cluster_discovery_endpoint_port
+    FROM
+      aws_dax_cluster,
+      jsonb_array_elements(security_groups) AS sg,
+      jsonb_array_elements(nodes) AS n;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DAX
+    - DAX
 Title: Find AWS DAX Cluster Configurations and Status

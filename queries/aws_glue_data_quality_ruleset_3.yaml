@@ -1,22 +1,27 @@
-Description: Allows users to query AWS Glue Data Quality Ruleset to obtain information
-  about the rulesets used for data quality checks in AWS Glue.
+Description: Allows users to query AWS Glue Data Quality Ruleset to obtain information about the rulesets used for data quality checks in AWS Glue.
 ID: aws_glue_data_quality_ruleset_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  database_name,\n  count(\"name\") as rulset_count\nfrom\n\
-    \  aws_glue_data_quality_ruleset\ngroup by\n  database_name;"
+  QueryToExecute: |
+    SELECT
+      database_name,
+      COUNT("name") AS rulset_count
+    FROM
+      aws_glue_data_quality_ruleset
+    GROUP BY
+      database_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Glue
+    - AWS Glue
 Title: List All AWS Glue Data Quality Rulesets by Database

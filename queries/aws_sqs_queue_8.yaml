@@ -1,26 +1,38 @@
-Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed
-  information about each queue.
+Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed information about each queue.
 ID: aws_sqs_queue_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  p as principal,\n  a as action,\n  s ->> 'Effect'\
-    \ as effect,\n  s -> 'Condition' as conditions\nfrom\n  aws_sqs_queue,\n  jsonb_array_elements(policy_std\
-    \ -> 'Statement') as s,\n  jsonb_array_elements_text(s -> 'Principal' -> 'AWS')\
-    \ as p,\n  string_to_array(p, ':') as pa,\n  jsonb_array_elements_text(s -> 'Action')\
-    \ as a\nwhere\n  s ->> 'Effect' = 'Allow'\n  and (\n    pa[5] != account_id\n\
-    \    or p = '*'\n  );"
+  QueryToExecute: |
+    SELECT
+      title,
+      p AS principal,
+      a AS action,
+      s ->> 'Effect' AS effect,
+      s -> 'Condition' AS conditions
+    FROM
+      aws_sqs_queue,
+      jsonb_array_elements(policy_std -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+      string_to_array(p, ':') AS pa,
+      jsonb_array_elements_text(s -> 'Action') AS a
+    WHERE
+      s ->> 'Effect' = 'Allow'
+      AND (
+        pa[5] != account_id
+        OR p = '*'
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Simple Queue Service
+    - Simple Queue Service
 Title: Query AWS SQS for Detailed Queue Information

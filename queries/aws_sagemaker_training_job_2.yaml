@@ -1,24 +1,29 @@
-Description: Allows users to query AWS SageMaker Training Jobs to retrieve information
-  about individual training jobs.
+Description: Allows users to query AWS SageMaker Training Jobs to retrieve information about individual training jobs.
 ID: aws_sagemaker_training_job_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  resource_config ->> 'InstanceType' as\
-    \ instance_type,\n  resource_config ->> 'InstanceCount' as instance_count,\n \
-    \ resource_config ->> 'VolumeKmsKeyId' as volume_kms_id,\n  resource_config ->>\
-    \ 'VolumeSizeInGB' as volume_size\nfrom\n  aws_sagemaker_training_job;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      resource_config ->> 'InstanceType' AS instance_type,
+      resource_config ->> 'InstanceCount' AS instance_count,
+      resource_config ->> 'VolumeKmsKeyId' AS volume_kms_id,
+      resource_config ->> 'VolumeSizeInGB' AS volume_size
+    FROM
+      aws_sagemaker_training_job;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SageMaker
+    - SageMaker
 Title: List AWS SageMaker Training Jobs via SQL

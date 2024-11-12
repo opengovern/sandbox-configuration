@@ -1,24 +1,31 @@
-Description: Allows users to query AWS WAF Regional WebACL to get information about
-  AWS WAF Regional WebACLs.
+Description: Allows users to query AWS WAF Regional WebACL to get information about AWS WAF Regional WebACLs.
 ID: aws_wafregional_web_acl_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  web_acl_id,\n  r ->> 'RuleId' as rule_id,\n\
-    \  r ->> 'Type' as rule_type,\n  r ->> 'ExcludedRules' as excluded_rules,\n  r\
-    \ ->> 'OverrideAction' as override_action,\n  r -> 'Action' ->> 'Type' as action_type\n\
-    from\n  aws_wafregional_web_acl,\n  jsonb_array_elements(rules) as r;"
+  QueryToExecute: |
+    SELECT
+      name,
+      web_acl_id,
+      r ->> 'RuleId' AS rule_id,
+      r ->> 'Type' AS rule_type,
+      r ->> 'ExcludedRules' AS excluded_rules,
+      r ->> 'OverrideAction' AS override_action,
+      r -> 'Action' ->> 'Type' AS action_type
+    FROM
+      aws_wafregional_web_acl,
+      JSONB_ARRAY_ELEMENTS(rules) AS r;
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - WAF Regional
+    - WAF Regional
 Title: List all AWS WAF Regional WebACLs information

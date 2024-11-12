@@ -1,24 +1,35 @@
-Description: Allows users to query AWS IAM Policies, providing detailed information
-  about each policy, including permissions, attachment, and associated metadata.
+Description: Allows users to query AWS IAM Policies, providing detailed information about each policy, including permissions, attachment, and associated metadata.
 ID: aws_iam_policy_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  action,\n  s ->> 'Effect' as effect\n\
-    from\n  aws_iam_policy,\n  jsonb_array_elements(policy_std -> 'Statement') as\
-    \ s,\n  jsonb_array_elements_text(s -> 'Action') as action\nwhere\n  s ->> 'Effect'\
-    \ = 'Allow'\n  and (\n    action = '*'\n    or action like '%:*'\n  );"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      action,
+      s ->> 'Effect' AS effect
+    FROM
+      aws_iam_policy,
+      jsonb_array_elements(policy_std -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'Action') AS action
+    WHERE
+      s ->> 'Effect' = 'Allow'
+      AND (
+        action = '*'
+        OR action LIKE '%:*'
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find all AWS IAM Policies with Permissions and Metadata

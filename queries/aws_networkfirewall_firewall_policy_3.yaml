@@ -1,20 +1,29 @@
-Description: ''
+Description: "Retrieves AWS Network Firewall policies that are not in an 'ACTIVE' status, providing details to help monitor and troubleshoot firewall configurations."
 ID: aws_networkfirewall_firewall_policy_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  name,\n  description,\n  firewall_policy_status,\n\
-    \  region,\n  tags\nfrom\n  aws_networkfirewall_firewall_policy\nwhere\n  firewall_policy_status\
-    \ != 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      name,
+      description,
+      firewall_policy_status,
+      region,
+      tags
+    FROM
+      aws_networkfirewall_firewall_policy
+    WHERE
+      firewall_policy_status != 'ACTIVE';
 Tags:
   cloud_network_security:
-  - 'true'
+    - 'true'
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Network Firewall
-Title: ''
+    - Network Firewall
+Title: "Non-Active AWS Network Firewall Policies"

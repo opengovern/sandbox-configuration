@@ -1,20 +1,25 @@
-Description: Allows users to query AWS RDS DB Subnet Groups to retrieve information
-  about each DB subnet group configured in an AWS account.
+Description: Allows users to query AWS RDS DB Subnet Groups to retrieve information about each DB subnet group configured in an AWS account.
 ID: aws_rds_db_subnet_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  tags\nfrom\n  aws_rds_db_subnet_group\nwhere\n\
-    \  not tags :: JSONB ? 'application';"
+  QueryToExecute: |
+    SELECT
+      name,
+      tags
+    FROM
+      aws_rds_db_subnet_group
+    WHERE
+      NOT tags :: JSONB ? 'application';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List all AWS RDS DB Subnet Groups

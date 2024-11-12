@@ -1,25 +1,34 @@
-Description: Allows users to query ElastiCache Redis Metrics on an hourly basis, providing
-  data on list-based commands executed in the ElastiCache Redis environment.
+Description: Allows users to query ElastiCache Redis Metrics on an hourly basis, providing data on list-based commands executed in the ElastiCache Redis environment.
 ID: aws_elasticache_redis_metric_list_based_cmds_hourly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  timestamp,\n  round(minimum::numeric,2)\
-    \ as min_listbasedcmds,\n  round(maximum::numeric,2) as max_listbasedcmds,\n \
-    \ round(average::numeric,2) as avg_listbasedcmds,\n  round(sum::numeric,2) as\
-    \ sum_listbasedcmds\nfrom\n  aws_elasticache_redis_metric_list_based_cmds_hourly\n\
-    where sum > 100\norder by\n  cache_cluster_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      timestamp,
+      ROUND(minimum::NUMERIC, 2) AS min_listbasedcmds,
+      ROUND(maximum::NUMERIC, 2) AS max_listbasedcmds,
+      ROUND(average::NUMERIC, 2) AS avg_listbasedcmds,
+      ROUND(sum::NUMERIC, 2) AS sum_listbasedcmds
+    FROM
+      aws_elasticache_redis_metric_list_based_cmds_hourly
+    WHERE
+      sum > 100
+    ORDER BY
+      cache_cluster_id,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache Redis
+    - ElastiCache Redis
 Title: List All Hourly AWS ElastiCache Redis List-based Metrics

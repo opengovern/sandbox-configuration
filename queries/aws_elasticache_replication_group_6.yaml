@@ -1,20 +1,23 @@
-Description: Allows users to query AWS ElastiCache Replication Groups to retrieve
-  information related to their configuration, status, and associated resources.
+Description: Allows users to query AWS ElastiCache Replication Groups to retrieve information related to their configuration, status, and associated resources.
 ID: aws_elasticache_replication_group_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  replication_group_id,\n  jsonb_array_elements_text(member_clusters)\
-    \ as member_clusters\nfrom\n  aws_elasticache_replication_group;"
+  QueryToExecute: |
+    SELECT
+      replication_group_id,
+      jsonb_array_elements_text(member_clusters) AS member_clusters
+    FROM
+      aws_elasticache_replication_group;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: Find AWS ElastiCache Replication Groups and Status

@@ -1,23 +1,30 @@
-Description: Allows users to query AWS IAM Policies, providing detailed information
-  about each policy, including permissions, attachment, and associated metadata.
+Description: Allows users to query AWS IAM Policies, providing detailed information about each policy, including permissions, attachment, and associated metadata.
 ID: aws_iam_policy_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  attachment_count,\n  permissions_boundary_usage_count\n\
-    from\n  aws_iam_policy\nwhere\n  not is_aws_managed\n  and not is_attached\n \
-    \ and permissions_boundary_usage_count = 0;"
+  QueryToExecute: |
+    SELECT
+      name,
+      attachment_count,
+      permissions_boundary_usage_count
+    FROM
+      aws_iam_policy
+    WHERE
+      NOT is_aws_managed
+      AND NOT is_attached
+      AND permissions_boundary_usage_count = 0;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: List all AWS IAM Policies with Detailed Information

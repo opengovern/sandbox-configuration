@@ -1,24 +1,30 @@
-Description: Allows users to query AWS SSO Admin Account Assignments. This table provides
-  information about each AWS SSO admin account assignment within an AWS account.
+Description: Allows users to query AWS SSO Admin Account Assignments. This table provides information about each AWS SSO admin account assignment within an AWS account.
 ID: aws_ssoadmin_account_assignment_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  permission_set_arn,\n  target_account_id,\n  principal_type,\n\
-    \  principal_id\nfrom\n  aws_ssoadmin_account_assignment\nwhere\n  permission_set_arn\
-    \ = 'arn:aws:sso:::permissionSet/ssoins-0123456789abcdef/ps-0123456789abcdef'\n\
-    \  and target_account_id = '012347678910';"
+  QueryToExecute: |
+    SELECT
+      permission_set_arn,
+      target_account_id,
+      principal_type,
+      principal_id
+    FROM
+      aws_ssoadmin_account_assignment
+    WHERE
+      permission_set_arn = 'arn:aws:sso:::permissionSet/ssoins-0123456789abcdef/ps-0123456789abcdef'
+      AND target_account_id = '012347678910';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS SSO Admin
+    - AWS SSO Admin
 Title: Find AWS SSO Admin Account Assignments

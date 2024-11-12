@@ -1,23 +1,30 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_15
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  i.instance_id, \n  i.vpc_id, \n  i.subnet_id, \n  s.tags\
-    \ ->> 'Name' as subnet_name\nfrom \n  aws_ec2_instance as i, \n  aws_vpc_subnet\
-    \ as s \nwhere \n  i.subnet_id = s.subnet_id;"
+  QueryToExecute: |
+    SELECT
+      i.instance_id,
+      i.vpc_id,
+      i.subnet_id,
+      s.tags ->> 'Name' AS subnet_name
+    FROM
+      aws_ec2_instance AS i,
+      aws_vpc_subnet AS s
+    WHERE
+      i.subnet_id = s.subnet_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 Instances with Comprehensive Data

@@ -1,25 +1,29 @@
-Description: Allows users to query AWS ECS Task Definitions to gain insights into
-  the configuration of running tasks in an ECS service. The table provides details
-  such as task definition ARN, family, network mode, revision, status, and more.
+Description: Allows users to query AWS ECS Task Definitions to gain insights into the configuration of running tasks in an ECS service. The table provides details such as task definition ARN, family, network mode, revision, status, and more.
 ID: aws_ecs_task_definition_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  task_definition_arn,\n  cd ->> 'Name' as container_name,\n\
-    \  cd ->> 'LogConfiguration' as log_configuration\nfrom\n  aws_ecs_task_definition,\n\
-    \  jsonb_array_elements(container_definitions) as cd\nwhere\n cd ->> 'LogConfiguration'\
-    \ is null;"
+  QueryToExecute: |
+    SELECT
+      task_definition_arn,
+      cd ->> 'Name' AS container_name,
+      cd ->> 'LogConfiguration' AS log_configuration
+    FROM
+      aws_ecs_task_definition,
+      JSONB_ARRAY_ELEMENTS(container_definitions) AS cd
+    WHERE
+      cd ->> 'LogConfiguration' IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: Find AWS ECS Task Definitions Without Log Config

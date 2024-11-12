@@ -1,18 +1,20 @@
 Description: List Snapshots older than 365 days
 ID: aws_insight_ebs_snapshot_older_than_year
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_ebs_snapshot
+    - aws_ebs_snapshot
   Parameters: []
   PrimaryTable: aws_ebs_snapshot
-  QueryToExecute: SELECT snapshot_id, arn, start_time, account_id, og_account_id,
-    og_resource_id FROM aws_ebs_snapshot WHERE start_time < now() - interval '1 year';
+  QueryToExecute: |
+    SELECT snapshot_id, arn, start_time, account_id, og_account_id, og_resource_id
+    FROM aws_ebs_snapshot
+    WHERE start_time < NOW() - INTERVAL '1 year';
 Tags:
   category:
-  - Security
-  - Technical Debt
-  - Cost Management
+    - Security
+    - Technical Debt
+    - Cost Management
 Title: Snapshots older than a year

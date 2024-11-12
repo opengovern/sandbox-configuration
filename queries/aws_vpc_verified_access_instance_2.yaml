@@ -1,25 +1,29 @@
-Description: Allows users to query AWS VPC Verified Access Instances and provides
-  information about the Amazon VPC verified access instances. This table can be used
-  to gather details such as the instance ID, instance state, instance type, and associated
-  tags.
+Description: Allows users to query AWS VPC Verified Access Instances and provides information about the Amazon VPC verified access instances. This table can be used to gather details such as the instance ID, instance state, instance type, and associated tags.
 ID: aws_vpc_verified_access_instance_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  verified_access_instance_id,\n  creation_time,\n  description,\n\
-    \  last_updated_time\nfrom\n  aws_vpc_verified_access_instance\nwhere\n  creation_time\
-    \ <= now() - interval '30' day;"
+  QueryToExecute: |
+    SELECT
+      verified_access_instance_id,
+      creation_time,
+      description,
+      last_updated_time
+    FROM
+      aws_vpc_verified_access_instance
+    WHERE
+      creation_time <= NOW() - INTERVAL '30' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC Verified Access
+    - VPC Verified Access
 Title: Find AWS VPC Verified Access Instances with Details

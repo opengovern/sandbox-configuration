@@ -1,22 +1,27 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_10
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  disable_api_termination\nfrom\n  aws_ec2_instance\n\
-    where\n  not disable_api_termination;"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      disable_api_termination
+    FROM
+      aws_ec2_instance
+    WHERE
+      NOT disable_api_termination;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find all AWS EC2 Instances with API Termination Enabled

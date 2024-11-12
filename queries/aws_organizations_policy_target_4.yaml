@@ -1,22 +1,28 @@
-Description: Allows users to query AWS Organizations Policy Targets to retrieve detailed
-  information about the application of policies to roots, organizational units (OUs),
-  and accounts.
+Description: Allows users to query AWS Organizations Policy Targets to retrieve detailed information about the application of policies to roots, organizational units (OUs), and accounts.
 ID: aws_organizations_policy_target_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  content ->> 'Version' as policy_version,\n\
-    \  content ->> 'Statement' as policy_statement\nfrom\n  aws_organizations_policy_target\n\
-    where\n  type = 'SERVICE_CONTROL_POLICY'\n  and target_id = 'r-9ijkl7';"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      content ->> 'Version' AS policy_version,
+      content ->> 'Statement' AS policy_statement
+    FROM
+      aws_organizations_policy_target
+    WHERE
+      type = 'SERVICE_CONTROL_POLICY'
+      AND target_id = 'r-9ijkl7';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Organizations
+    - Organizations
 Title: Find AWS Organizations Policy Targets Information

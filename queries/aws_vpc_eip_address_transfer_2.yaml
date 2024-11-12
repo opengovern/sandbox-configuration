@@ -1,20 +1,28 @@
 Description: Allows users to query Elastic IP Address Transfers in AWS VPC.
 ID: aws_vpc_eip_address_transfer_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  allocation_id,\n  address_transfer_status,\n  public_ip,\n\
-    \  transfer_account_id,\n  transfer_offer_accepted_timestamp\nfrom\n  aws_vpc_eip_address_transfer\n\
-    where\n  transfer_offer_accepted_timestamp >= now() - interval '30' day;"
+  QueryToExecute: |
+    SELECT
+      allocation_id,
+      address_transfer_status,
+      public_ip,
+      transfer_account_id,
+      transfer_offer_accepted_timestamp
+    FROM
+      aws_vpc_eip_address_transfer
+    WHERE
+      transfer_offer_accepted_timestamp >= NOW() - INTERVAL '30' DAY;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all Elastic IP Address Transfers in AWS VPC

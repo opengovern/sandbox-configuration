@@ -1,22 +1,33 @@
 Description: Allows users to query AWS EBS Volume read operations metrics.
 ID: aws_ebs_volume_metric_read_ops_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  volume_id,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n\
-    \  sum,\n  sample_count\nfrom\n  aws_ebs_volume_metric_read_ops\norder by\n  volume_id,\n\
-    \  timestamp;"
+  QueryToExecute: |
+    SELECT
+      volume_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    FROM
+      aws_ebs_volume_metric_read_ops
+    ORDER BY
+      volume_id,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EBS Volume
+    - EBS Volume
 Title: List all AWS EBS Volume read operations metrics

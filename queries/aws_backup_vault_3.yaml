@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Backup Vaults, providing detailed information
-  about each backup vault, including its name, ARN, recovery points, and more.
+Description: Allows users to query AWS Backup Vaults, providing detailed information about each backup vault, including its name, ARN, recovery points, and more.
 ID: aws_backup_vault_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name\nfrom\n  aws_backup_vault,\n  jsonb_array_elements(policy\
-    \ -> 'Statement') as s\nwhere\n  s ->> 'Principal' = '*'\n  and s ->> 'Effect'\
-    \ != 'Deny'\n  and s ->> 'Action' like '%DeleteBackupVault%';"
+  QueryToExecute: |
+    SELECT
+      name
+    FROM
+      aws_backup_vault,
+      jsonb_array_elements(policy -> 'Statement') AS s
+    WHERE
+      s ->> 'Principal' = '*'
+      AND s ->> 'Effect' != 'Deny'
+      AND s ->> 'Action' LIKE '%DeleteBackupVault%';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Backup Vault
+    - Backup Vault
 Title: Find AWS Backup Vaults with Specific Policy Details

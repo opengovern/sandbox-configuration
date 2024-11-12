@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Route 53 Resolver Rule to obtain data on DNS
-  resolver rules configured in an AWS account.
+Description: Allows users to query AWS Route 53 Resolver Rule to obtain data on DNS resolver rules configured in an AWS account.
 ID: aws_route53_resolver_rule_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  share_status,\n  rule_type\nfrom\n  aws_route53_resolver_rule\n\
-    where\n  share_status = 'SHARED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      share_status,
+      rule_type
+    FROM
+      aws_route53_resolver_rule
+    WHERE
+      share_status = 'SHARED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: Find all AWS Route 53 Resolver Rules Configuration

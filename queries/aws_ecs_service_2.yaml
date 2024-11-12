@@ -1,21 +1,28 @@
-Description: Allows users to query AWS Elastic Container Service (ECS) to retrieve
-  information about the services within the ECS clusters.
+Description: Allows users to query AWS Elastic Container Service (ECS) to retrieve information about the services within the ECS clusters.
 ID: aws_ecs_service_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  arn,\n  launch_type,\n  platform_version\n\
-    from\n  aws_ecs_service\nwhere\n  launch_type = 'FARGATE'\n  and platform_version\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      arn,
+      launch_type,
+      platform_version
+    FROM
+      aws_ecs_service
+    WHERE
+      launch_type = 'FARGATE'
+      AND platform_version IS NOT NULL;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Service
+    - Elastic Container Service
 Title: List all AWS ECS services in clusters

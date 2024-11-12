@@ -1,22 +1,29 @@
-Description: Allows users to query Amazon DocumentDB Clusters for detailed information
-  about their configuration, status, and associated metadata.
+Description: Allows users to query Amazon DocumentDB Clusters for detailed information about their configuration, status, and associated metadata.
 ID: aws_docdb_cluster_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  status,\n  cluster_create_time,\n\
-    \  deletion_protection\nfrom\n  aws_docdb_cluster\nwhere\n  not deletion_protection;"
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier,
+      status,
+      cluster_create_time,
+      deletion_protection
+    FROM
+      aws_docdb_cluster
+    WHERE
+      NOT deletion_protection;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DocumentDB
+    - DocumentDB
 Title: List Amazon DocumentDB Clusters and Their Status

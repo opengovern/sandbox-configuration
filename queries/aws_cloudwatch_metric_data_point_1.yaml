@@ -1,24 +1,34 @@
-Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed
-  information about the data points for a defined metric.
+Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric.
 ID: aws_cloudwatch_metric_data_point_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  label,\n  timestamp,\n  period,\n  value,\n  expression\n\
-    from\n  aws_cloudwatch_metric_data_point\nwhere\n  id = 'm1'\n  and expression\
-    \ = 'select max(CPUUtilization) from schema(\"AWS/EC2\", InstanceId)'\norder by\n\
-    \  timestamp;"
+  QueryToExecute: |
+    SELECT
+      id,
+      label,
+      timestamp,
+      period,
+      value,
+      expression
+    FROM
+      aws_cloudwatch_metric_data_point
+    WHERE
+      id = 'm1'
+      AND expression = 'SELECT MAX(CPUUtilization) FROM schema("AWS/EC2", InstanceId)'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List All AWS CloudWatch Metric Data Points

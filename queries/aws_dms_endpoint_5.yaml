@@ -1,32 +1,40 @@
-Description: Query AWS DMS Endpoints to retrieve connection information for source
-  or target databases in database migration activities.
+Description: Query AWS DMS Endpoints to retrieve connection information for source or target databases in database migration activities.
 ID: aws_dms_endpoint_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  endpoint_identifier,\n  arn,\n  my_sql_settings ->> 'AfterConnectScript'\
-    \ as after_connect_script,\n  (my_sql_settings ->> 'CleanSourceMetadataOnMismatch')::boolean\
-    \ as clean_source_metadata_on_mismatch,\n  my_sql_settings ->> 'DatabaseName'\
-    \ as database_name,\n  (my_sql_settings ->> 'EventsPollInterval')::integer as\
-    \ events_poll_interval,\n  (my_sql_settings ->> 'ExecuteTimeout')::integer as\
-    \ execute_timeout,\n  (my_sql_settings ->> 'MaxFileSize')::integer as max_file_size,\n\
-    \  (my_sql_settings ->> 'ParallelLoadThreads')::integer as parallel_load_threads,\n\
-    \  my_sql_settings ->> 'Password' as password,\n  (my_sql_settings ->> 'Port')::integer\
-    \ as port,\n  my_sql_settings ->> 'SecretsManagerAccessRoleArn' as secrets_manager_access_role_arn,\n\
-    \  my_sql_settings ->> 'SecretsManagerSecretId' as secrets_manager_secret_id,\n\
-    \  my_sql_settings ->> 'ServerName' as server_name,\n  my_sql_settings ->> 'ServerTimezone'\
-    \ as server_timezone,\n  my_sql_settings ->> 'TargetDbType' as target_db_type,\n\
-    \  my_sql_settings ->> 'Username' as username\nfrom\n  aws_dms_endpoint\nwhere\n\
-    \  engine_name = 'mysql';"
+  QueryToExecute: |
+    SELECT
+      endpoint_identifier,
+      arn,
+      my_sql_settings ->> 'AfterConnectScript' AS after_connect_script,
+      (my_sql_settings ->> 'CleanSourceMetadataOnMismatch')::boolean AS clean_source_metadata_on_mismatch,
+      my_sql_settings ->> 'DatabaseName' AS database_name,
+      (my_sql_settings ->> 'EventsPollInterval')::integer AS events_poll_interval,
+      (my_sql_settings ->> 'ExecuteTimeout')::integer AS execute_timeout,
+      (my_sql_settings ->> 'MaxFileSize')::integer AS max_file_size,
+      (my_sql_settings ->> 'ParallelLoadThreads')::integer AS parallel_load_threads,
+      my_sql_settings ->> 'Password' AS password,
+      (my_sql_settings ->> 'Port')::integer AS port,
+      my_sql_settings ->> 'SecretsManagerAccessRoleArn' AS secrets_manager_access_role_arn,
+      my_sql_settings ->> 'SecretsManagerSecretId' AS secrets_manager_secret_id,
+      my_sql_settings ->> 'ServerName' AS server_name,
+      my_sql_settings ->> 'ServerTimezone' AS server_timezone,
+      my_sql_settings ->> 'TargetDbType' AS target_db_type,
+      my_sql_settings ->> 'Username' AS username
+    FROM
+      aws_dms_endpoint
+    WHERE
+      engine_name = 'mysql';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS DMS Endpoints
+    - AWS DMS Endpoints
 Title: Find AWS DMS Endpoints and Retrieve Connection Information

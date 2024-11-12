@@ -1,23 +1,33 @@
-Description: Allows users to query AWS WAFv2 Regex Pattern Set data, providing details
-  about the regex pattern sets used in AWS WAFv2 to filter web requests.
+Description: Allows users to query AWS WAFv2 Regex Pattern Set data, providing details about the regex pattern sets used in AWS WAFv2 to filter web requests.
 ID: aws_wafv2_regex_pattern_set_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  description,\n  arn,\n  wrps.id,\n  scope,\n\
-    \  regular_expressions,\n  region\nfrom\n  aws_wafv2_regex_pattern_set as wrps,\n\
-    \  jsonb_array_elements_text(regular_expressions) as regex\nwhere\n  regex = '^steampipe';"
+  QueryToExecute: |
+    SELECT
+      name,
+      description,
+      arn,
+      wrps.id,
+      scope,
+      regular_expressions,
+      region
+    FROM
+      aws_wafv2_regex_pattern_set AS wrps,
+      jsonb_array_elements_text(regular_expressions) AS regex
+    WHERE
+      regex = '^steampipe';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS WAFv2
+    - AWS WAFv2
 Title: Find all AWS WAFv2 Regex Pattern Set data details

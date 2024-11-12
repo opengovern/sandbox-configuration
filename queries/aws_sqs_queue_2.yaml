@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed
-  information about each queue.
+Description: Allows users to query AWS Simple Queue Service (SQS) to retrieve detailed information about each queue.
 ID: aws_sqs_queue_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  kms_master_key_id,\n  sqs_managed_sse_enabled\n\
-    from\n  aws_sqs_queue\nwhere\n  kms_master_key_id is null\n  and not sqs_managed_sse_enabled;"
+  QueryToExecute: |
+    SELECT
+      title,
+      kms_master_key_id,
+      sqs_managed_sse_enabled
+    FROM
+      aws_sqs_queue
+    WHERE
+      kms_master_key_id IS NULL
+      AND NOT sqs_managed_sse_enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Simple Queue Service
+    - Simple Queue Service
 Title: Find AWS SQS Queue Details with SQL

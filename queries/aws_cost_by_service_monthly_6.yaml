@@ -1,27 +1,42 @@
-Description: Allows users to query AWS Cost Explorer Service for monthly cost breakdown
-  by service. This table provides details such as the service name, the cost associated
-  with it, and the currency code.
+Description: Allows users to query AWS Cost Explorer Service for monthly cost breakdown by service. This table provides details such as the service name, the cost associated with it, and the currency code.
 ID: aws_cost_by_service_monthly_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with cost_data as (\n  select\n    service,\n    period_start,\n\
-    \    unblended_cost_amount as this_month,\n    lag(unblended_cost_amount,-1) over(partition\
-    \ by service order by period_start desc) as previous_month\n  from \n    aws_cost_by_service_monthly\n\
-    )\nselect\n    service,\n    period_start,\n    this_month::numeric::money,\n\
-    \    previous_month::numeric::money,\n    case \n      when previous_month = 0\
-    \ and this_month = 0  then 0\n      when previous_month = 0 then 999\n      else\
-    \ round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2)\
-    \ \n    end as percent_change\nfrom\n  cost_data\norder by\n  service,\n  period_start;"
+  QueryToExecute: |
+    WITH cost_data AS (
+      SELECT
+        service,
+        period_start,
+        unblended_cost_amount AS this_month,
+        LAG(unblended_cost_amount,-1) OVER(PARTITION BY service ORDER BY period_start DESC) AS previous_month
+      FROM
+        aws_cost_by_service_monthly
+    )
+    SELECT
+      service,
+      period_start,
+      this_month::numeric::money,
+      previous_month::numeric::money,
+      CASE
+        WHEN previous_month = 0 AND this_month = 0 THEN 0
+        WHEN previous_month = 0 THEN 999
+        ELSE ROUND((100 * ((this_month - previous_month) / previous_month))::numeric, 2)
+      END AS percent_change
+    FROM
+      cost_data
+    ORDER BY
+      service,
+      period_start;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Cost Explorer
+    - AWS Cost Explorer
 Title: List AWS Monthly Cost Breakdown by Service

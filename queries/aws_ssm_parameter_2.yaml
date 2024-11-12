@@ -1,21 +1,27 @@
-Description: Allows users to query AWS Systems Manager Parameter Store to retrieve
-  information about parameters, their types, values, and associated metadata.
+Description: Allows users to query AWS Systems Manager Parameter Store to retrieve information about parameters, their types, values, and associated metadata.
 ID: aws_ssm_parameter_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  tier,\n  p ->> 'PolicyType' as policy_type,\n\
-    \  p ->> 'PolicyStatus' as Policy_status,\n  p ->> 'PolicyText' as policy_text\n\
-    from\n  aws_ssm_parameter,\n  jsonb_array_elements(policies) as p;"
+  QueryToExecute: |
+    SELECT
+      name,
+      tier,
+      p ->> 'PolicyType' AS policy_type,
+      p ->> 'PolicyStatus' AS policy_status,
+      p ->> 'PolicyText' AS policy_text
+    FROM
+      aws_ssm_parameter,
+      jsonb_array_elements(policies) AS p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Systems Manager Parameter Store
+    - AWS Systems Manager Parameter Store
 Title: List AWS SSM Parameters with Details

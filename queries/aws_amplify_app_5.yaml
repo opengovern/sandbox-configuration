@@ -1,25 +1,31 @@
-Description: Allows users to query AWS Amplify Apps to retrieve detailed information
-  about each application, including its name, ARN, creation date, default domain,
-  and more.
+Description: Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more.
 ID: aws_amplify_app_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  app_id,\n  build_spec ->> 'backend' as build_backend_spec,\n\
-    \  build_spec ->> 'frontend' as build_frontend_spec,\n  build_spec ->> 'test'\
-    \ as build_test_spec,\n  build_spec ->> 'env' as build_env_settings\nfrom\n  aws_amplify_app\n\
-    where\n  name = 'amplify_app_name';"
+  QueryToExecute: |
+    SELECT
+      name,
+      app_id,
+      build_spec ->> 'backend' AS build_backend_spec,
+      build_spec ->> 'frontend' AS build_frontend_spec,
+      build_spec ->> 'test' AS build_test_spec,
+      build_spec ->> 'env' AS build_env_settings
+    FROM
+      aws_amplify_app
+    WHERE
+      name = 'amplify_app_name';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amplify
+    - Amplify
 Title: List all AWS Amplify Apps with Detailed Information

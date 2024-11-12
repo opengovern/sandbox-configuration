@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Lightsail Instances and retrieve detailed information
-  about each instance such as instance state, type, associated bundles, and more.
+Description: Allows users to query AWS Lightsail Instances and retrieve detailed information about each instance such as instance state, type, associated bundles, and more.
 ID: aws_lightsail_instance_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  state_name,\n  bundle_id,\n  region\nfrom\n\
-    \  aws_lightsail_instance\nwhere\n  public_ip_address is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      state_name,
+      bundle_id,
+      region
+    FROM
+      aws_lightsail_instance
+    WHERE
+      public_ip_address IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: List AWS Lightsail Instances with State and Details

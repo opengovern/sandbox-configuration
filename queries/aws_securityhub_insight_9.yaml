@@ -1,30 +1,35 @@
-Description: Allows users to query AWS Security Hub Insights to retrieve information
-  about the insights in AWS Security Hub. This includes details such as insight ARN,
-  name, filters, group by attributes, and more.
+Description: Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more.
 ID: aws_securityhub_insight_9
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  filters ->> 'NetworkSourceDomain' as\
-    \ network_source_domain,\n  filters ->> 'NetworkDestinationDomain' as network_destination_domain,\n\
-    \  filters ->> 'NetworkSourceIpV4' as network_source_ip_v4,\n  filters ->> 'NetworkDestinationIpV4'\
-    \ as network_destination_ip_v4,\n  filters ->> 'NetworkSourceIpV6' as network_source_ip_v6,\n\
-    \  filters ->> 'NetworkDestinationIpV6' as network_destination_ip_v6,\n  filters\
-    \ ->> 'NetworkSourcePort' as network_source_port,\n  filters ->> 'NetworkDestinationPort'\
-    \ as network_destination_port\nfrom\n  aws_securityhub_insight;"
+  QueryToExecute: |
+    SELECT
+      NAME,
+      ARN,
+      FILTERS ->> 'NetworkSourceDomain' AS network_source_domain,
+      FILTERS ->> 'NetworkDestinationDomain' AS network_destination_domain,
+      FILTERS ->> 'NetworkSourceIpV4' AS network_source_ip_v4,
+      FILTERS ->> 'NetworkDestinationIpV4' AS network_destination_ip_v4,
+      FILTERS ->> 'NetworkSourceIpV6' AS network_source_ip_v6,
+      FILTERS ->> 'NetworkDestinationIpV6' AS network_destination_ip_v6,
+      FILTERS ->> 'NetworkSourcePort' AS network_source_port,
+      FILTERS ->> 'NetworkDestinationPort' AS network_destination_port
+    FROM
+      aws_securityhub_insight;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find AWS Security Hub Insights and Network Attributes

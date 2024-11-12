@@ -1,23 +1,27 @@
-Description: Allows users to query AWS EC2 Instance Type data, including details about
-  instance type name, current generation, vCPU, memory, storage, and network performance.
+Description: Allows users to query AWS EC2 Instance Type data, including details about instance type name, current generation, vCPU, memory, storage, and network performance.
 ID: aws_ec2_instance_type_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_type,\n  ebs_info ->> 'EncryptionSupport' as\
-    \ encryption_support\nfrom\n  aws_ec2_instance_type\nwhere\n  ebs_info ->> 'EncryptionSupport'\
-    \ = 'unsupported';"
+  QueryToExecute: |
+    SELECT
+      instance_type,
+      ebs_info ->> 'EncryptionSupport' AS encryption_support
+    FROM
+      aws_ec2_instance_type
+    WHERE
+      ebs_info ->> 'EncryptionSupport' = 'unsupported';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find all AWS EC2 Instance Types with Unsupported Encryption

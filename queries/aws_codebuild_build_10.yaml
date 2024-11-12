@@ -1,26 +1,32 @@
-Description: Allows users to query AWS CodeBuild Build to retrieve information about
-  AWS CodeBuild projects'' builds.
+Description: Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects'' builds.
 ID: aws_codebuild_build_10
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  source ->> 'Auth' as source_auth,\n  source ->>\
-    \ 'BuildStatusConfig' as source_BuildStatusConfig,\n  source ->> 'Buildspec' as\
-    \ source_buildspec,\n  source ->> 'GitCloneDepth' as source_git_clone_depth,\n\
-    \  source ->> 'GitSubmodulesConfig' as source_git_submodules_config,\n  source\
-    \ ->> 'GitCloneDepth' as source_git_clone_depth,\n  source ->> 'InsecureSsl' as\
-    \ source_insecure_ssl,\n  source ->> 'Location' as source_location,\n  source\
-    \ ->> 'ReportBuildStatus' as source_report_build_status,\n  source ->> 'SourceIdentifier'\
-    \ as source_identifier,\n  source ->> 'Type' as source_type\nfrom\n  aws_codebuild_build;"
+  QueryToExecute: |
+    SELECT
+      id,
+      source ->> 'Auth' AS source_auth,
+      source ->> 'BuildStatusConfig' AS source_build_status_config,
+      source ->> 'Buildspec' AS source_buildspec,
+      source ->> 'GitCloneDepth' AS source_git_clone_depth,
+      source ->> 'GitSubmodulesConfig' AS source_git_submodules_config,
+      source ->> 'InsecureSsl' AS source_insecure_ssl,
+      source ->> 'Location' AS source_location,
+      source ->> 'ReportBuildStatus' AS source_report_build_status,
+      source ->> 'SourceIdentifier' AS source_identifier,
+      source ->> 'Type' AS source_type
+    FROM
+      aws_codebuild_build;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS CodeBuild
+    - AWS CodeBuild
 Title: Find AWS CodeBuild Build Projects Details

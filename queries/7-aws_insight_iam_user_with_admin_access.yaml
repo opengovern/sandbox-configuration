@@ -1,18 +1,26 @@
 Description: List all the users having Administrator access
 ID: aws_insight_iam_user_with_admin_access
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_iam_user
+    - aws_iam_user
   Parameters: []
   PrimaryTable: aws_iam_user
-  QueryToExecute: "select name as user_name, split_part(attachments, '/', 2) as attached_policies,\
-    \ aws_iam_user.account_id, aws_iam_user.og_account_id, aws_iam_user.og_resource_id\n\
-    from\n  aws_iam_user\n  cross join jsonb_array_elements_text(attached_policy_arns)\
-    \ as attachments\nwhere\n  split_part(attachments, '/', 2) = 'AdministratorAccess';"
+  QueryToExecute: |
+    SELECT
+      name AS user_name,
+      SPLIT_PART(attachments, '/', 2) AS attached_policies,
+      aws_iam_user.account_id,
+      aws_iam_user.og_account_id,
+      aws_iam_user.og_resource_id
+    FROM
+      aws_iam_user
+      CROSS JOIN jsonb_array_elements_text(attached_policy_arns) AS attachments
+    WHERE
+      SPLIT_PART(attachments, '/', 2) = 'AdministratorAccess';
 Tags:
   category:
-  - Security
+    - Security
 Title: Admin Users

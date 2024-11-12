@@ -1,21 +1,24 @@
-Description: Allows users to query AWS CodeBuild Build to retrieve information about
-  AWS CodeBuild projects'' builds.
+Description: Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects' builds.
 ID: aws_codebuild_build_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  network_interface ->> 'NetworkInterfaceId' as\
-    \ network_interface_id,\n  network_interface ->> 'SubnetId' as subnet_id,\nfrom\n\
-    \  aws_codebuild_build;"
+  QueryToExecute: |
+    SELECT
+      id,
+      network_interface ->> 'NetworkInterfaceId' AS network_interface_id,
+      network_interface ->> 'SubnetId' AS subnet_id
+    FROM
+      aws_codebuild_build;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeBuild
+    - CodeBuild
 Title: Find all AWS CodeBuild Build Information

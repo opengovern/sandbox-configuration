@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Cost Explorer to retrieve daily cost breakdown
-  by AWS service.
+Description: Allows users to query AWS Cost Explorer to retrieve daily cost breakdown by AWS service.
 ID: aws_cost_by_service_daily_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service,\n  sum(unblended_cost_amount)::numeric::money\
-    \ as sum,\n  avg(unblended_cost_amount)::numeric::money as average\nfrom \n  aws_cost_by_service_daily\n\
-    group by\n  service\norder by\n  sum desc\nlimit 10;"
+  QueryToExecute: |
+    SELECT
+      service,
+      SUM(unblended_cost_amount)::numeric::money AS sum,
+      AVG(unblended_cost_amount)::numeric::money AS average
+    FROM
+      aws_cost_by_service_daily
+    GROUP BY
+      service
+    ORDER BY
+      sum DESC
+    LIMIT 10;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: List all AWS Cost Breakdown by Service

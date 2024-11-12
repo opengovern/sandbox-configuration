@@ -1,17 +1,26 @@
 Description: List of unattached Disks
 ID: azure_insight_compute_disk_unattached
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_compute_disk
+    - azure_compute_disk
   Parameters: []
   PrimaryTable: azure_compute_disk
-  QueryToExecute: "select\n  name,\n  disk_state, subscription_id, og_account_id,\
-    \ og_resource_id\nfrom\n  azure_compute_disk\nwhere\n  disk_state = 'Unattached';"
+  QueryToExecute: |
+    SELECT
+      name,
+      disk_state,
+      subscription_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      azure_compute_disk
+    WHERE
+      disk_state = 'Unattached';
 Tags:
   category:
-  - Technical Debt
-  - Cost Management
+    - Technical Debt
+    - Cost Management
 Title: Unused Azure Disks

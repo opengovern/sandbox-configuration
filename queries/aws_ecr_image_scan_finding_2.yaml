@@ -1,25 +1,38 @@
-Description: Allows users to query Amazon ECR Image Scan Findings to retrieve detailed
-  information about image scan findings, including attributes such as the severity
-  of the finding, description, and package name where the vulnerability was found.
+Description: Allows users to query Amazon ECR Image Scan Findings to retrieve detailed information about image scan findings, including attributes such as the severity of the finding, description, and package name where the vulnerability was found.
 ID: aws_ecr_image_scan_finding_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  f.repository_name,\n  f.image_tag,\n  f.name,\n  f.severity,\n\
-    \  jsonb_pretty(f.attributes) as attributes\nfrom\n  (\n    select\n      repository_name,\n\
-    \      jsonb_array_elements_text(image_tags) as image_tag\n    from\n      aws_ecr_image\
-    \ as i\n    where\n      i.image_pushed_at > now() - interval '24' hour\n  )\n\
-    \  images\n  left outer join\n    aws_ecr_image_scan_finding as f\n    on images.repository_name\
-    \ = f.repository_name\n    and images.image_tag = f.image_tag;"
+  QueryToExecute: |
+    SELECT
+      f.repository_name,
+      f.image_tag,
+      f.name,
+      f.severity,
+      jsonb_pretty(f.attributes) AS attributes
+    FROM
+      (
+        SELECT
+          repository_name,
+          jsonb_array_elements_text(image_tags) AS image_tag
+        FROM
+          aws_ecr_image AS i
+        WHERE
+          i.image_pushed_at > NOW() - INTERVAL '24' HOUR
+      ) images
+    LEFT OUTER JOIN
+      aws_ecr_image_scan_finding AS f
+      ON images.repository_name = f.repository_name
+      AND images.image_tag = f.image_tag;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon ECR
+    - Amazon ECR
 Title: Find Amazon ECR Image Scan Findings for Recent Images

@@ -1,23 +1,34 @@
-Description: Allows users to query AWS GuardDuty Publishing Destinations to retrieve
-  information about where GuardDuty findings are published.
+Description: Allows users to query AWS GuardDuty Publishing Destinations to retrieve information about where GuardDuty findings are published.
 ID: aws_guardduty_publishing_destination_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  d.destination_id,\n  d.destination_arn,\n  d.destination_type,\n\
-    \  p ->> 'Sid' as sid,\n  p ->> 'Action' as policy_action,\n  p ->> 'Effect' as\
-    \ effect,\n  p -> 'Principal' ->> 'Service' as principal_service\nfrom\n  aws_guardduty_publishing_destination\
-    \ as d,\n  aws_s3_bucket as s,\n  jsonb_array_elements(s.policy -> 'Statement')\
-    \ as p\nwhere\n  d.destination_type = 'S3'\nand\n  s.arn = d.destination_arn;"
+  QueryToExecute: |
+    SELECT
+      d.destination_id,
+      d.destination_arn,
+      d.destination_type,
+      p ->> 'Sid' AS sid,
+      p ->> 'Action' AS policy_action,
+      p ->> 'Effect' AS effect,
+      p -> 'Principal' ->> 'Service' AS principal_service
+    FROM
+      aws_guardduty_publishing_destination AS d,
+      aws_s3_bucket AS s,
+      jsonb_array_elements(s.policy -> 'Statement') AS p
+    WHERE
+      d.destination_type = 'S3'
+    AND
+      s.arn = d.destination_arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - GuardDuty
+    - GuardDuty
 Title: Find AWS GuardDuty Publishing Destinations

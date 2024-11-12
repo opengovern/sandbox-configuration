@@ -1,22 +1,32 @@
-Description: Allows users to query AWS Well-Architected Tool Check Details for information
-  on individual checks within a workload. The table provides data on the check status,
-  risk, reason for risk, improvement plan, and other related details.
+Description: Allows users to query AWS Well-Architected Tool Check Details for information on individual checks within a workload. The table provides data on the check status, risk, reason for risk, improvement plan, and other related details.
 ID: aws_wellarchitected_check_detail_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workload_id,\n  lens_arn,\n  pillar_id,\n  question_id,\n\
-    \  choice_id,\n  id,\n  name,\n  description,\n  status\nfrom\n  aws_wellarchitected_check_detail\n\
-    where \n  pillar_id = 'security';"
+  QueryToExecute: |
+    SELECT
+      workload_id,
+      lens_arn,
+      pillar_id,
+      question_id,
+      choice_id,
+      id,
+      name,
+      description,
+      status
+    FROM
+      aws_wellarchitected_check_detail
+    WHERE
+      pillar_id = 'security';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: Find AWS Well-Architected Tool Check Details for Security

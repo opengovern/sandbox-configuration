@@ -1,23 +1,32 @@
-Description: Allows users to query AWS Security Hub Standards Control data including
-  details about each security standard control available in an AWS account.
+Description: Allows users to query AWS Security Hub Standards Control data including details about each security standard control available in an AWS account.
 ID: aws_securityhub_standards_control_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  control_id,\n  r as related_requirements\nfrom\n  aws_securityhub_standards_control,\n\
-    \  jsonb_array_elements_text(related_requirements) as r\nwhere\n  control_id like\
-    \ '%S3%'\ngroup by\n  control_id, r\norder by\n  control_id, r;"
+  QueryToExecute: |
+    SELECT
+      control_id,
+      r AS related_requirements
+    FROM
+      aws_securityhub_standards_control,
+      jsonb_array_elements_text(related_requirements) AS r
+    WHERE
+      control_id LIKE '%S3%'
+    GROUP BY
+      control_id, r
+    ORDER BY
+      control_id, r;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find AWS Security Hub Standards Control Details

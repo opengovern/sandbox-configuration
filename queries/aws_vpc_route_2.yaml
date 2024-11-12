@@ -1,22 +1,27 @@
-Description: Allows users to query AWS VPC Routes to retrieve detailed information
-  about each route in a route table within a VPC.
+Description: Allows users to query AWS VPC Routes to retrieve detailed information about each route in a route table within a VPC.
 ID: aws_vpc_route_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  route_table_id,\n  state\nfrom\n  aws_vpc_route\nwhere\n\
-    \  state = 'blackhole';"
+  QueryToExecute: |
+    SELECT
+      route_table_id,
+      state
+    FROM
+      aws_vpc_route
+    WHERE
+      state = 'blackhole';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC Routes for Specific Route Table States

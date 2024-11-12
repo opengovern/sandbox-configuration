@@ -1,22 +1,28 @@
-Description: Allows users to query AWS CloudFormation Stack Resources, providing details
-  about each resource within the stack, including its status, type, and associated
-  metadata. This table is useful for managing and analyzing AWS CloudFormation resources.
+Description: Allows users to query AWS CloudFormation Stack Resources, providing details about each resource within the stack, including its status, type, and associated metadata. This table is useful for managing and analyzing AWS CloudFormation resources.
 ID: aws_cloudformation_stack_resource_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stack_name,\n  stack_id,\n  logical_resource_id,\n  resource_status,\n\
-    \  resource_type\nfrom\n  aws_cloudformation_stack_resource\nwhere\n  resource_type\
-    \ = 'AWS::EC2::VPC';"
+  QueryToExecute: |
+    SELECT
+      stack_name,
+      stack_id,
+      logical_resource_id,
+      resource_status,
+      resource_type
+    FROM
+      aws_cloudformation_stack_resource
+    WHERE
+      resource_type = 'AWS::EC2::VPC';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: Find AWS CloudFormation Stack Resource Details

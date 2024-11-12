@@ -1,26 +1,34 @@
-Description: Allows users to query AWS CloudTrail Event Data, providing information
-  about API activity in AWS accounts. This includes details about API calls, logins,
-  and other events captured by AWS CloudTrail.
+Description: Allows users to query AWS CloudTrail Event Data, providing information about API activity in AWS accounts. This includes details about API calls, logins, and other events captured by AWS CloudTrail.
 ID: aws_cloudtrail_event_data_store_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  status,\n  created_timestamp,\n  multi_region_enabled,\n\
-    \  organization_enabled,\n  termination_protection_enabled\nfrom\n  aws_cloudtrail_event_data_store\n\
-    where\n  status <> 'ENABLED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      status,
+      created_timestamp,
+      multi_region_enabled,
+      organization_enabled,
+      termination_protection_enabled
+    FROM
+      aws_cloudtrail_event_data_store
+    WHERE
+      status <> 'ENABLED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudTrail
+    - CloudTrail
 Title: List API Activity in AWS Accounts with CloudTrail Data

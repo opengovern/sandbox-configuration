@@ -1,19 +1,27 @@
 Description: Allows users to query AWS Route 53 Resolver Query Log Configurations.
 ID: aws_route53_resolver_query_log_config_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  creator_request_id,\n  destination_arn\n\
-    from\n  aws_route53_resolver_query_log_config\nwhere\n  status = 'FAILED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      creator_request_id,
+      destination_arn
+    FROM
+      aws_route53_resolver_query_log_config
+    WHERE
+      status = 'FAILED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: Find AWS Route 53 Resolver Query Log Configurations

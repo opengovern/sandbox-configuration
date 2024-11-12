@@ -1,20 +1,25 @@
-Description: Allows users to query AWS API Gateway Integrations to retrieve detailed
-  information about each integration within the API Gateway.
+Description: Allows users to query AWS API Gateway Integrations to retrieve detailed information about each integration within the API Gateway.
 ID: aws_api_gatewayv2_integration_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  api_id,\n  count(integration_id) as integration_count\n\
-    from \n  aws_api_gatewayv2_integration\ngroup by\n  api_id;"
+  QueryToExecute: |
+    SELECT 
+      api_id,
+      COUNT(integration_id) AS integration_count
+    FROM 
+      aws_api_gatewayv2_integration
+    GROUP BY
+      api_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: Find all AWS API Gateway Integrations Details

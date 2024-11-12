@@ -1,27 +1,31 @@
-Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information
-  about the status, configuration, and security settings of each DB cluster.
+Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster.
 ID: aws_rds_db_cluster_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  actions ->> 'ResourceIdentifier' as db_cluster_identifier,\n\
-    \  details ->> 'Action' as action,\n  details ->> 'OptInStatus' as opt_in_status,\n\
-    \  details ->> 'ForcedApplyDate' as forced_apply_date,\n  details ->> 'CurrentApplyDate'\
-    \ as current_apply_date,\n  details ->> 'AutoAppliedAfterDate' as auto_applied_after_date\n\
-    from\n  aws_rds_db_cluster,\n  jsonb_array_elements(pending_maintenance_actions)\
-    \ as actions,\n  jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails')\
-    \ as details;"
+  QueryToExecute: |
+    SELECT
+      actions ->> 'ResourceIdentifier' AS db_cluster_identifier,
+      details ->> 'Action' AS action,
+      details ->> 'OptInStatus' AS opt_in_status,
+      details ->> 'ForcedApplyDate' AS forced_apply_date,
+      details ->> 'CurrentApplyDate' AS current_apply_date,
+      details ->> 'AutoAppliedAfterDate' AS auto_applied_after_date
+    FROM
+      aws_rds_db_cluster,
+      jsonb_array_elements(pending_maintenance_actions) AS actions,
+      jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails') AS details;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Clusters Status and Configuration

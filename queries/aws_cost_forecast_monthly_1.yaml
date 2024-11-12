@@ -1,22 +1,28 @@
-Description: Allows users to query Cost Forecasts in AWS Cost Explorer for monthly
-  cost predictions.
+Description: Allows users to query Cost Forecasts in AWS Cost Explorer for monthly cost predictions.
 ID: aws_cost_forecast_monthly_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n   period_start,\n   period_end,\n   mean_value::numeric::money\
-    \  \nfrom \n  aws_cost_forecast_monthly\norder by\n  period_start;"
+  QueryToExecute: |
+    SELECT 
+      period_start,
+      period_end,
+      mean_value::numeric::money
+    FROM 
+      aws_cost_forecast_monthly
+    ORDER BY 
+      period_start;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: Find Cost Forecasts in AWS Cost Explorer for Monthly Costs

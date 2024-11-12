@@ -1,21 +1,26 @@
-Description: Allows users to query AWS CloudFront Response Headers Policies, providing
-  information about the policy configurations that determine the headers CloudFront
-  includes in HTTP responses.
+Description: Allows users to query AWS CloudFront Response Headers Policies, providing information about the policy configurations that determine the headers CloudFront includes in HTTP responses.
 ID: aws_cloudfront_response_headers_policy_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  response_headers_policy_config ->> 'Comment'\
-    \ as description,\n  type,\n  last_modified_time\nfrom\n  aws_cloudfront_response_headers_policy;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      response_headers_policy_config ->> 'Comment' AS description,
+      type,
+      last_modified_time
+    FROM
+      aws_cloudfront_response_headers_policy;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: List all AWS CloudFront Response Headers Policies

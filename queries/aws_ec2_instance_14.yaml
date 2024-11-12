@@ -1,27 +1,31 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_14
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  launch_template_data -> 'ImageId' as\
-    \ image_id,\n  launch_template_data -> 'Placement' as placement,\n  launch_template_data\
-    \ -> 'DisableApiStop' as disable_api_stop,\n  launch_template_data -> 'MetadataOptions'\
-    \ as metadata_options,\n  launch_template_data -> 'NetworkInterfaces' as network_interfaces,\n\
-    \  launch_template_data -> 'BlockDeviceMappings' as block_device_mappings,\n \
-    \ launch_template_data -> 'CapacityReservationSpecification' as capacity_reservation_specification\n\
-    from\n  aws_ec2_instance;"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      launch_template_data -> 'ImageId' AS image_id,
+      launch_template_data -> 'Placement' AS placement,
+      launch_template_data -> 'DisableApiStop' AS disable_api_stop,
+      launch_template_data -> 'MetadataOptions' AS metadata_options,
+      launch_template_data -> 'NetworkInterfaces' AS network_interfaces,
+      launch_template_data -> 'BlockDeviceMappings' AS block_device_mappings,
+      launch_template_data -> 'CapacityReservationSpecification' AS capacity_reservation_specification
+    FROM
+      aws_ec2_instance;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List All AWS EC2 Instances with Detailed Information

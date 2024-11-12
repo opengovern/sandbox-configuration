@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Inspector Members to retrieve detailed information
-  about the member accounts within an AWS Inspector assessment target.
+Description: Allows users to query AWS Inspector Members to retrieve detailed information about the member accounts within an AWS Inspector assessment target.
 ID: aws_inspector2_member_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  member_account_id,\n  delegated_admin_account_id,\n \
-    \ relationship_status,\n  updated_at\nfrom\n  aws_inspector2_member\nwhere\n \
-    \ updated_at >= now() - interval '30' day;"
+  QueryToExecute: |
+    SELECT
+      member_account_id,
+      delegated_admin_account_id,
+      relationship_status,
+      updated_at
+    FROM
+      aws_inspector2_member
+    WHERE
+      updated_at >= NOW() - INTERVAL '30' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector
+    - AWS Inspector
 Title: Find AWS Inspector Members Information

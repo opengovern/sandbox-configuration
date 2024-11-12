@@ -1,21 +1,32 @@
 Description: List VPCs with public CIDR blocks
 ID: aws_insight_vpc_with_public_cidr
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_vpc
+    - aws_vpc
   Parameters: []
   PrimaryTable: aws_vpc
-  QueryToExecute: "select\n  vpc_id,\n  cidr_block,\n  state,\n  region, account_id,\
-    \ og_account_id, og_resource_id\nfrom\n  aws_vpc\nwhere\n  (not cidr_block <<=\
-    \ '10.0.0.0/8'\n  and not cidr_block <<= '192.168.0.0/16'\n  and not cidr_block\
-    \ <<= '172.16.0.0/12');"
+  QueryToExecute: |
+    SELECT
+      vpc_id,
+      cidr_block,
+      state,
+      region,
+      account_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      aws_vpc
+    WHERE
+      (NOT cidr_block <<= '10.0.0.0/8'
+      AND NOT cidr_block <<= '192.168.0.0/16'
+      AND NOT cidr_block <<= '172.16.0.0/12');
 Tags:
   category:
-  - Security
-  - Technical Debt
-  - Resiliency
-  - Cost Management
+    - Security
+    - Technical Debt
+    - Resiliency
+    - Cost Management
 Title: VPCs with Public IP Range

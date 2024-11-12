@@ -1,21 +1,27 @@
-Description: Allows users to query Amazon ElastiCache Cluster data, providing information
-  about each ElastiCache Cluster within the AWS account.
+Description: Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account.
 ID: aws_elasticache_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_node_type,\n  count(*) as count\nfrom\n  aws_elasticache_cluster\n\
-    where\n  cache_node_type not in ('cache.m5.large', 'cache.m4.4xlarge')\ngroup\
-    \ by\n  cache_node_type;"
+  QueryToExecute: |
+    SELECT
+      cache_node_type,
+      COUNT(*) AS count
+    FROM
+      aws_elasticache_cluster
+    WHERE
+      cache_node_type NOT IN ('cache.m5.large', 'cache.m4.4xlarge')
+    GROUP BY
+      cache_node_type;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon ElastiCache
+    - Amazon ElastiCache
 Title: List all Amazon ElastiCache Cluster data in AWS account

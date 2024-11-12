@@ -1,20 +1,25 @@
-Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information
-  about their configuration, status, and associated attributes.
+Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information about their configuration, status, and associated attributes.
 ID: aws_dynamodb_table_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  continuous_backups_status\nfrom\n  aws_dynamodb_table\n\
-    where\n  continuous_backups_status = 'DISABLED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      continuous_backups_status
+    FROM
+      aws_dynamodb_table
+    WHERE
+      continuous_backups_status = 'DISABLED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DynamoDB
+    - DynamoDB
 Title: List all AWS DynamoDB Tables with Disabled Backups

@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Well-Architected Tool Answer data, including
-  information about the workloads, lens, and questions associated with each answer.
+Description: Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer.
 ID: aws_wellarchitected_answer_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  a.workload_id,\n  a.pillar_id,\n  count(a.question_id)\
-    \ as total_questions\nfrom\n  aws_wellarchitected_answer a\ngroup by\n  a.workload_id,\n\
-    \  a.pillar_id;"
+  QueryToExecute: |
+    SELECT
+      a.workload_id,
+      a.pillar_id,
+      COUNT(a.question_id) AS total_questions
+    FROM
+      aws_wellarchitected_answer a
+    GROUP BY
+      a.workload_id,
+      a.pillar_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Tool Answers by Workload and Pillar

@@ -1,21 +1,29 @@
-Description: Allows users to query AWS Transfer for users in a server, equivalent
-  to list/describe user functions.
+Description: Allows users to query AWS Transfer for users in a server, equivalent to list/describe user functions.
 ID: aws_transfer_user_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  server_id,\n  user_name,\n  ssh_public_key_count\n\
-    from\n  aws_transfer_user;\nwhere\n  server_id = \"s-xxxxxxxxxxxxxxxxx\"\norder\
-    \ by\n  ssh_public_key_count desc;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      server_id,
+      user_name,
+      ssh_public_key_count
+    FROM
+      aws_transfer_user
+    WHERE
+      server_id = "s-xxxxxxxxxxxxxxxxx"
+    ORDER BY
+      ssh_public_key_count DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Transfer
+    - AWS Transfer
 Title: List all AWS Transfer users in a server

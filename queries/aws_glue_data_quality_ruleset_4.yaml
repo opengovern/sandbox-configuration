@@ -1,24 +1,33 @@
-Description: Allows users to query AWS Glue Data Quality Ruleset to obtain information
-  about the rulesets used for data quality checks in AWS Glue.
+Description: Allows users to query AWS Glue Data Quality Ruleset to obtain information about the rulesets used for data quality checks in AWS Glue.
 ID: aws_glue_data_quality_ruleset_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.name,\n  r.database_name,\n  d.catalog_id,\n  d.create_time\
-    \ as databse_create_time,\n  d.location_uri\nfrom\n  aws_glue_data_quality_ruleset\
-    \ as r,\n  aws_glue_catalog_database as d\nwhere\n  r.database_name = d.name\n\
-    and\n  r.name = 'ruleset1';"
+  QueryToExecute: |
+    SELECT
+      r.name,
+      r.database_name,
+      d.catalog_id,
+      d.create_time AS databse_create_time,
+      d.location_uri
+    FROM
+      aws_glue_data_quality_ruleset AS r,
+      aws_glue_catalog_database AS d
+    WHERE
+      r.database_name = d.name
+    AND
+      r.name = 'ruleset1';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue
+    - Glue
 Title: List all Glue Data Quality Rulesets in AWS
