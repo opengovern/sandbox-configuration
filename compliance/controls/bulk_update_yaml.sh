@@ -2,7 +2,7 @@
 
 # Description:
 # This script traverses all subdirectories to find YAML files containing the 'Connector' key
-# and renames the key to 'IntegrationTypeName' while mapping specific values.
+# and renames the key to 'IntegrationType' while mapping specific values.
 
 # Define the root directory (current directory)
 ROOT_DIR="."
@@ -20,7 +20,7 @@ find "$ROOT_DIR" -type f \( -iname "*.yaml" -o -iname "*.yml" \) -print0 | while
     
     # Apply the yq transformation with enhanced handling
     if yq eval -i '
-      .IntegrationTypeName = (
+      .IntegrationType = (
         if type == "array" then
           .Connector | map(
             {
@@ -42,7 +42,7 @@ find "$ROOT_DIR" -type f \( -iname "*.yaml" -o -iname "*.yml" \) -print0 | while
       echo "Error processing $file" >> error_files.log
       # Capture detailed error messages
       yq eval -i '
-        .IntegrationTypeName = (
+        .IntegrationType = (
           if type == "array" then
             .Connector | map(
               {

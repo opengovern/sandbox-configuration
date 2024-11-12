@@ -3,7 +3,7 @@
 # Script Name: replace_integration_types.sh
 # Description: 
 #   Replaces '- aws' with '- aws_cloud_account' and '- azure' with '- azure_subscription'
-#   within the IntegrationTypeName sections of YAML files.
+#   within the IntegrationType sections of YAML files.
 #
 # Usage: 
 #   ./replace_integration_types.sh [-r] [directory]
@@ -64,15 +64,15 @@ for FILE in "${FIND_CMD[@]}"; do
         # Output processing message
         echo "Processing: $FILE"
 
-        # Check if the file contains 'IntegrationTypeName:'
-        if grep -q "^IntegrationTypeName:" "$FILE"; then
+        # Check if the file contains 'IntegrationType:'
+        if grep -q "^IntegrationType:" "$FILE"; then
             # Create a temporary file securely
             TMP_FILE=$(mktemp)
 
-            # Use awk to perform the replacements within the IntegrationTypeName block
+            # Use awk to perform the replacements within the IntegrationType block
             awk '
             BEGIN { in_block = 0 }
-            /^IntegrationTypeName:/ {
+            /^IntegrationType:/ {
                 print;
                 in_block = 1;
                 next
@@ -81,11 +81,11 @@ for FILE in "${FIND_CMD[@]}"; do
             /^[^[:space:]]/ && !/^[[:space:]]*-/ {
                 in_block = 0
             }
-            # If within the IntegrationTypeName block and line matches '- aws', replace it
+            # If within the IntegrationType block and line matches '- aws', replace it
             in_block == 1 && /^[[:space:]]*-[[:space:]]*aws[[:space:]]*$/ {
                 sub(/- aws[[:space:]]*$/, "- aws_cloud_account")
             }
-            # If within the IntegrationTypeName block and line matches '- azure', replace it
+            # If within the IntegrationType block and line matches '- azure', replace it
             in_block == 1 && /^[[:space:]]*-[[:space:]]*azure[[:space:]]*$/ {
                 sub(/- azure[[:space:]]*$/, "- azure_subscription")
             }
@@ -102,7 +102,7 @@ for FILE in "${FIND_CMD[@]}"; do
                 rm "$TMP_FILE"
             fi
         else
-            echo "No IntegrationTypeName section found in: $FILE"
+            echo "No IntegrationType section found in: $FILE"
         fi
     else
         # Non-YAML files are ignored, but still output processing message

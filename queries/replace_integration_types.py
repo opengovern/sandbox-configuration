@@ -24,7 +24,7 @@ def process_file(filepath):
         nonlocal modified
         if isinstance(data, dict):
             for key, value in data.items():
-                if key == 'IntegrationTypeName' and isinstance(value, list):
+                if key == 'IntegrationType' and isinstance(value, list):
                     new_list = []
                     for item in value:
                         if item == 'aws':
@@ -54,7 +54,7 @@ def process_file(filepath):
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description='Replace IntegrationTypeName values in YAML files.')
+    parser = argparse.ArgumentParser(description='Replace IntegrationType values in YAML files.')
     parser.add_argument('directory', nargs='?', default='.', help='Directory to start from (default: current directory)')
     parser.add_argument('-r', '--recursive', action='store_true', help='Recursively search through subdirectories')
     args = parser.parse_args()
