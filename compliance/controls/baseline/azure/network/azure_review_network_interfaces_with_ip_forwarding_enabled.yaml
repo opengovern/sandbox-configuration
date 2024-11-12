@@ -1,38 +1,38 @@
+Description: Ensure that the Azure network interfaces with IP forwarding enabled are regularly reviewed.
 ID: azure_review_network_interfaces_with_ip_forwarding_enabled
-Title: "Review Network Interfaces with IP Forwarding Enabled"
-Description: "Ensure that the Azure network interfaces with IP forwarding enabled are regularly reviewed."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      ni.id as resource,
-      ni.og_account_id,
-      ni.og_resource_id,
-      case
-        when enable_ip_forwarding = 'true' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when enable_ip_forwarding = 'true' then 'NIC resource must be reviewed in order to decide whether or not IP forwarding is required.'
-        else 'IP forwarding is not enabled.'
-      end as reason,
-      ni.resource_group,
-      display_name as subscription
-    from
-      azure_network_interface as ni,
-      azure_subscription as sub
-    where
-      sub.subscription_id = ni.subscription_id
-  PrimaryTable: azure_network_interface
   ListOfTables:
     - azure_network_interface
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_network_interface
+  QueryToExecute: |
+    SELECT 
+      ni.id AS resource,
+      ni.og_account_id,
+      ni.og_resource_id,
+      CASE
+        WHEN enable_ip_forwarding = 'true' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN enable_ip_forwarding = 'true' THEN 'NIC resource must be reviewed in order to decide whether or not IP forwarding is required.'
+        ELSE 'IP forwarding is not enabled.'
+      END AS reason,
+      ni.resource_group,
+      display_name AS subscription
+    FROM 
+      azure_network_interface AS ni,
+      azure_subscription AS sub
+    WHERE 
+      sub.subscription_id = ni.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Network
   score_service_name:
     - Azure Network
-IntegrationType:
-  - azure_subscription
+Title: Review Network Interfaces with IP Forwarding Enabled

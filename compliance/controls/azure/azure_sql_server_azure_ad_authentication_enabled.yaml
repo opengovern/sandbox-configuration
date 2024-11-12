@@ -1,15 +1,45 @@
+Description: Audit provisioning of an Azure Active Directory administrator for your SQL server to enable Azure AD authentication. Azure AD authentication enables simplified permission management and centralized identity management of database users and other Microsoft services.
 ID: azure_sql_server_azure_ad_authentication_enabled
-Title: "An Azure Active Directory administrator should be provisioned for SQL servers"
-Description: "Audit provisioning of an Azure Active Directory administrator for your SQL server to enable Azure AD authentication. Azure AD authentication enables simplified permission management and centralized identity management of database users and other Microsoft services."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with sever_with_ad_admin as (\n  select\n    distinct a.id\n  from\n    azure_sql_server as a,\n    jsonb_array_elements(server_azure_ad_administrator) as ad_admin\n  where\n    ad_admin ->> 'type' = 'Microsoft.Sql/servers/administrators'\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when s.id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when s.id is not null then a.name || ' azure AD authentication enabled.'\n    else a.name || ' azure AD authentication disabled.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server as a\n  left join sever_with_ad_admin as s on a.id = s.id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_ad_administrator
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    WITH sever_with_ad_admin AS (
+      SELECT
+        DISTINCT a.id
+      FROM
+        azure_sql_server AS a,
+        jsonb_array_elements(server_azure_ad_administrator) AS ad_admin
+      WHERE
+        ad_admin ->> 'type' = 'Microsoft.Sql/servers/administrators'
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.id IS NOT NULL THEN a.name || ' azure AD authentication enabled.'
+        ELSE a.name || ' azure AD authentication disabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server AS a
+      LEFT JOIN sever_with_ad_admin AS s ON a.id = s.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
@@ -18,5 +48,4 @@ Tags:
     - "true"
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: An Azure Active Directory administrator should be provisioned for SQL servers

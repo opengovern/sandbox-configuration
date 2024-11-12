@@ -1,33 +1,33 @@
+Description: This control checks whether the status of the AWS Systems Manager association compliance is COMPLIANT or non compliant after the association is run on an instance. The control passes if the association compliance status is COMPLIANT.
 ID: aws_foundational_security_ssm_3
-Title: "3 Instances managed by Systems Manager should have an association compliance status of COMPLIANT"
-Description: "This control checks whether the status of the AWS Systems Manager association compliance is COMPLIANT or non compliant after the association is run on an instance. The control passes if the association compliance status is COMPLIANT."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when c.status = 'COMPLIANT' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when c.status = 'COMPLIANT' then c.resource_id || ' association ' || c.title || ' is compliant.'
-        else c.resource_id || ' association ' || c.title || ' is non-compliant.'
-      end as reason
-    from
-      aws_ssm_managed_instance as i,
-      aws_ssm_managed_instance_compliance as c
-    where
-      c.resource_id = i.instance_id
-      and c.compliance_type = 'Association';
-  PrimaryTable: aws_ssm_managed_instance
   ListOfTables:
     - aws_ssm_managed_instance
     - aws_ssm_managed_instance_compliance
   Parameters: []
+  PrimaryTable: aws_ssm_managed_instance
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.status = 'COMPLIANT' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN c.status = 'COMPLIANT' THEN c.resource_id || ' association ' || c.title || ' is compliant.'
+        ELSE c.resource_id || ' association ' || c.title || ' is non-compliant.'
+      END AS reason
+    FROM
+      aws_ssm_managed_instance AS i,
+      aws_ssm_managed_instance_compliance AS c
+    WHERE
+      c.resource_id = i.instance_id
+      AND c.compliance_type = 'Association';
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3 Instances managed by Systems Manager should have an association compliance status of COMPLIANT

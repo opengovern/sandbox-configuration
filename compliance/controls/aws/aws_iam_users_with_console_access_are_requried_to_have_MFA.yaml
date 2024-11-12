@@ -1,17 +1,36 @@
-ID: aws_iam_users_with_console_access_are_requried_to_have_MFA
-Title: "IAM Users with Console Access are requried to have MFA"
-Description: "IAM Users with Console Access are requried to have MFA"
+Description: IAM Users with Console Access are required to have MFA
+ID: aws_iam_users_with_console_access_are_required_to_have_MFA
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select \n  user_arn as resource,\n  case \n    when not(mfa_active::bool) then 'alarm'\n    else 'ok'\n  end as status,\n  case \n    when not(mfa_active::bool) then 'MFA is not enabled for ' || user_name\n    else user_name || ' has MFA'\n  end as reason,\n  u.og_resource_id,\n  u.og_account_id,\n  u.account_id\nfrom \n  aws_iam_credential_report cr inner join aws_iam_user u on cr.user_arn = u.arn \nwhere \n  not(login_profile ->> 'UserName' is null)\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_credential_report
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT 
+      user_arn AS resource,
+      CASE 
+        WHEN NOT(mfa_active::bool) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE 
+        WHEN NOT(mfa_active::bool) THEN 'MFA is not enabled for ' || user_name
+        ELSE user_name || ' has MFA'
+      END AS reason,
+      u.og_resource_id,
+      u.og_account_id,
+      u.account_id
+    FROM 
+      aws_iam_credential_report cr 
+    INNER JOIN aws_iam_user u 
+      ON cr.user_arn = u.arn 
+    WHERE 
+      NOT(login_profile ->> 'UserName' IS NULL)
 Severity: low
 Tags:
   score_service_name:
     - AWS Identity and Access Management (IAM)
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Users with Console Access are required to have MFA

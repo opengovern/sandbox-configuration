@@ -1,39 +1,44 @@
+Description: Ensure that no Network ACL (NACL) allows outbound/egress traffic to all ports.
 ID: aws_unrestricted_network_acl_outbound_traffic
-Title: "Unrestricted Network ACL Outbound Traffic"
-Description: "Ensure that no Network ACL (NACL) allows outbound/egress traffic to all ports."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when exists (
-          select 1
-          from jsonb_array_elements(entries) as e
-          where (e ->> 'Egress')::bool = true and e ->> 'PortRange' is null and e ->> 'CidrBlock' = '0.0.0.0/0'
-            and e ->> 'RuleAction' = 'allow'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists (
-          select 1
-          from jsonb_array_elements(entries) as e
-          where (e ->> 'Egress')::bool = true and e ->> 'PortRange' is null and e ->> 'CidrBlock' = '0.0.0.0/0'
-            and e ->> 'RuleAction' = 'allow'
-        ) then 'the access to the VPC subnets associated with the Network ACL (NACL) is not restricted.'
-        else 'the access to the VPC subnets associated with the Network ACL (NACL) is restricted.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_vpc_network_acl
-  PrimaryTable: aws_vpc_network_acl
   ListOfTables:
     - aws_vpc_network_acl
   Parameters: []
+  PrimaryTable: aws_vpc_network_acl
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(entries) AS e
+          WHERE (e ->> 'Egress')::bool = TRUE 
+            AND e ->> 'PortRange' IS NULL 
+            AND e ->> 'CidrBlock' = '0.0.0.0/0'
+            AND e ->> 'RuleAction' = 'allow'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(entries) AS e
+          WHERE (e ->> 'Egress')::bool = TRUE 
+            AND e ->> 'PortRange' IS NULL 
+            AND e ->> 'CidrBlock' = '0.0.0.0/0'
+            AND e ->> 'RuleAction' = 'allow'
+        ) THEN 'the access to the VPC subnets associated with the Network ACL (NACL) is not restricted.'
+        ELSE 'the access to the VPC subnets associated with the Network ACL (NACL) is restricted.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_network_acl
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -44,5 +49,4 @@ Tags:
     - AWS Virtual Private Cloud (VPC)
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Unrestricted Network ACL Outbound Traffic

@@ -1,13 +1,30 @@
+Description: Enable this rule to help improve AWS Elastic Compute Cloud (AWS EC2) instance monitoring on the AWS EC2 console, which displays monitoring graphs with a 1-minute period for the instance.
 ID: aws_ec2_instance_detailed_monitoring_enabled
-Title: "EC2 instance detailed monitoring should be enabled"
-Description: "Enable this rule to help improve AWS Elastic Compute Cloud (AWS EC2) instance monitoring on the AWS EC2 console, which displays monitoring graphs with a 1-minute period for the instance."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when monitoring_state = 'enabled' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when monitoring_state = 'enabled' then instance_id || ' detailed monitoring enabled.'\n    else instance_id || ' detailed monitoring disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_instance;\n"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN monitoring_state = 'enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN monitoring_state = 'enabled' THEN instance_id || ' detailed monitoring enabled.'
+        ELSE instance_id || ' detailed monitoring disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance;
 Severity: low
 Tags:
   category:
@@ -18,9 +35,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -30,5 +47,4 @@ Tags:
     - AWS/EC2
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 instance detailed monitoring should be enabled

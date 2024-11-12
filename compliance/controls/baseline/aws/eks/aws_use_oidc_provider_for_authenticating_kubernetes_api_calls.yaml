@@ -1,31 +1,33 @@
+Description: Ensure that Amazon EKS clusters are using an OpenID Connect (OIDC) provider.
 ID: aws_use_oidc_provider_for_authenticating_kubernetes_api_calls
-Title: "Use OIDC Provider for Authenticating Kubernetes API Calls"
-Description: "Ensure that Amazon EKS clusters are using an OpenID Connect (OIDC) provider."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_account_id,
-      c.og_resource_id,
-      case
-        when oidc.url is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when oidc.url is null then 'Amazon EKS cluster is not using an OIDC provider for authenticating Kubernetes API calls.'
-        else 'Amazon EKS cluster is using an OIDC provider for authenticating Kubernetes API calls.'
-      end as reason,
-      c.region,
-      c.account_id
-    from
-      aws_eks_cluster as c
-      left join aws_iam_open_id_connect_provider as oidc on 'https://' || oidc.url = c.identity -> 'Oidc' ->> 'Issuer'
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
     - aws_iam_open_id_connect_provider
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      c.name AS resource,
+      c.og_account_id,
+      c.og_resource_id,
+      CASE
+        WHEN oidc.url IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN oidc.url IS NULL THEN 'Amazon EKS cluster is not using an OIDC provider for authenticating Kubernetes API calls.'
+        ELSE 'Amazon EKS cluster is using an OIDC provider for authenticating Kubernetes API calls.'
+      END AS reason,
+      c.region,
+      c.account_id
+    FROM
+      aws_eks_cluster AS c
+      LEFT JOIN aws_iam_open_id_connect_provider AS oidc
+        ON 'https://' || oidc.url = c.identity -> 'Oidc' ->> 'Issuer'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +38,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Use OIDC Provider for Authenticating Kubernetes API Calls

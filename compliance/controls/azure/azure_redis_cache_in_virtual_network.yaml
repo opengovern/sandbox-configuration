@@ -1,32 +1,32 @@
+Description: Azure Virtual Network deployment provides enhanced security and isolation for your Azure Cache for Redis, as well as subnets, access control policies, and other features to further restrict access. When an Azure Cache for Redis instance is configured with a virtual network, it is not publicly addressable and can only be accessed from virtual machines and applications within the virtual network.
 ID: azure_redis_cache_in_virtual_network
-Title: "Azure Cache for Redis should reside within a virtual network"
-Description: "Azure Virtual Network deployment provides enhanced security and isolation for your Azure Cache for Redis, as well as subnets, access control policies, and other features to further restrict access.When an Azure Cache for Redis instance is configured with a virtual network, it is not publicly addressable and can only be accessed from virtual machines and applications within the virtual network."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      redis.id as resource,
-      redis.og_account_id as og_account_id,
-      redis.og_resource_id as og_resource_id,
-      case
-        when subnet_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when subnet_id is not null then redis.name || ' in virtual network.'
-        else redis.name || ' not in virtual network.'
-      end as reason
-    from
-      azure_redis_cache as redis,
-      azure_subscription as sub
-    where
-      sub.subscription_id = redis.subscription_id;
-  PrimaryTable: azure_redis_cache
   ListOfTables:
     - azure_redis_cache
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_redis_cache
+  QueryToExecute: |
+    SELECT
+      redis.id AS resource,
+      redis.og_account_id AS og_account_id,
+      redis.og_resource_id AS og_resource_id,
+      CASE
+        WHEN subnet_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN subnet_id IS NOT NULL THEN redis.name || ' in virtual network.'
+        ELSE redis.name || ' not in virtual network.'
+      END AS reason
+    FROM
+      azure_redis_cache AS redis,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = redis.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Azure Cache for Redis should reside within a virtual network

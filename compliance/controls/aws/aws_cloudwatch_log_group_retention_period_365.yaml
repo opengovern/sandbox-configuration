@@ -1,13 +1,31 @@
+Description: Ensure a minimum duration of event log data is retained for your log groups to help with troubleshooting and forensics investigations.
 ID: aws_cloudwatch_log_group_retention_period_365
-Title: "Log group retention period should be at least 365 days"
-Description: "Ensure a minimum duration of event log data is retained for your log groups to help with troubleshooting and forensics investigations."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when retention_in_days is null or retention_in_days < 365 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when retention_in_days is null then title || ' retention period not set.'\n    when retention_in_days < 365 then title || ' retention period less than 365 days.'\n    else title || ' retention period 365 days or above.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudwatch_log_group;\n"
-  PrimaryTable: aws_cloudwatch_log_group
   ListOfTables:
     - aws_cloudwatch_log_group
   Parameters: []
+  PrimaryTable: aws_cloudwatch_log_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN retention_in_days IS NULL OR retention_in_days < 365 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN retention_in_days IS NULL THEN title || ' retention period not set.'
+        WHEN retention_in_days < 365 THEN title || ' retention period less than 365 days.'
+        ELSE title || ' retention period 365 days or above.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_cloudwatch_log_group;
 Severity: high
 Tags:
   category:
@@ -26,11 +44,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -44,5 +62,4 @@ Tags:
     - AWS/CloudWatch
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Log group retention period should be at least 365 days

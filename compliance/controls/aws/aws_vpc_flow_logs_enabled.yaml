@@ -1,14 +1,35 @@
+Description: The VPC flow logs provide detailed records for information about the IP traffic going to and from network interfaces in your AWS Virtual Private Cloud (AWS VPC.
 ID: aws_vpc_flow_logs_enabled
-Title: "VPC flow logs should be enabled"
-Description: "The VPC flow logs provide detailed records for information about the IP traffic going to and from network interfaces in your AWS Virtual Private Cloud (AWS VPC."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  distinct v.arn as resource,\n  v.og_account_id as og_account_id,\n  v.og_resource_id as og_resource_id,\n  case\n    when v.account_id <> v.owner_id then 'skip'\n    when f.resource_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when v.account_id <> v.owner_id then vpc_id || ' is a shared VPC.'\n    when f.resource_id is not null then vpc_id || ' flow logging enabled.'\n    else vpc_id || ' flow logging disabled.'\n  end as reason\n  \n  , v.region, v.account_id\nfrom\n  aws_vpc as v\n  left join aws_vpc_flow_log as f on v.vpc_id = f.resource_id;\n"
-  PrimaryTable: aws_vpc
   ListOfTables:
     - aws_vpc
     - aws_vpc_flow_log
   Parameters: []
+  PrimaryTable: aws_vpc
+  QueryToExecute: |
+    SELECT DISTINCT
+      v.arn AS resource,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
+      CASE
+        WHEN v.account_id <> v.owner_id THEN 'skip'
+        WHEN f.resource_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN v.account_id <> v.owner_id THEN vpc_id || ' is a shared VPC.'
+        WHEN f.resource_id IS NOT NULL THEN vpc_id || ' flow logging enabled.'
+        ELSE vpc_id || ' flow logging disabled.'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_vpc AS v
+      LEFT JOIN aws_vpc_flow_log AS f
+        ON v.vpc_id = f.resource_id;
 Severity: low
 Tags:
   category:
@@ -31,11 +52,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -51,5 +72,4 @@ Tags:
     - AWS/VPC
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: VPC flow logs should be enabled

@@ -1,38 +1,38 @@
+Description: This control checks if a lifecycle policy is configured for an Amazon S3 bucket. This control fails if a lifecycle policy is not configured for an S3 bucket.
 ID: aws_foundational_security_s3_13
-Title: "13 S3 buckets should have lifecycle policies configured"
-Description: "This control checks if a lifecycle policy is configured for an Amazon S3 bucket. This control fails if a lifecycle policy is not configured for an S3 bucket."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with lifecycle_rules_enabled as (
-      select
-        arn
-      from
-        aws_s3_bucket,
-        jsonb_array_elements(lifecycle_rules) as r
-      where
-        r ->> 'Status' = 'Enabled'
-    )
-    select
-      b.arn as resource,
-      b.og_account_id as og_account_id,
-      b.og_resource_id as og_resource_id,
-      case
-        when r.arn is not null then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when r.arn is not null then name || ' lifecycle policy or rules configured.'
-        else name || ' lifecycle policy or rules not configured.'
-      end reason
-    from
-      aws_s3_bucket as b
-      left join lifecycle_rules_enabled as r on r.arn = b.arn;
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH lifecycle_rules_enabled AS (
+      SELECT
+        arn
+      FROM
+        aws_s3_bucket,
+        jsonb_array_elements(lifecycle_rules) AS r
+      WHERE
+        r ->> 'Status' = 'Enabled'
+    )
+    SELECT
+      b.arn AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN r.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN r.arn IS NOT NULL THEN name || ' lifecycle policy or rules configured.'
+        ELSE name || ' lifecycle policy or rules not configured.'
+      END AS reason
+    FROM
+      aws_s3_bucket AS b
+      LEFT JOIN lifecycle_rules_enabled AS r ON r.arn = b.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 13 S3 buckets should have lifecycle policies configured

@@ -1,30 +1,39 @@
+Description: This control checks whether an AWS RDS event subscription exists with notifications enabled for the following source type, event category key-value pairs.
 ID: aws_rds_db_security_group_events_subscription
-Title: "An RDS event notifications subscription should be configured for critical database security group events"
-Description: "This control checks whether an AWS RDS event subscription exists with notifications enabled for the following source type, event category key-value pairs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when source_type <> 'db-security-group' then 'skip'
-        when source_type = 'db-security-group' and enabled and event_categories_list @> '["failure", "configuration change"]' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when source_type <> 'db-security-group' then cust_subscription_id || ' event subscription of ' || source_type || ' type.'
-        when source_type = 'db-security-group' and enabled and event_categories_list @> '["failure", "configuration change"]' then cust_subscription_id || ' event subscription enabled for critical database security group events.'
-        else cust_subscription_id || ' event subscription missing critical database security group events.'
-      end as reason
-      , region, account_id
-    from
-      aws_rds_db_event_subscription;
-  PrimaryTable: aws_rds_db_event_subscription
   ListOfTables:
     - aws_rds_db_event_subscription
   Parameters: []
+  PrimaryTable: aws_rds_db_event_subscription
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN source_type <> 'db-security-group' THEN 'skip'
+        WHEN source_type = 'db-security-group' 
+          AND enabled 
+          AND event_categories_list @> '["failure", "configuration change"]' 
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN source_type <> 'db-security-group' 
+          THEN cust_subscription_id || ' event subscription of ' || source_type || ' type.'
+        WHEN source_type = 'db-security-group' 
+          AND enabled 
+          AND event_categories_list @> '["failure", "configuration change"]'
+        THEN cust_subscription_id || ' event subscription enabled for critical database security group events.'
+        ELSE cust_subscription_id || ' event subscription missing critical database security group events.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_event_subscription;
 Severity: low
 Tags:
   aws_foundational_security:
@@ -39,5 +48,4 @@ Tags:
     - aws
   service:
     - AWS/RDS
-IntegrationType:
-  - aws_cloud_account
+Title: An RDS event notifications subscription should be configured for critical database security group events

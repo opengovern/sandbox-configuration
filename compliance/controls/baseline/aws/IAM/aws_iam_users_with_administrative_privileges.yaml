@@ -1,13 +1,38 @@
+Description: Ensure there are no IAM users with administrative permissions available in your AWS cloud account.
 ID: aws_iam_users_with_administrative_privileges
-Title: "IAM Users with Administrative Privileges"
-Description: "Ensure there are no IAM users with administrative permissions available in your AWS cloud account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem\n      WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN EXISTS (\n      SELECT 1\n      FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem\n      WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'\n    ) THEN name || ' has administrator access' \n    ELSE name || ' does not have administrator access'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
+          WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
+          WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
+        ) THEN name || ' has administrator access'
+        ELSE name || ' does not have administrator access'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_user
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +43,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Users with Administrative Privileges

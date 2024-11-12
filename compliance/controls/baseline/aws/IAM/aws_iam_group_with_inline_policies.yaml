@@ -1,13 +1,30 @@
+Description: Ensure IAM groups don't have inline policies attached.
 ID: aws_iam_group_with_inline_policies
-Title: "IAM Group With Inline Policies"
-Description: "Ensure IAM groups don't have inline policies attached."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  name as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when inline_policies is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when inline_policies is null then name || ' is not using inline policies'\n    else name || ' is using inline policies'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_group\n"
-  PrimaryTable: aws_iam_group
   ListOfTables:
     - aws_iam_group
   Parameters: []
+  PrimaryTable: aws_iam_group
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN inline_policies IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN inline_policies IS NULL THEN name || ' is not using inline policies'
+        ELSE name || ' is using inline policies'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_group
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Group With Inline Policies

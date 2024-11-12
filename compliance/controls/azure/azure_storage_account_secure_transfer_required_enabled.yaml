@@ -1,14 +1,34 @@
+Description: Audit requirement of Secure transfer in your storage account. Secure transfer is an option that forces your storage account to accept requests only from secure connections (HTTPS). Use of HTTPS ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking.
 ID: azure_storage_account_secure_transfer_required_enabled
-Title: "Secure transfer to storage accounts should be enabled"
-Description: "Audit requirement of Secure transfer in your storage account. Secure transfer is an option that forces your storage account to accept requests only from secure connections (HTTPS). Use of HTTPS ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  sa.og_account_id as og_account_id,\n  sa.og_resource_id as og_resource_id,\n  case\n    when not enable_https_traffic_only then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not enable_https_traffic_only then sa.name || ' encryption in transit not enabled.'\n    else sa.name || ' encryption in transit enabled.'\n  end as reason\n  \n  , sa.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id AS og_account_id,
+      sa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT enable_https_traffic_only THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT enable_https_traffic_only THEN sa.name || ' encryption in transit not enabled.'
+        ELSE sa.name || ' encryption in transit enabled.'
+      END AS reason,
+      sa.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
 Severity: high
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Secure transfer to storage accounts should be enabled

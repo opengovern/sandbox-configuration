@@ -1,29 +1,30 @@
+Description: Ensure RDS instances are launched into Multi-AZ.
 ID: aws_rds_multi_az
-Title: "RDS Multi-AZ"
-Description: "Ensure RDS instances are launched into Multi-AZ."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      db_instance_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not multi_az then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not multi_az then title || ' Multi-AZ feature is not enabled'
-        else title || ' Multi-AZ feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT 
+      db_instance_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT multi_az THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT multi_az THEN title || ' Multi-AZ feature is not enabled'
+        ELSE title || ' Multi-AZ feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_rds_db_instance
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Multi-AZ

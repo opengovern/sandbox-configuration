@@ -1,32 +1,32 @@
+Description: Azure App Service Authentication is a feature that can prevent anonymous HTTP requests from reaching a Web Application or authenticate those with tokens before they reach the app. If an anonymous request is received from a browser, App Service will redirect to a logon page. To handle the logon process, a choice from a set of identity providers can be made, or a custom authentication mechanism can be implemented.
 ID: azure_cis_v200_9_1
-Title: "9.1 Ensure App Service Authentication is set up for apps in Azure App Service"
-Description: "Azure App Service Authentication is a feature that can prevent anonymous HTTP requests from reaching a Web Application or authenticate those with tokens before they reach the app. If an anonymous request is received from a browser, App Service will redirect to a logon page. To handle the logon process, a choice from a set of identity providers can be made, or a custom authentication mechanism can be implemented."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      app.id as resource,
-      app.og_account_id as og_account_id,
-      app.og_resource_id as og_resource_id,
-      case
-        when not (auth_settings -> 'properties' ->> 'enabled') :: boolean then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not (auth_settings -> 'properties' ->> 'enabled') :: boolean then name || ' authentication not set.'
-        else name || ' authentication set.'
-      end as reason
-    from
-      azure_app_service_web_app as app,
-      azure_subscription as sub
-    where
-      sub.subscription_id = app.subscription_id;
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT (auth_settings -> 'properties' ->> 'enabled')::BOOLEAN THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT (auth_settings -> 'properties' ->> 'enabled')::BOOLEAN THEN name || ' authentication not set.'
+        ELSE name || ' authentication set.'
+      END AS reason
+    FROM
+      azure_app_service_web_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 9.1 Ensure App Service Authentication is set up for apps in Azure App Service

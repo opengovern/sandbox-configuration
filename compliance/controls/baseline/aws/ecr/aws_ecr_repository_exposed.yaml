@@ -1,42 +1,44 @@
+Description: Ensure that AWS Elastic Container Registry (ECR) repositories are not exposed to everyone.
 ID: aws_ecr_repository_exposed
-Title: "ECR Repository Exposed"
-Description: "Ensure that AWS Elastic Container Registry (ECR) repositories are not exposed to everyone."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      repository_name as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when exists (
-          select 1
-          from jsonb_array_elements(policy_std -> 'Statement') as p
-          where p ->> 'Effect' = 'Allow' and p ->> 'Principal' = '*'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists (
-          select 1
-          from jsonb_array_elements(policy_std -> 'Statement') as p
-          where p ->> 'Effect' = 'Allow' and p ->> 'Principal' = '*'
-        ) then repository_name || ' repository is exposed to everyone.'
-        else repository_name || ' repository is not exposed to everyone.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ecr_repository
-  PrimaryTable: aws_ecr_repository
   ListOfTables:
     - aws_ecr_repository
   Parameters: []
+  PrimaryTable: aws_ecr_repository
+  QueryToExecute: |
+    SELECT
+      repository_name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(policy_std -> 'Statement') AS p
+          WHERE p ->> 'Effect' = 'Allow'
+          AND p ->> 'Principal' = '*'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(policy_std -> 'Statement') AS p
+          WHERE p ->> 'Effect' = 'Allow'
+          AND p ->> 'Principal' = '*'
+        ) THEN repository_name || ' repository is exposed to everyone.'
+        ELSE repository_name || ' repository is not exposed to everyone.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ecr_repository
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - Elastic Container Registry (ECR)
   score_service_name:
     - Elastic Container Registry (ECR)
-IntegrationType:
-  - aws_cloud_account
+Title: ECR Repository Exposed

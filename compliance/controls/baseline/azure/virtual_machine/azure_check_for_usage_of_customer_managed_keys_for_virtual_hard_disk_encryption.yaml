@@ -1,33 +1,34 @@
+Description: Ensure that Customer Managed Keys are used to encrypt Virtual Hard Disk (VHD) volumes.
 ID: azure_check_for_usage_of_customer_managed_keys_for_virtual_hard_disk_encryption
-Title: "Check for usage of Customer Managed Keys for Virtual Hard Disk Encryption"
-Description: "Ensure that Customer Managed Keys are used to encrypt Virtual Hard Disk (VHD) volumes."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      disk.id as resource,
-      disk.og_account_id,
-      disk.og_resource_id,
-      case
-        when encryption_type = 'EncryptionAtRestWithPlatformKey' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when encryption_type = 'EncryptionAtRestWithPlatformKey' then 'Disk is encrypted by CMK.'
-        else 'Disk is encrypted with Platform Key instead of CMK.'
-      end as reason,
-      disk.resource_group,
-      display_name as subscription
-    from
-      azure_compute_disk as disk,
-      azure_subscription as sub
-    where
-      sub.subscription_id = disk.subscription_id;
-  PrimaryTable: azure_compute_disk
   ListOfTables:
     - azure_compute_disk
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_disk
+  QueryToExecute: |
+    SELECT
+      disk.id AS resource,
+      disk.og_account_id,
+      disk.og_resource_id,
+      CASE
+        WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'Disk is encrypted by CMK.'
+        ELSE 'Disk is encrypted with Platform Key instead of CMK.'
+      END AS reason,
+      disk.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_disk AS disk,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = disk.subscription_id;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +39,4 @@ Tags:
     - Azure Virtual Machines
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - azure_subscription
+Title: Check for usage of Customer Managed Keys for Virtual Hard Disk Encryption

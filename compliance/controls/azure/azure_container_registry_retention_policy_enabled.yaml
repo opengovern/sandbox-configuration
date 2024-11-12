@@ -1,32 +1,32 @@
+Description: Ensure container registry retention policy is enabled. This control is non-compliant if retention policy is disabled.
 ID: azure_container_registry_retention_policy_enabled
-Title: "Container registries retention policy should be enabled"
-Description: "Ensure container registry retention policy is enabled. This control is non-compliant if retention policy is disabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      distinct a.name as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when policies -> 'retentionPolicy' ->> 'status' = 'enabled' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when policies -> 'retentionPolicy' ->> 'status' = 'enabled' then a.name || ' retention policy enabled.'
-        else a.name || ' retention policy disabled.'
-      end as reason
-    from
-      azure_container_registry as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_container_registry
   ListOfTables:
     - azure_container_registry
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_registry
+  QueryToExecute: |
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN policies -> 'retentionPolicy' ->> 'status' = 'enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN policies -> 'retentionPolicy' ->> 'status' = 'enabled' THEN a.name || ' retention policy enabled.'
+        ELSE a.name || ' retention policy disabled.'
+      END AS reason
+    FROM
+      azure_container_registry AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container registries retention policy should be enabled

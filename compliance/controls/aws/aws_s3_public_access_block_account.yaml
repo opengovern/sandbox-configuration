@@ -1,42 +1,43 @@
+Description: Manage access to resources in the AWS Cloud by ensuring that AWS Simple Storage Service (AWS S3) buckets cannot be publicly accessed.
 ID: aws_s3_public_access_block_account
-Title: "S3 public access should be blocked at account level"
-Description: "Manage access to resources in the AWS Cloud by ensuring that AWS Simple Storage Service (AWS S3) buckets cannot be publicly accessed."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn' || ':' || 'aws' || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when block_public_acls
-          and block_public_policy
-          and ignore_public_acls
-          and restrict_public_buckets
-          then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when block_public_acls
-          and block_public_policy
-          and ignore_public_acls
-          and restrict_public_buckets
-          then 'Account level public access blocks enabled.'
-        else 'Account level public access blocks not enabled for: ' ||
-          concat_ws(', ',
-            case when not (block_public_acls ) then 'block_public_acls' end,
-            case when not (block_public_policy) then 'block_public_policy' end,
-            case when not (ignore_public_acls ) then 'ignore_public_acls' end,
-            case when not (restrict_public_buckets) then 'restrict_public_buckets' end
-          ) || '.'
-      end as reason
-      , account_id
-    from
-      aws_s3_account_settings;
-  PrimaryTable: aws_s3_account_settings
   ListOfTables:
     - aws_s3_account_settings
   Parameters: []
+  PrimaryTable: aws_s3_account_settings
+  QueryToExecute: |
+    SELECT
+      'arn' || ':' || 'aws' || ':::' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN block_public_acls
+          AND block_public_policy
+          AND ignore_public_acls
+          AND restrict_public_buckets
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN block_public_acls
+          AND block_public_policy
+          AND ignore_public_acls
+          AND restrict_public_buckets
+        THEN 'Account level public access blocks enabled.'
+        ELSE 'Account level public access blocks not enabled for: ' ||
+          CONCAT_WS(', ',
+            CASE WHEN NOT (block_public_acls) THEN 'block_public_acls' END,
+            CASE WHEN NOT (block_public_policy) THEN 'block_public_policy' END,
+            CASE WHEN NOT (ignore_public_acls) THEN 'ignore_public_acls' END,
+            CASE WHEN NOT (restrict_public_buckets) THEN 'restrict_public_buckets' END
+          ) || '.'
+      END AS reason,
+      account_id
+    FROM
+      aws_s3_account_settings;
 Severity: high
 Tags:
   category:
@@ -57,11 +58,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -73,5 +74,4 @@ Tags:
     - AWS/S3
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: S3 public access should be blocked at account level

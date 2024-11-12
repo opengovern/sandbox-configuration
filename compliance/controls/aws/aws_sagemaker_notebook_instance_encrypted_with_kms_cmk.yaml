@@ -1,11 +1,17 @@
+Description: This control checks if SageMaker notebook instance storage volumes are encrypted with AWS KMS Customer Master Keys (CMKs) instead of AWS managed-keys.
 ID: aws_sagemaker_notebook_instance_encrypted_with_kms_cmk
-Title: "SageMaker notebook instances should be encrypted using CMK"
-Description: "This control checks if SageMaker notebook instance storage volumes are encrypted with AWS KMS Customer Master Keys (CMKs) instead of AWS managed-keys."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with sagemaker_notebook_instances as (
-      select
+  ListOfTables:
+    - aws_sagemaker_notebook_instance
+    - aws_kms_key
+  Parameters: []
+  PrimaryTable: aws_sagemaker_notebook_instance
+  QueryToExecute: |
+    WITH sagemaker_notebook_instances AS (
+      SELECT
         arn,
         region,
         account_id,
@@ -15,39 +21,33 @@ Query:
         _ctx,
         og_account_id,
         og_resource_id
-      from
+      FROM
         aws_sagemaker_notebook_instance
-    ), kms_keys as (
-      select
+    ), kms_keys AS (
+      SELECT
         arn,
         key_manager,
         enabled
-      from
+      FROM
         aws_kms_key
     )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when kms_key_id is null then 'alarm'
-        when k.key_manager = 'CUSTOMER' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when kms_key_id is null then i.title || ' encryption disabled.'
-        when k.key_manager = 'CUSTOMER' then i.title || ' encryption at rest with CMK enabled.'
-        else i.title || ' encryption at rest with CMK disabled.'
-      end as reason
-    from
-      sagemaker_notebook_instances as i
-      left join kms_keys as k on i.kms_key_id = k.arn;
-  PrimaryTable: aws_sagemaker_notebook_instance
-  ListOfTables:
-    - aws_sagemaker_notebook_instance
-    - aws_kms_key
-  Parameters: []
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN kms_key_id IS NULL THEN 'alarm'
+        WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN kms_key_id IS NULL THEN i.title || ' encryption disabled.'
+        WHEN k.key_manager = 'CUSTOMER' THEN i.title || ' encryption at rest with CMK enabled.'
+        ELSE i.title || ' encryption at rest with CMK disabled.'
+      END AS reason
+    FROM
+      sagemaker_notebook_instances AS i
+    LEFT JOIN kms_keys AS k ON i.kms_key_id = k.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker notebook instances should be encrypted using CMK

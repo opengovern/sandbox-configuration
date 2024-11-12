@@ -1,24 +1,24 @@
+Description: Windows machines should have the specified Group Policy settings in the category 'Security Options - Audit' for forcing audit policy subcategory and shutting down if unable to log security audits. This policy requires that the Guest Configuration prerequisites have been deployed to the policy assignment scope.
 ID: azure_compute_vm_meet_security_option_audit_requirement_windows
-Title: "Windows machines should meet requirements for 'Security Options - Audit'"
-Description: "Windows machines should have the specified Group Policy settings in the category 'Security Options - Audit' for forcing audit policy subcategory and shutting down if unable to log security audits. This policy requires that the Guest Configuration prerequisites have been deployed to the policy assignment scope."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required. Check control description for more details.' as reason,
-      display_name as subscription
-    from
-      azure_subscription;
-  PrimaryTable: ""
   ListOfTables: []
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required. Check control description for more details.' AS reason,
+      display_name AS subscription
+    FROM
+      azure_subscription;
 Severity: low
 Tags:
   manual-verification:
     - "true"
-IntegrationType:
-  - azure_subscription
+Title: Windows machines should meet requirements for 'Security Options - Audit'

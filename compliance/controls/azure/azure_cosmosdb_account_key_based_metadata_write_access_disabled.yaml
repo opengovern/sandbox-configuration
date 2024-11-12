@@ -1,32 +1,32 @@
+Description: Ensure Cosmos DB accounts have key-based metadata write_access disabled. This control is non-compliant if Cosmos DB accounts have key-based metadata write access enabled.
 ID: azure_cosmosdb_account_key_based_metadata_write_access_disabled
-Title: "Cosmos DB accounts should disable key based metadata write access"
-Description: "Ensure Cosmos DB accounts have key-based metadata write_access disabled. This control is non-compliant if Cosmos DB accounts have key-based metadata write access enabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when disable_key_based_metadata_write_access then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when disable_key_based_metadata_write_access then a.name || ' key based metadata write_access disabled.'
-        else a.name || ' key based metadata write_access enabled.'
-      end as reason
-    from
-      azure_cosmosdb_account as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN disable_key_based_metadata_write_access THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN disable_key_based_metadata_write_access THEN a.name || ' key based metadata write_access disabled.'
+        ELSE a.name || ' key based metadata write_access enabled.'
+      END AS reason
+    FROM
+      azure_cosmosdb_account AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Cosmos DB accounts should disable key based metadata write access

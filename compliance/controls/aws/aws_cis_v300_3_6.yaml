@@ -1,36 +1,36 @@
+Description: AWS Key Management Service (KMS) allows customers to rotate the backing key which is key material stored within the KMS which is tied to the key ID of the customer-created customer master key (CMK). It is the backing key that is used to perform cryptographic operations such as encryption and decryption. Automated key rotation currently retains all prior backing keys so that decryption of encrypted data can take place transparently. It is recommended that CMK key rotation be enabled for symmetric keys. Key rotation can not be enabled for any asymmetric CMK
 ID: aws_cis_v300_3_6
-Title: "3.6 Ensure rotation for customer-created symmetric CMKs is enabled"
-Description: "AWS Key Management Service (KMS) allows customers to rotate the backing key which is key material stored within the KMS which is tied to the key ID of the customercreated customer master key (CMK). It is the backing key that is used to perform cryptographic operations such as encryption and decryption. Automated key rotation currently retains all prior backing keys so that decryption of encrypted data can take place transparently. It is recommended that CMK key rotation be enabled for symmetric keys. Key rotation can not be enabled for any asymmetric CMK"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when origin = 'EXTERNAL' then 'skip'
-        when key_state = 'PendingDeletion' then 'skip'
-        when key_state = 'Disabled' then 'skip'
-        when not key_rotation_enabled then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when origin = 'EXTERNAL' then title || ' has imported key material.'
-        when key_state = 'PendingDeletion' then title || ' is pending deletion.'
-        when key_state = 'Disabled' then title || ' is disabled.'
-        when not key_rotation_enabled then title || ' key rotation disabled.'
-        else title || ' key rotation enabled.'
-      end as reason
-    from
-      aws_kms_key
-    where
-      key_manager = 'CUSTOMER';
-  PrimaryTable: aws_kms_key
   ListOfTables:
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_kms_key
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN origin = 'EXTERNAL' THEN 'skip'
+        WHEN key_state = 'PendingDeletion' THEN 'skip'
+        WHEN key_state = 'Disabled' THEN 'skip'
+        WHEN NOT key_rotation_enabled THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN origin = 'EXTERNAL' THEN title || ' has imported key material.'
+        WHEN key_state = 'PendingDeletion' THEN title || ' is pending deletion.'
+        WHEN key_state = 'Disabled' THEN title || ' is disabled.'
+        WHEN NOT key_rotation_enabled THEN title || ' key rotation disabled.'
+        ELSE title || ' key rotation enabled.'
+      END AS reason
+    FROM
+      aws_kms_key
+    WHERE
+      key_manager = 'CUSTOMER';
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3.6 Ensure rotation for customer-created symmetric CMKs is enabled

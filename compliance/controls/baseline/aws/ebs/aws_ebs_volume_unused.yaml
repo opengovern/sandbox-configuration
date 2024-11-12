@@ -1,13 +1,38 @@
+Description: Identify any unused Elastic Block Store volumes to improve cost optimization and security.
 ID: aws_ebs_volume_unused
-Title: "Unused EBS Volumes"
-Description: "Identify any unused Elastic Block Store volumes to improve cost optimization and security."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when state = 'in-use' then 0\n    else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.og_resource_id limit 1)\n  end as cost_optimization,\n  case\n    when state = 'in-use' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when state = 'in-use' then title || ' attached to EC2 instance.'\n    else title || ' not attached to EC2 instance.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_volume v\n"
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN state = 'in-use' THEN 0
+        ELSE (SELECT cost
+              FROM pennywise_cost_estimate
+              WHERE resource_type = 'aws::ec2::volume'
+                AND resource_id = v.og_resource_id
+              LIMIT 1)
+      END AS cost_optimization,
+      CASE
+        WHEN state = 'in-use' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN state = 'in-use' THEN title || ' attached to EC2 instance.'
+        ELSE title || ' not attached to EC2 instance.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ebs_volume v
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +43,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Optimization
-IntegrationType:
-  - aws_cloud_account
+Title: Unused EBS Volumes

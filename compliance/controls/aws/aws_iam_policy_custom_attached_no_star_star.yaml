@@ -1,14 +1,50 @@
+Description: 'This control checks whether the default version of IAM policies (also known as customer managed policies) has administrator access that includes a statement with ''Effect'': ''Allow'' with ''Action'': ''*'' over ''Resource'': ''*''. The control only checks the customer managed policies that you create. It does not check inline and AWS managed policies.'
 ID: aws_iam_policy_custom_attached_no_star_star
-Title: "IAM policies should not allow full '*' administrative privileges"
-Description: "This control checks whether the default version of IAM policies (also known as customer managed policies) has administrator access that includes a statement with 'Effect': 'Allow' with 'Action': '*' over 'Resource': '*'. The control only checks the customer managed policies that you create. It does not check inline and AWS managed policies."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "-- This query checks the customer managed policies having * access and attached to IAM resource(s)\nwith star_access_policies as (\n  select\n    arn,\n    count(*) as num_bad_statements\n  from\n    aws_iam_policy,\n    jsonb_array_elements(policy_std -> 'Statement') as s,\n    jsonb_array_elements_text(s -> 'Resource') as resource,\n    jsonb_array_elements_text(s -> 'Action') as action\n  where\n    not is_aws_managed\n    and s ->> 'Effect' = 'Allow'\n    and resource = '*'\n    and (\n      (action = '*'\n      or action = '*:*'\n      )\n    )\n    and is_attached\n  group by arn\n)\nselect\n  p.arn as resource,\n  p.og_account_id as og_account_id,\n  p.og_resource_id as og_resource_id,\n  case\n    when s.arn is null then 'ok'\n    else 'alarm'\n  end status,\n  p.name || ' contains ' || coalesce(s.num_bad_statements,0)  || ' statements that allow action \"*\" on resource \"*\".' as reason\n  \n  , p.account_id\nfrom\n  aws_iam_policy as p\n  left join star_access_policies as s on p.arn = s.arn\nwhere\n  not p.is_aws_managed;\n"
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
     - aws_managed
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    WITH star_access_policies AS (
+      SELECT
+        arn,
+        COUNT(*) AS num_bad_statements
+      FROM
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Resource') AS resource,
+        jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE
+        NOT is_aws_managed
+        AND s ->> 'Effect' = 'Allow'
+        AND resource = '*'
+        AND (
+          action = '*'
+          OR action = '*:*'
+        )
+        AND is_attached
+      GROUP BY arn
+    )
+    SELECT
+      p.arn AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      p.name || ' contains ' || COALESCE(s.num_bad_statements, 0) || ' statements that allow action "*" on resource "*".' AS reason,
+      p.account_id
+    FROM
+      aws_iam_policy AS p
+      LEFT JOIN star_access_policies AS s ON p.arn = s.arn
+    WHERE
+      NOT p.is_aws_managed;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -23,5 +59,4 @@ Tags:
     - aws
   service:
     - AWS/IAM
-IntegrationType:
-  - aws_cloud_account
+Title: IAM policies should not allow full '*' administrative privileges

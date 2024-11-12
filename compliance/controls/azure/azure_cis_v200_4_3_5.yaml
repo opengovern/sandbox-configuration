@@ -1,34 +1,34 @@
+Description: Enable connection_throttling on PostgreSQL Servers.
 ID: azure_cis_v200_4_3_5
-Title: "4.3.5 Ensure server parameter 'connection_throttling' is set to 'ON' for PostgreSQL Database Server"
-Description: "Enable connection_throttling on PostgreSQL Servers."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter connection_throttling off.'
-        else s.name || ' server parameter connection_throttling on.'
-      end as reason
-    from
-      azure_postgresql_server s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    where
-      config ->> 'Name' = 'connection_throttling'
-      and sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN s.name || ' server parameter connection_throttling off.'
+        ELSE s.name || ' server parameter connection_throttling on.'
+      END AS reason
+    FROM
+      azure_postgresql_server s,
+      jsonb_array_elements(server_configurations) config,
+      azure_subscription sub
+    WHERE
+      config ->> 'Name' = 'connection_throttling'
+      AND sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 4.3.5 Ensure server parameter 'connection_throttling' is set to 'ON' for PostgreSQL Database Server

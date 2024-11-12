@@ -1,13 +1,36 @@
+Description: This control checks whether an AWS CloudFront distribution with AWS S3 Origin type
+  has Origin Access Identity (OAI) configured. The control fails if OAI is not configured.
 ID: aws_cloudfront_distribution_origin_access_identity_enabled
-Title: "CloudFront distributions should have origin access identity enabled"
-Description: "This control checks whether an AWS CloudFront distribution with AWS S3 Origin type has Origin Access Identity (OAI) configured. The control fails if OAI is not configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when o ->> 'DomainName' not like '%s3.amazonaws.com' then 'skip'\n    when o ->> 'DomainName' like '%s3.amazonaws.com'\n    and o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when o ->> 'DomainName' not like '%s3.amazonaws.com' then title || ' origin type is not s3.'\n    when o ->> 'DomainName' like '%s3.amazonaws.com'\n    and o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' then title || ' origin access identity not configured.'\n    else title || ' origin access identity configured.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudfront_distribution,\n  jsonb_array_elements(origins) as o;\n"
-  PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
     - aws_cloudfront_distribution
   Parameters: []
+  PrimaryTable: aws_cloudfront_distribution
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN o ->> 'DomainName' NOT LIKE '%s3.amazonaws.com' THEN 'skip'
+        WHEN o ->> 'DomainName' LIKE '%s3.amazonaws.com'
+          AND o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN o ->> 'DomainName' NOT LIKE '%s3.amazonaws.com' THEN title || ' origin type is not s3.'
+        WHEN o ->> 'DomainName' LIKE '%s3.amazonaws.com'
+          AND o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' THEN title || ' origin access identity not configured.'
+        ELSE title || ' origin access identity configured.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_cloudfront_distribution,
+      jsonb_array_elements(origins) AS o;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +45,4 @@ Tags:
     - aws
   service:
     - AWS/CloudFront
-IntegrationType:
-  - aws_cloud_account
+Title: CloudFront distributions should have origin access identity enabled

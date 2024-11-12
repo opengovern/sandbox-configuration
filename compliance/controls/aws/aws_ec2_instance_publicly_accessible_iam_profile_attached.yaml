@@ -1,14 +1,30 @@
+Description: Ensure AWS Elastic Compute Cloud (AWS EC2) public instances have an Identity and Access Management (IAM) profile attached to them. This rule is non-compliant if no IAM profile is attached to a public AWS EC2 instance.
 ID: aws_ec2_instance_publicly_accessible_iam_profile_attached
-Title: "Public EC2 instances should have IAM profile attached"
-Description: "Ensure AWS Elastic Compute Cloud (AWS EC2) public instances have an Identity and Access Management (IAM) profile attached to them. This rule is non-compliant if no IAM profile is attached to a public AWS EC2 instance."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when iam_instance_profile_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when iam_instance_profile_id is not null then title || ' IAM profile attached.'\n    else title || ' IAM profile not attached.'\n  end as reason\n  \n  \nfrom\n  aws_ec2_instance\nwhere\n  public_ip_address is not null;"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN iam_instance_profile_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN iam_instance_profile_id IS NOT NULL THEN title || ' IAM profile attached.'
+        ELSE title || ' IAM profile not attached.'
+      END AS reason
+    FROM
+      aws_ec2_instance
+    WHERE
+      public_ip_address IS NOT NULL;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Public EC2 instances should have IAM profile attached

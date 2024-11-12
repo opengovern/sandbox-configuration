@@ -1,34 +1,38 @@
+Description: Ensure that the Managed NAT Gateway service is enabled for high availability (HA).
 ID: aws_managed_nat_gateway_in_use
-Title: "Managed NAT Gateway in Use"
-Description: "Ensure that the Managed NAT Gateway service is enabled for high availability (HA)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    with available_nat_gateways as (
-      select vpc_id, arn from aws_vpc_nat_gateway where state = 'available'
-    )
-    select
-      v.arn as resource,
-      v.og_account_id,
-      v.og_resource_id,
-      case
-        when ng.arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ng.arn is not null then v.vpc_id || ' is using Managed NAT Gateways.'
-        else v.vpc_id || ' is not using Managed NAT Gateways.'
-      end as reason,
-      v.region,
-      v.account_id
-    from
-      aws_vpc as v
-      left join available_nat_gateways as ng on ng.vpc_id = v.vpc_id
-  PrimaryTable: aws_vpc
   ListOfTables:
     - aws_vpc
     - aws_vpc_nat_gateway
   Parameters: []
+  PrimaryTable: aws_vpc
+  QueryToExecute: |
+    WITH available_nat_gateways AS (
+      SELECT vpc_id, arn 
+      FROM aws_vpc_nat_gateway 
+      WHERE state = 'available'
+    )
+    SELECT
+      v.arn AS resource,
+      v.og_account_id,
+      v.og_resource_id,
+      CASE
+        WHEN ng.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ng.arn IS NOT NULL THEN v.vpc_id || ' is using Managed NAT Gateways.'
+        ELSE v.vpc_id || ' is not using Managed NAT Gateways.'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_vpc AS v
+    LEFT JOIN available_nat_gateways AS ng 
+      ON ng.vpc_id = v.vpc_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -39,5 +43,4 @@ Tags:
     - AWS Virtual Private Cloud (VPC)
   score_tags:
     - Over Utilization
-IntegrationType:
-  - aws_cloud_account
+Title: Managed NAT Gateway in Use

@@ -1,33 +1,34 @@
+Description: Ensure that Azure SQL database servers are accessible via private endpoints only.
 ID: azure_check_for_publicly_accessible_sql_servers
-Title: "Check for Publicly Accessible SQL Servers"
-Description: "Ensure that Azure SQL database servers are accessible via private endpoints only."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when public_network_access != 'Disabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public_network_access != 'Disabled' then a.name || ' not uses private link.'
-        else a.name || ' uses private link.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_sql_server as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN public_network_access != 'Disabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public_network_access != 'Disabled' THEN a.name || ' not uses private link.'
+        ELSE a.name || ' uses private link.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +39,4 @@ Tags:
     - Azure Managed SQL Service
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Check for Publicly Accessible SQL Servers

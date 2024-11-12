@@ -1,13 +1,30 @@
+Description: Ensure that encryption is enabled for your AWS DynamoDB tables. Because sensitive data can exist at rest in these tables, enable encryption at rest to help protect that data.
 ID: aws_dynamodb_table_encrypted_with_kms
-Title: "DynamoDB table should be encrypted with AWS KMS"
-Description: "Ensure that encryption is enabled for your AWS DynamoDB tables. Because sensitive data can exist at rest in these tables, enable encryption at rest to help protect that data."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when sse_description is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when sse_description is null then title || ' not encrypted with KMS.'\n    else title || ' encrypted with KMS.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_dynamodb_table;\n"
-  PrimaryTable: aws_dynamodb_table
   ListOfTables:
     - aws_dynamodb_table
   Parameters: []
+  PrimaryTable: aws_dynamodb_table
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN sse_description IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN sse_description IS NULL THEN title || ' not encrypted with KMS.'
+        ELSE title || ' encrypted with KMS.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_dynamodb_table;
 Severity: high
 Tags:
   category:
@@ -24,11 +41,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -40,5 +57,4 @@ Tags:
     - "true"
   service:
     - AWS/DynamoDB
-IntegrationType:
-  - aws_cloud_account
+Title: DynamoDB table should be encrypted with AWS KMS

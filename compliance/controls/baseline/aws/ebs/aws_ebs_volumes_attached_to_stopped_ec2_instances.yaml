@@ -1,14 +1,46 @@
+Description: Identify Amazon EBS volumes attached to stopped EC2 instances (i.e. unused EBS volumes).
 ID: aws_ebs_volumes_attached_to_stopped_ec2_instances
-Title: "EBS Volumes Attached To Stopped EC2 Instances"
-Description: "Identify Amazon EBS volumes attached to stopped EC2 instances (i.e. unused EBS volumes)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  v.volume_id as resource,\n  v.og_resource_id,\n  v.og_account_id,\n  case\n    when i.instance_state = 'running' then 0\n    else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::ec2::volume' and resource_id = v.og_resource_id limit 1)\n  end as cost_optimization,\n  case\n    when i.instance_state = 'running' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when i.instance_state = 'running' then v.volume_id || ' is attached to a running instance'\n    else v.volume_id || ' is attached to a stopped instance'\n  end as reason,\n  v.region,\n  v.account_id\nfrom\n  aws_ebs_volume as v,\n  jsonb_array_elements(attachments) as att\n  left join aws_ec2_instance as i on att ->> 'InstanceId' = i.instance_id \n"
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT
+      v.volume_id AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN i.instance_state = 'running' THEN 0
+        ELSE (
+          SELECT cost
+          FROM pennywise_cost_estimate
+          WHERE resource_type = 'aws::ec2::volume'
+            AND resource_id = v.og_resource_id
+          LIMIT 1
+        )
+      END AS cost_optimization,
+      CASE
+        WHEN i.instance_state = 'running' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN i.instance_state = 'running' THEN v.volume_id || ' is attached to a running instance'
+        ELSE v.volume_id || ' is attached to a stopped instance'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_ebs_volume AS v,
+      jsonb_array_elements(attachments) AS att
+    LEFT JOIN
+      aws_ec2_instance AS i
+    ON
+      att ->> 'InstanceId' = i.instance_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +51,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Missing Tags
-IntegrationType:
-  - aws_cloud_account
+Title: EBS Volumes Attached To Stopped EC2 Instances

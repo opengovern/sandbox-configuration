@@ -1,62 +1,60 @@
+Description: Create an activity log alert for the Create or Update Network Security Group Rule event.
 ID: azure_cis_v140_5_2_5
-Title: "5.2.5 Ensure that Activity Log Alert exists for Create or Update Network Security Group Rule"
-Description: "Create an activity log alert for the Create or Update Network Security Group Rule event."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with alert_rule as (
-      select
-        alert.id as alert_id,
-        alert.name as alert_name,
-        alert.enabled,
-        alert.location,
-        alert.subscription_id
-      from
-        azure_log_alert as alert,
-        jsonb_array_elements_text(scopes) as sc
-      where
-        alert.location = 'global'
-        and alert.enabled
-        and sc = '/subscriptions/' || alert.subscription_id
-        and (
-          (
-            alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
-            and alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networksecuritygroups/securityrules/write"}]'
-          )
-          or
-          (
-            alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
-            and alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.network/networksecuritygroups/securityrules"}]'
-            and jsonb_array_length(alert.condition -> 'allOf') = 2
-          )
-        )
-      limit 1
-    )
-    select
-      sub.subscription_id as resource,
-      sub.og_account_id as og_account_id,
-      sub.og_resource_id as og_resource_id,
-      case
-        when count(a.subscription_id) > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when count(a.subscription_id) > 0 then 'Activity log alert exists for create or update Network Security Group Rule event.'
-        else 'Activity log alert does not exists for create or update Network Security Group Rule event.'
-      end as reason
-    from
-      azure_subscription sub
-      left join alert_rule a on sub.subscription_id = a.subscription_id
-    group by
-      sub._ctx,
-      sub.subscription_id,
-      sub.display_name;
-  PrimaryTable: azure_log_alert
   ListOfTables:
     - azure_log_alert
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_log_alert
+  QueryToExecute: |
+    WITH alert_rule AS (
+      SELECT
+        alert.id AS alert_id,
+        alert.name AS alert_name,
+        alert.enabled,
+        alert.location,
+        alert.subscription_id
+      FROM
+        azure_log_alert AS alert,
+        jsonb_array_elements_text(scopes) AS sc
+      WHERE
+        alert.location = 'global'
+        AND alert.enabled
+        AND sc = '/subscriptions/' || alert.subscription_id
+        AND (
+          (
+            alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+            AND alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networksecuritygroups/securityrules/write"}]'
+          ) OR (
+            alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+            AND alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.network/networksecuritygroups/securityrules"}]'
+            AND jsonb_array_length(alert.condition -> 'allOf') = 2
+          )
+        )
+      LIMIT 1
+    )
+    SELECT
+      sub.subscription_id AS resource,
+      sub.og_account_id AS og_account_id,
+      sub.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'Activity log alert exists for create or update Network Security Group Rule event.'
+        ELSE 'Activity log alert does not exist for create or update Network Security Group Rule event.'
+      END AS reason
+    FROM
+      azure_subscription sub
+      LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
+    GROUP BY
+      sub._ctx,
+      sub.subscription_id,
+      sub.display_name;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 5.2.5 Ensure that Activity Log Alert exists for Create or Update Network Security Group Rule

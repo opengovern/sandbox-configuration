@@ -1,14 +1,22 @@
+Description: Ensure contact email and telephone details for AWS accounts are current and map to more than one individual in your organization.
 ID: aws_cis_v140_1_1
-Title: "1.1 Maintain current contact details"
-Description: "Ensure contact email and telephone details for AWS accounts are current and map to more than one individual in your organization."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'info' as status,\n  'Manual verification required.' as reason\n  \nfrom\n  aws_account;"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':::' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required.' AS reason
+    FROM
+      aws_account;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.1 Maintain current contact details

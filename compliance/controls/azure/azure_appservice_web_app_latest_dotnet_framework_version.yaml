@@ -1,51 +1,51 @@
+Description: Periodically, newer versions are released for Net Framework software either due to security flaws or to include additional functionality. Using the latest Net Framework for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the latest version.
 ID: azure_appservice_web_app_latest_dotnet_framework_version
-Title: "Web app should use the latest 'Net Framework' version"
-Description: "Periodically, newer versions are released for Net Framework software either due to security flaws or to include additional functionality. Using the latest Net Framework for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the latest version."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with all_linux_web_app as (
-      select
-        id
-      from
-        azure_app_service_web_app
-      where
-        exists (
-          select
-          from
-            unnest(regexp_split_to_array(kind, ',')) elem
-          where
-            elem = 'linux'
-        )
-    )
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.id is null and configuration -> 'properties' ->> 'netFrameworkVersion' in ('v6.0', 'v7.0') then 'ok'
-        when b.id is not null and configuration -> 'properties' ->> 'linuxFxVersion' not like 'DOTNETCORE|%' then 'ok'
-        when b.id is not null and configuration -> 'properties' ->> 'linuxFxVersion' in ('DOTNETCORE|6.0', 'DOTNETCORE|7.0') then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.id is null and configuration -> 'properties' ->> 'netFrameworkVersion' in ('v6.0', 'v7.0') then a.name || ' using latest dotnet framework version.'
-        when b.id is not null and configuration -> 'properties' ->> 'linuxFxVersion' not like 'DOTNETCORE|%' then a.name || ' not using dotnet framework.'
-        when b.id is not null and configuration -> 'properties' ->> 'linuxFxVersion' in ('DOTNETCORE|6.0', 'DOTNETCORE|7.0') then a.name || ' using latest dotnet vframework ersion.'
-        else a.name || ' not using latest dotnet framework version.'
-      end as reason
-    from
-      azure_app_service_web_app as a
-      left join all_linux_web_app as b on a.id = b.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    WITH all_linux_web_app AS (
+      SELECT
+        id
+      FROM
+        azure_app_service_web_app
+      WHERE
+        EXISTS (
+          SELECT
+          FROM
+            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+          WHERE
+            elem = 'linux'
+        )
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.id IS NULL AND configuration -> 'properties' ->> 'netFrameworkVersion' IN ('v6.0', 'v7.0') THEN 'ok'
+        WHEN b.id IS NOT NULL AND configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'DOTNETCORE|%' THEN 'ok'
+        WHEN b.id IS NOT NULL AND configuration -> 'properties' ->> 'linuxFxVersion' IN ('DOTNETCORE|6.0', 'DOTNETCORE|7.0') THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.id IS NULL AND configuration -> 'properties' ->> 'netFrameworkVersion' IN ('v6.0', 'v7.0') THEN a.name || ' using latest dotnet framework version.'
+        WHEN b.id IS NOT NULL AND configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'DOTNETCORE|%' THEN a.name || ' not using dotnet framework.'
+        WHEN b.id IS NOT NULL AND configuration -> 'properties' ->> 'linuxFxVersion' IN ('DOTNETCORE|6.0', 'DOTNETCORE|7.0') THEN a.name || ' using latest dotnet framework version.'
+        ELSE a.name || ' not using latest dotnet framework version.'
+      END AS reason
+    FROM
+      azure_app_service_web_app AS a
+      LEFT JOIN all_linux_web_app AS b ON a.id = b.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Web app should use the latest 'Net Framework' version

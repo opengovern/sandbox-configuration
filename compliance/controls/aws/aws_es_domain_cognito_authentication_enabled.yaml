@@ -1,28 +1,29 @@
+Description: AWS Elasticsearch service uses AWS Cognito to offer user name and password protection for Kibana. 
+  This control is non-compliant if AWS Cognito authentication is not enabled.
 ID: aws_es_domain_cognito_authentication_enabled
-Title: "Elasticsearch domains should have cognito authentication enabled"
-Description: "AWS Elasticsearch service uses AWS Cognito to offer user name and password protection for Kibana. This control is non-compliant if AWS Cognito authentication is not enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when cognito_options ->> 'Enabled' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when cognito_options ->> 'Enabled' = 'true' then title || ' AWS Cognito authentication for Kibana enabled.'
-        else title || ' AWS Cognito authentication for Kibana disabled.'
-      end as reason
-    from
-      aws_elasticsearch_domain;
-  PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
     - aws_elasticsearch_domain
   Parameters: []
+  PrimaryTable: aws_elasticsearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN cognito_options ->> 'Enabled' = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN cognito_options ->> 'Enabled' = 'true' THEN title || ' AWS Cognito authentication for Kibana enabled.'
+        ELSE title || ' AWS Cognito authentication for Kibana disabled.'
+      END AS reason
+    FROM
+      aws_elasticsearch_domain;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Elasticsearch domains should have cognito authentication enabled

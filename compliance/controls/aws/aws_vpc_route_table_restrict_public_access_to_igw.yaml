@@ -1,13 +1,46 @@
+Description: Ensure that there are public routes in the route table to an Internet Gateway (IGW). The rule is non-compliant if a route to an IGW has a destination CIDR block of '0.0.0.0/0' or '::/0'.
 ID: aws_vpc_route_table_restrict_public_access_to_igw
-Title: "VPC route table should restrict public access to IGW"
-Description: "Ensure that there are public routes in the route table to an Internet Gateway (IGW). The rule is non-compliant if a route to an IGW has a destination CIDR block of '0.0.0.0/0' or '::/0'."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with route_with_public_access as (\n  select\n    route_table_id,\n    count(*) as num\n  from\n    aws_vpc_route_table,\n    jsonb_array_elements(routes) as r\n  where\n    ( r ->> 'DestinationCidrBlock' = '0.0.0.0/0'\n      or r ->> 'DestinationCidrBlock' = '::/0'\n    )\n    and r ->> 'GatewayId' like 'igw%'\n  group by\n    route_table_id\n)\nselect\n  a.route_table_id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.route_table_id is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.route_table_id is null then a.title || ' does not have public routes to an Internet Gateway (IGW)'\n    else a.title || ' contains ' || b.num || ' rule(s) which have public routes to an Internet Gateway (IGW)'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_vpc_route_table as a\n  left join route_with_public_access as b on b.route_table_id = a.route_table_id;\n"
-  PrimaryTable: aws_vpc_route_table
   ListOfTables:
     - aws_vpc_route_table
   Parameters: []
+  PrimaryTable: aws_vpc_route_table
+  QueryToExecute: |
+    WITH route_with_public_access AS (
+      SELECT
+        route_table_id,
+        COUNT(*) AS num
+      FROM
+        aws_vpc_route_table,
+        jsonb_array_elements(routes) AS r
+      WHERE
+        (r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        OR r ->> 'DestinationCidrBlock' = '::/0')
+        AND r ->> 'GatewayId' LIKE 'igw%'
+      GROUP BY
+        route_table_id
+    )
+    SELECT
+      a.route_table_id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.route_table_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.route_table_id IS NULL THEN a.title || ' does not have public routes to an Internet Gateway (IGW)'
+        ELSE a.title || ' contains ' || b.num || ' rule(s) which have public routes to an Internet Gateway (IGW)'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_route_table AS a
+    LEFT JOIN route_with_public_access AS b
+    ON b.route_table_id = a.route_table_id;
 Severity: high
 Tags:
   category:
@@ -24,9 +57,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -38,5 +71,4 @@ Tags:
     - "true"
   service:
     - AWS/VPC
-IntegrationType:
-  - aws_cloud_account
+Title: VPC route table should restrict public access to IGW

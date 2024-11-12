@@ -1,14 +1,32 @@
+Description: This control ensures that all expired ACM certificates are removed from AWS account.
 ID: aws_acm_certificate_not_expired
-Title: "Ensure that all the expired ACM certificates are removed"
-Description: "This control ensures that all expired ACM certificates are removed from AWS account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  certificate_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when renewal_eligibility = 'INELIGIBLE' then 'skip'\n    when date(not_after) < (current_date - interval '1' minute) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when renewal_eligibility = 'INELIGIBLE' then title || ' not eligible for renewal.'\n    when date(not_after) < (current_date - interval '1' minute) then title || ' expired ' || to_char(not_after, 'DD-Mon-YYYY') ||\n    ' (' || extract(day from not_after - current_date) || ' days ago).'\n    else title || ' expires ' || to_char(not_after, 'DD-Mon-YYYY') ||\n    ' (' || extract(day from not_after - current_date) || ' days).'\n   end as reason\n  \n  \nfrom\n  aws_acm_certificate;"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN renewal_eligibility = 'INELIGIBLE' THEN 'skip'
+        WHEN DATE(not_after) < (CURRENT_DATE - INTERVAL '1' minute) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN renewal_eligibility = 'INELIGIBLE' THEN title || ' not eligible for renewal.'
+        WHEN DATE(not_after) < (CURRENT_DATE - INTERVAL '1' minute) THEN title || ' expired ' || TO_CHAR(not_after, 'DD-Mon-YYYY') ||
+          ' (' || EXTRACT(day FROM not_after - CURRENT_DATE) || ' days ago).'
+        ELSE title || ' expires ' || TO_CHAR(not_after, 'DD-Mon-YYYY') ||
+          ' (' || EXTRACT(day FROM not_after - CURRENT_DATE) || ' days).'
+      END AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure that all the expired ACM certificates are removed

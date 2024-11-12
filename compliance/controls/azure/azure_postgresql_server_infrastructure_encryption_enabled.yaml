@@ -1,14 +1,34 @@
+Description: Enable infrastructure encryption for Azure Database for PostgreSQL servers to have higher level of assurance that the data is secure. When infrastructure encryption is enabled, the data at rest is encrypted twice using FIPS 140-2 compliant Microsoft managed keys.
 ID: azure_postgresql_server_infrastructure_encryption_enabled
-Title: "Infrastructure encryption should be enabled for Azure Database for PostgreSQL servers"
-Description: "Enable infrastructure encryption for Azure Database for PostgreSQL servers to have higher level of assurance that the data is secure. When infrastructure encryption is enabled, the data at rest is encrypted twice using FIPS 140-2 compliant Microsoft managed keys."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when infrastructure_encryption = 'Enabled' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when infrastructure_encryption = 'Enabled' then name || ' infrastructure encryption enabled.'\n    else name || ' infrastructure encryption disabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_postgresql_server as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN infrastructure_encryption = 'Enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN infrastructure_encryption = 'Enabled' THEN name || ' infrastructure encryption enabled.'
+        ELSE name || ' infrastructure encryption disabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_postgresql_server AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: high
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/PostgreSQL
-IntegrationType:
-  - azure_subscription
+Title: Infrastructure encryption should be enabled for Azure Database for PostgreSQL servers

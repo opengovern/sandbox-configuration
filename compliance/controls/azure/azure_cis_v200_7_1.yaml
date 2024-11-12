@@ -1,45 +1,46 @@
+Description: The Azure Bastion service allows secure remote access to Azure Virtual Machines over the Internet without exposing remote access protocol ports and services directly to the Internet. The Azure Bastion service provides this access using TLS over 443/TCP, and subscribes to hardened configurations within an organization's Azure Active Directory service.
 ID: azure_cis_v200_7_1
-Title: "7.1 Ensure an Azure Bastion Host Exists"
-Description: "The Azure Bastion service allows secure remote access to Azure Virtual Machines over the Internet without exposing remote access protocol ports and services directly to the Internet. The Azure Bastion service provides this access using TLS over 443/TCP, and subscribes to hardened configurations within an organization's Azure Active Directory service."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with bastion_hosts as (
-      select
+  ListOfTables:
+    - azure_bastion_host
+    - azure_subscription
+  Parameters: []
+  PrimaryTable: azure_bastion_host
+  QueryToExecute: |
+    WITH bastion_hosts AS (
+      SELECT
         subscription_id,
         _ctx,
         region,
         resource_group,
-        count(*) as no_bastion_host
-      from
+        COUNT(*) AS no_bastion_host
+      FROM
         azure_bastion_host
-      group by
+      GROUP BY
         subscription_id,
         _ctx,
         resource_group,
         region
     )
-    select
-      sub.id as resource,
-      sub.og_account_id as og_account_id,
-      sub.og_resource_id as og_resource_id,
-      case
-        when i.subscription_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when i.subscription_id is null then sub.display_name || ' does not have bastion host.'
-        else sub.display_name || ' has ' || no_bastion_host || ' bastion host(s).'
-      end as reason
-    from
-      azure_subscription as sub
-      left join bastion_hosts as i on i.subscription_id = sub.subscription_id;
-  PrimaryTable: azure_bastion_host
-  ListOfTables:
-    - azure_bastion_host
-    - azure_subscription
-  Parameters: []
+    SELECT
+      sub.id AS resource,
+      sub.og_account_id AS og_account_id,
+      sub.og_resource_id AS og_resource_id,
+      CASE
+        WHEN i.subscription_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.subscription_id IS NULL THEN sub.display_name || ' does not have bastion host.'
+        ELSE sub.display_name || ' has ' || no_bastion_host || ' bastion host(s).'
+      END AS reason
+    FROM
+      azure_subscription AS sub
+    LEFT JOIN bastion_hosts AS i
+      ON i.subscription_id = sub.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 7.1 Ensure an Azure Bastion Host Exists

@@ -1,13 +1,33 @@
+Description: This control checks whether Elasticsearch domains are configured with at least three dedicated master nodes. This control fails if the domain does not use dedicated master nodes. This control passes if Elasticsearch domains have five dedicated master nodes. However, using more than three master nodes might be unnecessary to mitigate the availability risk, and will result in additional cost.
 ID: aws_es_domain_dedicated_master_nodes_min_3
-Title: "Elasticsearch domains should be configured with at least three dedicated master nodes"
-Description: "This control checks whether Elasticsearch domains are configured with at least three dedicated master nodes. This control fails if the domain does not use dedicated master nodes. This control passes if Elasticsearch domains have five dedicated master nodes. However, using more than three master nodes might be unnecessary to mitigate the availability risk, and will result in additional cost."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' then 'alarm'\n    when\n      elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'true'\n      and (elasticsearch_cluster_config ->> 'DedicatedMasterCount')::integer >= 3 then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' then title || ' dedicated master nodes disabled.'\n    else title || ' has ' || (elasticsearch_cluster_config ->> 'DedicatedMasterCount') || ' dedicated master node(s).'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticsearch_domain;\n"
-  PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
     - aws_elasticsearch_domain
   Parameters: []
+  PrimaryTable: aws_elasticsearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' THEN 'alarm'
+        WHEN
+          elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'true'
+          AND (elasticsearch_cluster_config ->> 'DedicatedMasterCount')::integer >= 3 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' THEN title || ' dedicated master nodes disabled.'
+        ELSE title || ' has ' || (elasticsearch_cluster_config ->> 'DedicatedMasterCount') || ' dedicated master node(s).'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_elasticsearch_domain;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +42,4 @@ Tags:
     - aws
   service:
     - AWS/ES
-IntegrationType:
-  - aws_cloud_account
+Title: Elasticsearch domains should be configured with at least three dedicated master nodes

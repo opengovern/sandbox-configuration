@@ -1,28 +1,28 @@
+Description: SageMaker training jobs are internet-enabled by default. Network isolation should be enabled to avoid external network access to your training.
 ID: aws_sagemaker_training_job_network_isolation_enabled
-Title: "SageMaker training jobs should have network isolation enabled"
-Description: "SageMaker training jobs are internet-enabled by default. Network isolation should be enabled to avoid external network access to your training."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when enable_network_isolation then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enable_network_isolation then title || ' network isolation enabled.'
-        else title || ' network isolation disabled.'
-      end as reason
-    from
-      aws_sagemaker_training_job;
-  PrimaryTable: aws_sagemaker_training_job
   ListOfTables:
     - aws_sagemaker_training_job
   Parameters: []
+  PrimaryTable: aws_sagemaker_training_job
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_network_isolation THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_network_isolation THEN title || ' network isolation enabled.'
+        ELSE title || ' network isolation disabled.'
+      END AS reason
+    FROM
+      aws_sagemaker_training_job;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker training jobs should have network isolation enabled

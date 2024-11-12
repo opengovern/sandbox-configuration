@@ -1,31 +1,33 @@
+Description: Ensure there is a sufficient period configured for the SSL certificates auto-renewal.
 ID: azure_enable_certificate_transparency
-Title: "Enable Certificate Transparency"
-Description: "Ensure there is a sufficient period configured for the SSL certificates auto-renewal."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.id as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      case
-        when c.issuer_parameters ->> 'CertificateTransparency' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when c.issuer_parameters ->> 'CertificateTransparency' = 'true' then 'Certificate transparency is not enabled for the certificate'
-        else 'Certificate transparency is enabled for the certificate'
-      end as reason,
-      resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_key_vault_certificate as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_key_vault_certificate
   ListOfTables:
     - azure_key_vault_certificate
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault_certificate
+  QueryToExecute: |
+    SELECT
+      c.id AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      CASE
+        WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'Certificate transparency is not enabled for the certificate'
+        ELSE 'Certificate transparency is enabled for the certificate'
+      END AS reason,
+      resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault_certificate AS c
+      LEFT JOIN azure_subscription AS sub
+        ON c.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +38,4 @@ Tags:
     - Azure KeyVault
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - azure_subscription
+Title: Enable Certificate Transparency

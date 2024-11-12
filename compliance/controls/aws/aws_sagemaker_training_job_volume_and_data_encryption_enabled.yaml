@@ -1,28 +1,28 @@
+Description: Ensure that SageMaker training jobs have volumes and outputs with KMS encryption enabled in order to have a more granular control over the data-at-rest encryption/decryption process and to meet compliance requirements.
 ID: aws_sagemaker_training_job_volume_and_data_encryption_enabled
-Title: "SageMaker training jobs volumes and outputs should have KMS encryption enabled"
-Description: "Ensure that SageMaker training jobs have volumes and outputs with KMS encryption enabled in order to have a more granular control over the data-at-rest encryption/decryption process and to meet compliance requirements."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when output_data_config ->> 'KmsKeyId' is null or output_data_config ->> 'KmsKeyId' = '' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when output_data_config ->> 'KmsKeyId' is null or output_data_config ->> 'KmsKeyId' is null or output_data_config ->> 'KmsKeyId' = '' then title || ' volume and output data encryption disabled.'
-        else title || ' volume and output data encryption enabled.'
-      end as reason
-    from
-      aws_sagemaker_training_job;
-  PrimaryTable: aws_sagemaker_training_job
   ListOfTables:
     - aws_sagemaker_training_job
   Parameters: []
+  PrimaryTable: aws_sagemaker_training_job
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN title || ' volume and output data encryption disabled.'
+        ELSE title || ' volume and output data encryption enabled.'
+      END AS reason
+    FROM
+      aws_sagemaker_training_job;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker training jobs volumes and outputs should have KMS encryption enabled

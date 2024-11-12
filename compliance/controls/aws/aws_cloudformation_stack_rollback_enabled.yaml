@@ -1,14 +1,28 @@
+Description: Ensure CloudFormation stacks have the rollback feature enabled. Rollback triggers enable you to have AWS CloudFormation monitor the state of your application during stack creation and updating, and to rollback that operation if the application breaches the threshold of any of the alarms you've specified.
 ID: aws_cloudformation_stack_rollback_enabled
-Title: "CloudFormation stacks should have rollback enabled"
-Description: "Ensure CloudFormation stacks have the rollback feature enabled. Rollback triggers enable you to have AWS CloudFormation monitor the state of your application during stack creation and updating, and to rollback that operation if the application breaches the threshold of any of the alarms you've specified."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when not disable_rollback then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not disable_rollback then title || ' rollback enabled.'\n    else title || ' rollback disabled.'\n  end as reason\n  \n  \nfrom\n  aws_cloudformation_stack;"
-  PrimaryTable: aws_cloudformation_stack
   ListOfTables:
     - aws_cloudformation_stack
   Parameters: []
+  PrimaryTable: aws_cloudformation_stack
+  QueryToExecute: |
+    SELECT 
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT disable_rollback THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT disable_rollback THEN title || ' rollback enabled.'
+        ELSE title || ' rollback disabled.'
+      END AS reason
+    FROM 
+      aws_cloudformation_stack;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: CloudFormation stacks should have rollback enabled

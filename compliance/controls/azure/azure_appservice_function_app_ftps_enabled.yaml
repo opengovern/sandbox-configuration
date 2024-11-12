@@ -1,19 +1,55 @@
+Description: Enable FTPS enforcement for enhanced security.
 ID: azure_appservice_function_app_ftps_enabled
-Title: "FTPS only should be required in your Function App"
-Description: "Enable FTPS enforcement for enhanced security."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with all_function_app as (\n  select\n    id\n  from\n    azure_app_service_function_app\n  where\n    exists (\n      select\n      from\n        unnest(regexp_split_to_array(kind, ',')) elem\n      where\n        elem like 'functionapp%'\n  )\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.id is null then 'skip'\n    when configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when b.id is null then a.title || ' is ' || a.kind || ' kind.'\n    when configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' then a.name || ' FTPS disabled.'\n    else a.name || ' FTPS enabled.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_function_app as a\n  left join all_function_app as b on a.id = b.id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_app_service_function_app
   ListOfTables:
     - azure_app_service_function_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_function_app
+  QueryToExecute: |
+    WITH all_function_app AS (
+      SELECT
+        id
+      FROM
+        azure_app_service_function_app
+      WHERE
+        EXISTS (
+          SELECT
+          FROM
+            UNNEST(regexp_split_to_array(kind, ',')) elem
+          WHERE
+            elem LIKE 'functionapp%'
+        )
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.id IS NULL THEN 'skip'
+        WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.id IS NULL THEN a.title || ' is ' || a.kind || ' kind.'
+        WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN a.name || ' FTPS disabled.'
+        ELSE a.name || ' FTPS enabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_function_app AS a
+      LEFT JOIN all_function_app AS b ON a.id = b.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: FTPS only should be required in your Function App

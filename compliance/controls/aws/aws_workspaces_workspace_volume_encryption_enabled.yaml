@@ -1,14 +1,33 @@
+Description: To help protect data at rest, ensure encryption is enabled for your WorkSpaces root and user volumes.
 ID: aws_workspaces_workspace_volume_encryption_enabled
-Title: "WorkSpaces root and user volume encryption should be enabled"
-Description: "To help protect data at rest, ensure encryption is enabled for your WorkSpaces root and user volumes."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when user_volume_encryption_enabled and root_volume_encryption_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when user_volume_encryption_enabled and root_volume_encryption_enabled then title || ' user and root volume encryption enabled.'\n    else\n      case\n        when not user_volume_encryption_enabled and not root_volume_encryption_enabled then title || ' user and root volume encryption disabled.'\n        when not root_volume_encryption_enabled then title || ' root volume encryption disabled.'\n        else  title || ' user volume encryption disabled.'\n      end\n  end as reason\n  \n  \nfrom\n  aws_workspaces_workspace;"
-  PrimaryTable: aws_workspaces_workspace
   ListOfTables:
     - aws_workspaces_workspace
   Parameters: []
+  PrimaryTable: aws_workspaces_workspace
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN user_volume_encryption_enabled AND root_volume_encryption_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN user_volume_encryption_enabled AND root_volume_encryption_enabled THEN title || ' user and root volume encryption enabled.'
+        ELSE
+          CASE
+            WHEN NOT user_volume_encryption_enabled AND NOT root_volume_encryption_enabled THEN title || ' user and root volume encryption disabled.'
+            WHEN NOT root_volume_encryption_enabled THEN title || ' root volume encryption disabled.'
+            ELSE title || ' user volume encryption disabled.'
+          END
+      END AS reason
+    FROM
+      aws_workspaces_workspace;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: WorkSpaces root and user volume encryption should be enabled

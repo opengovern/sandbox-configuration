@@ -1,14 +1,28 @@
+Description: This control checks whether an Amazon DynamoDB table has deletion protection enabled. The control fails if a DynamoDB table doesn't have deletion protection enabled.
 ID: aws_dynamodb_table_deletion_protection_enabled
-Title: "DynamoDB table should have deletion protection enabled"
-Description: "This control checks whether an Amazon DynamoDB table has deletion protection enabled. The control fails if a DynamoDB table doesn't have deletion protection enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when deletion_protection_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when deletion_protection_enabled then title || ' deletion protection enabled.'\n    else title || ' deletion protection disabled.'\n  end as reason\n  \n  \nfrom\n  aws_dynamodb_table;"
-  PrimaryTable: aws_dynamodb_table
   ListOfTables:
     - aws_dynamodb_table
   Parameters: []
+  PrimaryTable: aws_dynamodb_table
+  QueryToExecute: |
+    SELECT 
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE 
+        WHEN deletion_protection_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE 
+        WHEN deletion_protection_enabled THEN title || ' deletion protection enabled.'
+        ELSE title || ' deletion protection disabled.'
+      END AS reason
+    FROM 
+      aws_dynamodb_table;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: DynamoDB table should have deletion protection enabled

@@ -1,13 +1,27 @@
+Description: Deploy AWS ECS cluster instance within an AWS Virtual Private Cloud (AWS VPC) for a secure communication between a instance and other services within the AWS VPC.
 ID: aws_ecs_cluster_instance_in_vpc
-Title: "ECS cluster instances should be in a VPC"
-Description: "Deploy AWS ECS cluster instance within an AWS Virtual Private Cloud (AWS VPC) for a secure communication between a instance and other services within the AWS VPC."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  c.arn as resource,\n  case\n    when i.vpc_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when i.vpc_id is null then c.title || ' not in VPC.'\n    else c.title || ' in VPC.'\n  end as reason\n  \n  \nfrom\n  aws_ecs_container_instance as c\n  left join aws_ec2_instance as i on c.ec2_instance_id = i.instance_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      c.arn AS resource,
+      CASE
+        WHEN i.vpc_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.vpc_id IS NULL THEN c.title || ' not in VPC.'
+        ELSE c.title || ' in VPC.'
+      END AS reason
+    FROM
+      aws_ecs_container_instance AS c
+    LEFT JOIN aws_ec2_instance AS i 
+      ON c.ec2_instance_id = i.instance_id;
+Severity: low
+Tags: {}
+Title: ECS cluster instances should be in a VPC

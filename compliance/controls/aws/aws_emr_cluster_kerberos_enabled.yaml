@@ -1,13 +1,30 @@
+Description: The access permissions and authorizations can be managed and incorporated with the principles of least privilege and separation of duties, by enabling Kerberos for AWS EMR clusters.
 ID: aws_emr_cluster_kerberos_enabled
-Title: "EMR cluster Kerberos should be enabled"
-Description: "The access permissions and authorizations can be managed and incorporated with the principles of least privilege and separation of duties, by enabling Kerberos for AWS EMR clusters."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  cluster_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kerberos_attributes is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kerberos_attributes is null then title || ' Kerberos not enabled.'\n    else title || ' Kerberos enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_emr_cluster;\n"
-  PrimaryTable: aws_emr_cluster
   ListOfTables:
     - aws_emr_cluster
   Parameters: []
+  PrimaryTable: aws_emr_cluster
+  QueryToExecute: |
+    SELECT 
+      cluster_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN kerberos_attributes IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kerberos_attributes IS NULL THEN title || ' Kerberos not enabled.'
+        ELSE title || ' Kerberos enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_emr_cluster;
 Severity: medium
 Tags:
   category:
@@ -22,9 +39,9 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -34,5 +51,4 @@ Tags:
     - AWS/EMR
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EMR cluster Kerberos should be enabled

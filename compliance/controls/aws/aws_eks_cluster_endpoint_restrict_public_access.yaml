@@ -1,13 +1,30 @@
+Description: Ensure whether AWS Elastic Kubernetes Service (AWS EKS) endpoint is not publicly accessible. The rule is compliant if the endpoint is publicly accessible.
 ID: aws_eks_cluster_endpoint_restrict_public_access
-Title: "EKS clusters endpoint should restrict public access"
-Description: "Ensure whether AWS Elastic Kubernetes Service (AWS EKS) endpoint is not publicly accessible. The rule is compliant if the endpoint is publicly accessible."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' then title || ' endpoint publicly accessible.'\n    else title || ' endpoint not publicly accessible.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_eks_cluster;\n"
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN title || ' endpoint publicly accessible.'
+        ELSE title || ' endpoint not publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_eks_cluster;
 Severity: low
 Tags:
   category:
@@ -24,5 +41,4 @@ Tags:
     - aws
   service:
     - AWS/EKS
-IntegrationType:
-  - aws_cloud_account
+Title: EKS clusters endpoint should restrict public access

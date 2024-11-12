@@ -1,14 +1,35 @@
+Description: Azure Database for MariaDB allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create.
 ID: azure_mariadb_server_geo_redundant_backup_enabled
-Title: "Geo-redundant backup should be enabled for Azure Database for MariaDB"
-Description: "Azure Database for MariaDB allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when s.geo_redundant_backup_enabled = 'Enabled' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when s.geo_redundant_backup_enabled = 'Enabled' then s.title || ' geo-redundant backup enabled.'\n    else s.title || ' geo-redundant backup disabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_mariadb_server as s\n  join azure_subscription as sub on sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_mariadb_server
   ListOfTables:
     - azure_mariadb_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_mariadb_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.geo_redundant_backup_enabled = 'Enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.geo_redundant_backup_enabled = 'Enabled' THEN s.title || ' geo-redundant backup enabled.'
+        ELSE s.title || ' geo-redundant backup disabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_mariadb_server AS s
+    JOIN
+      azure_subscription AS sub 
+    ON
+      sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +38,4 @@ Tags:
     - "true"
   service:
     - Azure/MariaDB
-IntegrationType:
-  - azure_subscription
+Title: Geo-redundant backup should be enabled for Azure Database for MariaDB

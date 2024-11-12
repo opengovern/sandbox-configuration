@@ -1,32 +1,32 @@
+Description: Restricting default network access helps to provide a new layer of security, since storage accounts accept connections from clients on any network. To limit access to selected networks, the default action must be changed.
 ID: azure_cis_v140_3_6
-Title: "3.6 Ensure default network access rule for Storage Accounts is set to deny"
-Description: "Restricting default network access helps to provide a new layer of security, since storage accounts accept connections from clients on any network. To limit access to selected networks, the default action must be changed."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sa.id as resource,
-      sa.og_account_id as og_account_id,
-      sa.og_resource_id as og_resource_id,
-      case
-        when sa.network_rule_default_action = 'Allow' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when sa.network_rule_default_action = 'Allow' then name || ' allows traffic from all networks.'
-        else name || ' allows traffic from specific networks.'
-      end as reason
-    from
-      azure_storage_account sa,
-      azure_subscription sub
-    where
-      sub.subscription_id = sa.subscription_id;
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id AS og_account_id,
+      sa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
+        ELSE name || ' allows traffic from specific networks.'
+      END AS reason
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 3.6 Ensure default network access rule for Storage Accounts is set to deny

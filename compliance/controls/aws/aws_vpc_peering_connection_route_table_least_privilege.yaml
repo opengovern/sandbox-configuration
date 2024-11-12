@@ -1,46 +1,47 @@
+Description: Ensure that all VPCs peering connection route tables have least privilege.
 ID: aws_vpc_peering_connection_route_table_least_privilege
-Title: "VPCs peering connection route tables should have least privilege"
-Description: "Ensure that all VPCs peering connection route tables have least privilege."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with vpc_peering_routing_tables as (
-      select
-        r ->> 'VpcPeeringConnectionId' as peering_connection_id
-      from
-        aws_vpc_route_table,
-        jsonb_array_elements(routes) as r
-        inner join aws_vpc_peering_connection as c on r ->> 'VpcPeeringConnectionId' = c.id
-      where
-        ( r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
-          or r ->> 'DestinationCidrBlock' = '::/0'
-          or (r ->> 'DestinationCidrBlock')::cidr = c.accepter_cidr_block
-          or (r ->> 'DestinationCidrBlock')::cidr = c.requester_cidr_block
-        )
-      group by
-        r ->> 'VpcPeeringConnectionId'
-    )
-    select
-      c.id as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when t.peering_connection_id is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when t.peering_connection_id is not null then c.title || ' does not have least privilege access.'
-        else c.title || ' have least privilege access.'
-      end as reason
-    from
-      aws_vpc_peering_connection as c
-      left join vpc_peering_routing_tables as t on t.peering_connection_id = c.id;
-  PrimaryTable: aws_vpc_peering_connection
   ListOfTables:
     - aws_vpc_route_table
     - aws_vpc_peering_connection
   Parameters: []
+  PrimaryTable: aws_vpc_peering_connection
+  QueryToExecute: |
+    WITH vpc_peering_routing_tables AS (
+      SELECT
+        r ->> 'VpcPeeringConnectionId' AS peering_connection_id
+      FROM
+        aws_vpc_route_table,
+        JSONB_ARRAY_ELEMENTS(routes) AS r
+        INNER JOIN aws_vpc_peering_connection AS c
+          ON r ->> 'VpcPeeringConnectionId' = c.id
+      WHERE
+        (r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+          OR r ->> 'DestinationCidrBlock' = '::/0'
+          OR (r ->> 'DestinationCidrBlock')::CIDR = c.accepter_cidr_block
+          OR (r ->> 'DestinationCidrBlock')::CIDR = c.requester_cidr_block)
+      GROUP BY
+        r ->> 'VpcPeeringConnectionId'
+    )
+    SELECT
+      c.id AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN t.peering_connection_id IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN t.peering_connection_id IS NOT NULL THEN c.title || ' does not have least privilege access.'
+        ELSE c.title || ' have least privilege access.'
+      END AS reason
+    FROM
+      aws_vpc_peering_connection AS c
+      LEFT JOIN vpc_peering_routing_tables AS t
+        ON t.peering_connection_id = c.id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: VPCs peering connection route tables should have least privilege

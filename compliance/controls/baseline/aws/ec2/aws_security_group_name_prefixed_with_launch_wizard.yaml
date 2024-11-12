@@ -1,39 +1,41 @@
+Description: Ensure no security group name is prefixed with 'launch-wizard'.
 ID: aws_security_group_name_prefixed_with_launch_wizard
-Title: "Security Group Name Prefixed With 'launch-wizard'"
-Description: "Ensure no security group name is prefixed with 'launch-wizard'."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with launch_wizard_sg_attached_instance as (
-      select
-        distinct arn as arn
-      from
-        aws_ec2_instance,
-        jsonb_array_elements(security_groups) as sg
-      where
-        sg ->> 'GroupName' like 'launch-wizard%'
-    )
-    select
-      i.arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when sg.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when sg.arn is null then i.title || ' not associated with launch-wizard security group.'
-        else i.title || ' associated with launch-wizard security group.'
-      end as reason,
-      i.region,
-      i.account_id
-    from
-      aws_ec2_instance as i
-      left join launch_wizard_sg_attached_instance as sg on i.arn = sg.arn;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    WITH launch_wizard_sg_attached_instance AS (
+      SELECT
+        DISTINCT arn AS arn
+      FROM
+        aws_ec2_instance,
+        jsonb_array_elements(security_groups) AS sg
+      WHERE
+        sg ->> 'GroupName' LIKE 'launch-wizard%'
+    )
+    SELECT
+      i.arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN sg.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sg.arn IS NULL THEN i.title || ' not associated with launch-wizard security group.'
+        ELSE i.title || ' associated with launch-wizard security group.'
+      END AS reason,
+      i.region,
+      i.account_id
+    FROM
+      aws_ec2_instance AS i
+    LEFT JOIN launch_wizard_sg_attached_instance AS sg
+      ON i.arn = sg.arn;
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -44,5 +46,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Security Group Name Prefixed With 'launch-wizard'

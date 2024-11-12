@@ -1,19 +1,38 @@
+Description: Use customer-managed keys to manage the encryption at rest of the contents of your registries. By default, the data is encrypted at rest with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management.
 ID: azure_container_registry_encrypted_with_cmk
-Title: "Container registries should be encrypted with a customer-managed key"
-Description: "Use customer-managed keys to manage the encryption at rest of the contents of your registries. By default, the data is encrypted at rest with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  distinct a.name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when encryption ->> 'status' = 'enabled' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encryption ->> 'status' = 'enabled' then a.name || ' encrypted with CMK.'\n    else a.name || ' not encrypted with CMK.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_container_registry as a,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_container_registry
   ListOfTables:
     - azure_container_registry
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_registry
+  QueryToExecute: |
+    SELECT DISTINCT
+      a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN encryption ->> 'status' = 'enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encryption ->> 'status' = 'enabled' THEN a.name || ' encrypted with CMK.'
+        ELSE a.name || ' not encrypted with CMK.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_container_registry AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/ContainerRegistry
-IntegrationType:
-  - azure_subscription
+Title: Container registries should be encrypted with a customer-managed key

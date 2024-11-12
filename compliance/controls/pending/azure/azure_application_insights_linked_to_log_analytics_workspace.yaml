@@ -1,13 +1,29 @@
+Description: Link the Application Insights component to a Log Analytics workspace for logs encryption. Customer-managed keys are commonly required to meet regulatory compliance and for more control over the access to your data in Azure Monitor. Linking your component to a Log Analytics workspace that's enabled with a customer-managed key, ensures that your Application Insights logs meet this compliance requirement, see https://docs.microsoft.com/azure/azure-monitor/platform/customer-managed-keys.
 ID: azure_application_insights_linked_to_log_analytics_workspace
-Title: "Azure Monitor Logs for Application Insights should be linked to a Log Analytics workspace"
-Description: "Link the Application Insights component to a Log Analytics workspace for logs encryption. Customer-managed keys are commonly required to meet regulatory compliance and for more control over the access to your data in Azure Monitor. Linking your component to a Log Analytics workspace that's enabled with a customer-managed key, ensures that your Application Insights logs meet this compliance requirement, see https://docs.microsoft.com/azure/azure-monitor/platform/customer-managed-keys."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  case\n    when type = 'microsoft.insights/components' and workspace_resource_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when type = 'microsoft.insights/components' and workspace_resource_id is not null then a.name || ' linked to log analytics workspace.'\n    else a.name || ' not linked to log analytics workspace.'\n  end as reason\n  \n  \n  \nfrom\n  azure_application_insight as a\n  left join azure_subscription sub on sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      CASE
+        WHEN type = 'microsoft.insights/components'
+          AND workspace_resource_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN type = 'microsoft.insights/components'
+          AND workspace_resource_id IS NOT NULL THEN a.name || ' linked to log analytics workspace.'
+        ELSE a.name || ' not linked to log analytics workspace.'
+      END AS reason
+    FROM
+      azure_application_insight AS a
+      LEFT JOIN azure_subscription sub
+        ON sub.subscription_id = a.subscription_id;
+Severity: low
+Tags: {}
+Title: Azure Monitor Logs for Application Insights should be linked to a Log Analytics workspace

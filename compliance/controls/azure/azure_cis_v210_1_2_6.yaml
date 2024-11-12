@@ -1,39 +1,39 @@
+Description: This recommendation ensures that users accessing the Windows Azure Service Management API (i.e. Azure Powershell, Azure CLI, Azure Resource Manager API, etc.) are required to use multifactor authentication (MFA) credentials when accessing resources through the Windows Azure Service Management API.
 ID: azure_cis_v210_1_2_6
-Title: "1.2.6 Ensure Multifactor Authentication is Required for Windows Azure Service Management API"
-Description: "This recommendation ensures that users accessing the Windows Azure Service Management API (i.e. Azure Powershell, Azure CLI, Azure Resource Manager API, etc.) are required to use multifactor authentication (MFA) credentials when accessing resources through the Windows Azure Service Management API."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with distinct_tenant as (
-      select
-        distinct tenant_id,
-        subscription_id,
-        _ctx
-      from
-        azure_tenant
-    )
-    select
-      p.id as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when p.built_in_controls @> '["mfa"]' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.built_in_controls @> '["mfa"]' then p.display_name || ' MFA enabled.'
-        else p.display_name || ' MFA disabled.'
-      end as reason,
-      t.tenant_id
-    from
-      distinct_tenant as t,
-      azuread_conditional_access_policy as p;
-  PrimaryTable: azuread_conditional_access_policy
   ListOfTables:
     - azure_tenant
     - azuread_conditional_access_policy
   Parameters: []
+  PrimaryTable: azuread_conditional_access_policy
+  QueryToExecute: |
+    WITH distinct_tenant AS (
+      SELECT 
+        DISTINCT tenant_id,
+        subscription_id,
+        _ctx
+      FROM 
+        azure_tenant
+    )
+    SELECT
+      p.id AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.built_in_controls @> '["mfa"]' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.built_in_controls @> '["mfa"]' THEN p.display_name || ' MFA enabled.'
+        ELSE p.display_name || ' MFA disabled.'
+      END AS reason,
+      t.tenant_id
+    FROM
+      distinct_tenant AS t,
+      azuread_conditional_access_policy AS p;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 1.2.6 Ensure Multifactor Authentication is Required for Windows Azure Service Management API

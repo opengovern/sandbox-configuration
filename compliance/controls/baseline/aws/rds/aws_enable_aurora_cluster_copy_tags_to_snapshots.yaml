@@ -1,31 +1,32 @@
+Description: Ensure that Amazon Aurora clusters have Copy Tags to Snapshots feature enabled.
 ID: aws_enable_aurora_cluster_copy_tags_to_snapshots
-Title: "Enable Aurora Cluster Copy Tags to Snapshots"
-Description: "Ensure that Amazon Aurora clusters have Copy Tags to Snapshots feature enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not copy_tags_to_snapshot then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not copy_tags_to_snapshot then title || ' Copy Tags to Snapshots feature is not enabled'
-        else title || ' Copy Tags to Snapshots feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_cluster
-    where
-     engine = 'aurora-mysql' or engine = 'aurora-postgresql'
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT copy_tags_to_snapshot THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT copy_tags_to_snapshot THEN title || ' Copy Tags to Snapshots feature is not enabled'
+        ELSE title || ' Copy Tags to Snapshots feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster
+    WHERE
+      engine = 'aurora-mysql' OR engine = 'aurora-postgresql'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Observability
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Aurora Cluster Copy Tags to Snapshots

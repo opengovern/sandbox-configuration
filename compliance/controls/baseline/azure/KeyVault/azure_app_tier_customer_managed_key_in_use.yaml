@@ -1,45 +1,51 @@
+Description: Ensure that a Customer-Managed Key is created for your Azure cloud application tier.
 ID: azure_app_tier_customer_managed_key_in_use
-Title: "App Tier Customer-Managed Key In Use"
-Description: "Ensure that a Customer-Managed Key is created for your Azure cloud application tier."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      display_name as resource,
-      sub.og_resource_id,
-      sub.og_account_id,
-      case
-        when exists(
-          select 1 from azure_key_vault_key as k where (k.subscription_id = sub.subscription_id) and
-            k.tags is not null and
-            (k.tags::text like '%' || REPLACE(REPLACE((
-              SELECT jsonb_object_agg(key, value)::text
-              FROM jsonb_each_text('{{.azureAppTierTags}}'::jsonb)
-            ), '{', ''), '}', '') || '%') and enabled
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when exists(
-          select 1 from azure_key_vault_key as k where (k.subscription_id = sub.subscription_id) and
-            k.tags is not null and
-            (k.tags::text like '%' || REPLACE(REPLACE((
-              SELECT jsonb_object_agg(key, value)::text
-              FROM jsonb_each_text('{{.azureAppTierTags}}'::jsonb)
-            ), '{', ''), '}', '') || '%') and enabled
-        ) then 'subscription has an app-tier cmk'
-        else 'subscription does not have any app-tier cmk'
-      end as reason,
-      sub.display_name as subscription
-    from
-      azure_subscription as sub
-  PrimaryTable: azure_subscription
   ListOfTables:
     - azure_key_vault_key
     - azure_subscription
   Parameters:
     - Key: azureAppTierTags
       Required: true
+  PrimaryTable: azure_subscription
+  QueryToExecute: |
+    SELECT
+      display_name AS resource,
+      sub.og_resource_id,
+      sub.og_account_id,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 
+          FROM azure_key_vault_key AS k 
+          WHERE (k.subscription_id = sub.subscription_id)
+            AND k.tags IS NOT NULL
+            AND (k.tags::text LIKE '%' || REPLACE(REPLACE((
+              SELECT jsonb_object_agg(key, value)::text
+              FROM jsonb_each_text('{{.azureAppTierTags}}'::jsonb)
+            ), '{', ''), '}', '') || '%') 
+            AND enabled
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 
+          FROM azure_key_vault_key AS k 
+          WHERE (k.subscription_id = sub.subscription_id)
+            AND k.tags IS NOT NULL
+            AND (k.tags::text LIKE '%' || REPLACE(REPLACE((
+              SELECT jsonb_object_agg(key, value)::text
+              FROM jsonb_each_text('{{.azureAppTierTags}}'::jsonb)
+            ), '{', ''), '}', '') || '%') 
+            AND enabled
+        ) THEN 'subscription has an app-tier cmk'
+        ELSE 'subscription does not have any app-tier cmk'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM azure_subscription AS sub
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -50,5 +56,4 @@ Tags:
     - Azure KeyVault
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - azure_subscription
+Title: App Tier Customer-Managed Key In Use

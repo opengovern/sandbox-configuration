@@ -1,14 +1,44 @@
+Description: Ensure that your AWS Redshift clusters require TLS/SSL encryption to connect to SQL clients.
 ID: aws_redshift_cluster_encryption_in_transit_enabled
-Title: "Redshift cluster encryption in transit should be enabled"
-Description: "Ensure that your AWS Redshift clusters require TLS/SSL encryption to connect to SQL clients."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with pg_with_ssl as (\nselect\n  name as pg_name,\n  p ->> 'ParameterName' as parameter_name,\n  p ->> 'ParameterValue' as parameter_value\nfrom\n  aws_redshift_parameter_group,\n  jsonb_array_elements(parameters) as p\nwhere\n  p ->> 'ParameterName' = 'require_ssl'\n  and p ->> 'ParameterValue' = 'true'\n)\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when cpg ->> 'ParameterGroupName' in (select pg_name from pg_with_ssl ) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when cpg ->> 'ParameterGroupName' in (select pg_name from pg_with_ssl ) then title || ' encryption in transit enabled.'\n    else title || ' encryption in transit disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster,\n  jsonb_array_elements(cluster_parameter_groups) as cpg;\n"
-  PrimaryTable: aws_redshift_cluster
   ListOfTables:
     - aws_redshift_cluster
     - aws_redshift_parameter_group
   Parameters: []
+  PrimaryTable: aws_redshift_cluster
+  QueryToExecute: |
+    WITH pg_with_ssl AS (
+      SELECT
+        name AS pg_name,
+        p ->> 'ParameterName' AS parameter_name,
+        p ->> 'ParameterValue' AS parameter_value
+      FROM
+        aws_redshift_parameter_group,
+        jsonb_array_elements(parameters) AS p
+      WHERE
+        p ->> 'ParameterName' = 'require_ssl'
+        AND p ->> 'ParameterValue' = 'true'
+    )
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN title || ' encryption in transit enabled.'
+        ELSE title || ' encryption in transit disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_redshift_cluster,
+      jsonb_array_elements(cluster_parameter_groups) AS cpg;
 Severity: high
 Tags:
   category:
@@ -29,11 +59,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -47,5 +77,4 @@ Tags:
     - AWS/Redshift
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Redshift cluster encryption in transit should be enabled

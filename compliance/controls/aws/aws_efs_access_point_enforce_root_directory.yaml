@@ -1,13 +1,30 @@
+Description: This control checks if AWS EFS access points are configured to enforce a root directory. The control fails if the value of Path is set to / (the default root directory of the file system).
 ID: aws_efs_access_point_enforce_root_directory
-Title: "EFS access points should enforce a root directory"
-Description: "This control checks if AWS EFS access points are configured to enforce a root directory. The control fails if the value of Path is set to / (the default root directory of the file system)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  access_point_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when root_directory ->> 'Path'= '/' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when root_directory ->> 'Path'= '/' then title || ' not configured to enforce a root directory.'\n    else title || ' configured to enforce a root directory.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_efs_access_point;\n"
-  PrimaryTable: aws_efs_access_point
   ListOfTables:
     - aws_efs_access_point
   Parameters: []
+  PrimaryTable: aws_efs_access_point
+  QueryToExecute: |
+    SELECT
+      access_point_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN root_directory ->> 'Path' = '/' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN root_directory ->> 'Path' = '/' THEN title || ' not configured to enforce a root directory.'
+        ELSE title || ' configured to enforce a root directory.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_efs_access_point;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/EFS
-IntegrationType:
-  - aws_cloud_account
+Title: EFS access points should enforce a root directory

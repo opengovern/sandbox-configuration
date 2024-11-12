@@ -1,30 +1,30 @@
+Description: This control checks if DNS query logging is enabled for an Amazon Route 53 public hosted zone. The control fails if DNS query logging isn't enabled for a Route 53 public hosted zone.
 ID: aws_foundational_security_route53_2
-Title: "2 Route 53 public hosted zones should log DNS queries"
-Description: "This control checks if DNS query logging is enabled for an Amazon Route 53 public hosted zone. The control fails if DNS query logging isn't enabled for a Route 53 public hosted zone."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when private_zone then 'skip'
-        when query_logging_configs is not null or jsonb_array_length(query_logging_configs) > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when private_zone then title || ' is private hosted zone.'
-        when query_logging_configs is not null or jsonb_array_length(query_logging_configs) > 0 then title || ' query logging to CloudWatch enabled.'
-        else title || ' query logging to CloudWatch disabled.'
-      end as reason
-    from
-      aws_route53_zone;
-  PrimaryTable: aws_route53_zone
   ListOfTables:
     - aws_route53_zone
   Parameters: []
+  PrimaryTable: aws_route53_zone
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN private_zone THEN 'skip'
+        WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN private_zone THEN title || ' is private hosted zone.'
+        WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN title || ' query logging to CloudWatch enabled.'
+        ELSE title || ' query logging to CloudWatch disabled.'
+      END AS reason
+    FROM
+      aws_route53_zone;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2 Route 53 public hosted zones should log DNS queries

@@ -1,13 +1,67 @@
+Description: This control checks if the deployment group for Lambda Compute Platform is not using the default deployment configuration. The rule is non-compliant if the deployment group is using the deployment configuration 'CodeDeployDefault.LambdaAllAtOnce'.
 ID: aws_codedeploy_deployment_group_lambda_allatonce_traffic_shift_disabled
-Title: "Codedeploy deployment groups lambda allatonce traffic shift should be disabled"
-Description: "This control checks if the deployment group for Lambda Compute Platform is not using the default deployment configuration. The rule is non-compliant if the deployment group is using the deployment configuration 'CodeDeployDefault.LambdaAllAtOnce'."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "with codedeployment_groups as (\n  select\n    arn,\n    application_name,\n    deployment_config_name,\n    tags,\n    title,\n    region,\n    account_id,\n    _ctx\n  from\n    aws_codedeploy_deployment_group\n  group by\n    arn,\n    application_name,\n    deployment_config_name,\n    tags,\n    title,\n    region,\n    account_id,\n    _ctx\n),\ncodedeploy_apps as (\n  select\n    application_name,\n    compute_platform,\n    region,\n    account_id,\n    title\n  from\n    aws_codedeploy_app\n  group by\n    application_name,\n    compute_platform,\n    region,\n    account_id,\n    title\n)\nselect\n  g.arn as resource,\n  case\n    when a.compute_platform <> 'Lambda' then 'skip'\n    when deployment_config_name = 'CodeDeployDefault.LambdaAllAtOnce' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when a.compute_platform <> 'Lambda' then g.title || ' using ' ||  a.compute_platform || ' compute platform.'\n    else g.title || ' using '|| deployment_config_name || ' deployment config.'\n  end as reason\n  \n  \nfrom\n  codedeployment_groups as g,\n  codedeploy_apps as a\nwhere\n  g.application_name = a.application_name;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH codedeployment_groups AS (
+      SELECT
+        arn,
+        application_name,
+        deployment_config_name,
+        tags,
+        title,
+        region,
+        account_id,
+        _ctx
+      FROM
+        aws_codedeploy_deployment_group
+      GROUP BY
+        arn,
+        application_name,
+        deployment_config_name,
+        tags,
+        title,
+        region,
+        account_id,
+        _ctx
+    ),
+    codedeploy_apps AS (
+      SELECT
+        application_name,
+        compute_platform,
+        region,
+        account_id,
+        title
+      FROM
+        aws_codedeploy_app
+      GROUP BY
+        application_name,
+        compute_platform,
+        region,
+        account_id,
+        title
+    )
+    SELECT
+      g.arn AS resource,
+      CASE
+        WHEN a.compute_platform <> 'Lambda' THEN 'skip'
+        WHEN deployment_config_name = 'CodeDeployDefault.LambdaAllAtOnce' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.compute_platform <> 'Lambda' THEN g.title || ' using ' || a.compute_platform || ' compute platform.'
+        ELSE g.title || ' using ' || deployment_config_name || ' deployment config.'
+      END AS reason
+    FROM
+      codedeployment_groups AS g,
+      codedeploy_apps AS a
+    WHERE
+      g.application_name = a.application_name;
+Severity: low
+Tags: {}
+Title: Codedeploy deployment groups lambda allatonce traffic shift should be disabled

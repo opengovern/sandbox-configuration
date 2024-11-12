@@ -1,32 +1,32 @@
+Description: Ensure that Data Factory utilizes a Git repository as its source control mechanism. This control is non-compliant if Data Factory Git repository is not configured.
 ID: azure_data_factory_uses_git_repository
-Title: "Data factories should use GitHub repository"
-Description: "Ensure that Data Factory utilizes a Git repository as its source control mechanism. This control is non-compliant if Data Factory Git repository is not configured."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when repo_configuration ->> 'repositoryName' is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when repo_configuration ->> 'repositoryName' is not null then a.name || ' uses git repository.'
-        else a.name || ' not uses git repository.'
-      end as reason
-    from
-      azure_data_factory as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_data_factory
   ListOfTables:
     - azure_data_factory
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_data_factory
+  QueryToExecute: |
+    SELECT 
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN repo_configuration->>'repositoryName' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN repo_configuration->>'repositoryName' IS NOT NULL THEN a.name || ' uses git repository.'
+        ELSE a.name || ' not uses git repository.'
+      END AS reason
+    FROM 
+      azure_data_factory AS a,
+      azure_subscription AS sub
+    WHERE 
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Data factories should use GitHub repository

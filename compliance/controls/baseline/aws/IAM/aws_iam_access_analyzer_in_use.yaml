@@ -1,14 +1,41 @@
+Description: Ensure that IAM Access Analyzer feature is enabled to maintain access security to your AWS resources.
 ID: aws_iam_access_analyzer_in_use
-Title: "IAM Access Analyzer in Use"
-Description: "Ensure that IAM Access Analyzer feature is enabled to maintain access security to your AWS resources."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.account_id as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when exists (\n      select 1 from aws_accessanalyzer_analyzer as an where a.account_id = an.account_id limit 1\n    ) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when exists (\n      select 1 from aws_accessanalyzer_analyzer as an where a.account_id = an.account_id limit 1\n    ) then 'Amazon IAM Access Analyzer feature is used to protect your cloud resources'\n    else 'There are no access analyzers available on this account'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_account as a\n"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_accessanalyzer_analyzer
     - aws_account
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      a.account_id AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 
+          FROM aws_accessanalyzer_analyzer AS an 
+          WHERE a.account_id = an.account_id 
+          LIMIT 1
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 
+          FROM aws_accessanalyzer_analyzer AS an 
+          WHERE a.account_id = an.account_id 
+          LIMIT 1
+        ) THEN 'Amazon IAM Access Analyzer feature is used to protect your cloud resources'
+        ELSE 'There are no access analyzers available on this account'
+      END AS reason,
+      a.region, 
+      a.account_id
+    FROM
+      aws_account AS a
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +46,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Access Analyzer in Use

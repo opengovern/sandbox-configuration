@@ -1,31 +1,32 @@
+Description: Enable AWS RDS Log Exports.
 ID: aws_log_exports
-Title: "Log Exports"
-Description: "Enable AWS RDS Log Exports."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_instance_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when enabled_cloudwatch_logs_exports is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when enabled_cloudwatch_logs_exports is null then title || ' Log Exports feature is not enabled'
-        else title || ' Log Exports feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance
-    where
-     engine = 'mysql' or engine = 'mariadb'
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports IS NULL THEN title || ' Log Exports feature is not enabled'
+        ELSE title || ' Log Exports feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_instance
+    WHERE 
+      engine = 'mysql' OR engine = 'mariadb'
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Observability
-IntegrationType:
-  - aws_cloud_account
+Title: Log Exports

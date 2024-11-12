@@ -1,14 +1,34 @@
+Description: Protect your storage accounts from potential threats using virtual network rules as a preferred method instead of IP-based filtering. Disabling IP-based filtering prevents public IPs from accessing your storage accounts.
 ID: azure_storage_account_restrict_network_access
-Title: "Storage accounts should restrict network access using virtual network rules"
-Description: "Protect your storage accounts from potential threats using virtual network rules as a preferred method instead of IP-based filtering. Disabling IP-based filtering prevents public IPs from accessing your storage accounts."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  sa.og_account_id as og_account_id,\n  sa.og_resource_id as og_resource_id,\n  case\n    when network_rule_default_action = 'Deny' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when network_rule_default_action = 'Deny' then sa.name || ' blocks network access.'\n    else sa.name || ' allows network access.'\n  end as reason\n  \n  , sa.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id AS og_account_id,
+      sa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN network_rule_default_action = 'Deny' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN network_rule_default_action = 'Deny' THEN sa.name || ' blocks network access.'
+        ELSE sa.name || ' allows network access.'
+      END AS reason,
+      sa.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
@@ -17,5 +37,4 @@ Tags:
     - "true"
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Storage accounts should restrict network access using virtual network rules

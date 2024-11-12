@@ -1,19 +1,38 @@
+Description: Use customer-managed keys to control the encryption at rest of the data stored in Azure Synapse workspaces. Customer-managed keys deliver double encryption by adding a second layer of encryption on top of the default encryption with service-managed keys.
 ID: azure_synapse_workspace_encryption_at_rest_using_cmk
-Title: "Azure Synapse workspaces should use customer-managed keys to encrypt data at rest"
-Description: "Use customer-managed keys to control the encryption at rest of the data stored in Azure Synapse workspaces. Customer-managed keys deliver double encryption by adding a second layer of encryption on top of the default encryption with service-managed keys."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when encryption -> 'CmkKey' ->> 'name' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encryption -> 'CmkKey' ->> 'name' is not null then s.title || ' encrypted with CMK.'\n    else s.title || ' not encrypted with CMK.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_synapse_workspace as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_synapse_workspace
   ListOfTables:
     - azure_subscription
     - azure_synapse_workspace
   Parameters: []
+  PrimaryTable: azure_synapse_workspace
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN encryption -> 'CmkKey' ->> 'name' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encryption -> 'CmkKey' ->> 'name' IS NOT NULL THEN s.title || ' encrypted with CMK.'
+        ELSE s.title || ' not encrypted with CMK.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_synapse_workspace AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/SynapseAnalytics
-IntegrationType:
-  - azure_subscription
+Title: Azure Synapse workspaces should use customer-managed keys to encrypt data at rest

@@ -1,42 +1,43 @@
+Description: Ensure ELBs don't use insecure SSL protocols.
 ID: aws_elb_insecure_ssl_protocols
-Title: "ELB Insecure SSL Protocols"
-Description: "Ensure ELBs don't use insecure SSL protocols."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with detailed_classic_listeners as (
-      select
-        name
-      from
-        aws_ec2_classic_load_balancer,
-        jsonb_array_elements(listener_descriptions) as listener_description
-      where
-        listener_description -> 'Listener' ->> 'Protocol' in ('HTTPS', 'SSL', 'TLS')
-        and listener_description -> 'Listener' ->> 'SSLCertificateId' like 'arn:aws:acm%'
-    )
-    select
-      'arn:' || a.partition || ':elasticloadbalancing:' || a.region || ':' || a.account_id || ':loadbalancer/' || a.name as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when a.listener_descriptions is null then 'skip'
-        when b.name is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when a.listener_descriptions is null then a.title || ' has no listener.'
-        when b.name is not null then a.title || ' does not use certificates provided by ACM.'
-        else a.title || ' uses certificates provided by ACM.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_classic_load_balancer as a
-      left join detailed_classic_listeners as b on a.name = b.name;
-  PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
     - aws_ec2_classic_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_classic_load_balancer
+  QueryToExecute: |
+    WITH detailed_classic_listeners AS (
+      SELECT
+        name
+      FROM
+        aws_ec2_classic_load_balancer,
+        jsonb_array_elements(listener_descriptions) AS listener_description
+      WHERE
+        listener_description -> 'Listener' ->> 'Protocol' IN ('HTTPS', 'SSL', 'TLS')
+        AND listener_description -> 'Listener' ->> 'SSLCertificateId' LIKE 'arn:aws:acm%'
+    )
+    SELECT
+      'arn:' || a.partition || ':elasticloadbalancing:' || a.region || ':' || a.account_id || ':loadbalancer/' || a.name AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN a.listener_descriptions IS NULL THEN 'skip'
+        WHEN b.name IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.listener_descriptions IS NULL THEN a.title || ' has no listener.'
+        WHEN b.name IS NOT NULL THEN a.title || ' does not use certificates provided by ACM.'
+        ELSE a.title || ' uses certificates provided by ACM.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_classic_load_balancer AS a
+      LEFT JOIN detailed_classic_listeners AS b ON a.name = b.name;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -47,5 +48,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: ELB Insecure SSL Protocols

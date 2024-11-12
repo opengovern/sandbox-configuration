@@ -1,14 +1,30 @@
+Description: This control checks whether there are any unused network access control lists (ACLs). The control checks the item configuration of the resource AWS::EC2::NetworkAcl and determines the relationships of the network ACL.
 ID: aws_foundational_security_ec2_16
-Title: "16 Unused network access control lists should be removed"
-Description: "This control checks whether there are any unused network access control lists (ACLs). The control checks the item configuration of the resource AWS::EC2::NetworkAcl and determines the relationships of the network ACL."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  network_acl_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(associations) >= 1  then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(associations) >= 1 then title || ' associated with subnet.'\n    else title || ' not associated with subnet.'\n  end reason\n  \n  \nfrom\n  aws_vpc_network_acl;"
-  PrimaryTable: aws_vpc_network_acl
   ListOfTables:
     - aws_vpc_network_acl
   Parameters: []
+  PrimaryTable: aws_vpc_network_acl
+  QueryToExecute: |
+    SELECT
+      network_acl_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(associations) >= 1 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(associations) >= 1 THEN
+          title || ' associated with subnet.'
+        ELSE
+          title || ' not associated with subnet.'
+      END AS reason
+    FROM
+      aws_vpc_network_acl;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 16 Unused network access control lists should be removed

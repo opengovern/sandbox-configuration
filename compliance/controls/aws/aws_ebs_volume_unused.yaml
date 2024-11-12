@@ -1,13 +1,30 @@
+Description: Checks if EBS volumes are attached to EC2 instances.
 ID: aws_ebs_volume_unused
-Title: "EBS volumes should be attached to EC2 instances"
-Description: "Checks if EBS volumes are attached to EC2 instances."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when state = 'in-use' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when state = 'in-use' then title || ' attached to EC2 instance.'\n    else title || ' not attached to EC2 instance.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ebs_volume;\n"
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN state = 'in-use' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN state = 'in-use' THEN title || ' attached to EC2 instance.'
+        ELSE title || ' not attached to EC2 instance.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ebs_volume;
 Severity: low
 Tags:
   category:
@@ -24,9 +41,9 @@ Tags:
     - "true"
   gxp_21_cfr_part_11:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -36,5 +53,4 @@ Tags:
     - Optimization
   service:
     - AWS/EBS
-IntegrationType:
-  - aws_cloud_account
+Title: EBS volumes should be attached to EC2 instances

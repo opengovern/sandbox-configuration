@@ -1,14 +1,30 @@
+Description: This control checks whether AWS KMS customer managed keys (CMK) are scheduled for deletion. The control fails if a CMK is scheduled for deletion. CMKs cannot be recovered once deleted. Data encrypted under a KMS CMK is also permanently unrecoverable if the CMK is deleted. If meaningful data has been encrypted under a CMK scheduled for deletion, consider decrypting the data or re-encrypting the data under a new CMK unless you are intentionally performing a cryptographic erasure.
 ID: aws_foundational_security_kms_3
-Title: "3 AWS KMS keys should not be unintentionally deleted"
-Description: "This control checks whether AWS KMS customer managed keys (CMK) are scheduled for deletion. The control fails if a CMK is scheduled for deletion. CMKs cannot be recovered once deleted. Data encrypted under a KMS CMK is also permanently unrecoverable if the CMK is deleted. If meaningful data has been encrypted under a CMK scheduled for deletion,consider decrypting the data or re-encrypting the data under a new CMK unless you are intentionally performing a cryptographic erasure."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when key_state = 'PendingDeletion' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when key_state = 'PendingDeletion' then title || ' scheduled for deletion and will be deleted in ' || extract(day from deletion_date - current_timestamp) || ' day(s).'\n    else title || ' not scheduled for deletion.'\n  end as reason\n  \n  \nfrom\n  aws_kms_key\nwhere\n  key_manager = 'CUSTOMER';"
-  PrimaryTable: aws_kms_key
   ListOfTables:
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_kms_key
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN key_state = 'PendingDeletion' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN key_state = 'PendingDeletion' THEN title || ' scheduled for deletion and will be deleted in ' || EXTRACT(DAY FROM deletion_date - CURRENT_TIMESTAMP) || ' day(s).'
+        ELSE title || ' not scheduled for deletion.'
+      END AS reason
+    FROM
+      aws_kms_key
+    WHERE
+      key_manager = 'CUSTOMER';
 Severity: critical
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3 AWS KMS keys should not be unintentionally deleted

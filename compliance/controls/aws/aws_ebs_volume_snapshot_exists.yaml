@@ -1,39 +1,39 @@
+Description: Ensure that EBS volume snapshots exist. This rule is non-compliant if the EBS volume does not have any snapshot.
 ID: aws_ebs_volume_snapshot_exists
-Title: "EBS volume snapshots should exist"
-Description: "Ensure that EBS volume snapshots exist. This rule is non-compliant if the EBS volume does not have any snapshot."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with volume_with_snapshots as (
-      select
-        volume_id,
-        count(*) as snap_count
-      from
-        aws_ebs_snapshot
-      group by
-        volume_id
-    )
-    select
-      v.arn as resource,
-      v.og_account_id as og_account_id,
-      v.og_resource_id as og_resource_id,
-      case
-        when s.volume_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when s.volume_id is not null then v.title || ' has ' || s.snap_count || ' snapshot(s).'
-        else v.title || ' does not have snapshot.'
-      end as reason
-    from
-      aws_ebs_volume as v
-      left join volume_with_snapshots as s on s.volume_id = v.volume_id;
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_snapshot
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    WITH volume_with_snapshots AS (
+      SELECT
+        volume_id,
+        COUNT(*) AS snap_count
+      FROM
+        aws_ebs_snapshot
+      GROUP BY
+        volume_id
+    )
+    SELECT
+      v.arn AS resource,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.volume_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.volume_id IS NOT NULL THEN v.title || ' has ' || s.snap_count || ' snapshot(s).'
+        ELSE v.title || ' does not have snapshot.'
+      END AS reason
+    FROM
+      aws_ebs_volume AS v
+      LEFT JOIN volume_with_snapshots AS s ON s.volume_id = v.volume_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EBS volume snapshots should exist

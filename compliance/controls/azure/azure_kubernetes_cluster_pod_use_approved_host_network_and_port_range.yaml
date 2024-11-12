@@ -1,24 +1,24 @@
+Description: Restrict pod access to the host network and the allowable host port range in a Kubernetes cluster. This recommendation is part of CIS 5.2.4 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc.
 ID: azure_kubernetes_cluster_pod_use_approved_host_network_and_port_range
-Title: "Kubernetes cluster pods should only use approved host network and port range"
-Description: "Restrict pod access to the host network and the allowable host port range in a Kubernetes cluster. This recommendation is part of CIS 5.2.4 which is intended to improve the security of your Kubernetes environments. This policy is generally available for Kubernetes Service (AKS), and preview for Azure Arc enabled Kubernetes. For more information, see https://aka.ms/kubepolicydoc."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason,
-      display_name as subscription
-    from
-      azure_subscription;
-  PrimaryTable: ""
   ListOfTables: []
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required.' AS reason,
+      display_name AS subscription
+    FROM
+      azure_subscription;
 Severity: low
 Tags:
   manual-verification:
     - "true"
-IntegrationType:
-  - azure_subscription
+Title: Kubernetes cluster pods should only use approved host network and port range

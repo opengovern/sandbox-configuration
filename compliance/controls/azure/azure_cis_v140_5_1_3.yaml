@@ -1,34 +1,34 @@
+Description: The storage account container containing the activity log export should not be publicly accessible.
 ID: azure_cis_v140_5_1_3
-Title: "5.1.3 Ensure the storage container storing the activity logs is not publicly accessible"
-Description: "The storage account container containing the activity log export should not be publicly accessible."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sc.id as resource,
-      sc.og_account_id as og_account_id,
-      sc.og_resource_id as og_resource_id,
-      case
-        when public_access != 'None' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public_access != 'None'
-          then account_name || ' container insights-operational-logs storing activity logs publicly accessible.'
-        else account_name || ' container insights-operational-logs storing activity logs not publicly accessible.'
-      end as reason
-    from
-      azure_storage_container sc,
-      azure_subscription sub
-    where
-      name = 'insights-operational-logs'
-      and sub.subscription_id = sc.subscription_id;
-  PrimaryTable: azure_storage_container
   ListOfTables:
     - azure_storage_container
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_container
+  QueryToExecute: |
+    SELECT
+      sc.id AS resource,
+      sc.og_account_id AS og_account_id,
+      sc.og_resource_id AS og_resource_id,
+      CASE
+        WHEN public_access != 'None' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public_access != 'None'
+          THEN account_name || ' container insights-operational-logs storing activity logs publicly accessible.'
+        ELSE account_name || ' container insights-operational-logs storing activity logs not publicly accessible.'
+      END AS reason
+    FROM
+      azure_storage_container sc,
+      azure_subscription sub
+    WHERE
+      name = 'insights-operational-logs'
+      AND sub.subscription_id = sc.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 5.1.3 Ensure the storage container storing the activity logs is not publicly accessible

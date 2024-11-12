@@ -1,13 +1,30 @@
+Description: This control checks whether RDS DB clusters are configured to copy all tags to snapshots when the snapshots are created.
 ID: aws_rds_db_cluster_copy_tags_to_snapshot_enabled
-Title: "RDS DB clusters should be configured to copy tags to snapshots"
-Description: "This control checks whether RDS DB clusters are configured to copy all tags to snapshots when the snapshots are created."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when copy_tags_to_snapshot then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when copy_tags_to_snapshot then title || ' copy tags to snapshot enabled.'\n    else title || ' copy tags to snapshot disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_cluster;\n"
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN copy_tags_to_snapshot THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN copy_tags_to_snapshot THEN title || ' copy tags to snapshot enabled.'
+        ELSE title || ' copy tags to snapshot disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster;
 Severity: low
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/RDS
-IntegrationType:
-  - aws_cloud_account
+Title: RDS DB clusters should be configured to copy tags to snapshots

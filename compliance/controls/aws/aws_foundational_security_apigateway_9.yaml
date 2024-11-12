@@ -1,28 +1,28 @@
+Description: This control checks if Amazon API Gateway V2 stages have access logging configured. This control fails if access log settings aren't defined.
 ID: aws_foundational_security_apigateway_9
-Title: "9 Access logging should be configured for API Gateway V2 Stages"
-Description: "This control checks if Amazon API Gateway V2 stages have access logging configured. This control fails if access log settings aren't defined."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when access_log_settings is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when access_log_settings is null then title || ' access logging disabled.'
-        else title || ' access logging enabled.'
-      end as reason
-    from
-      aws_api_gatewayv2_stage;
-  PrimaryTable: aws_api_gatewayv2_stage
   ListOfTables:
     - aws_api_gatewayv2_stage
   Parameters: []
+  PrimaryTable: aws_api_gatewayv2_stage
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN access_log_settings IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN access_log_settings IS NULL THEN title || ' access logging disabled.'
+        ELSE title || ' access logging enabled.'
+      END AS reason
+    FROM
+      aws_api_gatewayv2_stage;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 9 Access logging should be configured for API Gateway V2 Stages

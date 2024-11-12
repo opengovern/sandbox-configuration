@@ -1,14 +1,28 @@
+Description: This control checks whether logging is enabled for an AWS WAF global web ACL. This control fails if logging is not enabled for the web ACL.
 ID: aws_foundational_security_waf_1
-Title: "1 AWS WAF Classic Global Web ACL logging should be enabled"
-Description: "This control checks whether logging is enabled for an AWS WAF global web ACL. This control fails if logging is not enabled for the web ACL."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logging_configuration is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when logging_configuration is null then title || ' logging disabled.'\n    else title || ' logging enabled.'\n  end as reason\n  \n  \nfrom\n  aws_waf_web_acl;"
-  PrimaryTable: aws_waf_web_acl
   ListOfTables:
     - aws_waf_web_acl
   Parameters: []
+  PrimaryTable: aws_waf_web_acl
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN logging_configuration IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN logging_configuration IS NULL THEN title || ' logging disabled.'
+        ELSE title || ' logging enabled.'
+      END AS reason
+    FROM
+      aws_waf_web_acl;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 AWS WAF Classic Global Web ACL logging should be enabled

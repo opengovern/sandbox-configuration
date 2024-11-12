@@ -1,15 +1,34 @@
+Description: Ensure all EC2 instances are of a given instance type Optimal and Aligned with our Organization
 ID: aws_ec2_desired_instance_type
-Title: "EC2 Instances types are Approved"
-Description: "Ensure all EC2 instances are of a given instance type Optimal and Aligned with our Organization"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  instance_id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'ok'\n    WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'allowed instance types not defined'\n    WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN instance_id || ' instance type is allowed by your organization' \n    ELSE instance_id || ' instance type is not allowed by your organization'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_instance\n"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters:
     - Key: awsAllowedInstanceTypes
       Required: false
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT 
+      instance_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'ok'
+        WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'allowed instance types not defined'
+        WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN instance_id || ' instance type is allowed by your organization'
+        ELSE instance_id || ' instance type is not allowed by your organization'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_ec2_instance
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -20,5 +39,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Over Utilization
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Instances types are Approved

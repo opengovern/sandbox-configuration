@@ -1,13 +1,30 @@
+Description: Ensure that in-transit encryption is enabled for your Amazon OpenSearch domains.
 ID: aws_enable_in_transit_encryption
-Title: "Enable In-Transit Encryption"
-Description: "Ensure that in-transit encryption is enabled for your Amazon OpenSearch domains."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN (domain_endpoint_options ->> 'EnforceHTTPS')::bool THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN (domain_endpoint_options ->> 'EnforceHTTPS')::bool THEN domain_name || ' in-transit encryption is enabled.' \n    ELSE domain_name || ' in-transit encryption is not enabled'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      domain_name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN (domain_endpoint_options ->> 'EnforceHTTPS')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (domain_endpoint_options ->> 'EnforceHTTPS')::bool THEN domain_name || ' in-transit encryption is enabled.'
+        ELSE domain_name || ' in-transit encryption is not enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_opensearch_domain
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS OpenSearch Service
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: Enable In-Transit Encryption

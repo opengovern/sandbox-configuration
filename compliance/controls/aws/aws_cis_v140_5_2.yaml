@@ -1,58 +1,57 @@
+Description: Security groups provide stateful filtering of ingress and egress network traffic to AWS resources. It is recommended that no security group allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389.
 ID: aws_cis_v140_5_2
-Title: "5.2 Ensure no security groups allow ingress from 0.0.0.0/0 to remote server administration ports"
-Description: "Security groups provide stateful filtering of ingress and egress network traffic to AWS resources. It is recommended that no security group allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with bad_rules as (
-      select
-        group_id,
-        count(*) as num_bad_rules
-      from
-        aws_vpc_security_group_rule
-      where
-        type = 'ingress'
-        and (
-          cidr_ipv4 = '0.0.0.0/0'
-          or cidr_ipv6 = '::/0'
-        )
-        and (
-            ( ip_protocol = '-1'      -- all traffic
-            and from_port is null
-            )
-            or (
-                from_port >= 22
-                and to_port <= 22
-            )
-            or (
-                from_port >= 3389
-                and to_port <= 3389
-            )
-        )
-      group by
-        group_id
-    )
-    select
-      arn as resource,
-      sg.og_account_id as og_account_id,
-      sg.og_resource_id as og_resource_id,
-      case
-        when bad_rules.group_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when bad_rules.group_id is null then sg.group_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-        else  sg.group_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) that allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-      end as reason
-    from
-      aws_vpc_security_group as sg
-      left join bad_rules on bad_rules.group_id = sg.group_id;
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group_rule
     - aws_vpc_security_group
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH bad_rules AS (
+      SELECT
+        group_id,
+        COUNT(*) AS num_bad_rules
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        type = 'ingress'
+        AND (
+          cidr_ipv4 = '0.0.0.0/0'
+          OR cidr_ipv6 = '::/0'
+        )
+        AND (
+          (ip_protocol = '-1' -- all traffic
+          AND from_port IS NULL)
+          OR (
+            from_port >= 22
+            AND to_port <= 22
+          )
+          OR (
+            from_port >= 3389
+            AND to_port <= 3389
+          )
+        )
+      GROUP BY
+        group_id
+    )
+    SELECT
+      arn AS resource,
+      sg.og_account_id AS og_account_id,
+      sg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN bad_rules.group_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN bad_rules.group_id IS NULL THEN sg.group_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+        ELSE sg.group_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) that allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+      END AS reason
+    FROM
+      aws_vpc_security_group AS sg
+      LEFT JOIN bad_rules ON bad_rules.group_id = sg.group_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 5.2 Ensure no security groups allow ingress from 0.0.0.0/0 to remote server administration ports

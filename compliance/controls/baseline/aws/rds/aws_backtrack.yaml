@@ -1,31 +1,32 @@
+Description: Enable Amazon Aurora Backtrack.
 ID: aws_backtrack
-Title: "Backtrack"
-Description: "Enable Amazon Aurora Backtrack."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when backtrack_window is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when backtrack_window is null then title || ' Backtrack feature is not enabled'
-        else title || ' Backtrack feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_cluster
-    where
-      engine = 'aurora-mysql' or engine = 'aurora-postgresql'
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN backtrack_window IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN backtrack_window IS NULL THEN title || ' Backtrack feature is not enabled'
+        ELSE title || ' Backtrack feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster
+    WHERE
+      engine = 'aurora-mysql' OR engine = 'aurora-postgresql'
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Backtrack

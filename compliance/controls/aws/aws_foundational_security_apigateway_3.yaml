@@ -1,28 +1,28 @@
+Description: This control checks whether AWS X-Ray active tracing is enabled for your Amazon API Gateway REST API stages.
 ID: aws_foundational_security_apigateway_3
-Title: "3 API Gateway REST API stages should have AWS X-Ray tracing enabled"
-Description: "This control checks whether AWS X-Ray active tracing is enabled for your Amazon API Gateway REST API stages."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when tracing_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when tracing_enabled then title || ' X-Ray tracing enabled.'
-        else title || ' X-Ray tracing disabled.'
-      end as reason
-    from
-      aws_api_gateway_stage;
-  PrimaryTable: aws_api_gateway_stage
   ListOfTables:
     - aws_api_gateway_stage
   Parameters: []
+  PrimaryTable: aws_api_gateway_stage
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN tracing_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN tracing_enabled THEN title || ' X-Ray tracing enabled.'
+        ELSE title || ' X-Ray tracing disabled.'
+      END AS reason
+    FROM
+      aws_api_gateway_stage;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3 API Gateway REST API stages should have AWS X-Ray tracing enabled

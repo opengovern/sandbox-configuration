@@ -1,14 +1,31 @@
+Description: This control checks whether the IAM role has been used in 60 days. Unused accounts and roles increase the attack surface area.
 ID: aws_iam_role_unused_60
-Title: "IAM roles that have not been used in 60 days should be removed"
-Description: "This control checks whether the IAM role has been used in 60 days. Unused accounts and roles increase the attack surface area."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when role_last_used_date <= (current_date - interval '60' day) or role_last_used_date is null\n      then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when role_last_used_date is null\n      then name || ' was never used.'\n    else\n      name || ' was last used ' || to_char(role_last_used_date , 'DD-Mon-YYYY') || ' (' || extract(day from current_date - role_last_used_date) || ' days ago).'\n  end as reason\n  \nfrom\n  aws_iam_role;"
-  PrimaryTable: aws_iam_role
   ListOfTables:
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN role_last_used_date <= (CURRENT_DATE - INTERVAL '60' DAY) OR role_last_used_date IS NULL
+          THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN role_last_used_date IS NULL
+          THEN name || ' was never used.'
+        ELSE name || ' was last used ' || TO_CHAR(role_last_used_date , 'DD-Mon-YYYY') || 
+          ' (' || EXTRACT(DAY FROM CURRENT_DATE - role_last_used_date) || ' days ago).'
+      END AS reason
+    FROM
+      aws_iam_role;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: IAM roles that have not been used in 60 days should be removed

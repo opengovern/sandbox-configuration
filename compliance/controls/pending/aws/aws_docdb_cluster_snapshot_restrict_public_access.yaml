@@ -1,13 +1,30 @@
+Description: This control checks whether an Amazon DocumentDB manual cluster snapshot is public. The control fails if the manual cluster snapshot is public.
 ID: aws_docdb_cluster_snapshot_restrict_public_access
-Title: "Amazon DocumentDB manual cluster snapshots should not be public"
-Description: "This control checks whether an Amazon DocumentDB manual cluster snapshot is public. The control fails if the manual cluster snapshot is public."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  case\n    when (cluster_snapshot ->> 'AttributeName' = 'restore') and cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when (cluster_snapshot ->> 'AttributeName' = 'restore') and cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then title || ' does not restrict public access.'\n    else title || ' restrict public access.'\n  end reason\n  \n  \nfrom\n  aws_docdb_cluster_snapshot,\n  jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      CASE
+        WHEN (cluster_snapshot ->> 'AttributeName' = 'restore') 
+          AND cluster_snapshot -> 'AttributeValues' = '["all"]' 
+        THEN 'alarm'
+        ELSE 'ok'
+      END status,
+      CASE
+        WHEN (cluster_snapshot ->> 'AttributeName' = 'restore') 
+          AND cluster_snapshot -> 'AttributeValues' = '["all"]' 
+        THEN title || ' does not restrict public access.'
+        ELSE title || ' restrict public access.'
+      END reason
+    FROM
+      aws_docdb_cluster_snapshot,
+      jsonb_array_elements(db_cluster_snapshot_attributes) AS cluster_snapshot;
+Severity: low
+Tags: {}
+Title: Amazon DocumentDB manual cluster snapshots should not be public

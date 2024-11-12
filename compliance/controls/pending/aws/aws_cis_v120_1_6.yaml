@@ -1,13 +1,27 @@
+Description: Password policies are, in part, used to enforce password complexity requirements. IAM password policies can be used to ensure password are comprised of different character sets. It is recommended that the password policy require at least one lowercase letter.
 ID: aws_cis_v120_1_6
-Title: "1.6 Ensure IAM password policy require at least one lowercase letter"
-Description: "Password policies are, in part, used to enforce password complexity requirements. IAM password policies can be used to ensure password are comprised of different character sets. It is recommended that the password policy require at least one lowercase letter."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || a.partition || ':::' || a.account_id as resource,\n  case\n    when require_lowercase_characters then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when minimum_password_length is null then 'No password policy set.'\n    when require_lowercase_characters then 'Lowercase character required.'\n    else 'Lowercase character not required.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      'arn:' || a.partition || ':::' || a.account_id AS resource,
+      CASE
+        WHEN require_lowercase_characters THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimum_password_length IS NULL THEN 'No password policy set.'
+        WHEN require_lowercase_characters THEN 'Lowercase character required.'
+        ELSE 'Lowercase character not required.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN aws_iam_account_password_policy AS pol ON a.account_id = pol.account_id;
+Severity: low
+Tags: {}
+Title: 1.6 Ensure IAM password policy require at least one lowercase letter

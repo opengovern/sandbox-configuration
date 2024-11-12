@@ -1,27 +1,28 @@
+Description: io1 Volumes are older generation less reliable than io2 for same cost.
 ID: aws_use_io2_not_io1
-Title: "Use io2, not io1"
-Description: "io1 Volumes are older generation less reliable than io2 for same cost."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when volume_type = 'io1' then 'alarm'
-        when volume_type = 'io2' then 'ok'
-        else 'skip'
-      end as status,
-      volume_id || ' type is ' || volume_type || '.' as reason,
-      region,
-      account_id
-    from
-      aws_ebs_volume;
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN volume_type = 'io1' THEN 'alarm'
+        WHEN volume_type = 'io2' THEN 'ok'
+        ELSE 'skip'
+      END AS status,
+      volume_id || ' type is ' || volume_type || '.' AS reason,
+      region,
+      account_id
+    FROM
+      aws_ebs_volume;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -32,5 +33,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Use io2, not io1

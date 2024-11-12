@@ -1,14 +1,28 @@
+Description: This control checks whether an Amazon OpenSearch Service domain has the latest software update installed. The control fails if a software update is available but not installed for the domain.
 ID: aws_foundational_security_opensearch_10
-Title: "10 OpenSearch domains should have the latest software update installed"
-Description: "This control checks whether an Amazon OpenSearch Service domain has the latest software update installed. The control fails if a software update is available but not installed for the domain."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when service_software_options ->> 'UpdateAvailable' = 'false' then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when service_software_options ->> 'UpdateAvailable' = 'false' then title || ' updated with latest service software version.'\n    else title || ' not updated with latest service software version.'\n  end reason\n  \n  \nfrom\n  aws_opensearch_domain;"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT 
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN title || ' updated with latest service software version.'
+        ELSE title || ' not updated with latest service software version.'
+      END reason
+    FROM
+      aws_opensearch_domain;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 10 OpenSearch domains should have the latest software update installed

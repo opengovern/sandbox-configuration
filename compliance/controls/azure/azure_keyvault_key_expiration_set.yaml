@@ -1,14 +1,36 @@
+Description: Cryptographic keys should have a defined expiration date and not be permanent. Keys that are valid forever provide a potential attacker with more time to compromise the key. It is a recommended security practice to set expiration dates on cryptographic keys.
 ID: azure_keyvault_key_expiration_set
-Title: "Key Vault keys should have an expiration date"
-Description: "Cryptographic keys should have a defined expiration date and not be permanent. Keys that are valid forever provide a potential attacker with more time to compromise the key. It is a recommended security practice to set expiration dates on cryptographic keys."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  kvk.id as resource,\n  kvk.og_account_id as og_account_id,\n  kvk.og_resource_id as og_resource_id,\n  case\n    when enabled and expires_at is null then 'alarm'\n    else 'ok'\n  end as status,\n  vault_name || ' key ' || name ||\n  case\n    when enabled and expires_at is null then ' expiration date not set.'\n    when not enabled then ' disabled.'\n    else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'\n  end as reason\n  \n  , kvk.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_key_vault_key kvk,\n  azure_subscription sub\nwhere\n  sub.subscription_id = kvk.subscription_id;\n"
-  PrimaryTable: azure_key_vault_key
   ListOfTables:
     - azure_key_vault_key
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault_key
+  QueryToExecute: |
+    SELECT
+      kvk.id AS resource,
+      kvk.og_account_id AS og_account_id,
+      kvk.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled AND expires_at IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      vault_name || ' key ' || name || 
+      CASE 
+        WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
+        WHEN NOT enabled THEN ' disabled.'
+        ELSE ' expiration date set to ' || TO_CHAR(expires_at, 'DD-Mon-YYYY') || '.'
+      END AS reason,
+      kvk.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault_key kvk,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = kvk.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/KeyVault
-IntegrationType:
-  - azure_subscription
+Title: Key Vault keys should have an expiration date

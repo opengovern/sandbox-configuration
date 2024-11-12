@@ -1,47 +1,49 @@
+Description: Ensure that container registries are geo-replicated to align with multi-region container deployments.
 ID: azure_container_registry_geo_replication_enabled
-Title: "Container registries should be geo-replicated"
-Description: "Ensure that container registries are geo-replicated to align with multi-region container deployments."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with geo_replication_count as (
-      select
-        name as name,
-        subscription_id,
-        (v ->> 'currentValue')::int as geo_replication_count
-      from
-        azure_container_registry,
-        jsonb_array_elements(usages -> 'value') as v
-      where
-        v ->> 'name' = 'Geo-replications'
-        and v ->> 'unit' = 'Count'
-    )
-    select
-      distinct a.name as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when sku_name <> 'Premium' then 'skip'
-        when c.geo_replication_count > 1 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when sku_name <> 'Premium' then a.name || ' is of ' || sku_tier || ' tier.'
-        when c.geo_replication_count > 1 then a.name || ' ' || c.geo_replication_count || ' geo replication configured.'
-        else a.name || ' geo replication not configured.'
-      end as reason
-    from
-      azure_container_registry as a
-      left join geo_replication_count as c on a.name = c.name and a.subscription_id = c.subscription_id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_container_registry
   ListOfTables:
     - azure_container_registry
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_registry
+  QueryToExecute: |
+    WITH geo_replication_count AS (
+      SELECT
+        name AS name,
+        subscription_id,
+        (v ->> 'currentValue')::int AS geo_replication_count
+      FROM
+        azure_container_registry,
+        jsonb_array_elements(usages -> 'value') AS v
+      WHERE
+        v ->> 'name' = 'Geo-replications'
+        AND v ->> 'unit' = 'Count'
+    )
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sku_name <> 'Premium' THEN 'skip'
+        WHEN c.geo_replication_count > 1 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sku_name <> 'Premium' THEN a.name || ' is of ' || sku_tier || ' tier.'
+        WHEN c.geo_replication_count > 1 THEN a.name || ' ' || c.geo_replication_count || ' geo replication configured.'
+        ELSE a.name || ' geo replication not configured.'
+      END AS reason
+    FROM
+      azure_container_registry AS a
+      LEFT JOIN geo_replication_count AS c 
+        ON a.name = c.name 
+        AND a.subscription_id = c.subscription_id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container registries should be geo-replicated

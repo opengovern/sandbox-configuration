@@ -1,64 +1,60 @@
+Description: Create an activity log alert for the Delete Public IP Address rule.
 ID: azure_cis_v200_5_2_10
-Title: "5.2.10 Ensure that Activity Log Alert exists for Delete Public IP Address rule"
-Description: "Create an activity log alert for the Delete Public IP Address rule."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with alert_rule as (
-      select
-        alert.id as alert_id,
-        alert.name as alert_name,
+  ListOfTables:
+    - azure_log_alert
+    - azure_subscription
+  Parameters: []
+  PrimaryTable: azure_subscription
+  QueryToExecute: |
+    WITH alert_rule AS (
+      SELECT
+        alert.id AS alert_id,
+        alert.name AS alert_name,
         alert.enabled,
         alert.location,
         alert.subscription_id
-      from
-        azure_log_alert as alert,
-        jsonb_array_elements_text(scopes) as sc
-      where
+      FROM
+        azure_log_alert AS alert,
+        jsonb_array_elements_text(scopes) AS sc
+      WHERE
         alert.location = 'global'
-        and alert.enabled
-        and sc = '/subscriptions/' || alert.subscription_id
-        and
-        (
-          ( alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
-          and alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/publicIPAddresses/delete"}]'
-          )
-          or
-          (
-            alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
-            and alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.network/publicipaddresses"}]'
-            and jsonb_array_length(alert.condition -> 'allOf') = 2
-          )
+        AND alert.enabled
+        AND sc = '/subscriptions/' || alert.subscription_id
+        AND (
+          (alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+          AND alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/publicIPAddresses/delete"}]')
+          OR
+          (alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+          AND alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.network/publicipaddresses"}]'
+          AND jsonb_array_length(alert.condition -> 'allOf') = 2)
         )
-        limit 1
+      LIMIT 1
     )
-    select
-      sub.subscription_id as resource,
-      sub.og_account_id as og_account_id,
-      sub.og_resource_id as og_resource_id,
-      case
-        when count(a.subscription_id) > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when count(a.subscription_id) > 0 then 'Activity Log Alert exists for Delete Public IP Address rule.'
-        else 'Activity Log Alert does not exists for Delete Public IP Address rule.'
-      end as reason
-    from
+    SELECT
+      sub.subscription_id AS resource,
+      sub.og_account_id AS og_account_id,
+      sub.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'OK'
+        ELSE 'ALARM'
+      END AS status,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'Activity Log Alert exists for Delete Public IP Address rule.'
+        ELSE 'Activity Log Alert does not exist for Delete Public IP Address rule.'
+      END AS reason
+    FROM
       azure_subscription sub
-      left join alert_rule a on sub.subscription_id = a.subscription_id
-    group by
+    LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
+    GROUP BY
       sub._ctx,
       sub.subscription_id,
       sub.display_name,
       sub.og_account_id,
       sub.og_resource_id;
-  PrimaryTable: azure_subscription
-  ListOfTables:
-    - azure_log_alert
-    - azure_subscription
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 5.2.10 Ensure that Activity Log Alert exists for Delete Public IP Address rule

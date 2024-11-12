@@ -1,14 +1,36 @@
+Description: Enable audit logging on MySQL Servers.
 ID: azure_mysql_server_audit_logging_enabled
-Title: "Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server"
-Description: "Enable audit logging on MySQL Servers."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then s.name || ' server parameter audit_log_enabled off.'\n    else s.name || ' server parameter audit_log_enabled on.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_mysql_server as s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'audit_log_enabled'\n  and sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_mysql_server
   ListOfTables:
     - azure_mysql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_mysql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN s.name || ' server parameter audit_log_enabled off.'
+        ELSE s.name || ' server parameter audit_log_enabled on.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_mysql_server AS s,
+      jsonb_array_elements(server_configurations) config,
+      azure_subscription sub
+    WHERE
+      config ->> 'Name' = 'audit_log_enabled'
+      AND sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/MySQL
-IntegrationType:
-  - azure_subscription
+Title: Ensure server parameter 'audit_log_enabled' is set to 'ON' for MySQL Database Server

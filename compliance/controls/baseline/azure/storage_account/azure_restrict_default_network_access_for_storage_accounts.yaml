@@ -1,31 +1,33 @@
+Description: Ensure that the default network access rule is set to "Deny" within your Azure Storage account.
 ID: azure_restrict_default_network_access_for_storage_accounts
-Title: "Restrict Default Network Access for Storage Accounts"
-Description: "Ensure that the default network access rule is set to \"Deny\" within your Azure Storage account."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when network_rule_default_action = 'Allow' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_rule_default_action = 'Allow' then a.name || ' can be accessed by all networks, including the Internet.'
-        else a.name || ' can not be accessed by all networks, including the Internet.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN network_rule_default_action = 'Allow' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN network_rule_default_action = 'Allow' THEN a.name || ' can be accessed by all networks, including the Internet.'
+        ELSE a.name || ' can not be accessed by all networks, including the Internet.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS a
+    LEFT JOIN
+      azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +38,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Restrict Default Network Access for Storage Accounts

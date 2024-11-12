@@ -1,28 +1,28 @@
+Description: This control checks whether RDS DB instances are configured to copy all tags to snapshots when the snapshots are created.
 ID: aws_foundational_security_rds_17
-Title: "17 RDS DB instances should be configured to copy tags to snapshots"
-Description: "This control checks whether RDS DB instances are configured to copy all tags to snapshots when the snapshots are created."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when copy_tags_to_snapshot then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when copy_tags_to_snapshot then title || ' copy tags to snapshot enabled.'
-        else title || ' copy tags to snapshot disabled.'
-      end as reason
-    from
-      aws_rds_db_instance;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE 
+        WHEN copy_tags_to_snapshot THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE 
+        WHEN copy_tags_to_snapshot THEN title || ' copy tags to snapshot enabled.'
+        ELSE title || ' copy tags to snapshot disabled.'
+      END AS reason
+    FROM
+      aws_rds_db_instance;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 17 RDS DB instances should be configured to copy tags to snapshots

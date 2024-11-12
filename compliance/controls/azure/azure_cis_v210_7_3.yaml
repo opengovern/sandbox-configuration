@@ -1,33 +1,33 @@
+Description: Ensure that OS disks (boot volumes) and data disks (non-boot volumes) are encrypted with CMK (Customer Managed Keys). Customer Managed keys can be either ADE or Server Side Encryption(SSE).
 ID: azure_cis_v210_7_3
-Title: "7.3 Ensure that 'OS and Data' disks are encrypted with Customer Managed Key (CMK)"
-Description: "Ensure that OS disks (boot volumes) and data disks (non-boot volumes) are encrypted with CMK (Customer Managed Keys). Customer Managed keys can be either ADE or Server Side Encryption(SSE)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      disk.id as resource,
-      disk.og_account_id as og_account_id,
-      disk.og_resource_id as og_resource_id,
-      case
-        when encryption_type = 'EncryptionAtRestWithCustomerKey' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encryption_type = 'EncryptionAtRestWithCustomerKey' then disk.name || ' encrypted with CMK.'
-        else disk.name || ' not encrypted with CMK.'
-      end as reason
-    from
-      azure_compute_disk disk,
-      azure_subscription sub
-    where
-      disk_state = 'Attached'
-      and sub.subscription_id = disk.subscription_id;
-  PrimaryTable: azure_compute_disk
   ListOfTables:
     - azure_compute_disk
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_disk
+  QueryToExecute: |
+    SELECT
+      disk.id AS resource,
+      disk.og_account_id AS og_account_id,
+      disk.og_resource_id AS og_resource_id,
+      CASE
+        WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN disk.name || ' encrypted with CMK.'
+        ELSE disk.name || ' not encrypted with CMK.'
+      END AS reason
+    FROM
+      azure_compute_disk disk,
+      azure_subscription sub
+    WHERE
+      disk_state = 'Attached'
+      AND sub.subscription_id = disk.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 7.3 Ensure that 'OS and Data' disks are encrypted with Customer Managed Key (CMK)

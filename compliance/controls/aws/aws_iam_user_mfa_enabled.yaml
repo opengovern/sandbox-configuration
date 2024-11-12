@@ -1,28 +1,29 @@
+Description: Enable this rule to restrict access to resources in the AWS Cloud.
 ID: aws_iam_user_mfa_enabled
-Title: "IAM user MFA should be enabled"
-Description: "Enable this rule to restrict access to resources in the AWS Cloud."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      user_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not mfa_active then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not mfa_active then user_name || ' MFA device not configured.'
-        else user_name || ' MFA device configured.'
-      end as reason
-      , account_id
-    from
-      aws_iam_credential_report;
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
     - aws_iam_credential_report
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: |
+    SELECT
+      user_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT mfa_active THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT mfa_active THEN user_name || ' MFA device not configured.'
+        ELSE user_name || ' MFA device configured.'
+      END AS reason,
+      account_id
+    FROM
+      aws_iam_credential_report;
 Severity: high
 Tags:
   audit_manager_control_tower:
@@ -45,11 +46,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -61,5 +62,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM user MFA should be enabled

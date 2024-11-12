@@ -1,32 +1,32 @@
+Description: Ensure Kubernetes clusters upgrade channel is configured. This control is non-compliant if Kubernetes clusters upgrade channel is set to none.
 ID: azure_kubernetes_cluster_upgrade_channel
-Title: "Kubernetes clusters upgrade channel should be configured"
-Description: "Ensure Kubernetes clusters upgrade channel is configured. This control is non-compliant if Kubernetes clusters upgrade channel is set to none."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.id as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when auto_upgrade_profile ->> 'upgradeChannel' = 'none' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when auto_upgrade_profile ->> 'upgradeChannel' = 'none' then c.name || ' upgrade channel not configured.'
-        else c.name || ' upgrade channel configured.'
-      end as reason
-    from
-      azure_kubernetes_cluster c,
-      azure_subscription sub
-    where
-      sub.subscription_id = c.subscription_id;
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.id AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN c.name || ' upgrade channel not configured.'
+        ELSE c.name || ' upgrade channel configured.'
+      END AS reason
+    FROM
+      azure_kubernetes_cluster c,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = c.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Kubernetes clusters upgrade channel should be configured

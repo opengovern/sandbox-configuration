@@ -1,32 +1,32 @@
+Description: Audit enabling of only connections via SSL to Azure Cache for Redis. Use of secure connections ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking.
 ID: azure_redis_cache_ssl_enabled
-Title: "Only secure connections to your Azure Cache for Redis should be enabled"
-Description: "Audit enabling of only connections via SSL to Azure Cache for Redis. Use of secure connections ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      redis.id as resource,
-      redis.og_account_id as og_account_id,
-      redis.og_resource_id as og_resource_id,
-      case
-        when enable_non_ssl_port then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when enable_non_ssl_port then redis.name || ' secure connections disabled.'
-        else redis.name || ' secure connections enabled.'
-      end as reason
-    from
-      azure_redis_cache as redis,
-      azure_subscription as sub
-    where
-      sub.subscription_id = redis.subscription_id;
-  PrimaryTable: azure_redis_cache
   ListOfTables:
     - azure_redis_cache
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_redis_cache
+  QueryToExecute: |
+    SELECT
+      redis.id AS resource,
+      redis.og_account_id AS og_account_id,
+      redis.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_non_ssl_port THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN enable_non_ssl_port THEN redis.name || ' secure connections disabled.'
+        ELSE redis.name || ' secure connections enabled.'
+      END AS reason
+    FROM
+      azure_redis_cache AS redis,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = redis.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Only secure connections to your Azure Cache for Redis should be enabled

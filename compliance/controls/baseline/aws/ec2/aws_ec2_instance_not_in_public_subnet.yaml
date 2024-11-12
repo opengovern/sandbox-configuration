@@ -1,29 +1,30 @@
+Description: Ensure that no backend EC2 instances are provisioned in public subnets.
 ID: aws_ec2_instance_not_in_public_subnet
-Title: "EC2 Instance Not In Public Subnet"
-Description: "Ensure that no backend EC2 instances are provisioned in public subnets."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when public_ip_address is null then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when public_ip_address is null then instance_id || ' not publicly accessible.'
-        else instance_id || ' publicly accessible.'
-      end reason,
-      region,
-      account_id
-    from
-      aws_ec2_instance;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN public_ip_address IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN public_ip_address IS NULL THEN instance_id || ' not publicly accessible.'
+        ELSE instance_id || ' publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Instance Not In Public Subnet

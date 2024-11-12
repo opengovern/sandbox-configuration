@@ -1,14 +1,52 @@
+Description: Enable Vulnerability Assessment (VA) setting 'Also send email notifications to admins and subscription owners'.
 ID: azure_sql_server_va_setting_reports_notify_admins
-Title: "Ensure that Vulnerability Assessment (VA) setting 'Also send email notifications to admins and subscription owners' is set for each SQL Server"
-Description: "Enable Vulnerability Assessment (VA) setting 'Also send email notifications to admins and subscription owners'."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when\n      security -> 'properties' ->> 'state' = 'Disabled'\n      or\n      (\n        security -> 'properties' ->> 'state' = 'Enabled'\n        and assessment -> 'properties' ->> 'storageContainerPath' is not null\n        and assessment -> 'properties' -> 'recurringScans' ->> 'emailSubscriptionAdmins' = 'false'\n      )\n      then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when\n      security -> 'properties' ->> 'state' = 'Disabled'\n      or\n      (\n        security -> 'properties' ->> 'state' = 'Enabled'\n        and assessment -> 'properties' ->> 'storageContainerPath' is not null\n        and assessment -> 'properties' -> 'recurringScans' ->> 'emailSubscriptionAdmins' = 'false'\n      )\n      then s.name || ' VA setting not configured to send email notifications to subscription admins and owners.'\n    else s.name || ' VA setting configured to send email notifications to subscription admins and owners.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_security_alert_policy) security,\n  jsonb_array_elements(server_vulnerability_assessment) assessment,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN
+          security -> 'properties' ->> 'state' = 'Disabled'
+          OR
+          (
+            security -> 'properties' ->> 'state' = 'Enabled'
+            AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+            AND assessment -> 'properties' -> 'recurringScans' ->> 'emailSubscriptionAdmins' = 'false'
+          )
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN
+          security -> 'properties' ->> 'state' = 'Disabled'
+          OR
+          (
+            security -> 'properties' ->> 'state' = 'Enabled'
+            AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+            AND assessment -> 'properties' -> 'recurringScans' ->> 'emailSubscriptionAdmins' = 'false'
+          )
+        THEN s.name || ' VA setting not configured to send email notifications to subscription admins and owners.'
+        ELSE s.name || ' VA setting configured to send email notifications to subscription admins and owners.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server s,
+      jsonb_array_elements(server_security_alert_policy) security,
+      jsonb_array_elements(server_vulnerability_assessment) assessment,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +67,4 @@ Tags:
     - azure
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: Ensure that Vulnerability Assessment (VA) setting 'Also send email notifications to admins and subscription owners' is set for each SQL Server

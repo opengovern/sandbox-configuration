@@ -1,13 +1,38 @@
+Description: Ensure that IAM Access Analyzer findings are reviewed and resolved to maintain access security to your AWS resources.
 ID: aws_iam_access_analyzer_findings
-Title: "IAM Access Analyzer Findings"
-Description: "Ensure that IAM Access Analyzer findings are reviewed and resolved to maintain access security to your AWS resources."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.name as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists (\n      select 1 from jsonb_array_elements(findings) as f where (f ->> 'Status') = 'ACTIVE'\n    ) then 'There are unresolved findings in this analyzer'\n    else 'There is no unresolved findings in this analyzer'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_accessanalyzer_analyzer as a\n"
-  PrimaryTable: aws_accessanalyzer_analyzer
   ListOfTables:
     - aws_accessanalyzer_analyzer
   Parameters: []
+  PrimaryTable: aws_accessanalyzer_analyzer
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(findings) AS f
+          WHERE (f ->> 'Status') = 'ACTIVE'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(findings) AS f
+          WHERE (f ->> 'Status') = 'ACTIVE'
+        ) THEN 'There are unresolved findings in this analyzer'
+        ELSE 'There is no unresolved findings in this analyzer'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_accessanalyzer_analyzer AS a
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +43,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Access Analyzer Findings

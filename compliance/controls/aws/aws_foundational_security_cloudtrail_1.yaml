@@ -1,15 +1,59 @@
+Description: This control checks that there is at least one multi-Region CloudTrail trail.
 ID: aws_foundational_security_cloudtrail_1
-Title: "1 CloudTrail should be enabled and configured with at least one multi-Region trail"
-Description: "This control checks that there is at least one multi-Region CloudTrail trail."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with multi_region_trails as (\n  select\n    account_id,\n    count(account_id) as num_multregion_trails\n  from\n    aws_cloudtrail_trail\n  where\n    is_multi_region_trail and region = home_region\n    and is_logging\n  group by\n    account_id,\n    is_multi_region_trail\n), organization_trails as (\n  select\n    is_organization_trail,\n    is_logging,\n    is_multi_region_trail,\n    account_id\n  from\n    aws_cloudtrail_trail\n  where\n    is_organization_trail\n)\nselect\n  distinct a.arn as resource,\na.og_account_id as og_account_id,\na.og_resource_id as og_resource_id,\n  case\n    when coalesce(num_multregion_trails, 0) >= 1 then 'ok'\n    when o.is_organization_trail and o.is_logging and o.is_multi_region_trail then 'ok'\n    when o.is_organization_trail and o.is_multi_region_trail and o.is_logging is null then 'info'\n    else 'alarm'\n  end as status,\n  case\n    when coalesce(num_multregion_trails, 0) >= 1 then a.title || ' has ' || coalesce(num_multregion_trails, 0) || ' multi-region trail(s).'\n    when o.is_organization_trail and o.is_logging and o.is_multi_region_trail then a.title || ' has multi-region trail(s).'\n    when o.is_organization_trail and o.is_multi_region_trail and o.is_logging is null then a.title || ' has organization trail, check organization account for cloudtrail logging status.'\n    else a.title || ' does not have multi-region trail(s).'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join multi_region_trails as b on a.account_id = b.account_id\n  left join organization_trails as o on a.account_id = o.account_id;"
-  PrimaryTable: aws_cloudtrail_trail
   ListOfTables:
     - aws_cloudtrail_trail
     - aws_account
   Parameters: []
+  PrimaryTable: aws_cloudtrail_trail
+  QueryToExecute: |
+    WITH multi_region_trails AS (
+      SELECT
+        account_id,
+        COUNT(account_id) AS num_multregion_trails
+      FROM
+        aws_cloudtrail_trail
+      WHERE
+        is_multi_region_trail 
+        AND region = home_region
+        AND is_logging
+      GROUP BY
+        account_id,
+        is_multi_region_trail
+    ), organization_trails AS (
+      SELECT
+        is_organization_trail,
+        is_logging,
+        is_multi_region_trail,
+        account_id
+      FROM
+        aws_cloudtrail_trail
+      WHERE
+        is_organization_trail
+    )
+    SELECT
+      DISTINCT a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COALESCE(num_multregion_trails, 0) >= 1 THEN 'ok'
+        WHEN o.is_organization_trail AND o.is_logging AND o.is_multi_region_trail THEN 'ok'
+        WHEN o.is_organization_trail AND o.is_multi_region_trail AND o.is_logging IS NULL THEN 'info'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COALESCE(num_multregion_trails, 0) >= 1 THEN a.title || ' has ' || COALESCE(num_multregion_trails, 0) || ' multi-region trail(s).'
+        WHEN o.is_organization_trail AND o.is_logging AND o.is_multi_region_trail THEN a.title || ' has multi-region trail(s).'
+        WHEN o.is_organization_trail AND o.is_multi_region_trail AND o.is_logging IS NULL THEN a.title || ' has organization trail, check organization account for cloudtrail logging status.'
+        ELSE a.title || ' does not have multi-region trail(s).'
+      END AS reason
+    FROM
+      aws_account AS a
+      LEFT JOIN multi_region_trails AS b ON a.account_id = b.account_id
+      LEFT JOIN organization_trails AS o ON a.account_id = o.account_id
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 CloudTrail should be enabled and configured with at least one multi-Region trail

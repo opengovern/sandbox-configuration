@@ -1,29 +1,9 @@
+Description: Ensure that Microsoft Azure virtual machines are configured to use accelerated networking.
 ID: azure_check_for_accelerated_networking_for_virtual_machines
-Title: "Check for Accelerated Networking for Virtual Machines"
-Description: "Ensure that Microsoft Azure virtual machines are configured to use accelerated networking."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when nic.enable_accelerated_networking = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when nic.enable_accelerated_networking = 'true' then 'Accelerated networking is enabled'
-        else 'Accelerated networking is not enabled'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm
-      left join azure_subscription as sub on sub.subscription_id = vm.subscription_id,
-      jsonb_array_elements(network_interfaces) as ni
-      left join azure_network_interface as nic on nic.id = (ni ->> 'id')
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_network_interface
@@ -31,11 +11,31 @@ Query:
   Parameters:
     - Key: azureAllowedVmExtentions
       Required: true
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN nic.enable_accelerated_networking = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN nic.enable_accelerated_networking = 'true' THEN 'Accelerated networking is enabled'
+        ELSE 'Accelerated networking is not enabled'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm
+      LEFT JOIN azure_subscription AS sub ON sub.subscription_id = vm.subscription_id,
+      jsonb_array_elements(network_interfaces) AS ni
+      LEFT JOIN azure_network_interface AS nic ON nic.id = (ni ->> 'id')
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for Accelerated Networking for Virtual Machines

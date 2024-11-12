@@ -1,35 +1,36 @@
+Description: Ensure that anonymous access to blob containers is disabled within your Azure Storage account.
 ID: azure_disable_anonymous_access_to_blob_containers
-Title: "Disable Anonymous Access to Blob Containers"
-Description: "Ensure that anonymous access to blob containers is disabled within your Azure Storage account."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when c.public_access is null then 'skip'
-        when c.public_access = 'container' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when c.public_access is null then 'no container found'
-        when c.public_access = 'container' then a.name || ' anonymous access to blob container is not disabled.'
-        else a.name || ' anonymous access to blob container is disabled.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join azure_storage_container as c on a.name = c.account_name
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_storage_container
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN c.public_access IS NULL THEN 'skip'
+        WHEN c.public_access = 'container' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN c.public_access IS NULL THEN 'no container found'
+        WHEN c.public_access = 'container' THEN a.name || ' anonymous access to blob container is not disabled.'
+        ELSE a.name || ' anonymous access to blob container is disabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS a
+      LEFT JOIN azure_storage_container AS c ON a.name = c.account_name
+      LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -40,5 +41,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Disable Anonymous Access to Blob Containers

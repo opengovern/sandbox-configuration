@@ -1,32 +1,34 @@
+Description: Ensure that public access to Kubernetes API server is restricted.
 ID: azure_secure_access_to_kubernetes_api_server_using_authorized_ip_address_ranges
-Title: "Secure Access to Kubernetes API Server Using Authorized IP Address Ranges"
-Description: "Ensure that public access to Kubernetes API server is restricted."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      kubernetes_version,
-      case
-        when api_server_access_profile is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when api_server_access_profile is null then c.name || '  is not configured to secure access to the Kubernetes API server'
-        else c.name || '  is configured to secure access to the Kubernetes API server'
-      end as reason,
-      c.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_kubernetes_cluster as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      kubernetes_version,
+      CASE
+        WHEN api_server_access_profile IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN api_server_access_profile IS NULL THEN c.name || ' is not configured to secure access to the Kubernetes API server'
+        ELSE c.name || ' is configured to secure access to the Kubernetes API server'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_kubernetes_cluster AS c
+    LEFT JOIN
+      azure_subscription AS sub ON c.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -37,5 +39,4 @@ Tags:
     - Azure Kubernetes (AKS)
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Secure Access to Kubernetes API Server Using Authorized IP Address Ranges

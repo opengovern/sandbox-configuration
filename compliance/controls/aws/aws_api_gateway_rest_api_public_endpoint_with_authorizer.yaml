@@ -1,32 +1,41 @@
+Description: Ensure API Gateway REST API public endpoint is configured with authorizer. This rule is non-compliant if API Gateway REST API public endpoint has no authorizer configured.
 ID: aws_api_gateway_rest_api_public_endpoint_with_authorizer
-Title: "API Gateway REST API public endpoints should be configured with authorizer"
-Description: "Ensure API Gateway REST API public endpoint is configured with authorizer. This rule is non-compliant if API Gateway REST API public endpoint has no authorizer configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || p.partition || ':apigateway:' || p.region || '::/apis/' || p.api_id as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when not (endpoint_configuration_types ? 'PRIVATE') and (a.provider_arns is not null and jsonb_array_length(a.provider_arns) > 0 ) then 'ok'
-        when not (endpoint_configuration_types ? 'PRIVATE') and ( a.provider_arns is null or jsonb_array_length(a.provider_arns) = 0 ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not (endpoint_configuration_types ? 'PRIVATE') and (a.provider_arns is not null and jsonb_array_length(a.provider_arns) > 0 ) then p.name || ' has public endpoint with authorizer.'
-        when not (endpoint_configuration_types ? 'PRIVATE') and ( a.provider_arns is null or jsonb_array_length(a.provider_arns) = 0 ) then p.name || ' has public endpoint without authorizer.'
-        else p.name || ' has private endpoint.'
-      end as reason
-    from
-      aws_api_gateway_rest_api as p
-      left join aws_api_gateway_authorizer as a on p.api_id = a.rest_api_id;
-  PrimaryTable: aws_api_gateway_rest_api
   ListOfTables:
     - aws_api_gateway_rest_api
     - aws_api_gateway_authorizer
   Parameters: []
+  PrimaryTable: aws_api_gateway_rest_api
+  QueryToExecute: |
+    SELECT
+      'arn:' || p.partition || ':apigateway:' || p.region || '::/apis/' || p.api_id AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT (endpoint_configuration_types ? 'PRIVATE')
+        AND (a.provider_arns IS NOT NULL AND jsonb_array_length(a.provider_arns) > 0)
+        THEN 'ok'
+        WHEN NOT (endpoint_configuration_types ? 'PRIVATE')
+        AND (a.provider_arns IS NULL OR jsonb_array_length(a.provider_arns) = 0)
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT (endpoint_configuration_types ? 'PRIVATE')
+        AND (a.provider_arns IS NOT NULL AND jsonb_array_length(a.provider_arns) > 0)
+        THEN p.name || ' has public endpoint with authorizer.'
+        WHEN NOT (endpoint_configuration_types ? 'PRIVATE')
+        AND (a.provider_arns IS NULL OR jsonb_array_length(a.provider_arns) = 0)
+        THEN p.name || ' has public endpoint without authorizer.'
+        ELSE p.name || ' has private endpoint.'
+      END AS reason
+    FROM
+      aws_api_gateway_rest_api AS p
+    LEFT JOIN aws_api_gateway_authorizer AS a 
+      ON p.api_id = a.rest_api_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: API Gateway REST API public endpoints should be configured with authorizer

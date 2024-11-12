@@ -1,45 +1,46 @@
+Description: This control checks whether logging is enabled with the minimum severity level of LOGGER_SEVERITY_DEFAULT for DMS replication tasks SOURCE_CAPTURE and SOURCE_UNLOAD. The control fails if logging isn't enabled for these tasks or if the minimum severity level is less than LOGGER_SEVERITY_DEFAULT.
 ID: aws_dms_replication_task_source_database_logging_enabled
-Title: "DMS replication tasks for the source database should have logging enabled"
-Description: "This control checks whether logging is enabled with the minimum severity level of LOGGER_SEVERITY_DEFAULT for DMS replication tasks SOURCE_CAPTURE and SOURCE_UNLOAD. The control fails if logging isn't enabled for these tasks or if the minimum severity level is less than LOGGER_SEVERITY_DEFAULT."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with replication_task_logging as (
-      select
+  ListOfTables:
+    - aws_dms_replication_task
+  Parameters: []
+  PrimaryTable: aws_dms_replication_task
+  QueryToExecute: |
+    WITH replication_task_logging AS (
+      SELECT
         arn,
         og_account_id,
         og_resource_id,
-        bool_or(o ->> 'Id' = 'SOURCE_CAPTURE' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as capture_logging_enabled,
-        bool_or(o ->> 'Id' = 'SOURCE_UNLOAD' and o ->> 'Severity' in ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) as unload_logging_enabled
-      from
+        BOOL_OR(o ->> 'Id' = 'SOURCE_CAPTURE' AND o ->> 'Severity' IN ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) AS capture_logging_enabled,
+        BOOL_OR(o ->> 'Id' = 'SOURCE_UNLOAD' AND o ->> 'Severity' IN ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) AS unload_logging_enabled
+      FROM
         aws_dms_replication_task,
-        jsonb_array_elements(replication_task_settings -> 'Logging' -> 'LogComponents') as o
-      group by
+        JSONB_ARRAY_ELEMENTS(replication_task_settings -> 'Logging' -> 'LogComponents') AS o
+      GROUP BY
         arn,
         og_account_id,
         og_resource_id
     )
-    select
-      t.arn as resource,
-      t.og_account_id as og_account_id,
-      t.og_resource_id as og_resource_id,
-      (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool as logging_enabled,
-      case
-        when (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool and l.capture_logging_enabled and l.unload_logging_enabled then 'ok'
-        else 'alarm'
-        end as status,
-      case
-        when (replication_task_settings -> 'Logging' ->> 'EnableLogging')::bool and l.capture_logging_enabled and l.unload_logging_enabled then title || ' source database logging enabled.'
-        else title || ' source database logging disabled.'
-        end as reason
-    from
-      aws_dms_replication_task as t
-      left join replication_task_logging as l on l.arn = t.arn;
-  PrimaryTable: aws_dms_replication_task
-  ListOfTables:
-    - aws_dms_replication_task
-  Parameters: []
+  
+    SELECT
+      t.arn AS resource,
+      t.og_account_id AS og_account_id,
+      t.og_resource_id AS og_resource_id,
+      (replication_task_settings -> 'Logging' ->> 'EnableLogging')::BOOL AS logging_enabled,
+      CASE
+        WHEN (replication_task_settings -> 'Logging' ->> 'EnableLogging')::BOOL AND l.capture_logging_enabled AND l.unload_logging_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (replication_task_settings -> 'Logging' ->> 'EnableLogging')::BOOL AND l.capture_logging_enabled AND l.unload_logging_enabled THEN title || ' source database logging enabled.'
+        ELSE title || ' source database logging disabled.'
+      END AS reason
+    FROM
+      aws_dms_replication_task AS t
+      LEFT JOIN replication_task_logging AS l ON l.arn = t.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: DMS replication tasks for the source database should have logging enabled

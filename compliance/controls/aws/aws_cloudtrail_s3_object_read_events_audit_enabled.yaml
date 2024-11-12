@@ -1,14 +1,69 @@
+Description: This rule enables object-level logging for read events for S3 buckets. Object-level logging for read events helps in identifying the requestor who performed the read operation on the S3 bucket objects.
 ID: aws_cloudtrail_s3_object_read_events_audit_enabled
-Title: "Ensure that Object-level logging for read events is enabled for S3 bucket"
-Description: "This rule enables object-level logging for read events for S3 buckets. Object-level logging for read events helps in identifying the requestor who performed the read operation on the S3 bucket objects."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with s3_selectors as\n(\n  select\n    name as trail_name,\n    is_multi_region_trail,\n    bucket_selector\n  from\n    aws_cloudtrail_trail,\n    jsonb_array_elements(event_selectors) as event_selector,\n    jsonb_array_elements(case jsonb_typeof(event_selector -> 'DataResources') \n    when 'array' then event_selector -> 'DataResources'\n    else '[]' end) as data_resource,\n    jsonb_array_elements(case jsonb_typeof(data_resource -> 'Values') \n    when 'array' then data_resource -> 'Values'\n    else '[]' end) as bucket_selector\n  where\n    is_multi_region_trail\n    and data_resource ->> 'Type' = 'AWS::S3::Object'\n    and event_selector ->> 'ReadWriteType' in\n    (\n      'ReadOnly',\n      'All'\n    )\n)\nselect\n  b.arn as resource,\n  b.og_account_id as og_account_id,\n  b.og_resource_id as og_resource_id,\n  case\n    when count(bucket_selector) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when count(bucket_selector) > 0 then b.name || ' object-level read events logging enabled.'\n    else b.name || ' object-level read events logging disabled.'\n  end as reason\n  , region, account_id\nfrom\n  aws_s3_bucket as b\n  left join\n    s3_selectors\n    on bucket_selector::json::text like ('%' || b.arn || '%')\n    or bucket_selector::json::text = '\"arn:aws:s3\"'\ngroup by\n  b.og_account_id, b.og_resource_id,b.account_id, b.region, b.arn, b.name, b.tags, b._ctx;\n"
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_cloudtrail_trail
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH s3_selectors AS (
+      SELECT
+        name AS trail_name,
+        is_multi_region_trail,
+        bucket_selector
+      FROM
+        aws_cloudtrail_trail,
+        jsonb_array_elements(event_selectors) AS event_selector,
+        jsonb_array_elements(
+          CASE jsonb_typeof(event_selector -> 'DataResources')
+          WHEN 'array' THEN event_selector -> 'DataResources'
+          ELSE '[]' 
+          END
+        ) AS data_resource,
+        jsonb_array_elements(
+          CASE jsonb_typeof(data_resource -> 'Values')
+          WHEN 'array' THEN data_resource -> 'Values'
+          ELSE '[]' 
+          END
+        ) AS bucket_selector
+      WHERE
+        is_multi_region_trail
+        AND data_resource ->> 'Type' = 'AWS::S3::Object'
+        AND event_selector ->> 'ReadWriteType' IN ('ReadOnly', 'All')
+    )
+    SELECT
+      b.arn AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 THEN b.name || ' object-level read events logging enabled.'
+        ELSE b.name || ' object-level read events logging disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_s3_bucket AS b
+    LEFT JOIN
+      s3_selectors
+      ON bucket_selector::json::text LIKE ('%' || b.arn || '%')
+      OR bucket_selector::json::text = '\"arn:aws:s3\"'
+    GROUP BY
+      b.og_account_id,
+      b.og_resource_id,
+      b.account_id,
+      b.region,
+      b.arn,
+      b.name,
+      b.tags,
+      b._ctx;
 Severity: high
 Tags:
   category:
@@ -29,5 +84,4 @@ Tags:
     - aws
   service:
     - AWS/S3
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure that Object-level logging for read events is enabled for S3 bucket

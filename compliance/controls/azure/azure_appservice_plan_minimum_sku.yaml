@@ -1,30 +1,29 @@
+Description: The Free, Shared, and Basic plans are suitable for constrained testing and development purposes. This control is considered non-compliant when free, shared, or basic SKUs are utilized.
 ID: azure_appservice_plan_minimum_sku
-Title: "Appservice plan should not use free, shared or basic SKU"
-Description: "The Free, Shared, and Basic plans are suitable for constrained testing and development purposes. This control is considered non-compliant when free, shared, or basic SKUs are utilized."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        -- The below basic plans are used for development and testing purposes.
-        when sku_name in ('F1', 'D1', 'B1', 'B2', 'B3') then 'alarm'
-        else 'ok'
-      end as status,
-      a.name || ' is of ' || sku_family || ' SKU family.'  as reason
-    from
-      azure_app_service_plan as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_app_service_plan
   ListOfTables:
     - azure_app_service_plan
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_plan
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sku_name IN ('F1', 'D1', 'B1', 'B2', 'B3') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      a.name || ' is of ' || sku_family || ' SKU family.' AS reason
+    FROM
+      azure_app_service_plan AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Appservice plan should not use free, shared or basic SKU

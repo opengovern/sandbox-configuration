@@ -1,42 +1,42 @@
+Description: Ensure that at least one CloudTrail trail is enabled in the AWS account.
 ID: aws_cloudtrail_trail_enabled_account
-Title: "At least one CloudTrail trail should be enabled in the AWS account"
-Description: "Ensure that at least one CloudTrail trail is enabled in the AWS account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with trails_enabled_account as (
-      select
-        account_id,
-        count(*) as num
-      from
-        aws_cloudtrail_trail
-      where
-        home_region = region
-        and is_logging
-      group by
-        account_id
-    )
-    select
-      a.arn as resource,
-    a.og_account_id as og_account_id,
-    a.og_resource_id as og_resource_id,
-      case
-        when b.num > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.num > 0 then a.title || ' has ' || b.num || ' trails enabled.'
-        else a.title || ' has no trail enabled.'
-      end as reason
-    from
-      aws_account as a
-      left join trails_enabled_account b on a.account_id = b.account_id;
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_cloudtrail_trail
     - aws_account
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    WITH trails_enabled_account AS (
+      SELECT
+        account_id,
+        COUNT(*) AS num
+      FROM
+        aws_cloudtrail_trail
+      WHERE
+        home_region = region
+        AND is_logging
+      GROUP BY
+        account_id
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.num > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.num > 0 THEN a.title || ' has ' || b.num || ' trails enabled.'
+        ELSE a.title || ' has no trail enabled.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN trails_enabled_account b ON a.account_id = b.account_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: At least one CloudTrail trail should be enabled in the AWS account

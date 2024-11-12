@@ -1,24 +1,24 @@
+Description: 'Azure Private Link lets you connect your virtual networks to Azure services without a public IP address at the source or destination. The private link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your Azure Web PubSub Service, you can reduce data leakage risks. Learn more about private links at: https://aka.ms/awps/privatelink.'
 ID: azure_web_pub_sub_private_link_used
-Title: "Azure Web PubSub Service should use private link"
-Description: "Azure Private Link lets you connect your virtual networks to Azure services without a public IP address at the source or destination. The private link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to your Azure Web PubSub Service, you can reduce data leakage risks. Learn more about private links at: https://aka.ms/awps/privatelink."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason,
-      display_name as subscription
-    from
-      azure_subscription;
-  PrimaryTable: ""
   ListOfTables: []
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required.' AS reason,
+      display_name AS subscription
+    FROM
+      azure_subscription;
 Severity: low
 Tags:
   manual-verification:
     - "true"
-IntegrationType:
-  - azure_subscription
+Title: Azure Web PubSub Service should use private link

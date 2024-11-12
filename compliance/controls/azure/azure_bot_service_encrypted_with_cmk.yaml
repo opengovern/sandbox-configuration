@@ -1,24 +1,24 @@
+Description: 'Azure Bot Service automatically encrypts your resource to protect your data and meet organizational security and compliance commitments. By default, Microsoft-managed encryption keys are used. For greater flexibility in managing keys or controlling access to your subscription, select customer-managed keys, also known as bring your own key (BYOK). Learn more about Azure Bot Service encryption: https://docs.microsoft.com/azure/bot-service/bot-service-encryption.'
 ID: azure_bot_service_encrypted_with_cmk
-Title: "Bot Service should be encrypted with a customer-managed key"
-Description: "Azure Bot Service automatically encrypts your resource to protect your data and meet organizational security and compliance commitments. By default, Microsoft-managed encryption keys are used. For greater flexibility in managing keys or controlling access to your subscription, select customer-managed keys, also known as bring your own key (BYOK). Learn more about Azure Bot Service encryption: https://docs.microsoft.com/azure/bot-service/bot-service-encryption."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason,
-      display_name as subscription
-    from
-      azure_subscription;
-  PrimaryTable: ""
   ListOfTables: []
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required.' AS reason,
+      display_name AS subscription
+    FROM
+      azure_subscription;
 Severity: low
 Tags:
   manual-verification:
     - "true"
-IntegrationType:
-  - azure_subscription
+Title: Bot Service should be encrypted with a customer-managed key

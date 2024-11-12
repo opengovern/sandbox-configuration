@@ -1,13 +1,34 @@
+Description: Ensure Amazon Certificate Manager (ACM) certificates are renewed before their expiration.
 ID: aws_acm_certificates_renewal_7_days_before_expiration
-Title: "AWS ACM Certificates Renewal (7 days before expiration)"
-Description: "Ensure Amazon Certificate Manager (ACM) certificates are renewed before their expiration."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  certificate_arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN not_after - '7 days'::interval < now() THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN not_after < now() THEN 'certificate has been expired'\n    WHEN not_after - '7 days'::interval < now() THEN 'certificate is about to expire in ' || not_after \n    ELSE 'certificate is not going to expire soon'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_acm_certificate\n"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT 
+      certificate_arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN not_after - '7 days'::interval < now() 
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN not_after < now() 
+        THEN 'certificate has been expired'
+        WHEN not_after - '7 days'::interval < now() 
+        THEN 'certificate is about to expire in ' || not_after
+        ELSE 'certificate is not going to expire soon'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_acm_certificate
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +39,4 @@ Tags:
     - AWS Certificate Manager
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: AWS ACM Certificates Renewal (7 days before expiration)

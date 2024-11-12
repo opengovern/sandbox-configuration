@@ -1,31 +1,32 @@
+Description: Ensure Log Exports feature is enabled for your Amazon Aurora Serverless databases.
 ID: aws_enable_serverless_log_exports
-Title: "Enable Serverless Log Exports"
-Description: "Ensure Log Exports feature is enabled for your Amazon Aurora Serverless databases."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when enabled_cloudwatch_logs_exports is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when enabled_cloudwatch_logs_exports is null then title || ' Log Exports feature is not enabled'
-        else title || ' Log Exports feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_cluster
-    where
-      engine_mode = 'serverless'
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports IS NULL THEN title || ' Log Exports feature is not enabled'
+        ELSE title || ' Log Exports feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster
+    WHERE
+      engine_mode = 'serverless'
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Serverless Log Exports

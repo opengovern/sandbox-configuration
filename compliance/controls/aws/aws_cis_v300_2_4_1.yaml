@@ -1,14 +1,28 @@
+Description: EFS data should be encrypted at rest using AWS KMS (Key Management Service).
 ID: aws_cis_v300_2_4_1
-Title: "2.4.1 Ensure that encryption is enabled for EFS file systems"
-Description: "EFS data should be encrypted at rest using AWS KMS (Key Management Service)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when encrypted then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when encrypted then title || ' encrypted at rest.'\n    else title || ' not encrypted at rest.'\n  end as reason\n  \n  \nfrom\n  aws_efs_file_system;"
-  PrimaryTable: aws_efs_file_system
   ListOfTables:
     - aws_efs_file_system
   Parameters: []
+  PrimaryTable: aws_efs_file_system
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encrypted THEN title || ' encrypted at rest.'
+        ELSE title || ' not encrypted at rest.'
+      END AS reason
+    FROM
+      aws_efs_file_system;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.4.1 Ensure that encryption is enabled for EFS file systems

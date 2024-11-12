@@ -1,28 +1,28 @@
+Description: This control checks whether an Amazon EKS cluster endpoint is publicly accessible. The control fails if an EKS cluster has an endpoint that is publicly accessible.
 ID: aws_foundational_security_eks_1
-Title: "1 EKS cluster endpoints should not be publicly accessible"
-Description: "This control checks whether an Amazon EKS cluster endpoint is publicly accessible. The control fails if an EKS cluster has an endpoint that is publicly accessible."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' then title || ' endpoint publicly accessible.'
-        else title || ' endpoint not publicly accessible.'
-      end as reason
-    from
-      aws_eks_cluster;
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN title || ' endpoint publicly accessible.'
+        ELSE title || ' endpoint not publicly accessible.'
+      END AS reason
+    FROM
+      aws_eks_cluster;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 EKS cluster endpoints should not be publicly accessible

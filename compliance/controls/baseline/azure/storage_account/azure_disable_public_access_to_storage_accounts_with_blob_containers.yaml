@@ -1,31 +1,33 @@
+Description: Ensure that public access to blob containers is disabled for your Azure storage accounts to override any ACL configurations allowing access.
 ID: azure_disable_public_access_to_storage_accounts_with_blob_containers
-Title: "Disable public access to storage accounts with blob containers"
-Description: "Ensure that public access to blob containers is disabled for your Azure storage accounts to override any ACL configurations allowing access."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when allow_blob_public_access then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when allow_blob_public_access then a.name || ' container and blob data can be read by anonymous users.'
-        else a.name || ' container and blob data can not be read by anonymous users.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN allow_blob_public_access THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN allow_blob_public_access THEN a.name || ' container and blob data can be read by anonymous users.'
+        ELSE a.name || ' container and blob data can not be read by anonymous users.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS a
+    LEFT JOIN
+      azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +38,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Disable public access to storage accounts with blob containers

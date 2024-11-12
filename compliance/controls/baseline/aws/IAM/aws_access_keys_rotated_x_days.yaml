@@ -1,15 +1,34 @@
+Description: Ensure AWS IAM access keys are rotated on a periodic basis as a security best practice (X Days).
 ID: aws_access_keys_rotated_x_days
-Title: "Access Keys Rotated X Days"
-Description: "Ensure AWS IAM access keys are rotated on a periodic basis as a security best practice (X Days)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  access_key_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when status <> 'Active' then 'skip'\n    when create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < now() then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when status <> 'Active' then 'key is not activated'\n    when create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < now() then 'key is too old'\n    else 'key is not old yet'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_iam_access_key v\n"
-  PrimaryTable: aws_iam_access_key
   ListOfTables:
     - aws_iam_access_key
   Parameters:
     - Key: awsIamAccessKeyAge
       Required: true
+  PrimaryTable: aws_iam_access_key
+  QueryToExecute: |
+    SELECT
+      access_key_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN status <> 'Active' THEN 'skip'
+        WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN status <> 'Active' THEN 'key is not activated'
+        WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'key is too old'
+        ELSE 'key is not old yet'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_access_key v
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -20,5 +39,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - aws_cloud_account
+Title: Access Keys Rotated X Days

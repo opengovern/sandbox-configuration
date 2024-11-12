@@ -1,13 +1,31 @@
+Description: This control checks whether EMR clusters have encryption at rest enabled. The check fails if encryption at rest is not enabled as sensitive data should be protected.
 ID: aws_emr_cluster_encryption_at_rest_enabled
-Title: "EMR clusters encryption at rest should be enabled"
-Description: "This control checks whether EMR clusters have encryption at rest enabled. The check fails if encryption at rest is not enabled as sensitive data should be protected."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  cluster_arn as resource,\n  case\n    when s.name is null then 'alarm'\n    when s.name is not null and (encryption_configuration -> 'EnableAtRestEncryption')::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when s.name is null then c.title || ' security configuration disabled.'\n    when s.name is not null and (encryption_configuration -> 'EnableAtRestEncryption')::bool then c.title || ' encryption at rest enabled.'\n    else c.title || ' encryption at rest disabled.'\n  end as reason\n  \n  \nfrom\n  aws_emr_cluster as c\n  left join aws_emr_security_configuration as s on c.security_configuration = s.name and s.region = s.region and s.account_id = c.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      cluster_arn AS resource,
+      CASE
+        WHEN s.name IS NULL THEN 'alarm'
+        WHEN s.name IS NOT NULL AND (encryption_configuration -> 'EnableAtRestEncryption')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.name IS NULL THEN c.title || ' security configuration disabled.'
+        WHEN s.name IS NOT NULL AND (encryption_configuration -> 'EnableAtRestEncryption')::bool THEN c.title || ' encryption at rest enabled.'
+        ELSE c.title || ' encryption at rest disabled.'
+      END AS reason
+    FROM
+      aws_emr_cluster AS c
+    LEFT JOIN aws_emr_security_configuration AS s 
+      ON c.security_configuration = s.name 
+      AND s.region = s.region 
+      AND s.account_id = c.account_id;
+Severity: low
+Tags: {}
+Title: EMR clusters encryption at rest should be enabled

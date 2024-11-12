@@ -1,40 +1,44 @@
+Description: This control checks if ECS cluster container instances have connected agent. This control fails if the agent is not connected.
 ID: aws_ecs_cluster_container_instance_agent_connected
-Title: "ECS cluster container instances should have connected agent"
-Description: "This control checks if ECS cluster container instances have connected agent. This control fails if the agent is not connected."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with unconnected_agent_instance as (
-      select
-        distinct cluster_arn
-      from
-        aws_ecs_container_instance
-      where
-        agent_connected = false and status = 'ACTIVE'
-    )
-    select
-      c.cluster_arn as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when c.registered_container_instances_count = 0 then 'skip'
-        when i.cluster_arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when c.registered_container_instances_count = 0 then title || ' has no container instance registered.'
-        when i.cluster_arn is null then title || ' container instance has connected agent.'
-        else title || ' container instance is either draining or has unconnected agents.'
-      end as reason
-    from
-      aws_ecs_cluster as c
-      left join unconnected_agent_instance as i on c.cluster_arn = i.cluster_arn;
-  PrimaryTable: aws_ecs_cluster
   ListOfTables:
     - aws_ecs_cluster
     - aws_ecs_container_instance
   Parameters: []
+  PrimaryTable: aws_ecs_cluster
+  QueryToExecute: |
+    WITH unconnected_agent_instance AS (
+      SELECT
+        DISTINCT cluster_arn
+      FROM
+        aws_ecs_container_instance
+      WHERE
+        agent_connected = FALSE 
+        AND status = 'ACTIVE'
+    )
+    SELECT
+      c.cluster_arn AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.registered_container_instances_count = 0 THEN 'skip'
+        WHEN i.cluster_arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN c.registered_container_instances_count = 0 THEN title || ' has no container instance registered.'
+        WHEN i.cluster_arn IS NULL THEN title || ' container instance has connected agent.'
+        ELSE title || ' container instance is either draining or has unconnected agents.'
+      END AS reason
+    FROM
+      aws_ecs_cluster AS c
+    LEFT JOIN
+      unconnected_agent_instance AS i 
+    ON
+      c.cluster_arn = i.cluster_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ECS cluster container instances should have connected agent

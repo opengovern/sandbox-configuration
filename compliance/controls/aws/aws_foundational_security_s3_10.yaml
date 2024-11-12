@@ -1,40 +1,40 @@
+Description: This control checks if Amazon Simple Storage Service (Amazon S3) version enabled buckets have lifecycle policy configured. This rule fails if Amazon S3 lifecycle policy is not enabled.
 ID: aws_foundational_security_s3_10
-Title: "10 S3 buckets with versioning enabled should have lifecycle policies configured"
-Description: "This control checks if Amazon Simple Storage Service (Amazon S3) version enabled buckets have lifecycle policy configured. This rule fails if Amazon S3 lifecycle policy is not enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with lifecycle_rules_enabled as (
-      select
-        arn
-      from
-        aws_s3_bucket,
-        jsonb_array_elements(lifecycle_rules) as r
-      where
-        r ->> 'Status' = 'Enabled'
-    )
-    select
-      b.arn as resource,
-      b.og_account_id as og_account_id,
-      b.og_resource_id as og_resource_id,
-      case
-        when not versioning_enabled then 'alarm'
-        when versioning_enabled and r.arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when not versioning_enabled then name || ' versioning diabled.'
-        when versioning_enabled and r.arn is not null then name || ' lifecycle policy configured.'
-        else name || ' lifecycle policy not configured.'
-      end as reason
-    from
-      aws_s3_bucket as b
-      left join lifecycle_rules_enabled as r on r.arn = b.arn;
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH lifecycle_rules_enabled AS (
+      SELECT
+        arn
+      FROM
+        aws_s3_bucket,
+        jsonb_array_elements(lifecycle_rules) AS r
+      WHERE
+        r ->> 'Status' = 'Enabled'
+    )
+    SELECT
+      b.arn AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT versioning_enabled THEN 'alarm'
+        WHEN versioning_enabled AND r.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT versioning_enabled THEN name || ' versioning disabled.'
+        WHEN versioning_enabled AND r.arn IS NOT NULL THEN name || ' lifecycle policy configured.'
+        ELSE name || ' lifecycle policy not configured.'
+      END AS reason
+    FROM
+      aws_s3_bucket AS b
+    LEFT JOIN lifecycle_rules_enabled AS r ON r.arn = b.arn;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 10 S3 buckets with versioning enabled should have lifecycle policies configured

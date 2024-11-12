@@ -1,14 +1,52 @@
+Description: Elastic Load Balancing activity is a central point of communication within an environment.
 ID: aws_elb_application_classic_lb_logging_enabled
-Title: "ELB application and classic load balancer logging should be enabled"
-Description: "Elastic Load Balancing activity is a central point of communication within an environment."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "(\n  select\n    arn as resource,\n    og_account_id as og_account_id,\n    og_resource_id as og_resource_id,\n    'aws_ec2_application_load_balancer' as og_table_name,\n    case\n      when load_balancer_attributes @> '[{\"Key\": \"access_logs.s3.enabled\", \"Value\": \"true\"}]' then 'ok'\n      else 'alarm'\n    end as status,\n    case\n      when load_balancer_attributes @> '[{\"Key\": \"access_logs.s3.enabled\", \"Value\": \"true\"}]' then title || ' logging enabled.'\n      else title || ' logging disabled.'\n    end as reason\n    \n    , region, account_id\n  from\n    aws_ec2_application_load_balancer\n)\nunion\n(\n  select\n    'arn:' || partition || ':elasticloadbalancing:' || region || ':' || account_id || ':loadbalancer/' || title as resource,\n    og_account_id as og_account_id,\n    og_resource_id as og_resource_id,\n    'aws_ec2_classic_load_balancer' as og_table_name,\n    case\n      when access_log_enabled = 'true' then 'ok'\n      else 'alarm'\n    end as status,\n    case\n      when access_log_enabled = 'true' then title || ' logging enabled.'\n      else title || ' logging disabled.'\n    end as reason\n    \n    , region, account_id\n  from\n    aws_ec2_classic_load_balancer\n);\n"
-  PrimaryTable: ""
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_classic_load_balancer
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    (
+      SELECT
+        arn AS resource,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_ec2_application_load_balancer' AS og_table_name,
+        CASE
+          WHEN load_balancer_attributes @> '[{"Key": "access_logs.s3.enabled", "Value": "true"}]' THEN 'ok'
+          ELSE 'alarm'
+        END AS status,
+        CASE
+          WHEN load_balancer_attributes @> '[{"Key": "access_logs.s3.enabled", "Value": "true"}]' THEN title || ' logging enabled.'
+          ELSE title || ' logging disabled.'
+        END AS reason,
+        region,
+        account_id
+      FROM aws_ec2_application_load_balancer
+    )
+    UNION
+    (
+      SELECT
+        'arn:' || partition || ':elasticloadbalancing:' || region || ':' || account_id || ':loadbalancer/' || title AS resource,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_ec2_classic_load_balancer' AS og_table_name,
+        CASE
+          WHEN access_log_enabled = 'true' THEN 'ok'
+          ELSE 'alarm'
+        END AS status,
+        CASE
+          WHEN access_log_enabled = 'true' THEN title || ' logging enabled.'
+          ELSE title || ' logging disabled.'
+        END AS reason,
+        region,
+        account_id
+      FROM aws_ec2_classic_load_balancer
+    );
 Severity: high
 Tags:
   category:
@@ -31,11 +69,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -49,5 +87,4 @@ Tags:
     - AWS/ELB
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: ELB application and classic load balancer logging should be enabled

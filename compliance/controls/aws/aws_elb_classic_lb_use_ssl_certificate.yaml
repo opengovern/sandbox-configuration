@@ -1,13 +1,44 @@
+Description: Because sensitive data can exist and to help protect data at transit, ensure encryption is enabled for your Elastic Load Balancing.
 ID: aws_elb_classic_lb_use_ssl_certificate
-Title: "ELB classic load balancers should use SSL certificates"
-Description: "Because sensitive data can exist and to help protect data at transit, ensure encryption is enabled for your Elastic Load Balancing."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with detailed_classic_listeners as (\n  select\n    name,\n    og_resource_id\n  from\n    aws_ec2_classic_load_balancer,\n    jsonb_array_elements(listener_descriptions) as listener_description\n  where\n    listener_description -> 'Listener' ->> 'Protocol' in ('HTTPS', 'SSL', 'TLS')\n    and listener_description -> 'Listener' ->> 'SSLCertificateId' like 'arn:aws:acm%'\n)\nselect\n  'arn:' || a.partition || ':elasticloadbalancing:' || a.region || ':' || a.account_id || ':loadbalancer/' || a.name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.listener_descriptions is null then 'skip'\n    when b.name is not null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when a.listener_descriptions is null then a.title || ' has no listener.'\n    when b.name is not null then a.title || ' does not use certificates provided by ACM.'\n    else a.title || ' uses certificates provided by ACM.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_classic_load_balancer as a\n  left join detailed_classic_listeners as b on a.og_resource_id = b.og_resource_id;\n"
-  PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
     - aws_ec2_classic_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_classic_load_balancer
+  QueryToExecute: |
+    WITH detailed_classic_listeners AS (
+      SELECT
+        name,
+        og_resource_id
+      FROM
+        aws_ec2_classic_load_balancer,
+        jsonb_array_elements(listener_descriptions) AS listener_description
+      WHERE
+        listener_description -> 'Listener' ->> 'Protocol' IN ('HTTPS', 'SSL', 'TLS')
+        AND listener_description -> 'Listener' ->> 'SSLCertificateId' LIKE 'arn:aws:acm%'
+    )
+    SELECT
+      'arn:' || a.partition || ':elasticloadbalancing:' || a.region || ':' || a.account_id || ':loadbalancer/' || a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.listener_descriptions IS NULL THEN 'skip'
+        WHEN b.name IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.listener_descriptions IS NULL THEN a.title || ' has no listener.'
+        WHEN b.name IS NOT NULL THEN a.title || ' does not use certificates provided by ACM.'
+        ELSE a.title || ' uses certificates provided by ACM.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_classic_load_balancer AS a
+    LEFT JOIN detailed_classic_listeners AS b ON a.og_resource_id = b.og_resource_id
 Severity: high
 Tags:
   category:
@@ -28,11 +59,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -46,5 +77,4 @@ Tags:
     - AWS/ELB
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: ELB classic load balancers should use SSL certificates

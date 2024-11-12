@@ -1,14 +1,28 @@
+Description: EC2 allows you to make an AMI public, sharing it with all AWS accounts.
 ID: aws_cis_compute_service_v100_2_1_5
-Title: "2.1.5 Ensure Images are not Publicly Available"
-Description: "EC2 allows you to make an AMI public, sharing it with all AWS accounts."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || partition || ':ec2:' || region || ':' || account_id || ':image/' || image_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when public then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when public then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end reason\n  \n  \nfrom\n  aws_ec2_ami;"
-  PrimaryTable: aws_ec2_ami
   ListOfTables:
     - aws_ec2_ami
   Parameters: []
+  PrimaryTable: aws_ec2_ami
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':image/' || image_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN public THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END AS reason
+    FROM
+      aws_ec2_ami;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.1.5 Ensure Images are not Publicly Available

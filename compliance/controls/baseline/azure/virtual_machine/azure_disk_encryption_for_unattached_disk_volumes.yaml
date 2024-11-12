@@ -1,33 +1,34 @@
+Description: Ensure that Azure Disk Encryption is enabled for unattached Azure virtual machine disk volumes.
 ID: azure_disk_encryption_for_unattached_disk_volumes
-Title: "Azure Disk Encryption for Unattached Disk Volumes"
-Description: "Ensure that Azure Disk Encryption is enabled for unattached Azure virtual machine disk volumes."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      d.name as resource,
-      d.og_resource_id,
-      d.og_account_id,
-      case
-        when d.encryption_settings_collection_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when d.encryption_settings_collection_enabled then d.name || ' disk encryption for unattached volume is enabled.'
-        else d.name || ' disk encryption for unattached volume is not enabled.'
-      end as reason,
-      d.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_compute_disk as d
-      left join azure_subscription as sub on d.subscription_id = sub.subscription_id
-    where
-      d.managed_by is null;
-  PrimaryTable: azure_compute_disk
   ListOfTables:
     - azure_compute_disk
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_disk
+  QueryToExecute: |
+    SELECT
+      d.name AS resource,
+      d.og_resource_id,
+      d.og_account_id,
+      CASE
+        WHEN d.encryption_settings_collection_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.encryption_settings_collection_enabled THEN d.name || ' disk encryption for unattached volume is enabled.'
+        ELSE d.name || ' disk encryption for unattached volume is not enabled.'
+      END AS reason,
+      d.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_compute_disk AS d
+    LEFT JOIN azure_subscription AS sub ON d.subscription_id = sub.subscription_id
+    WHERE
+      d.managed_by IS NULL;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +39,4 @@ Tags:
     - Azure Virtual Machines
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - azure_subscription
+Title: Azure Disk Encryption for Unattached Disk Volumes

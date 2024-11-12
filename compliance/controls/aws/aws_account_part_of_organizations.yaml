@@ -1,28 +1,30 @@
+Description: Ensure that an AWS account is part of AWS Organizations. The rule is non-compliant if an AWS account is not part of AWS Organizations, or AWS Organizations' master account ID does not match rule parameter MasterAccountId.
 ID: aws_account_part_of_organizations
-Title: "AWS account should be part of AWS Organizations"
-Description: "Ensure that an AWS account is part of AWS Organizations. The rule is non-compliant if an AWS account is not part of AWS Organizations or AWS Organizations master account ID does not match rule parameter MasterAccountId."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when organization_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when organization_id is not null then title || ' is part of organization(s).'
-        else title || ' is not part of organization.'
-      end as reason
-      , region, account_id
-    from
-      aws_account;
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN organization_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN organization_id IS NOT NULL THEN title || ' is part of organization(s).'
+        ELSE title || ' is not part of organization.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_account;
 Severity: medium
 Tags:
   category:
@@ -39,5 +41,4 @@ Tags:
     - aws
   service:
     - AWS/IAM
-IntegrationType:
-  - aws_cloud_account
+Title: AWS account should be part of AWS Organizations

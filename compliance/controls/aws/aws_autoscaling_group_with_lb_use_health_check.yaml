@@ -1,13 +1,32 @@
+Description: The Elastic Load Balancer (ELB) health checks for AWS Elastic Compute Cloud (AWS EC2) Auto Scaling groups support maintenance of adequate capacity and availability.
 ID: aws_autoscaling_group_with_lb_use_health_check
-Title: "Auto Scaling groups with a load balancer should use health checks"
-Description: "The Elastic Load Balancer (ELB) health checks for AWS Elastic Compute Cloud (AWS EC2) Auto Scaling groups support maintenance of adequate capacity and availability."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when load_balancer_names is null and target_group_arns is null then 'alarm'\n    when health_check_type != 'ELB' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when load_balancer_names is null and target_group_arns is null then title || ' not associated with a load balancer.'\n    when health_check_type != 'ELB' then title || ' does not use ELB health check.'\n    else title || ' uses ELB health check.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_autoscaling_group;\n"
-  PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
     - aws_ec2_autoscaling_group
   Parameters: []
+  PrimaryTable: aws_ec2_autoscaling_group
+  QueryToExecute: |
+    SELECT
+      autoscaling_group_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN load_balancer_names IS NULL AND target_group_arns IS NULL THEN 'alarm'
+        WHEN health_check_type != 'ELB' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN load_balancer_names IS NULL AND target_group_arns IS NULL THEN title || ' not associated with a load balancer.'
+        WHEN health_check_type != 'ELB' THEN title || ' does not use ELB health check.'
+        ELSE title || ' uses ELB health check.'
+      END AS reason,
+      region, 
+      account_id
+    FROM
+      aws_ec2_autoscaling_group;
 Severity: low
 Tags:
   category:
@@ -24,11 +43,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -38,5 +57,4 @@ Tags:
     - aws
   service:
     - AWS/AutoScaling
-IntegrationType:
-  - aws_cloud_account
+Title: Auto Scaling groups with a load balancer should use health checks

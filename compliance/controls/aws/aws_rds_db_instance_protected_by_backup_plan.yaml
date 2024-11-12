@@ -1,14 +1,40 @@
+Description: Ensure that AWS Relational Database Service (AWS RDS) instances are protected by a backup plan. The rule is non-compliant if the AWS RDS Database instance is not covered by a backup plan.
 ID: aws_rds_db_instance_protected_by_backup_plan
-Title: "RDS DB instance should be protected by backup plan"
-Description: "Ensure that AWS Relational Database Service (AWS RDS) instances are protected by a backup plan. The rule is non-compliant if the AWS RDS Database instance is not covered by a backup plan."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with backup_protected_rds_isntance as (\n  select\n    resource_arn as arn\n  from\n    aws_backup_protected_resource as b\n  where\n    resource_type = 'RDS'\n)\nselect\n  r.arn as resource,\n  r.og_account_id as og_account_id,\n  r.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then r.title || ' is protected by backup plan.'\n    else r.title || ' is not protected by backup plan.'\n  end as reason\n  \n  , r.region, r.account_id\nfrom\n  aws_rds_db_instance as r\n  left join backup_protected_rds_isntance as b on r.arn = b.arn;\n"
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_backup_protected_resource
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    WITH backup_protected_rds_instance AS (
+      SELECT
+        resource_arn AS arn
+      FROM
+        aws_backup_protected_resource AS b
+      WHERE
+        resource_type = 'RDS'
+    )
+    SELECT
+      r.arn AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN r.title || ' is protected by backup plan.'
+        ELSE r.title || ' is not protected by backup plan.'
+      END AS reason,
+      r.region,
+      r.account_id
+    FROM
+      aws_rds_db_instance AS r
+    LEFT JOIN backup_protected_rds_instance AS b ON r.arn = b.arn;
 Severity: high
 Tags:
   category:
@@ -27,9 +53,9 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -41,5 +67,4 @@ Tags:
     - AWS/RDS
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: RDS DB instance should be protected by backup plan

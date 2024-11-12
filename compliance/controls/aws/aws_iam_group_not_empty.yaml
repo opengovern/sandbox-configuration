@@ -1,28 +1,29 @@
+Description: AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, by ensuring that IAM groups have at least one IAM user.
 ID: aws_iam_group_not_empty
-Title: "IAM groups should have at least one user"
-Description: "AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, by ensuring that IAM groups have at least one IAM user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when users is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when users is null then title || ' not associated with any IAM user.'
-        else title || ' associated with IAM user.'
-      end as reason
-      , account_id
-    from
-      aws_iam_group;
-  PrimaryTable: aws_iam_group
   ListOfTables:
     - aws_iam_group
   Parameters: []
+  PrimaryTable: aws_iam_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN users IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN users IS NULL THEN title || ' not associated with any IAM user.'
+        ELSE title || ' associated with IAM user.'
+      END AS reason,
+      account_id
+    FROM
+      aws_iam_group;
 Severity: low
 Tags:
   category:
@@ -41,9 +42,9 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -53,5 +54,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM groups should have at least one user

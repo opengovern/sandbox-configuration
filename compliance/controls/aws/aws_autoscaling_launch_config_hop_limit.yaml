@@ -1,30 +1,31 @@
+Description: This control checks the number of network hops that a metadata token can travel. The control fails if the metadata response hop limit is greater than 1.
 ID: aws_autoscaling_launch_config_hop_limit
-Title: "EC2 auto scaling group launch configurations should not have metadata response hop limit greater than 1"
-Description: "This control checks the number of network hops that a metadata token can travel. The control fails if the metadata response hop limit is greater than 1."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      launch_configuration_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when metadata_options_put_response_hop_limit is null then 'ok'
-        when metadata_options_put_response_hop_limit > 1 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        --If you do not specify a value, the hop limit default is 1.
-        when metadata_options_put_response_hop_limit is null then title || ' metadata response hop limit set to default.'
-        else title || ' has a metadata response hop limit of ' || metadata_options_put_response_hop_limit || '.'
-      end as reason
-      , region, account_id
-    from
-      aws_ec2_launch_configuration;
-  PrimaryTable: aws_ec2_launch_configuration
   ListOfTables:
     - aws_ec2_launch_configuration
   Parameters: []
+  PrimaryTable: aws_ec2_launch_configuration
+  QueryToExecute: |
+    SELECT
+      launch_configuration_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN metadata_options_put_response_hop_limit IS NULL THEN 'ok'
+        WHEN metadata_options_put_response_hop_limit > 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN metadata_options_put_response_hop_limit IS NULL THEN title || ' metadata response hop limit set to default.'
+        ELSE title || ' has a metadata response hop limit of ' || metadata_options_put_response_hop_limit || '.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_launch_configuration;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -39,5 +40,4 @@ Tags:
     - aws
   service:
     - AWS/AutoScaling
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 auto scaling group launch configurations should not have metadata response hop limit greater than 1

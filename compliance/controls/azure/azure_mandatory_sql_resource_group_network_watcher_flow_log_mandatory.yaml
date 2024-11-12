@@ -1,43 +1,45 @@
+Description: Check if Network watcher flow logs have mandatory tags.
 ID: azure_mandatory_sql_resource_group_network_watcher_flow_log_mandatory
-Title: "Network watcher flow logs should have mandatory tags"
-Description: "Check if Network watcher flow logs have mandatory tags."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: steampipe-v0.5
-  QueryToExecute: |
-    with analysis as (
-      select
-        og_account_id,
-        og_resource_id,
-        id,
-        title,
-        tags ?& '{{.azureMandatoryTags}}'::text[] as has_mandatory_tags,
-        to_jsonb('{{.azureMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
-        resource_group, subscription_id
-      from
-        azure_network_watcher_flow_log
-    )
-    select
-        og_account_id,
-        og_resource_id,
-        id as resource,
-      case
-        when has_mandatory_tags then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when has_mandatory_tags then title || ' has all mandatory tags.'
-        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      end as reason,
-      resource_group, subscription_id
-    from
-      analysis;
-  PrimaryTable: azure_network_watcher_flow_log
   ListOfTables:
     - azure_network_watcher_flow_log
   Parameters:
     - key: azureMandatoryTags
       required: true
+  PrimaryTable: azure_network_watcher_flow_log
+  QueryToExecute: |
+    WITH analysis AS (
+      SELECT
+        og_account_id,
+        og_resource_id,
+        id,
+        title,
+        tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
+        to_jsonb('{{.azureMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+        resource_group,
+        subscription_id
+      FROM
+        azure_network_watcher_flow_log
+    )
+    SELECT
+      og_account_id,
+      og_resource_id,
+      id AS resource,
+      CASE
+        WHEN has_mandatory_tags THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+      END AS reason,
+      resource_group,
+      subscription_id
+    FROM
+      analysis;
 Severity: high
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Network watcher flow logs should have mandatory tags

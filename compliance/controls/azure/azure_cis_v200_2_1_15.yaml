@@ -1,30 +1,32 @@
+Description: Enable automatic provisioning of the monitoring agent to collect security data.
 ID: azure_cis_v200_2_1_15
-Title: "2.1.15 Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'"
-Description: "Enable automatic provisioning of the monitoring agent to collect security data."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sc_prov.id as resource,
-      sc_prov.og_account_id as og_account_id,
-      sc_prov.og_resource_id as og_resource_id,
-      case
-        when auto_provision = 'On' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when auto_provision = 'On' then 'Automatic provisioning of monitoring agent is on.'
-        else 'Automatic provisioning of monitoring agent is off.'
-      end as reason
-    from
-      azure_security_center_auto_provisioning sc_prov
-      right join azure_subscription sub on sc_prov.subscription_id = sub.subscription_id;
-  PrimaryTable: azure_security_center_auto_provisioning
   ListOfTables:
     - azure_security_center_auto_provisioning
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_auto_provisioning
+  QueryToExecute: |
+    SELECT
+      sc_prov.id AS resource,
+      sc_prov.og_account_id AS og_account_id,
+      sc_prov.og_resource_id AS og_resource_id,
+      CASE
+        WHEN auto_provision = 'On' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN auto_provision = 'On' THEN 'Automatic provisioning of monitoring agent is on.'
+        ELSE 'Automatic provisioning of monitoring agent is off.'
+      END AS reason
+    FROM
+      azure_security_center_auto_provisioning sc_prov
+    RIGHT JOIN
+      azure_subscription sub
+      ON sc_prov.subscription_id = sub.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.1.15 Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'

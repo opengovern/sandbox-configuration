@@ -1,32 +1,32 @@
+Description: This setting enables Windows Defender ATP (WDATP) integration with Security Center.
 ID: azure_cis_v130_2_9
-Title: "2.9 Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected"
-Description: "This setting enables Windows Defender ATP (WDATP) integration with Security Center."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sc_sett.id as resource,
-      sc_sett.og_account_id as og_account_id,
-      sc_sett.og_resource_id as og_resource_id,
-      case
-        when enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enabled then 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
-        else 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
-      end as reason
-    from
-      azure_security_center_setting sc_sett
-      right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id
-    where
-      name = 'WDATP';
-  PrimaryTable: azure_security_center_setting
   ListOfTables:
     - azure_security_center_setting
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_setting
+  QueryToExecute: |
+    SELECT
+      sc_sett.id AS resource,
+      sc_sett.og_account_id AS og_account_id,
+      sc_sett.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enabled THEN 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
+        ELSE 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
+      END AS reason
+    FROM
+      azure_security_center_setting sc_sett
+      RIGHT JOIN azure_subscription sub ON sc_sett.subscription_id = sub.subscription_id
+    WHERE
+      name = 'WDATP';
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.9 Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected

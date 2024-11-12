@@ -1,32 +1,32 @@
+Description: Ensure that managed identity provider is enabled for the batch account. This control is non-compliant if batch account identity provider is disabled.
 ID: azure_batch_account_identity_provider_enabled
-Title: "Batch accounts identity provider should be enabled"
-Description: "Ensure that managed identity provider is enabled for the batch account. This control is non-compliant if batch account identity provider is disabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      b.id as resource,
-      b.og_account_id as og_account_id,
-      b.og_resource_id as og_resource_id,
-      case
-        when identity ->> 'type' = 'None' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when identity ->> 'type' = 'None' then b.name || ' identity provider disabled.'
-        else b.name || ' identity provider enabled.'
-      end as reason
-    from
-      azure_batch_account as b,
-      azure_subscription as sub
-    where
-      sub.subscription_id = b.subscription_id;
-  PrimaryTable: azure_batch_account
   ListOfTables:
     - azure_batch_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_batch_account
+  QueryToExecute: |
+    SELECT
+      b.id AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN identity ->> 'type' = 'None' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN identity ->> 'type' = 'None' THEN b.name || ' identity provider disabled.'
+        ELSE b.name || ' identity provider enabled.'
+      END AS reason
+    FROM
+      azure_batch_account AS b,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = b.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Batch accounts identity provider should be enabled

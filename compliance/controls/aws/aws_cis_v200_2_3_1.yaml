@@ -1,28 +1,28 @@
+Description: Amazon RDS encrypted DB instances use the industry standard AES-256 encryption algorithm to encrypt your data on the server that hosts your Amazon RDS DB instances. After your data is encrypted, Amazon RDS handles authentication of access and decryption of your data transparently with a minimal impact on performance.
 ID: aws_cis_v200_2_3_1
-Title: "2.3.1 Ensure that encryption-at-rest is enabled for RDS Instances"
-Description: "Amazon RDS encrypted DB instances use the industry standard AES-256 encryption algorithm to encrypt your data on the server that hosts your Amazon RDS DB instances. After your data is encrypted, Amazon RDS handles authentication of access and decryption of your data transparently with a minimal impact on performance."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when storage_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when storage_encrypted then title || ' encrypted at rest.'
-        else title || ' not encrypted at rest.'
-      end as reason
-    from
-      aws_rds_db_instance;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN storage_encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN storage_encrypted THEN title || ' encrypted at rest.'
+        ELSE title || ' not encrypted at rest.'
+      END AS reason
+    FROM
+      aws_rds_db_instance;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.3.1 Ensure that encryption-at-rest is enabled for RDS Instances

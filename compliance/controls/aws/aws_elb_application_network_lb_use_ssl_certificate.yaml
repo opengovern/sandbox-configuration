@@ -1,68 +1,77 @@
+Description: Ensure that Application Load Balancers and Network Load Balancers are configured to use certificates from AWS Certificate Manager (ACM). This rule is compliant if at least 1 load balancer is configured without a certificate from ACM.
 ID: aws_elb_application_network_lb_use_ssl_certificate
-Title: "ELB application and network load balancers should only use SSL or HTTPS listeners"
-Description: "Ensure that Application Load Balancers and Network Load Balancers are configured to use certificates from AWS Certificate Manager (ACM). This rule is compliant if at least 1 load balancer is configured without a certificate from ACM."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with listeners_without_certificate as (
-      select
-        load_balancer_arn,
-        count(*) as count
-      from
-        aws_ec2_load_balancer_listener
-      where arn not in
-        ( select arn from aws_ec2_load_balancer_listener, jsonb_array_elements(certificates) as c
-          where c ->> 'CertificateArn' like 'arn:aws:acm%' )
-      group by load_balancer_arn
-    ),
-    all_application_network_load_balacer as (
-      select
-        arn,
-        account_id,
-        region,
-        title,
-        og_account_id as og_account_id,
-        og_resource_id as og_resource_id,
-        'aws_ec2_application_load_balancer' as og_table_name,
-        _ctx
-      from
-        aws_ec2_application_load_balancer
-      union
-      select
-        arn,
-        account_id,
-        region,
-        title,
-        og_account_id as og_account_id,
-        og_resource_id as og_resource_id,
-        'aws_ec2_network_load_balancer' as og_table_name,
-        _ctx
-      from
-        aws_ec2_network_load_balancer
-    )
-    select
-      a.arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      a.og_table_name as og_table_name,
-      case
-        when b.load_balancer_arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.load_balancer_arn is null then a.title || ' uses certificates provided by ACM.'
-        else a.title || ' has ' || b.count || ' listeners which do not use certificates provided by ACM.'
-      end as reason
-      , a.region, a.account_id
-    from
-      all_application_network_load_balacer as a
-      left join listeners_without_certificate as b on a.arn = b.load_balancer_arn;
-  PrimaryTable: ""
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_load_balancer_listener
     - aws_ec2_network_load_balancer
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH listeners_without_certificate AS (
+      SELECT
+        load_balancer_arn,
+        COUNT(*) AS count
+      FROM
+        aws_ec2_load_balancer_listener
+      WHERE arn NOT IN (
+        SELECT
+          arn
+        FROM
+          aws_ec2_load_balancer_listener,
+          jsonb_array_elements(certificates) AS c
+        WHERE
+          c ->> 'CertificateArn' LIKE 'arn:aws:acm%'
+      )
+      GROUP BY
+        load_balancer_arn
+    ),
+    all_application_network_load_balancer AS (
+      SELECT
+        arn,
+        account_id,
+        region,
+        title,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_ec2_application_load_balancer' AS og_table_name,
+        _ctx
+      FROM
+        aws_ec2_application_load_balancer
+      UNION
+      SELECT
+        arn,
+        account_id,
+        region,
+        title,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_ec2_network_load_balancer' AS og_table_name,
+        _ctx
+      FROM
+        aws_ec2_network_load_balancer
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      a.og_table_name AS og_table_name,
+      CASE
+        WHEN b.load_balancer_arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.load_balancer_arn IS NULL THEN a.title || ' uses certificates provided by ACM.'
+        ELSE a.title || ' has ' || b.count || ' listeners which do not use certificates provided by ACM.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      all_application_network_load_balancer AS a
+      LEFT JOIN listeners_without_certificate AS b ON a.arn = b.load_balancer_arn;
 Severity: low
 Tags:
   category:
@@ -91,5 +100,4 @@ Tags:
     - "true"
   service:
     - AWS/ELB
-IntegrationType:
-  - aws_cloud_account
+Title: ELB application and network load balancers should only use SSL or HTTPS listeners

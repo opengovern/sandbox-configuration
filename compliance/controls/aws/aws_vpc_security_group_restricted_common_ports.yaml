@@ -1,14 +1,65 @@
+Description: This control checks whether unrestricted incoming traffic for the security groups is accessible to the specified ports that have the highest risk. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 for those ports.
 ID: aws_vpc_security_group_restricted_common_ports
-Title: "Security groups should not allow unrestricted access to ports with high risk"
-Description: "This control checks whether unrestricted incoming traffic for the security groups is accessible to the specified ports that have the highest risk. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 for those ports."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with ingress_ssh_rules as (\n  select\n    group_id,\n    count(*) as num_ssh_rules\n  from\n    aws_vpc_security_group_rule\n  where\n    type = 'ingress'\n    and cidr_ipv4 = '0.0.0.0/0'\n    and (\n        ( ip_protocol = '-1'\n        and from_port is null\n        )\n        or (\n            from_port >= 22\n            and to_port <= 22\n        )\n        or (\n            from_port >= 3389\n            and to_port <= 3389\n        )\n        or (\n            from_port >= 21\n            and to_port <= 21\n        )\n        or (\n            from_port >= 20\n            and to_port <= 20\n        )\n        or (\n            from_port >= 3306\n            and to_port <= 3306\n        )\n        or (\n            from_port >= 4333\n            and to_port <= 4333\n        )\n        or (\n            from_port >= 23\n            and to_port <= 23\n        )\n        or (\n            from_port >= 25\n            and to_port <= 25\n        )\n        or (\n            from_port >= 445\n            and to_port <= 445\n        )\n        or (\n            from_port >= 110\n            and to_port <= 110\n        )\n        or (\n            from_port >= 135\n            and to_port <= 135\n        )\n        or (\n            from_port >= 143\n            and to_port <= 143\n        )\n        or (\n            from_port >= 1433\n            and to_port <= 1433\n        )\n        or (\n            from_port >= 5432\n            and to_port <= 5432\n        )\n        or (\n            from_port >= 5500\n            and to_port <= 5500\n        )\n        or (\n            from_port >= 5601\n            and to_port <= 5601\n        )\n        or (\n            from_port >= 9200\n            and to_port <= 9300\n        )\n        or (\n            from_port >= 8080\n            and to_port <= 8080\n        )\n    )\n  group by\n    group_id\n)\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when ingress_ssh_rules.group_id is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when ingress_ssh_rules.group_id is null then sg.group_id || ' ingress restricted for common ports from 0.0.0.0/0..'\n    else sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for common ports from 0.0.0.0/0.'\n  end as reason\n  \n  , sg.region, sg.account_id\nfrom\n  aws_vpc_security_group as sg\n  left join ingress_ssh_rules on ingress_ssh_rules.group_id = sg.group_id;\n"
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
     - aws_vpc_security_group_rule
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH ingress_ssh_rules AS (
+      SELECT
+        group_id,
+        COUNT(*) AS num_ssh_rules
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        type = 'ingress'
+        AND cidr_ipv4 = '0.0.0.0/0'
+        AND (
+          (ip_protocol = '-1' AND from_port IS NULL)
+          OR (from_port >= 22 AND to_port <= 22)
+          OR (from_port >= 3389 AND to_port <= 3389)
+          OR (from_port >= 21 AND to_port <= 21)
+          OR (from_port >= 20 AND to_port <= 20)
+          OR (from_port >= 3306 AND to_port <= 3306)
+          OR (from_port >= 4333 AND to_port <= 4333)
+          OR (from_port >= 23 AND to_port <= 23)
+          OR (from_port >= 25 AND to_port <= 25)
+          OR (from_port >= 445 AND to_port <= 445)
+          OR (from_port >= 110 AND to_port <= 110)
+          OR (from_port >= 135 AND to_port <= 135)
+          OR (from_port >= 143 AND to_port <= 143)
+          OR (from_port >= 1433 AND to_port <= 1433)
+          OR (from_port >= 5432 AND to_port <= 5432)
+          OR (from_port >= 5500 AND to_port <= 5500)
+          OR (from_port >= 5601 AND to_port <= 5601)
+          OR (from_port >= 9200 AND to_port <= 9300)
+          OR (from_port >= 8080 AND to_port <= 8080)
+        )
+      GROUP BY
+        group_id
+    )
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ingress_ssh_rules.group_id IS NULL THEN sg.group_id || ' ingress restricted for common ports from 0.0.0.0/0.'
+        ELSE sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for common ports from 0.0.0.0/0.'
+      END AS reason,
+      sg.region,
+      sg.account_id
+    FROM
+      aws_vpc_security_group AS sg
+    LEFT JOIN ingress_ssh_rules ON ingress_ssh_rules.group_id = sg.group_id
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -23,5 +74,4 @@ Tags:
     - aws
   service:
     - AWS/EC2
-IntegrationType:
-  - aws_cloud_account
+Title: Security groups should not allow unrestricted access to ports with high risk

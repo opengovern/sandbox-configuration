@@ -1,13 +1,32 @@
+Description: Security Hub collects security data from across AWS accounts, services, and supported third-party partner products and helps you analyze your security trends and identify the highest priority security issues. When you enable Security Hub, it begins to consume, aggregate, organize, and prioritize findings from AWS services that you have enabled, such as Amazon GuardDuty, Amazon Inspector, and Amazon Macie. You can also enable integrations with AWS partner security products.
 ID: aws_cis_v200_4_16
-Title: "4.16 Ensure AWS Security Hub is enabled"
-Description: "Security Hub collects security data from across AWS accounts, services, and supported third-party partner products and helps you analyze your security trends and identify the highest priority security issues. When you enable Security Hub, it begins to consume, aggregate, organize, and prioritize findings from AWS services that you have enabled, such as Amazon GuardDuty, Amazon Inspector, and Amazon Macie. You can also enable integrations with AWS partner security products."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,\n  case\n    when r.region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) then 'skip'\n    -- Skip any regions that are disabled in the account.\n    when r.opt_in_status = 'not-opted-in' then 'skip'\n    when h.hub_arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when r.region = any(array['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) then r.region ||  ' region not supported.'\n    when r.opt_in_status = 'not-opted-in' then r.region || ' region is disabled.'\n    when h.hub_arn is not null then 'Security Hub enabled in ' || r.region || '.'\n    else 'Security Hub disabled in ' || r.region || '.'\n  end as reason\n  \nfrom\n  aws_region as r\n  left join aws_securityhub_hub as h on r.account_id = h.account_id and r.name = h.region;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+      CASE
+        WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN 'skip'
+        WHEN r.opt_in_status = 'not-opted-in' THEN 'skip'
+        WHEN h.hub_arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN r.region || ' region not supported.'
+        WHEN r.opt_in_status = 'not-opted-in' THEN r.region || ' region is disabled.'
+        WHEN h.hub_arn IS NOT NULL THEN 'Security Hub enabled in ' || r.region || '.'
+        ELSE 'Security Hub disabled in ' || r.region || '.'
+      END AS reason
+    FROM
+      aws_region AS r
+    LEFT JOIN
+      aws_securityhub_hub AS h
+    ON r.account_id = h.account_id AND r.name = h.region;
+Severity: low
+Tags: {}
+Title: 4.16 Ensure AWS Security Hub is enabled

@@ -1,19 +1,46 @@
+Description: Firewall rules should be defined on your Azure Cosmos DB accounts to prevent traffic from unauthorized sources. Accounts that have at least one IP rule defined with the virtual network filter enabled are deemed compliant. Accounts disabling public access are also deemed compliant.
 ID: azure_cosmosdb_account_with_firewall_rules
-Title: "Azure Cosmos DB accounts should have firewall rules"
-Description: "Firewall rules should be defined on your Azure Cosmos DB accounts to prevent traffic from unauthorized sources. Accounts that have at least one IP rule defined with the virtual network filter enabled are deemed compliant. Accounts disabling public access are also deemed compliant."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when\n      public_network_access = 'Enabled'\n      and is_virtual_network_filter_enabled = 'false'\n      and jsonb_array_length(ip_rules) = 0\n      then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when\n      public_network_access = 'Enabled'\n      and is_virtual_network_filter_enabled = 'false'\n      and jsonb_array_length(ip_rules) = 0\n      then a.name || ' not have firewall rules.'\n    else a.name || ' have firewall rules.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_cosmosdb_account as a,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN
+          public_network_access = 'Enabled'
+          AND is_virtual_network_filter_enabled = 'false'
+          AND jsonb_array_length(ip_rules) = 0
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN
+          public_network_access = 'Enabled'
+          AND is_virtual_network_filter_enabled = 'false'
+          AND jsonb_array_length(ip_rules) = 0
+        THEN a.name || ' not have firewall rules.'
+        ELSE a.name || ' have firewall rules.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_cosmosdb_account AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/CosmosDB
-IntegrationType:
-  - azure_subscription
+Title: Azure Cosmos DB accounts should have firewall rules

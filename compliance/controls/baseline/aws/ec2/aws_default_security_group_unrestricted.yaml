@@ -1,13 +1,48 @@
+Description: Ensure the default security group of every VPC restricts all traffic.
 ID: aws_default_security_group_unrestricted
-Title: "Default Security Group Unrestricted"
-Description: "Ensure the default security group of every VPC restricts all traffic."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  group_id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(ip_permissions) AS p\n      WHERE EXISTS (SELECT 1 FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) as r\n      WHERE r ->> 'CidrIp' = '0.0.0.0/0')\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN EXISTS (\n      SELECT 1 FROM jsonb_array_elements(ip_permissions) AS p\n      WHERE EXISTS (SELECT 1 FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) as r\n      WHERE r ->> 'CidrIp' = '0.0.0.0/0')\n    ) THEN group_id || ' is not secure and compliant' \n    ELSE group_id || ' is secure and compliant'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_vpc_security_group\nWHERE\n  group_name = 'default'\n"
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    SELECT
+      group_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 
+          FROM jsonb_array_elements(ip_permissions) AS p
+          WHERE EXISTS (
+            SELECT 1 
+            FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) AS r
+            WHERE r ->> 'CidrIp' = '0.0.0.0/0'
+          )
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 
+          FROM jsonb_array_elements(ip_permissions) AS p
+          WHERE EXISTS (
+            SELECT 1 
+            FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) AS r
+            WHERE r ->> 'CidrIp' = '0.0.0.0/0'
+          )
+        ) THEN group_id || ' is not secure and compliant'
+        ELSE group_id || ' is secure and compliant'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_vpc_security_group
+    WHERE
+      group_name = 'default'
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +53,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Default Security Group Unrestricted

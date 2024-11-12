@@ -1,13 +1,30 @@
+Description: Ensure AWS WAF is enabled on Elastic Load Balancers (ELB) to help protect web applications.
 ID: aws_elb_application_lb_waf_enabled
-Title: "ELB application load balancers should have Web Application Firewall (WAF) enabled"
-Description: "Ensure AWS WAF is enabled on Elastic Load Balancers (ELB) to help protect web applications."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when load_balancer_attributes @> '[{\"Key\":\"waf.fail_open.enabled\",\"Value\":\"true\"}]' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when load_balancer_attributes @> '[{\"Key\":\"waf.fail_open.enabled\",\"Value\":\"true\"}]' then title || ' WAF enabled.'\n    else title || ' WAF disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_application_load_balancer;\n"
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN load_balancer_attributes @> '[{"Key":"waf.fail_open.enabled","Value":"true"}]' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN load_balancer_attributes @> '[{"Key":"waf.fail_open.enabled","Value":"true"}]' THEN title || ' WAF enabled.'
+        ELSE title || ' WAF disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_application_load_balancer;
 Severity: high
 Tags:
   category:
@@ -20,11 +37,11 @@ Tags:
     - "true"
   ffiec:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -38,5 +55,4 @@ Tags:
     - AWS/ELB
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: ELB application load balancers should have Web Application Firewall (WAF) enabled

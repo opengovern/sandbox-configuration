@@ -1,14 +1,42 @@
+Description: Ensure ELBv2 ALBs are using a secure protocol.
 ID: aws_elbv2_alb_listener_security
-Title: "ELBv2 ALB Listener Security"
-Description: "Ensure ELBv2 ALBs are using a secure protocol."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n    al.arn AS resource,\n    al.og_resource_id,\n    al.og_account_id,\n    CASE\n      WHEN STRING_AGG(ll.protocol, ',') ILIKE '%HTTPS%' THEN 'ok'\n      ELSE 'alarm'\n    END AS status,\n    CASE\n      WHEN STRING_AGG(ll.protocol, ',') ILIKE '%HTTPS%' THEN 'alb is using a secure protocol'\n      ELSE 'alb is not using a secure protocol'\n    END AS reason,\n    al.region,\n    al.account_id\nFROM \n    aws_ec2_application_load_balancer al\nLEFT JOIN aws_ec2_load_balancer_listener ll ON al.arn = ll.load_balancer_arn\nGROUP BY \n    al.arn, al.og_resource_id, al.og_account_id, al.title, al.region, al.account_id;\n"
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_load_balancer_listener
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    SELECT
+      al.arn AS resource,
+      al.og_resource_id,
+      al.og_account_id,
+      CASE
+        WHEN STRING_AGG(ll.protocol, ',') ILIKE '%HTTPS%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN STRING_AGG(ll.protocol, ',') ILIKE '%HTTPS%' THEN 'alb is using a secure protocol'
+        ELSE 'alb is not using a secure protocol'
+      END AS reason,
+      al.region,
+      al.account_id
+    FROM
+      aws_ec2_application_load_balancer al
+    LEFT JOIN
+      aws_ec2_load_balancer_listener ll
+    ON
+      al.arn = ll.load_balancer_arn
+    GROUP BY
+      al.arn,
+      al.og_resource_id,
+      al.og_account_id,
+      al.title,
+      al.region,
+      al.account_id;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +47,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: ELBv2 ALB Listener Security

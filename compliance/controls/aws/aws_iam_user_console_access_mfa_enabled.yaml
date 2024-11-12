@@ -1,29 +1,30 @@
+Description: Manage access to resources in the AWS Cloud by ensuring that MFA is enabled for all AWS Identity and Access Management (IAM) users that have a console password.
 ID: aws_iam_user_console_access_mfa_enabled
-Title: "IAM users with console access should have MFA enabled"
-Description: "Manage access to resources in the AWS Cloud by ensuring that MFA is enabled for all AWS Identity and Access Management (IAM) users that have a console password."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      user_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when password_enabled and not mfa_active then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not password_enabled then user_name || ' password login disabled.'
-        when password_enabled and not mfa_active then user_name || ' password login enabled but no MFA device configured.'
-        else user_name || ' password login enabled and MFA device configured.'
-      end as reason
-      , account_id
-    from
-      aws_iam_credential_report;
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
     - aws_iam_credential_report
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: |
+    SELECT
+      user_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN password_enabled AND NOT mfa_active THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT password_enabled THEN user_name || ' password login disabled.'
+        WHEN password_enabled AND NOT mfa_active THEN user_name || ' password login enabled but no MFA device configured.'
+        ELSE user_name || ' password login enabled and MFA device configured.'
+      END AS reason,
+      account_id
+    FROM
+      aws_iam_credential_report;
 Severity: high
 Tags:
   audit_manager_control_tower:
@@ -48,11 +49,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -64,5 +65,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM users with console access should have MFA enabled

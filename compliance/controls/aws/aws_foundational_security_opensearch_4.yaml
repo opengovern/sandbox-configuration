@@ -1,14 +1,76 @@
+Description: This control checks whether OpenSearch domains are configured to send error logs to CloudWatch Logs. This control fails if error logging to CloudWatch is not enabled for a domain.
 ID: aws_foundational_security_opensearch_4
-Title: "4 OpenSearch domain error logging to CloudWatch Logs should be enabled"
-Description: "This control checks whether OpenSearch domains are configured to send error logs to CloudWatch Logs. This control fails if error logging to CloudWatch is not enabled for a domain."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when log_publishing_options is null then 'alarm'\n    when\n      ( log_publishing_options -> 'AUDIT_LOGS' is null\n        or log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'INDEX_SLOW_LOGS' is null\n        or log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'SEARCH_SLOW_LOGS' is null\n        or log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'ES_APPLICATION_LOGS' is null\n        or log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when log_publishing_options is null then title || ' logging not enabled.'\n    when\n      ( log_publishing_options -> 'AUDIT_LOGS' is null\n        or log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'INDEX_SLOW_LOGS' is null\n        or log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'SEARCH_SLOW_LOGS' is null\n        or log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      )\n      and\n      ( log_publishing_options -> 'ES_APPLICATION_LOGS' is null\n        or log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'false'\n        or (log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null)\n      ) then title || ' send logs to AWS CloudWatch.'\n    else title || ' does not send logs to AWS CloudWatch.'\n  end as reason\n  \n  \nfrom\n  aws_opensearch_domain;"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN log_publishing_options IS NULL THEN 'alarm'
+        WHEN 
+          (log_publishing_options -> 'AUDIT_LOGS' IS NULL
+            OR log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) 
+          AND
+          (log_publishing_options -> 'INDEX_SLOW_LOGS' IS NULL
+            OR log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) 
+          AND
+          (log_publishing_options -> 'SEARCH_SLOW_LOGS' IS NULL
+            OR log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          )
+          AND
+          (log_publishing_options -> 'ES_APPLICATION_LOGS' IS NULL
+            OR log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN log_publishing_options IS NULL THEN title || ' logging not enabled.'
+        WHEN 
+          (log_publishing_options -> 'AUDIT_LOGS' IS NULL
+            OR log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) 
+          AND
+          (log_publishing_options -> 'INDEX_SLOW_LOGS' IS NULL
+            OR log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) 
+          AND
+          (log_publishing_options -> 'SEARCH_SLOW_LOGS' IS NULL
+            OR log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          )
+          AND
+          (log_publishing_options -> 'ES_APPLICATION_LOGS' IS NULL
+            OR log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'false'
+            OR (log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' 
+                AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL)
+          ) THEN title || ' send logs to AWS CloudWatch.'
+        ELSE title || ' does not send logs to AWS CloudWatch.'
+      END AS reason
+    FROM
+      aws_opensearch_domain;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 4 OpenSearch domain error logging to CloudWatch Logs should be enabled

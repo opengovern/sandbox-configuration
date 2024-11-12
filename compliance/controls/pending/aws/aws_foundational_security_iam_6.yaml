@@ -1,13 +1,29 @@
+Description: This control checks whether your AWS account is enabled to use a hardware multi-factor authentication (MFA) device to sign in with root user credentials.
 ID: aws_foundational_security_iam_6
-Title: "6 Hardware MFA should be enabled for the root user"
-Description: "This control checks whether your AWS account is enabled to use a hardware multi-factor authentication (MFA) device to sign in with root user credentials."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || s.partition || ':::' || s.account_id as resource,\n  case\n    when s.account_mfa_enabled and d.serial_number is null then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when s.account_mfa_enabled = false then  'MFA not enabled for root account.'\n    when d.serial_number is not null then 'MFA enabled for root account, but the MFA associated is a virtual device.'\n    else 'Hardware MFA device enabled for root account.'\n  end reason\n  \nfrom\n  aws_iam_account_summary as s\n  left join aws_iam_virtual_mfa_device as d on (d.user ->> 'Arn') = 'arn:' || s.partition || ':iam::' || s.account_id || ':root';\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: critical
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      'arn:' || s.partition || ':::' || s.account_id AS resource,
+      CASE
+        WHEN s.account_mfa_enabled AND d.serial_number IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.account_mfa_enabled = FALSE THEN 'MFA not enabled for root account.'
+        WHEN d.serial_number IS NOT NULL THEN 'MFA enabled for root account, but the MFA associated is a virtual device.'
+        ELSE 'Hardware MFA device enabled for root account.'
+      END AS reason
+    FROM
+      aws_iam_account_summary AS s
+    LEFT JOIN
+      aws_iam_virtual_mfa_device AS d
+      ON (d.user ->> 'Arn') = 'arn:' || s.partition || ':iam::' || s.account_id || ':root';
+Severity: critical
+Tags: {}
+Title: 6 Hardware MFA should be enabled for the root user

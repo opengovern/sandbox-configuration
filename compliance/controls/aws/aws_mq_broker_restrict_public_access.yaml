@@ -1,14 +1,28 @@
+Description: Ensure whether MQ broker is not publicly accessible. The rule is compliant if the MQ broker is publicly accessible.
 ID: aws_mq_broker_restrict_public_access
-Title: "MQ brokers should restrict public access"
-Description: "Ensure whether MQ broker is not publicly accessible. The rule is compliant if the MQ broker is publicly accessible."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when publicly_accessible then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when publicly_accessible then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end as reason\n  \nfrom\n  aws_mq_broker;"
-  PrimaryTable: aws_mq_broker
   ListOfTables:
     - aws_mq_broker
   Parameters: []
+  PrimaryTable: aws_mq_broker
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN publicly_accessible THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN publicly_accessible THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END AS reason
+    FROM
+      aws_mq_broker;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: MQ brokers should restrict public access

@@ -1,42 +1,47 @@
+Description: Ensure that Azure virtual machines are configured to use the Performance Diagnostics tool.
 ID: azure_check_for_performance_diagnostics_for_azure_virtual_machines
-Title: "Check for Performance Diagnostics for Azure Virtual Machines"
-Description: "Ensure that Azure virtual machines are configured to use the Performance Diagnostics tool."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when exists(
-          select 1 from jsonb_array_elements(vm.extensions) as ex
-          where ('AzurePerformanceDiagnosticsLinux' = (ex ->> 'name')) or ('AzurePerformanceDiagnostics' = (ex ->> 'name'))
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when exists(
-          select 1 from jsonb_array_elements(vm.extensions) as ex
-          where ('AzurePerformanceDiagnosticsLinux' = (ex ->> 'name')) or ('AzurePerformanceDiagnostics' = (ex ->> 'name'))
-        ) then 'Performance Diagnostics feature, powered by PerfInsights extension, is enabled'
-        else 'Performance Diagnostics feature, powered by PerfInsights extension, is not enabled'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm
-      left join azure_subscription as sub on sub.subscription_id = vm.subscription_id
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 FROM jsonb_array_elements(vm.extensions) AS ex
+          WHERE ('AzurePerformanceDiagnosticsLinux' = (ex ->> 'name')) 
+             OR ('AzurePerformanceDiagnostics' = (ex ->> 'name'))
+        ) 
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 FROM jsonb_array_elements(vm.extensions) AS ex
+          WHERE ('AzurePerformanceDiagnosticsLinux' = (ex ->> 'name')) 
+             OR ('AzurePerformanceDiagnostics' = (ex ->> 'name'))
+        ) 
+        THEN 'Performance Diagnostics feature, powered by PerfInsights extension, is enabled'
+        ELSE 'Performance Diagnostics feature, powered by PerfInsights extension, is not enabled'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm
+      LEFT JOIN azure_subscription AS sub 
+        ON sub.subscription_id = vm.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for Performance Diagnostics for Azure Virtual Machines

@@ -1,29 +1,30 @@
+Description: Ensure that all the Amazon EC2 instances require the use of Instance Metadata Service Version 2 (IMDSv2).
 ID: aws_require_imdsv2_for_ec2_instances
-Title: "Require IMDSv2 for EC2 Instances"
-Description: "Ensure that all the Amazon EC2 instances require the use of Instance Metadata Service Version 2 (IMDSv2)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when metadata_options ->> 'HttpTokens' = 'optional' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when metadata_options ->> 'HttpTokens' = 'optional' then title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
-        else title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_instance;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+        ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Require IMDSv2 for EC2 Instances

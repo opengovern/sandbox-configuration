@@ -1,14 +1,30 @@
+Description: This control checks whether RSA certificates managed by AWS Certificate Manager use a key length of at least 2,048 bits. The control fails if the key length is smaller than 2,048 bits.
 ID: aws_acm_certificate_rsa_key_length_2048_bits_or_greater
-Title: "RSA certificates managed by ACM should use a key length of at least 2,048 bits"
-Description: "This control checks whether RSA certificates managed by AWS Certificate Manager use a key length of at least 2,048 bits. The control fails if the key length is smaller than 2,048 bits."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  certificate_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when not key_algorithm like 'RSA-%' then 'skip'\n    when key_algorithm = 'RSA_1024' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not key_algorithm like 'RSA-%' then title || ' is not a RSA certificate.'\n    when key_algorithm = 'RSA_1024' then title || ' is using 1024 bits key length.'\n    else title || ' is using ' || split_part(key_algorithm, '-', 2) || ' bits key length.'\n  end as reason\n  \n  \nfrom\n  aws_acm_certificate;"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT key_algorithm LIKE 'RSA-%' THEN 'skip'
+        WHEN key_algorithm = 'RSA_1024' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT key_algorithm LIKE 'RSA-%' THEN title || ' is not a RSA certificate.'
+        WHEN key_algorithm = 'RSA_1024' THEN title || ' is using 1024 bits key length.'
+        ELSE title || ' is using ' || split_part(key_algorithm, '-', 2) || ' bits key length.'
+      END AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: RSA certificates managed by ACM should use a key length of at least 2,048 bits

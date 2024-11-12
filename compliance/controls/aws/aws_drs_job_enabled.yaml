@@ -1,15 +1,43 @@
+Description: Ensure that DRS is enabled with jobs. This rule is non-compliant if DRS is not enabled with jobs for a particular region.
 ID: aws_drs_job_enabled
-Title: "DRS jobs should be enabled"
-Description: "Ensure that DRS is enabled with jobs. This rule is non-compliant if DRS is not enabled with jobs for a particular region."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with drs_job_count as (\n  select\n    count(*) as count,\n    region,\n    account_id,\n    _ctx\n  from\n    aws_drs_job\n  group by\n    region,\n    account_id,\n    _ctx\n)\nselect\n  'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,\nr.og_account_id as og_account_id,\nr.og_resource_id as og_resource_id,\n  case\n    when drs_job_count.count = 0 or drs_job_count.count is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when drs_job_count.count = 0 or drs_job_count.count is null then 'DRS job not enabled for region ' || r.region || '.'\n    else 'DRS job enabled for region ' || r.region || '.'\n  end as reason\n  \nfrom\n  aws_region as r\n  left join drs_job_count on r.region = drs_job_count.region;"
-  PrimaryTable: aws_drs_job
   ListOfTables:
     - aws_drs_job
     - aws_region
   Parameters: []
+  PrimaryTable: aws_drs_job
+  QueryToExecute: |
+    WITH drs_job_count AS (
+      SELECT
+        COUNT(*) AS count,
+        region,
+        account_id,
+        _ctx
+      FROM
+        aws_drs_job
+      GROUP BY
+        region,
+        account_id,
+        _ctx
+    )
+    SELECT
+      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN drs_job_count.count = 0 OR drs_job_count.count IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN drs_job_count.count = 0 OR drs_job_count.count IS NULL THEN 'DRS job not enabled for region ' || r.region || '.'
+        ELSE 'DRS job enabled for region ' || r.region || '.'
+      END AS reason
+    FROM
+      aws_region AS r
+    LEFT JOIN drs_job_count ON r.region = drs_job_count.region;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: DRS jobs should be enabled

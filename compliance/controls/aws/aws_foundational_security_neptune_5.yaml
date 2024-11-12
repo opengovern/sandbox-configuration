@@ -1,28 +1,28 @@
+Description: This control checks whether a Neptune DB cluster has automated backups enabled, and a backup retention period greater than or equal to 7 days. The control fails if backups aren't enabled for the Neptune DB cluster, or if the retention period is less than 7 days.
 ID: aws_foundational_security_neptune_5
-Title: "5 Neptune DB clusters should have automated backups enabled"
-Description: "This control checks whether a Neptune DB cluster has automated backups enabled, and a backup retention period greater than or equal to 7 days. The control fails if backups aren't enabled for the Neptune DB cluster, or if the retention period is less than 7 days."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when backup_retention_period >= 7 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when backup_retention_period >= 7 then title || ' automated backups enabled.'
-        else title || ' automated backups disabled.'
-      end as reason
-    from
-      aws_neptune_db_cluster;
-  PrimaryTable: aws_neptune_db_cluster
   ListOfTables:
     - aws_neptune_db_cluster
   Parameters: []
+  PrimaryTable: aws_neptune_db_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN backup_retention_period >= 7 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN backup_retention_period >= 7 THEN title || ' automated backups enabled.'
+        ELSE title || ' automated backups disabled.'
+      END AS reason
+    FROM
+      aws_neptune_db_cluster;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 5 Neptune DB clusters should have automated backups enabled

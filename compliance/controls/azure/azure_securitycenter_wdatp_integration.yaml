@@ -1,14 +1,34 @@
+Description: This setting enables Windows Defender ATP (WDATP) integration with Security Center.
 ID: azure_securitycenter_wdatp_integration
-Title: "Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected"
-Description: "This setting enables Windows Defender ATP (WDATP) integration with Security Center."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sc_sett.id as resource,\n  sc_sett.og_account_id as og_account_id,\n  sc_sett.og_resource_id as og_resource_id,\n  case\n    when enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enabled then 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'\n    else 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_setting sc_sett\n  right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id\nwhere\n  sc_sett.title = 'WDATP';\n"
-  PrimaryTable: azure_security_center_setting
   ListOfTables:
     - azure_security_center_setting
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_setting
+  QueryToExecute: |
+    SELECT
+      sc_sett.id AS resource,
+      sc_sett.og_account_id AS og_account_id,
+      sc_sett.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enabled THEN 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
+        ELSE 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM
+      azure_security_center_setting sc_sett
+      RIGHT JOIN azure_subscription sub 
+        ON sc_sett.subscription_id = sub.subscription_id
+    WHERE
+      sc_sett.title = 'WDATP';
 Severity: high
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/SecurityCenter
-IntegrationType:
-  - azure_subscription
+Title: Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected

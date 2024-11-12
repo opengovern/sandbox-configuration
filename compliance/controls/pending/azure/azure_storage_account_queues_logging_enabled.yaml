@@ -1,13 +1,36 @@
+Description: Storage Logging records details of requests (read, write, and delete operations) against your Azure queues. This policy identifies Azure storage accounts that do not have logging enabled for queues. As a best practice, enable logging for read, write, and delete request types on queues.
 ID: azure_storage_account_queues_logging_enabled
-Title: "Storage account logging (Classic Diagnostic Setting) for queues should be enabled"
-Description: "Storage Logging records details of requests (read, write, and delete operations) against your Azure queues. This policy identifies Azure storage accounts that do not have logging enabled for queues. As a best practice, enable logging for read, write, and delete request types on queues."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  case\n    when lower(sa.sku_tier) = 'standard'\n    and (queue_logging_write and queue_logging_read and queue_logging_delete) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when lower(sa.sku_tier) = 'standard'\n    and (queue_logging_write and queue_logging_read and queue_logging_delete)\n      then sa.name || ' storage account logging for queues is enabled.'\n    else sa.name || ' storage account logging for queues is disabled for ' ||\n      concat_ws(', ',\n        case when not queue_logging_write then 'write' end,\n        case when not queue_logging_read then 'read' end,\n        case when not queue_logging_delete then 'delete' end\n      ) || ' requests.'\n  end as reason\n  \n  \n  \nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      CASE
+        WHEN LOWER(sa.sku_tier) = 'standard'
+        AND (queue_logging_write AND queue_logging_read AND queue_logging_delete) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN LOWER(sa.sku_tier) = 'standard'
+        AND (queue_logging_write AND queue_logging_read AND queue_logging_delete)
+          THEN sa.name || ' storage account logging for queues is enabled.'
+        ELSE sa.name || ' storage account logging for queues is disabled for ' ||
+          CONCAT_WS(', ',
+            CASE WHEN NOT queue_logging_write THEN 'write' END,
+            CASE WHEN NOT queue_logging_read THEN 'read' END,
+            CASE WHEN NOT queue_logging_delete THEN 'delete' END
+          ) || ' requests.'
+      END AS reason
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
+Severity: low
+Tags: {}
+Title: Storage account logging (Classic Diagnostic Setting) for queues should be enabled

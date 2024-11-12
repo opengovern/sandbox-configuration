@@ -1,38 +1,44 @@
+Description: Ensure that storage logging is enabled for the Azure Storage Blob service.
 ID: azure_enable_logging_for_azure_storage_blob_service
-Title: "Enable Logging for Azure Storage Blob Service"
-Description: "Ensure that storage logging is enabled for the Azure Storage Blob service."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      sa.id as resource,
-      sa.og_account_id,
-      sa.og_resource_id,
-      case
-        when (blob_service_logging ->> 'Read' = 'false' and blob_service_logging ->> 'Write' = 'false' and blob_service_logging ->> 'Delete' = 'false') then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when (blob_service_logging ->> 'Read' = 'false' and blob_service_logging ->> 'Write' = 'false' and blob_service_logging ->> 'Delete' = 'false') then 'The storage logging is not enabled for the Azure Storage Blob service in the selected storage account settings.'
-        else 'The storage logging is enabled for the Azure Storage Blob service in the selected storage account settings.'
-      end as reason,
-      sa.resource_group,
-      display_name as subscription
-    from
-      azure_storage_account as sa,
-      azure_subscription as sub
-    where
-      sub.subscription_id = sa.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id,
+      sa.og_resource_id,
+      CASE
+        WHEN (blob_service_logging ->> 'Read' = 'false' AND
+              blob_service_logging ->> 'Write' = 'false' AND
+              blob_service_logging ->> 'Delete' = 'false') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (blob_service_logging ->> 'Read' = 'false' AND
+              blob_service_logging ->> 'Write' = 'false' AND
+              blob_service_logging ->> 'Delete' = 'false') THEN
+            'The storage logging is not enabled for the Azure Storage Blob service in the selected storage account settings.'
+        ELSE
+            'The storage logging is enabled for the Azure Storage Blob service in the selected storage account settings.'
+      END AS reason,
+      sa.resource_group,
+      display_name AS subscription
+    FROM
+      azure_storage_account AS sa,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = sa.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Storage Accounts
   score_service_name:
     - Azure Storage Accounts
-IntegrationType:
-  - azure_subscription
+Title: Enable Logging for Azure Storage Blob Service

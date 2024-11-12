@@ -1,14 +1,38 @@
+Description: Ensure that no SQL Databases allow ingress from 0.0.0.0/0 (ANY IP).
 ID: azure_sql_database_allow_internet_access
-Title: "Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)"
-Description: "Ensure that no SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when firewall_rules @> '[{\"properties\":{\"endIpAddress\":\"0.0.0.0\",\"startIpAddress\":\"0.0.0.0\"}}]'\n    or firewall_rules @> '[{\"properties\":{\"endIpAddress\":\"255.255.255.255\",\"startIpAddress\":\"0.0.0.0\"}}]'\n      then 'alarm'\n      else 'ok'\n  end as status,\n  case\n    when firewall_rules @> '[{\"properties\":{\"endIpAddress\":\"0.0.0.0\",\"startIpAddress\":\"0.0.0.0\"}}]'\n    or firewall_rules @> '[{\"properties\":{\"endIpAddress\":\"255.255.255.255\",\"startIpAddress\":\"0.0.0.0\"}}]'\n      then s.title || ' allows ingress 0.0.0.0/0 or any ip over internet.'\n      else s.title || ' not allows ingress 0.0.0.0/0 or any ip over internet.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server s,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN firewall_rules @> '[{"properties":{"endIpAddress":"0.0.0.0","startIpAddress":"0.0.0.0"}}]'
+          OR firewall_rules @> '[{"properties":{"endIpAddress":"255.255.255.255","startIpAddress":"0.0.0.0"}}]'
+          THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN firewall_rules @> '[{"properties":{"endIpAddress":"0.0.0.0","startIpAddress":"0.0.0.0"}}]'
+          OR firewall_rules @> '[{"properties":{"endIpAddress":"255.255.255.255","startIpAddress":"0.0.0.0"}}]'
+          THEN s.title || ' allows ingress 0.0.0.0/0 or any IP over internet.'
+        ELSE s.title || ' does not allow ingress 0.0.0.0/0 or any IP over internet.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server s,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: high
 Tags:
   category:
@@ -29,5 +53,4 @@ Tags:
     - azure
   service:
     - Azure/Network
-IntegrationType:
-  - azure_subscription
+Title: Ensure no SQL Databases allow ingress 0.0.0.0/0 (ANY IP)

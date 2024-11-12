@@ -1,30 +1,30 @@
+Description: Ensure that Event Grid Domain public network access is disabled. This control is non-compliant if Event Grid domains have public network access enabled.
 ID: azure_eventgrid_domain_restrict_public_access
-Title: "Event Grid domains should restrict public network access"
-Description: "Ensure that Event Grid Domain public network access is disabled. This control is non-compliant if Event Grid domains have public network access enabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when public_network_access = 'Enabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public_network_access = 'Enabled' then a.name || ' publicly accessible.'
-        else a.name || ' not publicly accessible.'
-      end as reason
-    from
-      azure_eventgrid_domain a,
-      azure_subscription sub;
-  PrimaryTable: azure_eventgrid_domain
   ListOfTables:
     - azure_eventgrid_domain
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_eventgrid_domain
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN a.name || ' publicly accessible.'
+        ELSE a.name || ' not publicly accessible.'
+      END AS reason
+    FROM
+      azure_eventgrid_domain a,
+      azure_subscription sub;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Event Grid domains should restrict public network access

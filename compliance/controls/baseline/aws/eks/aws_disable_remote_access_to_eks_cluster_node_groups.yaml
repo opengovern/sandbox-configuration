@@ -1,29 +1,30 @@
+Description: Ensure that remote access to EKS cluster node groups is disabled.
 ID: aws_disable_remote_access_to_eks_cluster_node_groups
-Title: "Disable Remote Access to EKS Cluster Node Groups"
-Description: "Ensure that remote access to EKS cluster node groups is disabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      nodegroup_name as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when remote_access ->> 'Ec2SshKey' is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when remote_access ->> 'Ec2SshKey' is null then nodegroup_name || ' SSH remote access is disabled.'
-        else nodegroup_name || ' SSH remote access is not disabled.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_eks_node_group;
-  PrimaryTable: aws_eks_node_group
   ListOfTables:
     - aws_eks_node_group
   Parameters: []
+  PrimaryTable: aws_eks_node_group
+  QueryToExecute: |
+    SELECT
+      nodegroup_name AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN remote_access ->> 'Ec2SshKey' IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN remote_access ->> 'Ec2SshKey' IS NULL THEN nodegroup_name || ' SSH remote access is disabled.'
+        ELSE nodegroup_name || ' SSH remote access is not disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_eks_node_group;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Disable Remote Access to EKS Cluster Node Groups

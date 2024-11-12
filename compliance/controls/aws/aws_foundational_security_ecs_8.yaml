@@ -1,45 +1,46 @@
+Description: This control checks if the key value of any variables in the environment parameter of container definitions includes AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control fails if a single environment variable in any container definition equals AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control does not cover environmental variables passed in from other locations such as Amazon S3.
 ID: aws_foundational_security_ecs_8
-Title: "8 Secrets should not be passed as container environment variables"
-Description: "This control checks if the key value of any variables in the environment parameter of container definitions includes AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control fails if a single environment variable in any container definition equals AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or ECS_ENGINE_AUTH_DATA. This control does not cover environmental variables passed in from other locations such as Amazon S3."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with definitions_with_secret_environment_variable as (
-      select
-        distinct task_definition_arn as arn
-      from
-        aws_ecs_task_definition,
-        jsonb_array_elements(container_definitions) as c,
-        jsonb_array_elements( c -> 'Environment') as e,
-            jsonb_array_elements(
-        case jsonb_typeof(c -> 'Secrets')
-            when 'array' then (c -> 'Secrets')
-            else null end
-        ) as s
-      where
-        e ->> 'Name' like any (array ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY','ECS_ENGINE_AUTH_DATA'])
-        or s ->> 'Name' like any (array ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY','ECS_ENGINE_AUTH_DATA'])
-    )
-    select
-      d.task_definition_arn as resource,
-      d.og_account_id as og_account_id,
-      d.og_resource_id as og_resource_id,
-      case
-        when e.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when e.arn is null then d.title || ' container environment variables does not have secrets.'
-        else d.title || ' container environment variables have secrets.'
-      end as reason
-    from
-      aws_ecs_task_definition as d
-      left join definitions_with_secret_environment_variable as e on d.task_definition_arn = e.arn;
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH definitions_with_secret_environment_variable AS (
+      SELECT
+        DISTINCT task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c,
+        jsonb_array_elements(c -> 'Environment') AS e,
+        jsonb_array_elements(
+          CASE jsonb_typeof(c -> 'Secrets')
+            WHEN 'array' THEN (c -> 'Secrets')
+            ELSE NULL 
+          END
+        ) AS s
+      WHERE
+        e ->> 'Name' LIKE ANY (ARRAY ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'ECS_ENGINE_AUTH_DATA'])
+        OR s ->> 'Name' LIKE ANY (ARRAY ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'ECS_ENGINE_AUTH_DATA'])
+    )
+    SELECT
+      d.task_definition_arn AS resource,
+      d.og_account_id AS og_account_id,
+      d.og_resource_id AS og_resource_id,
+      CASE
+        WHEN e.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN e.arn IS NULL THEN d.title || ' container environment variables does not have secrets.'
+        ELSE d.title || ' container environment variables have secrets.'
+      END AS reason
+    FROM
+      aws_ecs_task_definition AS d
+    LEFT JOIN definitions_with_secret_environment_variable AS e ON d.task_definition_arn = e.arn;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 8 Secrets should not be passed as container environment variables

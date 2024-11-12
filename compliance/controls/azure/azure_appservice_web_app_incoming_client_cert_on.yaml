@@ -1,14 +1,34 @@
+Description: Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app.
 ID: azure_appservice_web_app_incoming_client_cert_on
-Title: "Ensure the web app has 'Client Certificates (Incoming client certificates)' set to 'On'"
-Description: "Client certificates allow for the app to request a certificate for incoming requests. Only clients that have a valid certificate will be able to reach the app."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  app.id as resource,\n  app.og_account_id as og_account_id,\n  app.og_resource_id as og_resource_id,\n  case\n    when not client_cert_enabled then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not client_cert_enabled then name || ' incoming client certificates set to off.'\n    else name || ' incoming client certificates set to on.'\n  end as reason\n  \n  , app.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_web_app as app,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = app.subscription_id;\n"
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT client_cert_enabled THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT client_cert_enabled THEN name || ' incoming client certificates set to off.'
+        ELSE name || ' incoming client certificates set to on.'
+      END AS reason,
+      app.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_web_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: Ensure the web app has 'Client Certificates (Incoming client certificates)' set to 'On'

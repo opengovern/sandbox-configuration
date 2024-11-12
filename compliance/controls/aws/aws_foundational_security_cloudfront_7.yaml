@@ -1,14 +1,30 @@
+Description: This control checks whether CloudFront distributions are using the default SSL/TLS certificate CloudFront provides. This control passes if the CloudFront distribution uses a custom SSL/TLS certificate. This control fails if the CloudFront distribution uses the default SSL/TLS certificate.
 ID: aws_foundational_security_cloudfront_7
-Title: "7 CloudFront distributions should use custom SSL/TLS certificates"
-Description: "This control checks whether CloudFront distributions are using the default SSL/TLS certificate CloudFront provides. This control passes if the CloudFront distribution uses a custom SSL/TLS certificate. This control fails if the CloudFront distribution uses the default SSL/TLS certificate."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when viewer_certificate ->> 'ACMCertificateArn' is not null and viewer_certificate ->> 'Certificate' is not null then title || ' uses custom SSL certificate.'\n    else title || ' does not use custom SSL certificate.'\n  end as reason\n  \n  \nfrom\n  aws_cloudfront_distribution;"
-  PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
     - aws_cloudfront_distribution
   Parameters: []
+  PrimaryTable: aws_cloudfront_distribution
+  QueryToExecute: |
+    SELECT 
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL 
+          AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL 
+          AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN title || ' uses custom SSL certificate.'
+        ELSE title || ' does not use custom SSL certificate.'
+      END AS reason
+    FROM 
+      aws_cloudfront_distribution;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 7 CloudFront distributions should use custom SSL/TLS certificates

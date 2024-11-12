@@ -1,31 +1,32 @@
+Description: Ensure that EKS cluster node groups implement the "AmazonEC2ContainerRegistryReadOnly" managed policy.
 ID: aws_use_aws_managed_policy_to_access_amazon_ecr_repositories
-Title: "Use AWS-managed policy to access Amazon ECR Repositories"
-Description: "Ensure that EKS cluster node groups implement the \"AmazonEC2ContainerRegistryReadOnly\" managed policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      ng.nodegroup_name as resource,
-      ng.og_account_id,
-      ng.og_resource_id,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' then 'node group policies contains AmazonEC2ContainerRegistryReadOnly'
-        else 'node group policies does not contain AmazonEC2ContainerRegistryReadOnly'
-      end as reason,
-      ng.region,
-      ng.account_id
-    from
-      aws_eks_node_group as ng
-      left join aws_iam_role as r on r.arn = ng.node_role
-  PrimaryTable: aws_eks_node_group
   ListOfTables:
     - aws_eks_node_group
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_eks_node_group
+  QueryToExecute: |
+    SELECT
+      ng.nodegroup_name AS resource,
+      ng.og_account_id,
+      ng.og_resource_id,
+      CASE
+        WHEN attached_policy_arns::text LIKE '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN attached_policy_arns::text LIKE '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' THEN 'node group policies contains AmazonEC2ContainerRegistryReadOnly'
+        ELSE 'node group policies does not contain AmazonEC2ContainerRegistryReadOnly'
+      END AS reason,
+      ng.region,
+      ng.account_id
+    FROM
+      aws_eks_node_group AS ng
+      LEFT JOIN aws_iam_role AS r ON r.arn = ng.node_role
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Use AWS-managed policy to access Amazon ECR Repositories

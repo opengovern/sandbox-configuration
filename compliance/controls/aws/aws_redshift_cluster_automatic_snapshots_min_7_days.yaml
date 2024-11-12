@@ -1,13 +1,30 @@
+Description: This control checks whether AWS Redshift clusters have automated snapshots enabled. It also checks whether the snapshot retention period is greater than or equal to seven.
 ID: aws_redshift_cluster_automatic_snapshots_min_7_days
-Title: "AWS Redshift clusters should have automatic snapshots enabled"
-Description: "This control checks whether AWS Redshift clusters have automated snapshots enabled. It also checks whether the snapshot retention period is greater than or equal to seven."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when automated_snapshot_retention_period >= 7 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when automated_snapshot_retention_period >= 7 then title || ' automatic snapshots enabled with retention period greater than equals 7 days.'\n    else title || ' automatic snapshots enabled with retention period less than 7 days.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
-  PrimaryTable: aws_redshift_cluster
   ListOfTables:
     - aws_redshift_cluster
   Parameters: []
+  PrimaryTable: aws_redshift_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN automated_snapshot_retention_period >= 7 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN automated_snapshot_retention_period >= 7 THEN title || ' automatic snapshots enabled with retention period greater than equals 7 days.'
+        ELSE title || ' automatic snapshots enabled with retention period less than 7 days.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_redshift_cluster;
 Severity: medium
 Tags:
   category:
@@ -32,9 +49,9 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -48,5 +65,4 @@ Tags:
     - AWS/Redshift
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: AWS Redshift clusters should have automatic snapshots enabled

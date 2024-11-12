@@ -1,28 +1,28 @@
+Description: This control checks whether an Amazon RDS database cluster has changed the admin username from its default value. This rule will fail if the admin username is set to the default value.
 ID: aws_foundational_security_rds_24
-Title: "24 RDS database clusters should use a custom administrator username"
-Description: "This control checks whether an Amazon RDS database cluster has changed the admin username from its default value. This rule will fail if the admin username is set to the default value."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when master_user_name in ('admin', 'postgres') then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when master_user_name in ('admin', 'postgres') then title || ' using default master user name.'
-        else title || ' not using default master user name.'
-      end reason
-    from
-      aws_rds_db_cluster;
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN master_user_name IN ('admin', 'postgres') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN master_user_name IN ('admin', 'postgres') THEN title || ' using default master user name.'
+        ELSE title || ' not using default master user name.'
+      END AS reason
+    FROM
+      aws_rds_db_cluster;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 24 RDS database clusters should use a custom administrator username

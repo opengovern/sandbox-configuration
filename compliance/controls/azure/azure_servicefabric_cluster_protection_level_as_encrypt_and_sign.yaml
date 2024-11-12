@@ -1,14 +1,32 @@
+Description: Service Fabric provides three levels of protection (None, Sign and EncryptAndSign) for node-to-node communication using a primary cluster certificate. Set the protection level to ensure that all node-to-node messages are encrypted and digitally signed.
 ID: azure_servicefabric_cluster_protection_level_as_encrypt_and_sign
-Title: "Service Fabric clusters should have the ClusterProtectionLevel property set to EncryptAndSign"
-Description: "Service Fabric provides three levels of protection (None, Sign and EncryptAndSign) for node-to-node communication using a primary cluster certificate. Set the protection level to ensure that all node-to-node messages are encrypted and digitally signed."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when fabric_settings @> '[{\"parameters\":[{\"value\": \"EncryptAndSign\"}]}]'::jsonb then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when fabric_settings @> '[{\"parameters\":[{\"value\": \"EncryptAndSign\"}]}]'::jsonb then a.name || ' ClusterProtectionLevel property set to EncryptAndSign.'\n    else a.name || ' ClusterProtectionLevel property not set to EncryptAndSign.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_service_fabric_cluster a,\n  azure_subscription sub;\n"
-  PrimaryTable: azure_service_fabric_cluster
   ListOfTables:
     - azure_service_fabric_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_service_fabric_cluster
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN fabric_settings @> '[{"parameters":[{"value": "EncryptAndSign"}]}]'::jsonb THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN fabric_settings @> '[{"parameters":[{"value": "EncryptAndSign"}]}]'::jsonb THEN a.name || ' ClusterProtectionLevel property set to EncryptAndSign.'
+        ELSE a.name || ' ClusterProtectionLevel property not set to EncryptAndSign.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_service_fabric_cluster a,
+      azure_subscription sub;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
@@ -17,5 +35,4 @@ Tags:
     - "true"
   service:
     - Azure/ServiceFabric
-IntegrationType:
-  - azure_subscription
+Title: Service Fabric clusters should have the ClusterProtectionLevel property set to EncryptAndSign

@@ -1,13 +1,30 @@
+Description: IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords.
 ID: aws_cis_v140_1_9
-Title: "1.9 Ensure IAM password policy prevents password reuse"
-Description: "IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || a.partition || ':::' || a.account_id as resource,\n  case\n    when password_reuse_prevention >= 24 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when minimum_password_length is null then 'No password policy set.'\n    when password_reuse_prevention is null then 'Password reuse prevention not set.'\n    else 'Password reuse prevention set to ' || password_reuse_prevention || '.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      'arn:' || a.partition || ':::' || a.account_id AS resource,
+      CASE
+        WHEN password_reuse_prevention >= 24 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimum_password_length IS NULL THEN 'No password policy set.'
+        WHEN password_reuse_prevention IS NULL THEN 'Password reuse prevention not set.'
+        ELSE 'Password reuse prevention set to ' || password_reuse_prevention || '.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN
+      aws_iam_account_password_policy AS pol
+    ON
+      a.account_id = pol.account_id;
+Severity: low
+Tags: {}
+Title: 1.9 Ensure IAM password policy prevents password reuse

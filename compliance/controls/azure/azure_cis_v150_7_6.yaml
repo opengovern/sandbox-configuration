@@ -1,24 +1,24 @@
+Description: VHD (Virtual Hard Disks) are stored in blob storage and are the old-style disks that were attached to Virtual Machines. The blob VHD was then leased to the VM. By default, storage accounts are not encrypted, and Microsoft Defender will then recommend that the OS disks should be encrypted. Storage accounts can be encrypted as a whole using PMK or CMK. This should be turned on for storage accounts containing VHDs.
 ID: azure_cis_v150_7_6
-Title: "7.6 Ensure that VHD's are encrypted"
-Description: "VHD (Virtual Hard Disks) are stored in blob storage and are the old-style disks that were attached to Virtual Machines. The blob VHD was then leased to the VM. By default, storage accounts are not encrypted, and Microsoft Defender will then recommend that the OS disks should be encrypted. Storage accounts can be encrypted as a whole using PMK or CMK. This should be turned on for storage accounts containing VHDs."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      'info' as status,
-      'Manual verification required.' as reason,
-      display_name as subscription
-    from
-      azure_subscription;
-  PrimaryTable: ""
   ListOfTables: []
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      'info' AS status,
+      'Manual verification required.' AS reason,
+      display_name AS subscription
+    FROM
+      azure_subscription;
 Severity: low
 Tags:
   manual-verification:
     - "true"
-IntegrationType:
-  - azure_subscription
+Title: 7.6 Ensure that VHD's are encrypted

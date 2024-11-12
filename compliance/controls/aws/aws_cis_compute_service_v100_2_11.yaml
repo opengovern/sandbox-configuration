@@ -1,14 +1,29 @@
+Description: Enable this rule to help with the baseline configuration of Amazon Elastic Compute Cloud (Amazon EC2) instances by checking whether Amazon EC2 instances have been stopped for more than the allowed number of days, according to your organization's standards.
 ID: aws_cis_compute_service_v100_2_11
-Title: "2.11 Ensure instances stopped for over 90 days are removed"
-Description: "Enable this rule to help with the baseline configuration of Amazon Elastic Compute Cloud (Amazon EC2) instances by checking whether Amazon EC2 instances have been stopped for more than the allowed number of days, according to your organization's standards."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when instance_state not in ('stopped', 'stopping') then 'skip'\n    when state_transition_time <= (current_date - interval '90' day) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when instance_state not in ('stopped', 'stopping') then title || ' is in ' || instance_state || ' state.'\n    else title || ' stopped since ' || to_char(state_transition_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - state_transition_time) || ' days).'\n  end as reason\n  \n  \nfrom\n  aws_ec2_instance;"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN instance_state NOT IN ('stopped', 'stopping') THEN 'skip'
+        WHEN state_transition_time <= (current_date - INTERVAL '90' day) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN instance_state NOT IN ('stopped', 'stopping') THEN title || ' is in ' || instance_state || ' state.'
+        ELSE title || ' stopped since ' || TO_CHAR(state_transition_time, 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - state_transition_time) || ' days).'
+      END AS reason
+    FROM
+      aws_ec2_instance;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.11 Ensure instances stopped for over 90 days are removed

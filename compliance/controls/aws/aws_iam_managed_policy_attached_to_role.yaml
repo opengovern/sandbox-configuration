@@ -1,15 +1,39 @@
+Description: This control checks if all AWS managed policies specified in the list of managed policies are attached to the AWS Identity and Access Management (IAM) role. The rule is non-compliant if an AWS managed policy is not attached to the IAM role.
 ID: aws_iam_managed_policy_attached_to_role
-Title: "IAM AWS managed policies should be attached to IAM role"
-Description: "This control checks if all AWS managed policies specified in the list of managed policies are attached to the AWS Identity and Access Management (IAM) role. The rule is non-compliant if an AWS managed policy is not attached to the IAM role."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with role_attached_policies as (\n  select\n    jsonb_array_elements_text(attached_policy_arns) as policy_arn\n  from\n    aws_iam_role\n)\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when arn in (select policy_arn from role_attached_policies) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when arn in (select policy_arn from role_attached_policies) then title || ' attached to IAM role.'\n    else title || ' not attached to IAM role.'\n  end as reason\n  \n  , account_id\nfrom\n  aws_iam_policy\nwhere\n  is_aws_managed;\n"
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
     - aws_iam_role
     - aws_managed
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    WITH role_attached_policies AS (
+      SELECT
+        jsonb_array_elements_text(attached_policy_arns) AS policy_arn
+      FROM
+        aws_iam_role
+    )
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN arn IN (SELECT policy_arn FROM role_attached_policies) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN arn IN (SELECT policy_arn FROM role_attached_policies) THEN title || ' attached to IAM role.'
+        ELSE title || ' not attached to IAM role.'
+      END AS reason,
+      account_id
+    FROM
+      aws_iam_policy
+    WHERE
+      is_aws_managed;
 Severity: medium
 Tags:
   category:
@@ -26,5 +50,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM AWS managed policies should be attached to IAM role

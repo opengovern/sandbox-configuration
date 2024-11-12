@@ -1,14 +1,46 @@
+Description: Ensure that logging for Azure KeyVault is 'Enabled'
 ID: azure_enable_auditevent_logging_for_azure_key_vaults
-Title: "Enable AuditEvent Logging for Azure Key Vaults"
-Description: "Ensure that logging for Azure KeyVault is 'Enabled'"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select\n  name as resource,\n  v.og_resource_id,\n  v.og_account_id,\n  case\n    when exists(\n      select 1\n      from \n        jsonb_array_elements(diagnostic_settings) as ds,\n        jsonb_array_elements(ds -> 'properties' -> 'logs') as l\n      where\n        (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')\n    ) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when exists(\n      select 1\n      from \n        jsonb_array_elements(diagnostic_settings) as ds,\n        jsonb_array_elements(ds -> 'properties' -> 'logs') as l\n      where\n        (l ->> 'category' = 'AuditEvent') and  (l ->> 'enabled' = 'true')\n    ) then 'subscription has an app-tier cmk'\n    else 'subscription does not have any app-tier cmk'\n  end as reason,\n  resource_group as resource_group,\n  sub.display_name as subscription\nfrom\n  azure_key_vault as v\n  left join azure_subscription as sub on v.subscription_id = sub.subscription_id\n"
-  PrimaryTable: azure_key_vault
   ListOfTables:
     - azure_key_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM 
+            jsonb_array_elements(diagnostic_settings) AS ds,
+            jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
+          WHERE
+            (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM 
+            jsonb_array_elements(diagnostic_settings) AS ds,
+            jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
+          WHERE
+            (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
+        ) THEN 'subscription has an app-tier cmk'
+        ELSE 'subscription does not have any app-tier cmk'
+      END AS reason,
+      resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault AS v
+      LEFT JOIN azure_subscription AS sub ON v.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +51,4 @@ Tags:
     - Azure KeyVault
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Enable AuditEvent Logging for Azure Key Vaults

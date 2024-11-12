@@ -1,32 +1,33 @@
+Description: Enable automatic provisioning of the Microsoft Defender for Containers components.
 ID: azure_cis_v210_2_1_16
-Title: "2.1.16 Ensure that Auto provisioning of 'Microsoft Defender for Containers components' is Set to 'On'"
-Description: "Enable automatic provisioning of the Microsoft Defender for Containers components."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sub_pricing.id as resource,
-      sub_pricing.og_account_id as og_account_id,
-      sub_pricing.og_resource_id as og_resource_id,
-      case
-        when pricing_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when pricing_tier = 'Standard' then 'Azure Defender on for Containers.'
-        else 'Azure Defender off for Containers.'
-      end as reason
-    from
-      azure_security_center_subscription_pricing sub_pricing
-      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
-    where
-      name = 'Containers';
-  PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
     - azure_security_center_subscription_pricing
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_subscription_pricing
+  QueryToExecute: |
+    SELECT 
+      sub_pricing.id AS resource,
+      sub_pricing.og_account_id AS og_account_id,
+      sub_pricing.og_resource_id AS og_resource_id,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Containers.'
+        ELSE 'Azure Defender off for Containers.'
+      END AS reason
+    FROM 
+      azure_security_center_subscription_pricing sub_pricing
+    RIGHT JOIN 
+      azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+    WHERE 
+      name = 'Containers';
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.1.16 Ensure that Auto provisioning of 'Microsoft Defender for Containers components' is Set to 'On'

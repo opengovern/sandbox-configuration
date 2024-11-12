@@ -1,13 +1,51 @@
+Description: AWS CloudShell is a convenient way of running CLI commands against AWS services; a managed IAM policy ('AWSCloudShellFullAccess') provides full access to CloudShell, which allows file upload and download capability between a user's local system and the CloudShell environment. Within the CloudShell environment a user has sudo permissions, and can access the internet. So it is feasible to install file transfer software (for example) and move data from CloudShell to external internet servers.
 ID: aws_cis_v200_1_22
-Title: "1.22 Ensure access to AWSCloudShellFullAccess is restricted"
-Description: "AWS CloudShell is a convenient way of running CLI commands against AWS services; a managed IAM policy ('AWSCloudShellFullAccess') provides full access to CloudShell, which allows file upload and download capability between a user's local system and the CloudShell environment. Within the CloudShell environment a user has sudo permissions, and can access the internet. So it is feasible to install file transfer software (for example) and move data from CloudShell to external internet servers."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then  'User ' || title || ' has access to AWSCloudShellFullAccess.'\n    else 'User ' || title || ' access to AWSCloudShellFullAccess is restricted.'\n  end as reason\n  \nfrom\n  aws_iam_user\nunion\nselect\n  arn as resource,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then  'Role ' || title || ' has access to AWSCloudShellFullAccess.'\n    else 'Role ' || title || ' access to AWSCloudShellFullAccess is restricted.'\n  end as reason\n  \nfrom\n  aws_iam_role\nunion\nselect\n  arn as resource,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' then  'Group ' || title || ' has access to AWSCloudShellFullAccess.'\n    else 'Group ' || title || ' access to AWSCloudShellFullAccess is restricted.'\n  end as reason\n  \nfrom\n  aws_iam_group;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'alarm'
+        ELSE 'ok'
+      END status,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'User ' || title || ' has access to AWSCloudShellFullAccess.'
+        ELSE 'User ' || title || ' access to AWSCloudShellFullAccess is restricted.'
+      END AS reason
+    FROM
+      aws_iam_user
+    UNION
+    SELECT
+      arn AS resource,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'alarm'
+        ELSE 'ok'
+      END status,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'Role ' || title || ' has access to AWSCloudShellFullAccess.'
+        ELSE 'Role ' || title || ' access to AWSCloudShellFullAccess is restricted.'
+      END AS reason
+    FROM
+      aws_iam_role
+    UNION
+    SELECT
+      arn AS resource,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'alarm'
+        ELSE 'ok'
+      END status,
+      CASE
+        WHEN attached_policy_arns @> '[\"arn:aws:iam::aws:policy/AWSCloudShellFullAccess\"]' THEN 'Group ' || title || ' has access to AWSCloudShellFullAccess.'
+        ELSE 'Group ' || title || ' access to AWSCloudShellFullAccess is restricted.'
+      END AS reason
+    FROM
+      aws_iam_group;
+Severity: low
+Tags: {}
+Title: 1.22 Ensure access to AWSCloudShellFullAccess is restricted

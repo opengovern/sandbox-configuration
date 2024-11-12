@@ -1,28 +1,28 @@
+Description: This control checks whether the assignment of public IPs in Amazon Virtual Private Cloud (Amazon VPC) subnets have MapPublicIpOnLaunch set to FALSE. The control passes if the flag is set to FALSE.
 ID: aws_foundational_security_ec2_15
-Title: "15 EC2 subnets should not automatically assign public IP addresses"
-Description: "This control checks whether the assignment of public IPs in Amazon Virtual Private Cloud (Amazon VPC) subnets have MapPublicIpOnLaunch set to FALSE. The control passes if the flag is set to FALSE."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      subnet_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when map_public_ip_on_launch = 'false' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when map_public_ip_on_launch = 'false' then title || ' auto assign public IP disabled.'
-        else title || ' auto assign public IP enabled.'
-      end as reason
-    from
-      aws_vpc_subnet;
-  PrimaryTable: aws_vpc_subnet
   ListOfTables:
     - aws_vpc_subnet
   Parameters: []
+  PrimaryTable: aws_vpc_subnet
+  QueryToExecute: |
+    SELECT
+      subnet_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN map_public_ip_on_launch = 'false' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN map_public_ip_on_launch = 'false' THEN title || ' auto assign public IP disabled.'
+        ELSE title || ' auto assign public IP enabled.'
+      END AS reason
+    FROM
+      aws_vpc_subnet;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 15 EC2 subnets should not automatically assign public IP addresses

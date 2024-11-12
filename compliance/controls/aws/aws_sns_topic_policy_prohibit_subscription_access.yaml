@@ -1,48 +1,48 @@
+Description: Manage access to resources in the AWS Cloud by ensuring SNS topics cannot be accessed publicly for subscription.
 ID: aws_sns_topic_policy_prohibit_subscription_access
-Title: "SNS topic policies should prohibit subscription public access"
-Description: "Manage access to resources in the AWS Cloud by ensuring SNS topics cannot be accessed publicly for subscription."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with wildcard_action_policies as (
-      select
-        topic_arn,
-        count(*) as statements_num
-      from
-        aws_sns_topic,
-        jsonb_array_elements(policy_std -> 'Statement') as s,
-        jsonb_array_elements_text(s -> 'Action') as a
-      where
-        s ->> 'Effect' = 'Allow'
-        and (
-          ( s -> 'Principal' -> 'AWS') = '["*"]'
-          or s ->> 'Principal' = '*'
-        )
-        and a in ('sns:subscribe', 'sns:receive')
-        and s -> 'Condition' is null
-      group by
-        topic_arn
-    )
-    select
-      t.topic_arn as resource,
-      t.og_account_id as og_account_id,
-      t.og_resource_id as og_resource_id,
-      case
-        when p.topic_arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.topic_arn is null then title || ' does not allow subscribe access without condition.'
-        else title || ' contains ' || coalesce(p.statements_num,0) || ' statements that allows subscribe access without condition.'
-      end as reason
-    from
-      aws_sns_topic as t
-      left join wildcard_action_policies as p on p.topic_arn = t.topic_arn;
-  PrimaryTable: aws_sns_topic
   ListOfTables:
     - aws_sns_topic
   Parameters: []
+  PrimaryTable: aws_sns_topic
+  QueryToExecute: |
+    WITH wildcard_action_policies AS (
+      SELECT
+        topic_arn,
+        COUNT(*) AS statements_num
+      FROM
+        aws_sns_topic,
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Action') AS a
+      WHERE
+        s ->> 'Effect' = 'Allow'
+        AND (
+          (s -> 'Principal' -> 'AWS') = '["*"]'
+          OR s ->> 'Principal' = '*'
+        )
+        AND a IN ('sns:subscribe', 'sns:receive')
+        AND s -> 'Condition' IS NULL
+      GROUP BY
+        topic_arn
+    )
+    SELECT
+      t.topic_arn AS resource,
+      t.og_account_id AS og_account_id,
+      t.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.topic_arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.topic_arn IS NULL THEN title || ' does not allow subscribe access without condition.'
+        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allows subscribe access without condition.'
+      END AS reason
+    FROM
+      aws_sns_topic AS t
+      LEFT JOIN wildcard_action_policies AS p ON p.topic_arn = t.topic_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SNS topic policies should prohibit subscription public access

@@ -1,43 +1,46 @@
+Description: Check if Virtual networks have mandatory tags.
 ID: azure_mandatory_sql_resource_group_virtual_network_mandatory
-Title: "Virtual networks should have mandatory tags"
-Description: "Check if Virtual networks have mandatory tags."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: steampipe-v0.5
-  QueryToExecute: |
-    with analysis as (
-      select
-        og_account_id,
-        og_resource_id,
-        id,
-        title,
-        tags ?& '{{.azureMandatoryTags}}'::text[] as has_mandatory_tags,
-        to_jsonb('{{.azureMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,
-        resource_group, subscription_id
-      from
-        azure_virtual_network
-    )
-    select
-        og_account_id,
-        og_resource_id,
-        id as resource,
-      case
-        when has_mandatory_tags then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when has_mandatory_tags then title || ' has all mandatory tags.'
-        else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      end as reason,
-      resource_group, subscription_id
-    from
-      analysis;
-  PrimaryTable: azure_virtual_network
   ListOfTables:
     - azure_virtual_network
   Parameters:
     - key: azureMandatoryTags
       required: true
+  PrimaryTable: azure_virtual_network
+  QueryToExecute: |
+    WITH analysis AS (
+      SELECT
+        og_account_id,
+        og_resource_id,
+        id,
+        title,
+        tags ?& '{{.azureMandatoryTags}}'::TEXT[] AS has_mandatory_tags,
+        TO_JSONB('{{.azureMandatoryTags}}'::TEXT[]) - ARRAY(SELECT JSONB_OBJECT_KEYS(tags)) AS missing_tags,
+        resource_group,
+        subscription_id
+      FROM
+        azure_virtual_network
+    )
+    
+    SELECT
+      og_account_id,
+      og_resource_id,
+      id AS resource,
+      CASE
+        WHEN has_mandatory_tags THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+        ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(missing_tags)), ', ') || '.'
+      END AS reason,
+      resource_group,
+      subscription_id
+    FROM
+      analysis;
 Severity: high
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Virtual networks should have mandatory tags

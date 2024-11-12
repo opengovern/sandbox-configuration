@@ -1,14 +1,41 @@
+Description: This policy audits any Azure SQL Database with long-term geo-redundant backup not enabled.
 ID: azure_sql_database_long_term_geo_redundant_backup_enabled
-Title: "Long-term geo-redundant backup should be enabled for Azure SQL Databases"
-Description: "This policy audits any Azure SQL Database with long-term geo-redundant backup not enabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.database_id resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when retention_policy_property ->> 'monthlyRetention' <> 'PT0S'\n      or retention_policy_property ->> 'weeklyRetention' <> 'PT0S'\n      or retention_policy_property ->> 'yearlyRetention' <> 'PT0S'\n      then 'ok'\n      else 'alarm'\n  end as status,\n  case\n    when retention_policy_property ->> 'monthlyRetention' <> 'PT0S'\n      or retention_policy_property ->> 'weeklyRetention' <> 'PT0S'\n      or retention_policy_property ->> 'yearlyRetention' <> 'PT0S'\n      then s.title || ' long-term geo-redundant backup enabled.'\n      else s.title || ' long-term geo-redundant backup disabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_database s,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id\n  and s.name <> 'master';\n"
-  PrimaryTable: azure_sql_database
   ListOfTables:
     - azure_sql_database
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_database
+  QueryToExecute: |
+    SELECT
+      s.database_id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN retention_policy_property ->> 'monthlyRetention' <> 'PT0S'
+          OR retention_policy_property ->> 'weeklyRetention' <> 'PT0S'
+          OR retention_policy_property ->> 'yearlyRetention' <> 'PT0S'
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN retention_policy_property ->> 'monthlyRetention' <> 'PT0S'
+          OR retention_policy_property ->> 'weeklyRetention' <> 'PT0S'
+          OR retention_policy_property ->> 'yearlyRetention' <> 'PT0S'
+        THEN s.title || ' long-term geo-redundant backup enabled.'
+        ELSE s.title || ' long-term geo-redundant backup disabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_database s,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id
+      AND s.name <> 'master';
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +44,4 @@ Tags:
     - "true"
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: Long-term geo-redundant backup should be enabled for Azure SQL Databases

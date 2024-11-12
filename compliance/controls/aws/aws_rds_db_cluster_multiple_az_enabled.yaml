@@ -1,13 +1,30 @@
+Description: This control checks whether high availability is enabled for your RDS DB clusters. RDS DB clusters should be configured for multiple Availability Zones to ensure availability of the data that is stored.
 ID: aws_rds_db_cluster_multiple_az_enabled
-Title: "RDS DB clusters should be configured for multiple Availability Zones"
-Description: "This control checks whether high availability is enabled for your RDS DB clusters. RDS DB clusters should be configured for multiple Availability Zones to ensure availability of the data that is stored."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when multi_az then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when multi_az then title || ' Multi-AZ enabled.'\n    else title || ' Multi-AZ disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_cluster;\n"
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN multi_az THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN multi_az THEN title || ' Multi-AZ enabled.'
+        ELSE title || ' Multi-AZ disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/RDS
-IntegrationType:
-  - aws_cloud_account
+Title: RDS DB clusters should be configured for multiple Availability Zones

@@ -1,32 +1,32 @@
+Description: Use Azure Active Directory Authentication for authentication with SQL Database to manage credentials in a single place.
 ID: azure_cis_v200_4_1_4
-Title: "4.1.4 Ensure that Azure Active Directory Admin is Configured for SQL Servers"
-Description: "Use Azure Active Directory Authentication for authentication with SQL Database to manage credentials in a single place."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when server_azure_ad_administrator is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when server_azure_ad_administrator is null then name || ' Azure AD authentication not configured.'
-        else name || ' Azure AD authentication configured.'
-      end as reason
-    from
-      azure_sql_server s,
-      azure_subscription sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN server_azure_ad_administrator IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN server_azure_ad_administrator IS NULL THEN name || ' Azure AD authentication not configured.'
+        ELSE name || ' Azure AD authentication configured.'
+      END AS reason
+    FROM
+      azure_sql_server s,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 4.1.4 Ensure that Azure Active Directory Admin is Configured for SQL Servers

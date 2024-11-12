@@ -1,13 +1,30 @@
+Description: Private endpoint connections enforce secure communication by enabling private connectivity to Azure Database for MariaDB. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure.
 ID: azure_mariadb_server_private_link_used
-Title: "Private endpoint should be enabled for MariaDB servers"
-Description: "Private endpoint connections enforce secure communication by enabling private connectivity to Azure Database for MariaDB. Configure a private endpoint connection to enable access to traffic coming only from known networks and prevent access from all other IP addresses, including within Azure."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  case\n    -- Only applicable to standard tier\n    when sku_tier = 'Basic' then 'skip'\n    when private_endpoint_connections @> '[{\"privateLinkServiceConnectionStateStatus\": \"Approved\"}]'::jsonb then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when sku_tier = 'Basic' then a.name || ' is of ' || sku_tier || ' tier.'\n    when private_endpoint_connections @> '[{\"privateLinkServiceConnectionStateStatus\": \"Approved\"}]'::jsonb then a.name || ' using private link.'\n    else a.name || ' not using private link.'\n  end as reason\n  \n  \n  \nfrom\n  azure_mariadb_server a,\n  azure_subscription sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      CASE
+        WHEN sku_tier = 'Basic' THEN 'skip'
+        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sku_tier = 'Basic' THEN a.name || ' is of ' || sku_tier || ' tier.'
+        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb THEN a.name || ' using private link.'
+        ELSE a.name || ' not using private link.'
+      END AS reason
+    FROM
+      azure_mariadb_server a,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
+Severity: low
+Tags: {}
+Title: Private endpoint should be enabled for MariaDB servers

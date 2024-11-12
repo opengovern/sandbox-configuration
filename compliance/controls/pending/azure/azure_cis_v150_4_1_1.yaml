@@ -1,13 +1,29 @@
+Description: Enable auditing on SQL Servers.
 ID: azure_cis_v150_4_1_1
-Title: "4.1.1 Ensure that 'Auditing' is set to 'On'"
-Description: "Enable auditing on SQL Servers."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  case\n    when audit -> 'properties' ->> 'state' = 'Disabled' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when audit -> 'properties' ->> 'state' = 'Disabled' then name || ' auditing disabled.'\n    else name || ' auditing enabled.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_audit_policy) audit,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      CASE
+        WHEN audit -> 'properties' ->> 'state' = 'Disabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN audit -> 'properties' ->> 'state' = 'Disabled' THEN name || ' auditing disabled.'
+        ELSE name || ' auditing enabled.'
+      END AS reason
+    FROM
+      azure_sql_server s,
+      jsonb_array_elements(server_audit_policy) audit,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
+Severity: low
+Tags: {}
+Title: 4.1.1 Ensure that 'Auditing' is set to 'On'

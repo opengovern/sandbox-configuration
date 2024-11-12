@@ -1,14 +1,46 @@
+Description: Ensure all EFS files have a minimum of one restore point time in the last 48 hrs
 ID: aws_efs_files_have_backup_withing_48_hours
-Title: "EFS files have backup withing 48 hours"
-Description: "Ensure all EFS files have a minimum of one restore point time in the last 48 hrs"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "WITH points AS (\n  SELECT recovery_point_arn, resource_arn\n  FROM aws_backup_recovery_point \n  WHERE now() - creation_date < '48 hours'::interval \n  and resource_type = 'EFS' and status = 'COMPLETED')\n\nselect\n  f.arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when p.recovery_point_arn is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when p.recovery_point_arn is null then 'lacks a backup with last 48 hours'\n    else ''\n  end as reason\n  , region, account_id \nfrom \n  aws_efs_file_system as f\n  left join points as p on f.arn = p.resource_arn\n"
-  PrimaryTable: aws_efs_file_system
   ListOfTables:
     - aws_backup_recovery_point
     - aws_efs_file_system
   Parameters: []
+  PrimaryTable: aws_efs_file_system
+  QueryToExecute: |
+    WITH points AS (
+      SELECT 
+        recovery_point_arn,
+        resource_arn
+      FROM 
+        aws_backup_recovery_point
+      WHERE 
+        NOW() - creation_date < '48 hours'::interval 
+        AND resource_type = 'EFS' 
+        AND status = 'COMPLETED'
+    )
+    SELECT
+      f.arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.recovery_point_arn IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN p.recovery_point_arn IS NULL THEN 'lacks a backup with last 48 hours'
+        ELSE ''
+      END AS reason,
+      region, 
+      account_id
+    FROM 
+      aws_efs_file_system AS f
+    LEFT JOIN 
+      points AS p 
+    ON 
+      f.arn = p.resource_arn
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +51,4 @@ Tags:
     - Amazon Elastic File System (EFS)
   score_tags:
     - Missing Backup
-IntegrationType:
-  - aws_cloud_account
+Title: EFS files have backup withing 48 hours

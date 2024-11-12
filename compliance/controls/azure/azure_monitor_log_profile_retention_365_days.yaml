@@ -1,31 +1,31 @@
+Description: This control is non-compliant if Monitor log profile retention is set to less than 365 days.
 ID: azure_monitor_log_profile_retention_365_days
-Title: "Monitor log profiles should have retention set to 365 days or greater"
-Description: "This control is non-compliant if Monitor log profile retention is set to less than 365 days."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      p.id as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when p.retention_policy ->> 'enabled' = 'false' then 'alarm'
-        when p.retention_policy ->> 'enabled' = 'true' and (p.retention_policy ->> 'days')::int >= 365 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.retention_policy ->> 'enabled' = 'false' then p.name || ' retention policy disabled.'
-        else p.name || ' retention is set to ' || (p.retention_policy ->> 'days') || ' day(s).'
-      end as reason
-    from
-      azure_log_profile as p
-      left join azure_subscription sub on sub.subscription_id = p.subscription_id;
-  PrimaryTable: azure_log_profile
   ListOfTables:
     - azure_log_profile
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_log_profile
+  QueryToExecute: |
+    SELECT
+      p.id AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.retention_policy ->> 'enabled' = 'false' THEN 'alarm'
+        WHEN p.retention_policy ->> 'enabled' = 'true' AND (p.retention_policy ->> 'days')::int >= 365 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.retention_policy ->> 'enabled' = 'false' THEN p.name || ' retention policy disabled.'
+        ELSE p.name || ' retention is set to ' || (p.retention_policy ->> 'days') || ' day(s).'
+      END AS reason
+    FROM
+      azure_log_profile AS p
+      LEFT JOIN azure_subscription sub ON sub.subscription_id = p.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Monitor log profiles should have retention set to 365 days or greater

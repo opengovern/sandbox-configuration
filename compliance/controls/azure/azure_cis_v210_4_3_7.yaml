@@ -1,43 +1,44 @@
+Description: Disable access from Azure services to PostgreSQL Database Server.
 ID: azure_cis_v210_4_3_7
-Title: "4.3.7 Ensure 'Allow access to Azure services' for PostgreSQL Database Server is disabled"
-Description: "Disable access from Azure services to PostgreSQL Database Server."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with postgres_db_with_allow_access_to_azure_services as (
-      select
-        id
-      from
-        azure_postgresql_server,
-        jsonb_array_elements(firewall_rules) as r
-      where
-        r -> 'FirewallRuleProperties' ->> 'endIpAddress' = '0.0.0.0'
-        and r -> 'FirewallRuleProperties' ->> 'startIpAddress' = '0.0.0.0'
-    )
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when a.id is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when a.id is not null then s.title || ' does not restrict access to azure services.'
-        else s.title || ' restricts access to azure services.'
-      end as reason
-    from
-      azure_postgresql_server as s
-      left join postgres_db_with_allow_access_to_azure_services as a on a.id = s.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    WITH postgres_db_with_allow_access_to_azure_services AS (
+      SELECT
+        id
+      FROM
+        azure_postgresql_server,
+        jsonb_array_elements(firewall_rules) AS r
+      WHERE
+        r -> 'FirewallRuleProperties' ->> 'endIpAddress' = '0.0.0.0'
+        AND r -> 'FirewallRuleProperties' ->> 'startIpAddress' = '0.0.0.0'
+    )
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.id IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.id IS NOT NULL THEN s.title || ' does not restrict access to Azure services.'
+        ELSE s.title || ' restricts access to Azure services.'
+      END AS reason
+    FROM
+      azure_postgresql_server AS s
+    LEFT JOIN
+      postgres_db_with_allow_access_to_azure_services AS a ON a.id = s.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 4.3.7 Ensure 'Allow access to Azure services' for PostgreSQL Database Server is disabled

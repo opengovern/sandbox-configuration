@@ -1,13 +1,38 @@
+Description: This control checks whether OpenSearch domains are configured with at least three data nodes and zoneAwarenessEnabled is true. This control fails for an OpenSearch domain if instanceCount is less than 3 or zoneAwarenessEnabled is false.
 ID: aws_opensearch_domain_data_node_fault_tolerance
-Title: "OpenSearch domains should have at least three data nodes"
-Description: "This control checks whether OpenSearch domains are configured with at least three data nodes and zoneAwarenessEnabled is true. This control fails for an OpenSearch domain if instanceCount is less than 3 or zoneAwarenessEnabled is false."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount' > '2' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' and cluster_config ->> 'InstanceCount' > '2' then title || ' zone awareness is '\n    || case when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' then 'enabled' else 'disabled' end || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configued.'\n    else title || ' zone awareness is ' || case when cluster_config ->> 'ZoneAwarenessEnabled' = 'true' then 'enabled' else 'disabled' end || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configued.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN cluster_config ->> 'ZoneAwarenessEnabled' = 'true' AND cluster_config ->> 'InstanceCount' > '2' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN cluster_config ->> 'ZoneAwarenessEnabled' = 'true' AND cluster_config ->> 'InstanceCount' > '2' THEN title || ' zone awareness is ' ||
+          CASE
+            WHEN cluster_config ->> 'ZoneAwarenessEnabled' = 'true' THEN 'enabled'
+            ELSE 'disabled'
+          END || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configured.'
+        ELSE title || ' zone awareness is ' ||
+          CASE
+            WHEN cluster_config ->> 'ZoneAwarenessEnabled' = 'true' THEN 'enabled'
+            ELSE 'disabled'
+          END || ' with ' || (cluster_config ->> 'InstanceCount') || ' data node(s) configured.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_opensearch_domain;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +47,4 @@ Tags:
     - aws
   service:
     - AWS/OpenSearch
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch domains should have at least three data nodes

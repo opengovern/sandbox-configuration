@@ -1,38 +1,41 @@
+Description: Ensure that all Kubernetes API calls are logged using Amazon CloudTrail.
 ID: aws_enable_cloudtrail_logging_for_kubernetes_api_calls
-Title: "Enable CloudTrail Logging for Kubernetes API Calls"
-Description: "Ensure that all Kubernetes API calls are logged using Amazon CloudTrail."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      account_id as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when exists(
-          select 1
-          from aws_cloudtrail_trail as ct
-          where ct.og_account_id = a.og_account_id and ct.is_logging = 'true'
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when exists(
-          select 1
-          from aws_cloudtrail_trail as ct
-          where ct.og_account_id = a.og_account_id and ct.is_logging = 'true'
-        ) then 'There are active trails'
-        else 'There are no active trails'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_account as a
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_cloudtrail_trail
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      account_id AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM aws_cloudtrail_trail AS ct
+          WHERE ct.og_account_id = a.og_account_id 
+            AND ct.is_logging = 'true'
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM aws_cloudtrail_trail AS ct
+          WHERE ct.og_account_id = a.og_account_id 
+            AND ct.is_logging = 'true'
+        ) THEN 'There are active trails'
+        ELSE 'There are no active trails'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_account AS a
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -43,5 +46,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Enable CloudTrail Logging for Kubernetes API Calls

@@ -1,28 +1,28 @@
+Description: Amazon S3 provides a variety of no, or low, cost encryption options to protect data at rest.
 ID: aws_cis_v130_2_1_1
-Title: "2.1.1 Ensure all S3 buckets employ encryption-at-rest"
-Description: "Amazon S3 provides a variety of no, or low, cost encryption options to protect data at rest."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when server_side_encryption_configuration is not null then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when server_side_encryption_configuration is not null then name || ' default encryption enabled.'
-        else name || ' default encryption disabled.'
-      end reason
-    from
-      aws_s3_bucket;
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN server_side_encryption_configuration IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN server_side_encryption_configuration IS NOT NULL THEN name || ' default encryption enabled.'
+        ELSE name || ' default encryption disabled.'
+      END AS reason
+    FROM
+      aws_s3_bucket;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.1.1 Ensure all S3 buckets employ encryption-at-rest

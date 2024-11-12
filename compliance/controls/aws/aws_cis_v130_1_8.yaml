@@ -1,30 +1,35 @@
+Description: Password policies are, in part, used to enforce password complexity requirements. 
+              IAM password policies can be used to ensure passwords are at least a given length. 
+              It is recommended that the password policy require a minimum password length of 14.
 ID: aws_cis_v130_1_8
-Title: "1.8 Ensure IAM password policy requires minimum length of 14 or greater"
-Description: "Password policies are, in part, used to enforce password complexity requirements. IAM password policies can be used to ensure password are at least a given length. It is recommended that the password policy require a minimum password length 14."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || a.partition || ':::' || a.account_id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when minimum_password_length >= 14 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimum_password_length is null then 'No password policy set.'
-        else 'Minimum password length set to ' || minimum_password_length || '.'
-      end as reason
-    from
-      aws_account as a
-      left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_iam_account_password_policy
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      'arn:' || a.partition || ':::' || a.account_id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN minimum_password_length >= 14 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimum_password_length IS NULL THEN 'No password policy set.'
+        ELSE 'Minimum password length set to ' || minimum_password_length || '.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN
+      aws_iam_account_password_policy AS pol 
+    ON 
+      a.account_id = pol.account_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.8 Ensure IAM password policy requires minimum length of 14 or greater

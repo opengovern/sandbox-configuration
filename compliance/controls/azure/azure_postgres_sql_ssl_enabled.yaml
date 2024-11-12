@@ -1,14 +1,34 @@
+Description: Azure Database for PostgreSQL supports connecting your Azure Database for PostgreSQL server to client applications using Secure Sockets Layer (SSL). Enforcing SSL connections between your database server and your client applications helps protect against 'man in the middle' attacks by encrypting the data stream between the server and your application. This configuration enforces that SSL is always enabled for accessing your database server
 ID: azure_postgres_sql_ssl_enabled
-Title: "Enforce SSL connection should be enabled for PostgreSQL database servers"
-Description: "Azure Database for PostgreSQL supports connecting your Azure Database for PostgreSQL server to client applications using Secure Sockets Layer (SSL). Enforcing SSL connections between your database server and your client applications helps protect against 'man in the middle' attacks by encrypting the data stream between the server and your application. This configuration enforces that SSL is always enabled for accessing your database server"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when ssl_enforcement = 'Disabled' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when ssl_enforcement = 'Disabled' then name || ' SSL connection disabled.'\n    else name || ' SSL connection enabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_postgresql_server s,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN ssl_enforcement = 'Disabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN ssl_enforcement = 'Disabled' THEN name || ' SSL connection disabled.'
+        ELSE name || ' SSL connection enabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_postgresql_server s,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/PostgreSQL
-IntegrationType:
-  - azure_subscription
+Title: Enforce SSL connection should be enabled for PostgreSQL database servers

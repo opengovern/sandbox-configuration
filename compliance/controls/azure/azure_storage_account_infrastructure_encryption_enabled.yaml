@@ -1,14 +1,34 @@
+Description: Enable infrastructure encryption for higher level of assurance that the data is secure. When infrastructure encryption is enabled, data in a storage account is encrypted twice.
 ID: azure_storage_account_infrastructure_encryption_enabled
-Title: "Storage accounts should have infrastructure encryption"
-Description: "Enable infrastructure encryption for higher level of assurance that the data is secure. When infrastructure encryption is enabled, data in a storage account is encrypted twice."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when require_infrastructure_encryption then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when require_infrastructure_encryption then name || ' infrastructure encryption enabled.'\n    else name || ' infrastructure encryption disabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN require_infrastructure_encryption THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN require_infrastructure_encryption THEN name || ' infrastructure encryption enabled.'
+        ELSE name || ' infrastructure encryption disabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Storage accounts should have infrastructure encryption

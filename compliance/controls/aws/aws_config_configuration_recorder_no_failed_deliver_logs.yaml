@@ -1,14 +1,28 @@
+Description: This control checks whether Config configuration recorder fails to deliver logs. This control is non-compliant if Config configuration recorder fails to deliver logs.
 ID: aws_config_configuration_recorder_no_failed_deliver_logs
-Title: "Config configuration recorder should not fail to deliver logs"
-Description: "This control checks whether Config configuration recorder fails to deliver logs. This control is non-compliant if Config configuration recorder fails to deliver logs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when status ->> 'LastStatus' = 'FAILURE' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when status ->> 'LastStatus' = 'FAILURE' then title || ' has failed deliver logs.'\n    else title || ' does not have failed deliver logs.'\n  end as reason\n  \nfrom\n  aws_config_configuration_recorder;"
-  PrimaryTable: aws_config_configuration_recorder
   ListOfTables:
     - aws_config_configuration_recorder
   Parameters: []
+  PrimaryTable: aws_config_configuration_recorder
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN status ->> 'LastStatus' = 'FAILURE' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN status ->> 'LastStatus' = 'FAILURE' THEN title || ' has failed deliver logs.'
+        ELSE title || ' does not have failed deliver logs.'
+      END AS reason
+    FROM
+      aws_config_configuration_recorder;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Config configuration recorder should not fail to deliver logs

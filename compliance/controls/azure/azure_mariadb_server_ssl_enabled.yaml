@@ -1,32 +1,32 @@
+Description: This control checks whether MariaDB servers SSL enforcement is enabled. This control is non-compliant if SSL enforcement is disabled.
 ID: azure_mariadb_server_ssl_enabled
-Title: "MariaDB servers should have 'Enforce SSL connection' set to 'ENABLED'"
-Description: "This control checks whether MariaDB servers SSL enforcement is enabled. This control is non-compliant if SSL enforcement is disabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when ssl_enforcement = 'Enabled' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ssl_enforcement = 'Enabled' then name || ' SSL connection enabled.'
-        else name || ' SSL connection disabled.'
-      end as reason
-    from
-      azure_mariadb_server as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_mariadb_server
   ListOfTables:
     - azure_mariadb_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_mariadb_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN ssl_enforcement = 'Enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ssl_enforcement = 'Enabled' THEN name || ' SSL connection enabled.'
+        ELSE name || ' SSL connection disabled.'
+      END AS reason
+    FROM
+      azure_mariadb_server AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: MariaDB servers should have 'Enforce SSL connection' set to 'ENABLED'

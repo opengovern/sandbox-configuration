@@ -1,14 +1,34 @@
+Description: Azure Database for PostgreSQL allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create.
 ID: azure_postgres_db_server_geo_redundant_backup_enabled
-Title: "Geo-redundant backup should be enabled for Azure Database for PostgreSQL"
-Description: "Azure Database for PostgreSQL allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when geo_redundant_backup = 'Enabled' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when geo_redundant_backup = 'Enabled' then name || ' Geo-redundant backup enabled.'\n    else name || ' Geo-redundant backup disabled.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_postgresql_server as s,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN geo_redundant_backup = 'Enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN geo_redundant_backup = 'Enabled' THEN name || ' Geo-redundant backup enabled.'
+        ELSE name || ' Geo-redundant backup disabled.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_postgresql_server AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +37,4 @@ Tags:
     - "true"
   service:
     - Azure/PostgreSQL
-IntegrationType:
-  - azure_subscription
+Title: Geo-redundant backup should be enabled for Azure Database for PostgreSQL

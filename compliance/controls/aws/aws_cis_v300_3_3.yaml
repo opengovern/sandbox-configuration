@@ -1,10 +1,14 @@
+Description: AWS Config is a web service that performs configuration management of supported AWS resources within your account and delivers log files to you. The recorded information includes the configuration item (AWS resource), relationships between configuration items (AWS resources), any configuration changes between resources. It is recommended AWS Config be enabled in all regions.
 ID: aws_cis_v300_3_3
-Title: "3.3 Ensure AWS Config is enabled in all regions"
-Description: "AWS Config is a web service that performs configuration management of supported AWS resources within your account and delivers log files to you. The recorded information includes the configuration item (AWS resource), relationships between configuration items (AWS resources), any configuration changes between resources. It is recommended AWS Config be enabled in all regions."
 IntegrationType:
   - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
+  ListOfTables:
+    - aws_config_configuration_recorder
+    - aws_region
+  Parameters: []
+  PrimaryTable: aws_config_configuration_recorder
   QueryToExecute: |
     WITH global_recorders AS (
       SELECT
@@ -17,47 +21,53 @@ Query:
         AND status ->> 'Recording' = 'true'
         AND status ->> 'LastStatus' = 'SUCCESS'
     )
+    
     SELECT
       'arn:aws::' || a.region || ':' || a.account_id AS resource,
       r.og_account_id AS og_account_id,
       r.og_resource_id AS og_resource_id,
       CASE
-        WHEN
-          g.global_config_recorders >= 1
+        WHEN g.global_config_recorders >= 1
           AND status ->> 'Recording' = 'true'
           AND status ->> 'LastStatus' = 'SUCCESS'
         THEN 'OK'
-        WHEN a.opt_in_status = 'not-opted-in' THEN 'SKIP'
+        WHEN a.opt_in_status = 'not-opted-in'
+        THEN 'SKIP'
         ELSE 'ALARM'
       END AS status,
       CASE
-        WHEN a.opt_in_status = 'not-opted-in' THEN a.region || ' region is disabled.'
+        WHEN a.opt_in_status = 'not-opted-in'
+        THEN a.region || ' region is disabled.'
         ELSE
           CASE
-            WHEN recording_group -> 'IncludeGlobalResourceTypes' = 'true' THEN a.region || ' IncludeGlobalResourceTypes enabled,'
+            WHEN recording_group -> 'IncludeGlobalResourceTypes' = 'true'
+            THEN a.region || ' IncludeGlobalResourceTypes enabled,'
             ELSE a.region || ' IncludeGlobalResourceTypes disabled,'
           END || 
           CASE
-            WHEN recording_group -> 'AllSupported' = 'true' THEN ' AllSupported enabled,'
+            WHEN recording_group -> 'AllSupported' = 'true'
+            THEN ' AllSupported enabled,'
             ELSE ' AllSupported disabled,'
-          END || 
+          END ||
           CASE
-            WHEN status ->> 'Recording' = 'true' THEN ' Recording enabled'
+            WHEN status ->> 'Recording' = 'true'
+            THEN ' Recording enabled'
             ELSE ' Recording disabled'
-          END || 
+          END ||
           CASE
-            WHEN status ->> 'LastStatus' = 'SUCCESS' THEN ' and LastStatus is SUCCESS.'
+            WHEN status ->> 'LastStatus' = 'SUCCESS'
+            THEN ' and LastStatus is SUCCESS.'
             ELSE ' and LastStatus is not SUCCESS.'
           END
       END AS reason
     FROM
       global_recorders AS g,
       aws_region AS a
-    LEFT JOIN aws_config_configuration_recorder AS r ON r.account_id = a.account_id AND r.region = a.name;
-  PrimaryTable: aws_config_configuration_recorder
-  ListOfTables:
-    - aws_config_configuration_recorder
-    - aws_region
-  Parameters: []
-Tags: {}
+    LEFT JOIN
+      aws_config_configuration_recorder AS r 
+    ON 
+      r.account_id = a.account_id
+      AND r.region = a.name;
 Severity: low
+Tags: {}
+Title: 3.3 Ensure AWS Config is enabled in all regions

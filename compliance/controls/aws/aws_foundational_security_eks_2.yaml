@@ -1,29 +1,28 @@
+Description: This control checks whether an Amazon EKS cluster is running on a supported Kubernetes version. The control fails if the EKS cluster is running on an unsupported version. If your application doesn't require a specific version of Kubernetes, we recommend that you use the latest available Kubernetes version that's supported by EKS for your clusters.
 ID: aws_foundational_security_eks_2
-Title: "2 EKS clusters should run on a supported Kubernetes version"
-Description: "This control checks whether an Amazon EKS cluster is running on a supported Kubernetes version. The control fails if the EKS cluster is running on an unsupported version. If your application doesn't require a specific version of Kubernetes, we recommend that you use the latest available Kubernetes version that's supported by EKS for your clusters."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        -- eks:oldestVersionSupported (Current oldest supported version is 1.19)
-        when (version)::decimal >= 1.19 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (version)::decimal >= 1.19 then title || ' runs on a supported kubernetes version.'
-        else title || ' does not run on a supported kubernetes version.'
-      end as reason
-    from
-      aws_eks_cluster;
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN (version)::decimal >= 1.19 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (version)::decimal >= 1.19 THEN title || ' runs on a supported kubernetes version.'
+        ELSE title || ' does not run on a supported kubernetes version.'
+      END AS reason
+    FROM
+      aws_eks_cluster;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2 EKS clusters should run on a supported Kubernetes version

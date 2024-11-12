@@ -1,19 +1,40 @@
+Description: Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Service Bus namespaces, data leakage risks are reduced.
 ID: azure_servicebus_name_space_private_link_used
-Title: "Azure Service Bus namespaces should use private link"
-Description: "Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Service Bus namespaces, data leakage risks are reduced."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when sku_name in ('Basic', 'Standard') then 'skip'\n    when private_endpoint_connections is null then 'info'\n    when private_endpoint_connections @> '[{\"privateLinkServiceConnectionStateStatus\": \"Approved\"}]'::jsonb then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when sku_name in ('Basic', 'Standard') then a.name || ' is of ' || sku_name || ' tier.'\n    when private_endpoint_connections is null then a.name || ' no private link exists.'\n    when private_endpoint_connections @> '[{\"privateLinkServiceConnectionStateStatus\": \"Approved\"}]'::jsonb\n    then a.name || ' using private link.'\n    else a.name || ' not using private link.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_servicebus_namespace a,\n  azure_subscription sub;\n"
-  PrimaryTable: azure_servicebus_namespace
   ListOfTables:
     - azure_servicebus_namespace
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_servicebus_namespace
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sku_name IN ('Basic', 'Standard') THEN 'skip'
+        WHEN private_endpoint_connections IS NULL THEN 'info'
+        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sku_name IN ('Basic', 'Standard') THEN a.name || ' is of ' || sku_name || ' tier.'
+        WHEN private_endpoint_connections IS NULL THEN a.name || ' no private link exists.'
+        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb THEN a.name || ' using private link.'
+        ELSE a.name || ' not using private link.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_servicebus_namespace a,
+      azure_subscription sub;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/ServiceBus
-IntegrationType:
-  - azure_subscription
+Title: Azure Service Bus namespaces should use private link

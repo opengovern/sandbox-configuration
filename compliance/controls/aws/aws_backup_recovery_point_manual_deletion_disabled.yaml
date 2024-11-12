@@ -1,42 +1,45 @@
+Description: Checks if a backup vault has an attached resource-based policy which prevents deletion of recovery points. The rule is non-compliant if the Backup Vault does not have resource-based policies or has policies without a suitable 'Deny' statement.
 ID: aws_backup_recovery_point_manual_deletion_disabled
-Title: "Backup recovery points manual deletion should be disabled"
-Description: "Checks if a backup vault has an attached resource-based policy which prevents deletion of recovery points. The rule is non-compliant if the Backup Vault does not have resource-based policies or has policies without a suitable 'Deny' statement."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with recovery_point_manual_deletion_disabled as (
-      select
-        arn
-      from
-        aws_backup_vault,
-        jsonb_array_elements(policy -> 'Statement') as s
-      where
-        s ->> 'Effect' = 'Deny' and
-        s -> 'Action' @> '["backup:DeleteRecoveryPoint","backup:UpdateRecoveryPointLifecycle","backup:PutBackupVaultAccessPolicy"]'
-        and s ->> 'Resource' = '*'
-      group by
-        arn
-    )
-    select
-      v.arn as resource,
-      v.og_account_id as og_account_id,
-      v.og_resource_id as og_resource_id,
-      case
-        when d.arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when d.arn is not null then v.title || ' recovery point manual deletion disabled.'
-        else v.title || ' recovery point manual deletion not disabled.'
-      end as reason
-      , v.region, v.account_id
-    from
-      aws_backup_vault as v
-      left join recovery_point_manual_deletion_disabled as d on v.arn = d.arn;
-  PrimaryTable: aws_backup_vault
   ListOfTables:
     - aws_backup_vault
   Parameters: []
+  PrimaryTable: aws_backup_vault
+  QueryToExecute: |
+    WITH recovery_point_manual_deletion_disabled AS (
+      SELECT
+        arn
+      FROM
+        aws_backup_vault,
+        jsonb_array_elements(policy -> 'Statement') AS s
+      WHERE
+        s ->> 'Effect' = 'Deny'
+        AND s -> 'Action' @> '["backup:DeleteRecoveryPoint", "backup:UpdateRecoveryPointLifecycle", "backup:PutBackupVaultAccessPolicy"]'
+        AND s ->> 'Resource' = '*'
+      GROUP BY
+        arn
+    )
+    SELECT
+      v.arn AS resource,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
+      CASE
+        WHEN d.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.arn IS NOT NULL THEN v.title || ' recovery point manual deletion disabled.'
+        ELSE v.title || ' recovery point manual deletion not disabled.'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_backup_vault AS v
+    LEFT JOIN recovery_point_manual_deletion_disabled AS d
+    ON v.arn = d.arn;
 Severity: high
 Tags:
   category:
@@ -65,5 +68,4 @@ Tags:
     - AWS/Backup
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Backup recovery points manual deletion should be disabled

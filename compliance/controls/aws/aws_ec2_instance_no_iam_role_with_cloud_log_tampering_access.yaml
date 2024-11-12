@@ -1,38 +1,45 @@
+Description: This control ensures that EC2 instance IAM roles do not allow cloud log tampering access.
 ID: aws_ec2_instance_no_iam_role_with_cloud_log_tampering_access
-Title: "EC2 instance IAM role should not allow cloud log tampering access"
-Description: "This control ensures that EC2 instance IAM roles do not allow cloud log tampering access."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with iam_roles as (
-      select
-        r.arn as role_arn,
-        i.arn as intance_arn
-      from
-        aws_iam_role as r,
-        jsonb_array_elements_text(instance_profile_arns) as p
-        left join aws_ec2_instance as i on p = i.iam_instance_profile_arn
-      where
-        i.arn is not null
-      ),
-    iam_role_with_permission as (
-      select
+  ListOfTables:
+    - aws_ec2_instance
+    - iam_roles
+    - iam_role_with_permission
+  Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    WITH iam_roles AS (
+      SELECT
+        r.arn AS role_arn,
+        i.arn AS instance_arn
+      FROM
+        aws_iam_role AS r,
+        jsonb_array_elements_text(instance_profile_arns) AS p
+        LEFT JOIN aws_ec2_instance AS i ON p = i.iam_instance_profile_arn
+      WHERE
+        i.arn IS NOT NULL
+    ),
+    iam_role_with_permission AS (
+      SELECT
         arn
-      from
+      FROM
         aws_iam_role,
-        jsonb_array_elements(assume_role_policy_std -> 'Statement') as s,
-        jsonb_array_elements_text(s -> 'Principal' -> 'Service') as service,
-        jsonb_array_elements_text(s -> 'Action') as action
-      where
-        arn in (
-          select
+        jsonb_array_elements(assume_role_policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Principal' -> 'Service') AS service,
+        jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE
+        arn IN (
+          SELECT
             role_arn
-          from
+          FROM
             iam_roles
-          )
-        and s ->> 'Effect' = 'Allow'
-        and service = 'ec2.amazonaws.com'
-        and action in (
+        )
+        AND s ->> 'Effect' = 'Allow'
+        AND service = 'ec2.amazonaws.com'
+        AND action IN (
           'chime:createapikey',
           'codepipeline:pollforjobs',
           'cognito-identity:getopenidtoken',
@@ -62,31 +69,24 @@ Query:
           'sts:getsessiontoken',
           '*:*'
         )
-      )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-    case
-      when p.arn is null then 'ok'
-      else 'alarm'
-    end status,
-    case
-      when p.arn is null then title || ' has no IAM role attached with credentials exposure permissions.'
-      else title || ' has IAM role attached with credentials exposure permissions.'
-    end as reason,
-    i.account_id
-    from
-      aws_ec2_instance as i
-      left join iam_roles as r on r.intance_arn = i.arn
-      left join iam_role_with_permission as p on p.arn = r.role_arn;
-  PrimaryTable: aws_ec2_instance
-  ListOfTables:
-    - aws_ec2_instance
-    - iam_roles
-    - iam_role_with_permission
-  Parameters: []
+    )
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.arn IS NULL THEN title || ' has no IAM role attached with credentials exposure permissions.'
+        ELSE title || ' has IAM role attached with credentials exposure permissions.'
+      END AS reason,
+      i.account_id
+    FROM
+      aws_ec2_instance AS i
+      LEFT JOIN iam_roles AS r ON r.instance_arn = i.arn
+      LEFT JOIN iam_role_with_permission AS p ON p.arn = r.role_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 instance IAM role should not allow cloud log tampering access

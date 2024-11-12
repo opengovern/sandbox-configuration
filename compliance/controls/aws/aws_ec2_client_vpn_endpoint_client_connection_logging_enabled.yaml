@@ -1,14 +1,28 @@
+Description: This control checks whether an AWS Client VPN endpoint has client connection logging enabled. The control fails if the endpoint doesn't have client connection logging enabled.
 ID: aws_ec2_client_vpn_endpoint_client_connection_logging_enabled
-Title: "EC2 Client VPN endpoints should have client connection logging enabled"
-Description: "This control checks whether an AWS Client VPN endpoint has client connection logging enabled. The control fails if the endpoint doesn't have client connection logging enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  client_vpn_endpoint_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when (connection_log_options ->> 'Enabled')::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (connection_log_options ->> 'Enabled')::bool then title || ' client connection logging enabled.'\n    else title || ' client connection logging disabled.'\n  end as reason\n  \n  \nfrom\n  aws_ec2_client_vpn_endpoint;"
-  PrimaryTable: aws_ec2_client_vpn_endpoint
   ListOfTables:
     - aws_ec2_client_vpn_endpoint
   Parameters: []
+  PrimaryTable: aws_ec2_client_vpn_endpoint
+  QueryToExecute: |
+    SELECT
+      client_vpn_endpoint_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN (connection_log_options ->> 'Enabled')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (connection_log_options ->> 'Enabled')::bool THEN title || ' client connection logging enabled.'
+        ELSE title || ' client connection logging disabled.'
+      END AS reason
+    FROM
+      aws_ec2_client_vpn_endpoint;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Client VPN endpoints should have client connection logging enabled

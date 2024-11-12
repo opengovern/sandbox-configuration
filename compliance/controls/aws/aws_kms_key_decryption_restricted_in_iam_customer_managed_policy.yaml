@@ -1,14 +1,46 @@
+Description: Checks whether the default version of IAM customer managed policies allow principals to use the AWS KMS decryption actions on all resources. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if the kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys. The control evaluates both attached and unattached customer managed policies. It does not check inline policies or AWS managed policies.
 ID: aws_kms_key_decryption_restricted_in_iam_customer_managed_policy
-Title: "KMS key decryption should be restricted in IAM customer managed policy"
-Description: "Checks whether the default version of IAM customer managed policies allow principals to use the AWS KMS decryption actions on all resources. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if the kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys. The control evaluates both attached and unattached customer managed policies. It does not check inline policies or AWS managed policies."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with policy_with_decrypt_grant as (\n  select\n    distinct arn\n  from\n    aws_iam_policy,\n    jsonb_array_elements(policy_std -> 'Statement') as statement\n  where\n    not is_aws_managed\n    and statement ->> 'Effect' = 'Allow'\n    and statement -> 'Resource' ?| array['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']\n    and statement -> 'Action' ?| array['*', 'kms:*', 'kms:decrypt', 'kms:reencryptfrom', 'kms:reencrypt*']\n)\nselect\n  i.arn as resource,\n  i.og_account_id as og_account_id,\n  i.og_resource_id as og_resource_id,\n  case\n    when d.arn is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when d.arn is null then i.title || ' doesn''t allow decryption actions on all keys.'\n    else i.title || ' allows decryption actions on all keys.'\n  end as reason\n  \n  , i.account_id\nfrom\n  aws_iam_policy i\nleft join policy_with_decrypt_grant d on i.arn = d.arn\nwhere\n  not is_aws_managed;\n"
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
     - aws_managed
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    WITH policy_with_decrypt_grant AS (
+      SELECT 
+        DISTINCT arn
+      FROM 
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') AS statement
+      WHERE 
+        NOT is_aws_managed
+        AND statement ->> 'Effect' = 'Allow'
+        AND statement -> 'Resource' ?| ARRAY['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+        AND statement -> 'Action' ?| ARRAY['*', 'kms:*', 'kms:decrypt', 'kms:reencryptfrom', 'kms:reencrypt*']
+    )
+    SELECT 
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN d.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.arn IS NULL THEN i.title || ' doesn''t allow decryption actions on all keys.'
+        ELSE i.title || ' allows decryption actions on all keys.'
+      END AS reason,
+      i.account_id
+    FROM 
+      aws_iam_policy i
+    LEFT JOIN policy_with_decrypt_grant d
+      ON i.arn = d.arn
+    WHERE
+      NOT is_aws_managed
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -23,5 +55,4 @@ Tags:
     - aws
   service:
     - AWS/KMS
-IntegrationType:
-  - aws_cloud_account
+Title: KMS key decryption should be restricted in IAM customer managed policy

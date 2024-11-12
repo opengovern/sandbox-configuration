@@ -1,13 +1,30 @@
+Description: Ensure EC2 instances aren't too old.
 ID: aws_ec2_instance_too_old
-Title: "EC2 Instance Too Old"
-Description: "Ensure EC2 instances aren't too old."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  instance_id as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted' \n    ELSE instance_id || ' launch time was not much time ago'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_ec2_instance\n"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      instance_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted'
+        ELSE instance_id || ' launch time was not much time ago'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Under Utilization
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Instance Too Old

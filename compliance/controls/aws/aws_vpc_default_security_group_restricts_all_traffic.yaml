@@ -1,13 +1,38 @@
+Description: AWS Elastic Compute Cloud (AWS EC2) security groups can help in the management of network access by providing stateful filtering of ingress and egress network traffic to AWS resources.
 ID: aws_vpc_default_security_group_restricts_all_traffic
-Title: "VPC default security group should not allow inbound and outbound traffic"
-Description: "AWS Elastic Compute Cloud (AWS EC2) security groups can help in the management of network access by providing stateful filtering of ingress and egress network traffic to AWS resources."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(ip_permissions) = 0 and jsonb_array_length(ip_permissions_egress) = 0 then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(ip_permissions) > 0 and jsonb_array_length(ip_permissions_egress) > 0\n      then 'Default security group ' || group_id || ' has inbound and outbound rules.'\n    when jsonb_array_length(ip_permissions) > 0 and jsonb_array_length(ip_permissions_egress) = 0\n      then 'Default security group ' || group_id || ' has inbound rules.'\n    when jsonb_array_length(ip_permissions) = 0 and jsonb_array_length(ip_permissions_egress) > 0\n      then 'Default security group ' || group_id || ' has outbound rules.'\n    else 'Default security group ' || group_id || ' has no inbound or outbound rules.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_vpc_security_group\nwhere\n  group_name = 'default';\n"
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(ip_permissions) = 0 
+          AND jsonb_array_length(ip_permissions_egress) = 0 THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN jsonb_array_length(ip_permissions) > 0 
+          AND jsonb_array_length(ip_permissions_egress) > 0 THEN 'Default security group ' || group_id || ' has inbound and outbound rules.'
+        WHEN jsonb_array_length(ip_permissions) > 0 
+          AND jsonb_array_length(ip_permissions_egress) = 0 THEN 'Default security group ' || group_id || ' has inbound rules.'
+        WHEN jsonb_array_length(ip_permissions) = 0 
+          AND jsonb_array_length(ip_permissions_egress) > 0 THEN 'Default security group ' || group_id || ' has outbound rules.'
+        ELSE 'Default security group ' || group_id || ' has no inbound or outbound rules.'
+      END reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_security_group
+    WHERE
+      group_name = 'default';
 Severity: low
 Tags:
   category:
@@ -26,11 +51,11 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -44,5 +69,4 @@ Tags:
     - AWS/VPC
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: VPC default security group should not allow inbound and outbound traffic

@@ -1,59 +1,60 @@
+Description: Periodically, newer versions are released for Java software either due to security flaws or to include additional functionality. Using the latest Java version for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the newer version.
 ID: azure_cis_v210_9_7
-Title: "9.7 Ensure that 'Java version' is the latest, if used to run the Web App"
-Description: "Periodically, newer versions are released for Java software either due to security flaws or to include additional functionality. Using the latest Java version for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the newer version."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with all_web_app as (
-      select
-        id
-      from
-        azure_app_service_web_app
-      where
-        exists (
-          select
-          from
-            unnest(regexp_split_to_array(kind, ',')) elem
-          where
-            elem like 'app%'
-        )
-        and
-        exists (
-          select
-          from
-            unnest(regexp_split_to_array(kind, ',')) elem
-          where
-            elem = 'linux'
-        )
-    )
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.id is null then 'skip'
-        when configuration -> 'properties' ->> 'linuxFxVersion' not like 'JAVA%' then 'ok'
-        when configuration -> 'properties' ->> 'linuxFxVersion' like '%11' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.id is null then a.title || ' is ' || a.kind || ' kind.'
-        when configuration -> 'properties' ->> 'linuxFxVersion' not like 'JAVA%' then a.name ||  ' not using JAVA version.'
-        when configuration -> 'properties' ->> 'linuxFxVersion' like '%11' then a.name || ' using the latest JAVA version.'
-        else a.name || ' not using latest JAVA version.'
-      end as reason
-    from
-      azure_app_service_web_app as a
-      left join all_web_app as b on a.id = b.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    WITH all_web_app AS (
+      SELECT
+        id
+      FROM
+        azure_app_service_web_app
+      WHERE
+        EXISTS (
+          SELECT
+          FROM
+            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+          WHERE
+            elem LIKE 'app%'
+        )
+        AND
+        EXISTS (
+          SELECT
+          FROM
+            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+          WHERE
+            elem = 'linux'
+        )
+    )
+    
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.id IS NULL THEN 'skip'
+        WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'JAVA%' THEN 'ok'
+        WHEN configuration -> 'properties' ->> 'linuxFxVersion' LIKE '%11' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.id IS NULL THEN a.title || ' is ' || a.kind || ' kind.'
+        WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'JAVA%' THEN a.name || ' not using JAVA version.'
+        WHEN configuration -> 'properties' ->> 'linuxFxVersion' LIKE '%11' THEN a.name || ' using the latest JAVA version.'
+        ELSE a.name || ' not using latest JAVA version.'
+      END AS reason
+    FROM
+      azure_app_service_web_app AS a
+      LEFT JOIN all_web_app AS b ON a.id = b.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 9.7 Ensure that 'Java version' is the latest, if used to run the Web App

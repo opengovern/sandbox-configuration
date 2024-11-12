@@ -1,44 +1,45 @@
+Description: Identify unused Gateway Load Balancers, and delete them to help lower the cost of your monthly AWS bill.
 ID: aws_unused_gateway_load_balancers
-Title: "Unused Gateway Load Balancers"
-Description: "Identify unused Gateway Load Balancers, and delete them to help lower the cost of your monthly AWS bill."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with target_resource as (
-      select
-        load_balancer_arn,
-        target_health_descriptions,
-        target_type
-      from
-        aws_ec2_target_group,
-        jsonb_array_elements_text(load_balancer_arns) as load_balancer_arn
-    )
-    select
-      a.arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when jsonb_array_length(b.target_health_descriptions) = 0 then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'aws::elasticloadbalancingv2::loadbalancer' and resource_id = a.og_resource_id limit 1)
-        else 0
-      end as cost_optimization,
-      case
-        when jsonb_array_length(b.target_health_descriptions) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when jsonb_array_length(b.target_health_descriptions) = 0 then a.title || ' has no target registered.'
-        else a.title || ' has registered target of type' || ' ' || b.target_type || '.'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_gateway_load_balancer a
-      left join target_resource b on a.arn = b.load_balancer_arn;
-  PrimaryTable: aws_ec2_gateway_load_balancer
   ListOfTables:
     - aws_ec2_gateway_load_balancer
     - aws_ec2_target_group
   Parameters: []
+  PrimaryTable: aws_ec2_gateway_load_balancer
+  QueryToExecute: |
+    WITH target_resource AS (
+      SELECT
+        load_balancer_arn,
+        target_health_descriptions,
+        target_type
+      FROM
+        aws_ec2_target_group,
+        jsonb_array_elements_text(load_balancer_arns) AS load_balancer_arn
+    )
+    SELECT
+      a.arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN jsonb_array_length(b.target_health_descriptions) = 0 THEN (SELECT cost FROM pennywise_cost_estimate WHERE resource_type = 'aws::elasticloadbalancingv2::loadbalancer' AND resource_id = a.og_resource_id LIMIT 1)
+        ELSE 0
+      END AS cost_optimization,
+      CASE
+        WHEN jsonb_array_length(b.target_health_descriptions) = 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(b.target_health_descriptions) = 0 THEN a.title || ' has no target registered.'
+        ELSE a.title || ' has registered target of type' || ' ' || b.target_type || '.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_gateway_load_balancer a
+    LEFT JOIN target_resource b ON a.arn = b.load_balancer_arn;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -49,5 +50,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Orphaned Resources
-IntegrationType:
-  - aws_cloud_account
+Title: Unused Gateway Load Balancers

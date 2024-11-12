@@ -1,32 +1,32 @@
+Description: Ensure that Kubernetes cluster enables private clusters to restrict public access.
 ID: azure_kubernetes_cluster_restrict_public_access
-Title: "Kubernetes cluster should restrict public access"
-Description: "Ensure that Kubernetes cluster enables private clusters to restrict public access."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.id as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when api_server_access_profile ->> 'enablePrivateCluster' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when api_server_access_profile ->> 'enablePrivateCluster' = 'true' then c.name || ' not publicly accessible.'
-        else c.name || ' publicly accessibe.'
-      end as reason
-    from
-      azure_kubernetes_cluster c,
-      azure_subscription sub
-    where
-      sub.subscription_id = c.subscription_id;
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.id AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN api_server_access_profile ->> 'enablePrivateCluster' = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN api_server_access_profile ->> 'enablePrivateCluster' = 'true' THEN c.name || ' not publicly accessible.'
+        ELSE c.name || ' publicly accessible.'
+      END AS reason
+    FROM
+      azure_kubernetes_cluster c,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = c.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Kubernetes cluster should restrict public access

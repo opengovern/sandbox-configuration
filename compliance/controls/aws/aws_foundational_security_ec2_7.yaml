@@ -1,14 +1,28 @@
+Description: This control checks whether account-level encryption is enabled by default for Amazon Elastic Block Store (Amazon EBS). The control fails if the account level encryption is not enabled.
 ID: aws_foundational_security_ec2_7
-Title: "7 EBS default encryption should be enabled"
-Description: "This control checks whether account-level encryption is enabled by default for Amazon Elastic Block Store(Amazon EBS). The control fails if the account level encryption is not enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || partition || '::' || region || ':' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when not default_ebs_encryption_enabled then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not default_ebs_encryption_enabled then region || ' default EBS encryption disabled.'\n    else region || ' default EBS encryption enabled.'\n  end as reason\n  \nfrom\n  aws_ec2_regional_settings;"
-  PrimaryTable: aws_ec2_regional_settings
   ListOfTables:
     - aws_ec2_regional_settings
   Parameters: []
+  PrimaryTable: aws_ec2_regional_settings
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || '::' || region || ':' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT default_ebs_encryption_enabled THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT default_ebs_encryption_enabled THEN region || ' default EBS encryption disabled.'
+        ELSE region || ' default EBS encryption enabled.'
+      END AS reason
+    FROM
+      aws_ec2_regional_settings;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 7 EBS default encryption should be enabled

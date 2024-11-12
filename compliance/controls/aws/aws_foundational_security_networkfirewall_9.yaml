@@ -1,28 +1,28 @@
+Description: This control checks whether an AWS Network Firewall firewall has deletion protection enabled. The control fails if deletion protection isn't enabled for a firewall.
 ID: aws_foundational_security_networkfirewall_9
-Title: "9 Network Firewall firewalls should have deletion protection enabled"
-Description: "This control checks whether an AWS Network Firewall firewall has deletion protection enabled. The control fails if deletion protection isn't enabled for a firewall."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when delete_protection then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when delete_protection then title || ' delete protection enabled.'
-        else title || ' delete protection disabled.'
-      end reason
-    from
-      aws_networkfirewall_firewall;
-  PrimaryTable: aws_networkfirewall_firewall
   ListOfTables:
     - aws_networkfirewall_firewall
   Parameters: []
+  PrimaryTable: aws_networkfirewall_firewall
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN delete_protection THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN delete_protection THEN title || ' delete protection enabled.'
+        ELSE title || ' delete protection disabled.'
+      END AS reason
+    FROM
+      aws_networkfirewall_firewall;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 9 Network Firewall firewalls should have deletion protection enabled

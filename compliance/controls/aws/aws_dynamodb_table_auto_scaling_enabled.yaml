@@ -1,14 +1,50 @@
+Description: AWS DynamoDB auto scaling uses the AWS Application Auto Scaling service to adjust provisioned throughput capacity that automatically responds to actual traffic patterns.
 ID: aws_dynamodb_table_auto_scaling_enabled
-Title: "DynamoDB table auto scaling should be enabled"
-Description: "AWS DynamoDB auto scaling uses the AWS Application Auto Scaling service to adjust provisioned throughput capacity that automatically responds to actual traffic patterns."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with table_with_autocaling as (\n  select\n    t.resource_id as resource_id,\n    count(t.resource_id) as count\n  from\n    aws_appautoscaling_target as t where service_namespace = 'dynamodb'\n    group by t.resource_id\n)\nselect\n  d.arn as resource,\n  d.og_account_id as og_account_id,\n  d.og_resource_id as og_resource_id,\n  case\n    when d.billing_mode = 'PAY_PER_REQUEST' then 'ok'\n    when t.resource_id is null then 'alarm'\n    when t.count < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when d.billing_mode = 'PAY_PER_REQUEST' then d.title || ' on-demand mode enabled.'\n    when t.resource_id is null then d.title || ' autoscaling not enabled.'\n    when t.count < 2 then d.title || ' auto scaling not enabled for both read and write capacity.'\n    else d.title || ' autoscaling enabled for both read and write capacity.'\n  end as reason\n  \n  , d.region, d.account_id\nfrom\n  aws_dynamodb_table as d\n  left join table_with_autocaling as t on concat('table/', d.name) = t.resource_id;\n"
-  PrimaryTable: aws_dynamodb_table
   ListOfTables:
     - aws_appautoscaling_target
     - aws_dynamodb_table
   Parameters: []
+  PrimaryTable: aws_dynamodb_table
+  QueryToExecute: |
+    WITH table_with_autocaling AS (
+      SELECT
+        t.resource_id AS resource_id,
+        COUNT(t.resource_id) AS count
+      FROM
+        aws_appautoscaling_target AS t
+      WHERE 
+        service_namespace = 'dynamodb'
+      GROUP BY 
+        t.resource_id
+    )
+    SELECT
+      d.arn AS resource,
+      d.og_account_id AS og_account_id,
+      d.og_resource_id AS og_resource_id,
+      CASE
+        WHEN d.billing_mode = 'PAY_PER_REQUEST' THEN 'ok'
+        WHEN t.resource_id IS NULL THEN 'alarm'
+        WHEN t.count < 2 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN d.billing_mode = 'PAY_PER_REQUEST' THEN d.title || ' on-demand mode enabled.'
+        WHEN t.resource_id IS NULL THEN d.title || ' autoscaling not enabled.'
+        WHEN t.count < 2 THEN d.title || ' auto scaling not enabled for both read and write capacity.'
+        ELSE d.title || ' autoscaling enabled for both read and write capacity.'
+      END AS reason,
+      d.region,
+      d.account_id
+    FROM
+      aws_dynamodb_table AS d
+    LEFT JOIN 
+      table_with_autocaling AS t 
+    ON 
+      CONCAT('table/', d.name) = t.resource_id
 Severity: low
 Tags:
   category:
@@ -27,11 +63,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -39,5 +75,4 @@ Tags:
     - aws
   service:
     - AWS/DynamoDB
-IntegrationType:
-  - aws_cloud_account
+Title: DynamoDB table auto scaling should be enabled

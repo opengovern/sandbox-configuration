@@ -1,41 +1,43 @@
+Description: Ensure ELBv2 Load Balancers have Deletion Protection feature enabled in order to protect them from being accidentally deleted.
 ID: aws_elbv2_elastic_load_balancing_deletion_protection
-Title: "ELBv2 Elastic Load Balancing Deletion Protection"
-Description: "Ensure ELBv2 Load Balancers have Deletion Protection feature enabled in order to protect them from being accidentally deleted."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with app_lb_desync_mitigation_mode as (
-      select
-        arn,
-        l ->> 'Key',
-        l ->> 'Value' as v
-      from
-        aws_ec2_application_load_balancer,
-        jsonb_array_elements(load_balancer_attributes) as l
-      where
-        l ->> 'Key' = 'deletion_protection.enabled'
-    )
-    select
-      a.arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when m.v = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when m.v = 'true' then 'deletion protection enabled'
-        else 'deletion protection not enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_application_load_balancer as a
-      left join app_lb_desync_mitigation_mode as m on a.arn = m.arn;
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    WITH app_lb_desync_mitigation_mode AS (
+      SELECT
+        arn,
+        l ->> 'Key',
+        l ->> 'Value' AS v
+      FROM
+        aws_ec2_application_load_balancer,
+        jsonb_array_elements(load_balancer_attributes) AS l
+      WHERE
+        l ->> 'Key' = 'deletion_protection.enabled'
+    )
+    SELECT
+      a.arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN m.v = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN m.v = 'true' THEN 'deletion protection enabled'
+        ELSE 'deletion protection not enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_application_load_balancer AS a
+    LEFT JOIN app_lb_desync_mitigation_mode AS m
+    ON a.arn = m.arn;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -46,5 +48,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: ELBv2 Elastic Load Balancing Deletion Protection

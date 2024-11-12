@@ -1,13 +1,44 @@
+Description: This control checks whether Amazon RDS snapshots are public. This control is intended for RDS instances. It can also return findings for snapshots of Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters, even though they are not evaluated for public accessibility. If these findings are not useful, you can suppress them.
 ID: aws_foundational_security_rds_1
-Title: "1 RDS snapshots should be private"
-Description: "This control checks whether Amazon RDS snapshots are public. This control is intended for RDS instances. It can also return findings for snapshots of Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters, even though they are not evaluated for public accessibility. If these findings are not useful, you can suppress them."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "(\nselect\n  arn as resource,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then title || ' publicly restorable.'\n    else title || ' not publicly restorable.'\n  end reason\n  \n  \nfrom\n  aws_rds_db_cluster_snapshot,\n  jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot\n)\nunion\n(\nselect\n  arn as resource,\n  case\n    when database_snapshot -> 'AttributeValues' = '[\"all\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when database_snapshot -> 'AttributeValues' = '[\"all\"]' then title || ' publicly restorable.'\n    else title || ' not publicly restorable.'\n  end reason\n  \n  \nfrom\n  aws_rds_db_snapshot,\n  jsonb_array_elements(db_snapshot_attributes) as database_snapshot\n);\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: critical
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    (
+      SELECT
+        arn AS resource,
+        CASE
+          WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
+          ELSE 'ok'
+        END AS status,
+        CASE
+          WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
+          ELSE title || ' not publicly restorable.'
+        END AS reason
+      FROM
+        aws_rds_db_cluster_snapshot,
+        jsonb_array_elements(db_cluster_snapshot_attributes) AS cluster_snapshot
+    )
+    UNION
+    (
+      SELECT
+        arn AS resource,
+        CASE
+          WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
+          ELSE 'ok'
+        END AS status,
+        CASE
+          WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
+          ELSE title || ' not publicly restorable.'
+        END AS reason
+      FROM
+        aws_rds_db_snapshot,
+        jsonb_array_elements(db_snapshot_attributes) AS database_snapshot
+    );
+Severity: critical
+Tags: {}
+Title: 1 RDS snapshots should be private

@@ -1,32 +1,36 @@
+Description: Secure your containers with greater flexibility using customer-managed keys. When you specify a customer-managed key, that key is used to protect and control access to the key that encrypts your data. Using customer-managed keys provides additional capabilities to control rotation of the key encryption key or cryptographically erase data.
 ID: azure_container_instance_container_group_encrypted_using_cmk
-Title: "Container Instance container group should use customer-managed key for encryption"
-Description: "Secure your containers with greater flexibility using customer-managed keys. When you specify a customer-managed key, that key is used to protect and control access to the key that encrypts your data. Using customer-managed keys provides additional capabilities to control rotation of the key encryption key or cryptographically erase data."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      cg.id as resource,
-      cg.og_account_id as og_account_id,
-      cg.og_resource_id as og_resource_id,
-      case
-        when encryption_properties ->> 'keyName' is not null and encryption_properties ->> 'vaultBaseUrl' is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encryption_properties ->> 'keyName' is not null and encryption_properties ->> 'vaultBaseUrl' is not null then cg.title || ' encrypted with CMK.'
-        else cg.title || ' not encrypted with CMK.'
-      end as reason
-    from
-      azure_container_group as cg,
-      azure_subscription as sub
-    where
-      sub.subscription_id = cg.subscription_id;
-  PrimaryTable: azure_container_group
   ListOfTables:
     - azure_container_group
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_group
+  QueryToExecute: |
+    SELECT
+      cg.id AS resource,
+      cg.og_account_id AS og_account_id,
+      cg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN encryption_properties ->> 'keyName' IS NOT NULL
+          AND encryption_properties ->> 'vaultBaseUrl' IS NOT NULL
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encryption_properties ->> 'keyName' IS NOT NULL
+          AND encryption_properties ->> 'vaultBaseUrl' IS NOT NULL
+        THEN cg.title || ' encrypted with CMK.'
+        ELSE cg.title || ' not encrypted with CMK.'
+      END AS reason
+    FROM
+      azure_container_group AS cg,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = cg.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container Instance container group should use customer-managed key for encryption

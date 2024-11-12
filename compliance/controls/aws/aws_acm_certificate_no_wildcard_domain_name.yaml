@@ -1,28 +1,28 @@
+Description: Ensure that ACM single domain name certificates are used instead of wildcard certificates within your AWS account in order to follow security best practices and protect each domain/subdomain with its own unique private key.
 ID: aws_acm_certificate_no_wildcard_domain_name
-Title: "ACM certificates should not use wildcard certificates"
-Description: "Ensure that ACM single domain name certificates are used instead of wildcard certificates within your AWS account in order to follow security best practices and protect each domain/subdomain with its own unique private key."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      certificate_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when domain_name like '*%' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when domain_name like '*%' then title || ' uses wildcard domain name.'
-        else title || ' does not use wildcard domain name.'
-      end as reason
-    from
-      aws_acm_certificate;
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN domain_name LIKE '*%' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN domain_name LIKE '*%' THEN title || ' uses wildcard domain name.'
+        ELSE title || ' does not use wildcard domain name.'
+      END AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ACM certificates should not use wildcard certificates

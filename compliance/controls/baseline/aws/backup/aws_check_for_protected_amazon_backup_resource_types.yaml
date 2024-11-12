@@ -1,36 +1,36 @@
+Description: Ensure that the appropriate resource types are protected by Amazon Backup within your AWS account.
 ID: aws_check_for_protected_amazon_backup_resource_types
-Title: "Check for Protected Amazon Backup Resource Types"
-Description: "Ensure that the appropriate resource types are protected by Amazon Backup within your AWS account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      account_id || ' backup region setting in ' || region as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when resource_type_opt_in_preference::jsonb='{{.awsBackupResourceTypeOptInPreference}}'::jsonb then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when resource_type_opt_in_preference::jsonb='{{.awsBackupResourceTypeOptInPreference}}'::jsonb then account_id || ' backup region setting in ' || region || ' is compliant.'
-        else account_id || ' backup region setting in ' || region || ' is not compliant.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_backup_region_settings
-  PrimaryTable: aws_backup_region_settings
   ListOfTables:
     - aws_backup_region_settings
   Parameters:
     - Key: awsBackupResourceTypeOptInPreference
       Required: true
+  PrimaryTable: aws_backup_region_settings
+  QueryToExecute: |
+    SELECT
+      account_id || ' backup region setting in ' || region AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN resource_type_opt_in_preference::jsonb = '{{.awsBackupResourceTypeOptInPreference}}'::jsonb THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN resource_type_opt_in_preference::jsonb = '{{.awsBackupResourceTypeOptInPreference}}'::jsonb THEN account_id || ' backup region setting in ' || region || ' is compliant.'
+        ELSE account_id || ' backup region setting in ' || region || ' is not compliant.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_backup_region_settings
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - AWS Backup
   score_service_name:
     - AWS Backup
-IntegrationType:
-  - aws_cloud_account
+Title: Check for Protected Amazon Backup Resource Types

@@ -1,38 +1,38 @@
+Description: Ensure that Azure virtual machines are configured to use system-assigned managed identities.
 ID: azure_check_for_system_assigned_managed_identities
-Title: "Check for System-Assigned Managed Identities"
-Description: "Ensure that Azure virtual machines are configured to use system-assigned managed identities."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when (vm.og_description -> 'VirtualMachine' ->> 'Identity') is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when (vm.og_description -> 'VirtualMachine' ->> 'Identity') is null then 'system-assigned managed identity is not enabled'
-        else 'system-assigned managed identity is enabled'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm,
-      azure_subscription as sub
-    where
-      sub.subscription_id = vm.subscription_id;
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN (vm.og_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (vm.og_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'system-assigned managed identity is not enabled'
+        ELSE 'system-assigned managed identity is enabled'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for System-Assigned Managed Identities

@@ -1,13 +1,87 @@
+Description: This rule helps ensure the use of AWS recommended security best practices for AWS CloudTrail, by checking for the enablement of multiple settings. These include the use of log encryption, log validation, and enabling AWS CloudTrail in multiple regions.
 ID: aws_cloudtrail_security_trail_enabled
-Title: "At least one trail should be enabled with security best practices"
-Description: "This rule helps ensure the use of AWS recommended security best practices for AWS CloudTrail, by checking for the enablement of multiple settings. These include the use of log encryption, log validation, and enabling AWS CloudTrail in multiple regions."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with trails_enabled as (\n    select\n      distinct arn,\n      is_logging,\n      event_selectors,\n      coalesce(\n        jsonb_agg(g) filter ( where not (g = 'null') ),\n        $$[]$$::jsonb\n      ) as excludeManagementEventSources\n    from\n      aws_cloudtrail_trail\n      left join jsonb_array_elements(event_selectors) as e on true\n      left join jsonb_array_elements_text(e -> 'ExcludeManagementEventSources') as g on true\n    where\n      home_region = region\n    group by arn, is_logging, event_selectors\n  ),\n  all_trails as (\n    select\n      a.arn as arn,\n      tags,\n      _ctx,\n      case\n        when a.is_logging is null then b.is_logging\n        else a.is_logging\n      end as is_logging,\n      case\n        when a.event_selectors is null then b.event_selectors\n        else a.event_selectors\n      end as event_selectors,\n      b.excludeManagementEventSources,\n      a.include_global_service_events,\n      a.is_multi_region_trail,\n      a.log_file_validation_enabled,\n      a.kms_key_id,\n      a.region,\n      a.account_id,\n      a.og_account_id as og_account_id,\n      a.og_resource_id as og_resource_id,\n      a.title\n    from\n      aws_cloudtrail_trail as a\n      left join trails_enabled as b on a.arn = b.arn\n  )\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when not is_logging then 'alarm'\n    when not include_global_service_events then 'alarm'\n    when not is_multi_region_trail then 'alarm'\n    when not log_file_validation_enabled then 'alarm'\n    when kms_key_id is null then 'alarm'\n    when not (jsonb_array_length(event_selectors) = 1 and event_selectors @> '[{\"ReadWriteType\":\"All\"}]') then 'alarm'\n    when not (event_selectors @> '[{\"IncludeManagementEvents\":true}]') then 'alarm'\n    when jsonb_array_length(excludeManagementEventSources) > 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not is_logging then title || ' disabled.'\n    when not include_global_service_events then title || ' not recording global service events.'\n    when not is_multi_region_trail then title || ' not a muti-region trail.'\n    when not log_file_validation_enabled then title || ' log file validation disabled.'\n    when kms_key_id is null then title || ' not encrypted with a KMS key.'\n    when not (jsonb_array_length(event_selectors) = 1 and event_selectors @> '[{\"ReadWriteType\":\"All\"}]') then title || ' not recording events for both reads and writes.'\n    when not (event_selectors @> '[{\"IncludeManagementEvents\":true}]') then title || ' not recording management events.'\n    when jsonb_array_length(excludeManagementEventSources) > 0 then title || ' excludes management events for ' || trim(excludeManagementEventSources::text, '[]') || '.'\n    else title || ' meets all security best practices.'\n  end as reason\n\n  \n  , region, account_id\nfrom\n  all_trails;\n"
-  PrimaryTable: aws_cloudtrail_trail
   ListOfTables:
     - aws_cloudtrail_trail
   Parameters: []
+  PrimaryTable: aws_cloudtrail_trail
+  QueryToExecute: |
+    WITH trails_enabled AS (
+      SELECT
+        DISTINCT arn,
+        is_logging,
+        event_selectors,
+        COALESCE(
+          jsonb_agg(g) FILTER (WHERE NOT (g = 'null')),
+          $$[]$$::jsonb
+        ) AS excludeManagementEventSources
+      FROM
+        aws_cloudtrail_trail
+        LEFT JOIN jsonb_array_elements(event_selectors) AS e ON TRUE
+        LEFT JOIN jsonb_array_elements_text(e -> 'ExcludeManagementEventSources') AS g ON TRUE
+      WHERE
+        home_region = region
+      GROUP BY arn, is_logging, event_selectors
+    ),
+    all_trails AS (
+      SELECT
+        a.arn AS arn,
+        tags,
+        _ctx,
+        CASE
+          WHEN a.is_logging IS NULL THEN b.is_logging
+          ELSE a.is_logging
+        END AS is_logging,
+        CASE
+          WHEN a.event_selectors IS NULL THEN b.event_selectors
+          ELSE a.event_selectors
+        END AS event_selectors,
+        b.excludeManagementEventSources,
+        a.include_global_service_events,
+        a.is_multi_region_trail,
+        a.log_file_validation_enabled,
+        a.kms_key_id,
+        a.region,
+        a.account_id,
+        a.og_account_id AS og_account_id,
+        a.og_resource_id AS og_resource_id,
+        a.title
+      FROM
+        aws_cloudtrail_trail AS a
+        LEFT JOIN trails_enabled AS b ON a.arn = b.arn
+    )
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT is_logging THEN 'alarm'
+        WHEN NOT include_global_service_events THEN 'alarm'
+        WHEN NOT is_multi_region_trail THEN 'alarm'
+        WHEN NOT log_file_validation_enabled THEN 'alarm'
+        WHEN kms_key_id IS NULL THEN 'alarm'
+        WHEN NOT (jsonb_array_length(event_selectors) = 1 AND event_selectors @> '[{"ReadWriteType":"All"}]') THEN 'alarm'
+        WHEN NOT (event_selectors @> '[{"IncludeManagementEvents":true}]') THEN 'alarm'
+        WHEN jsonb_array_length(excludeManagementEventSources) > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT is_logging THEN title || ' disabled.'
+        WHEN NOT include_global_service_events THEN title || ' not recording global service events.'
+        WHEN NOT is_multi_region_trail THEN title || ' not a muti-region trail.'
+        WHEN NOT log_file_validation_enabled THEN title || ' log file validation disabled.'
+        WHEN kms_key_id IS NULL THEN title || ' not encrypted with a KMS key.'
+        WHEN NOT (jsonb_array_length(event_selectors) = 1 AND event_selectors @> '[{"ReadWriteType":"All"}]') THEN title || ' not recording events for both reads and writes.'
+        WHEN NOT (event_selectors @> '[{"IncludeManagementEvents":true}]') THEN title || ' not recording management events.'
+        WHEN jsonb_array_length(excludeManagementEventSources) > 0 THEN title || ' excludes management events for ' || TRIM(excludeManagementEventSources::text, '[]') || '.'
+        ELSE title || ' meets all security best practices.'
+      END AS reason,
+      region, account_id
+    FROM
+      all_trails;
 Severity: high
 Tags:
   category:
@@ -20,9 +94,9 @@ Tags:
     - "true"
   gxp_eu_annex_11:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -32,5 +106,4 @@ Tags:
     - AWS/CloudTrail
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: At least one trail should be enabled with security best practices

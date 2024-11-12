@@ -1,14 +1,28 @@
+Description: This controls checks whether an AWS Step Functions state machine has logging turned on. The control fails if a state machine doesn't have logging turned on. If you provide a custom value for the logLevel parameter, the control passes only if the state machine has the specified logging level turned on.
 ID: aws_sfn_state_machine_logging_enabled
-Title: "Step Functions state machines should have logging turned on"
-Description: "This controls checks whether an AWS Step Functions state machine has logging turned on. The control fails if a state machine doesn't have logging turned on. If you provide a custom value for the logLevel parameter, the control passes only if the state machine has the specified logging level turned on."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logging_configuration ->> 'Level' = 'OFF' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when logging_configuration ->> 'Level' = 'OFF' then title || ' loggging disabled.'\n    else title || ' loggging enabled.'\n  end as reason\n  \n  \nfrom\n  aws_sfn_state_machine;"
-  PrimaryTable: aws_sfn_state_machine
   ListOfTables:
     - aws_sfn_state_machine
   Parameters: []
+  PrimaryTable: aws_sfn_state_machine
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN logging_configuration ->> 'Level' = 'OFF' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN logging_configuration ->> 'Level' = 'OFF' THEN title || ' logging disabled.'
+        ELSE title || ' logging enabled.'
+      END AS reason
+    FROM
+      aws_sfn_state_machine;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Step Functions state machines should have logging turned on

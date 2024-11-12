@@ -1,48 +1,49 @@
+Description: Ensure no security groups allow ingress from 0.0.0.0/0 to port 22.
 ID: aws_unrestricted_ssh_access
-Title: "Unrestricted SSH Access"
-Description: "Ensure no security groups allow ingress from 0.0.0.0/0 to port 22."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with ingress_sg as (
-      select
-        group_id
-      from
-        aws_vpc_security_group_rule
-      where
-        (
-          cidr_ipv4 = '0.0.0.0/0'
-          or cidr_ipv6 = '::/0'
-        )
-        and ip_protocol <> 'icmp'
-        and from_port = 22
-        and to_port = 22
-        and not is_egress
-      group by
-        group_id
-    )
-    select
-      sg.group_id as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when isg.group_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when isg.group_id is null then sg.group_id || ' does not allow unrestricted SSH access'
-        else sg.group_id || ' allows unrestricted SSH access'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_vpc_security_group as sg
-      left join ingress_sg as isg on sg.group_id = isg.group_id
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
     - aws_vpc_security_group_rule
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH ingress_sg AS (
+      SELECT
+        group_id
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        (
+          cidr_ipv4 = '0.0.0.0/0'
+          OR cidr_ipv6 = '::/0'
+        )
+        AND ip_protocol <> 'icmp'
+        AND from_port = 22
+        AND to_port = 22
+        AND NOT is_egress
+      GROUP BY
+        group_id
+    )
+    SELECT
+      sg.group_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN isg.group_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN isg.group_id IS NULL THEN sg.group_id || ' does not allow unrestricted SSH access'
+        ELSE sg.group_id || ' allows unrestricted SSH access'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_security_group AS sg
+      LEFT JOIN ingress_sg AS isg ON sg.group_id = isg.group_id
 Severity: very high
 Tags:
   platform_score_cloud_service_name:
@@ -53,5 +54,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Unrestricted SSH Access

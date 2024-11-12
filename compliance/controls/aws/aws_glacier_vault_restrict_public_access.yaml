@@ -1,46 +1,46 @@
+Description: Manage access to resources in the AWS Cloud by ensuring AWS Glacier vault cannot be publicly accessed.
 ID: aws_glacier_vault_restrict_public_access
-Title: "Glacier vault should restrict public access"
-Description: "Manage access to resources in the AWS Cloud by ensuring AWS Glacier vault cannot be publicly accessed."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with wildcard_action_policies as (
-      select
-        vault_arn,
-        count(*) as statements_num
-      from
-        aws_glacier_vault,
-        jsonb_array_elements(policy_std -> 'Statement') as s
-      where
-        s ->> 'Effect' = 'Allow'
-        and (
-          ( s -> 'Principal' -> 'AWS') = '["*"]'
-          or s ->> 'Principal' = '*'
-        )
-      group by
-        vault_arn
-    )
-    select
-      g.vault_arn as resource,
-      g.og_account_id as og_account_id,
-      g.og_resource_id as og_resource_id,
-      case
-        when p.vault_arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when p.vault_arn is null then title || ' does not allow public access.'
-        else title || ' contains ' || coalesce(p.statements_num, 0) ||
-        ' statements that allow public access.'
-      end as reason
-    from
-      aws_glacier_vault as g
-      left join wildcard_action_policies as p on p.vault_arn = g.vault_arn;
-  PrimaryTable: aws_glacier_vault
   ListOfTables:
     - aws_glacier_vault
   Parameters: []
+  PrimaryTable: aws_glacier_vault
+  QueryToExecute: |
+    WITH wildcard_action_policies AS (
+      SELECT
+        vault_arn,
+        COUNT(*) AS statements_num
+      FROM
+        aws_glacier_vault,
+        jsonb_array_elements(policy_std -> 'Statement') AS s
+      WHERE
+        s ->> 'Effect' = 'Allow'
+        AND (
+          (s -> 'Principal' -> 'AWS') = '["*"]'
+          OR s ->> 'Principal' = '*'
+        )
+      GROUP BY
+        vault_arn
+    )
+    SELECT
+      g.vault_arn AS resource,
+      g.og_account_id AS og_account_id,
+      g.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.vault_arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.vault_arn IS NULL THEN title || ' does not allow public access.'
+        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) ||
+        ' statements that allow public access.'
+      END AS reason
+    FROM
+      aws_glacier_vault AS g
+    LEFT JOIN wildcard_action_policies AS p ON p.vault_arn = g.vault_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Glacier vault should restrict public access

@@ -1,13 +1,30 @@
+Description: To help protect sensitive data at rest, ensure encryption is enabled for your AWS CloudWatch Log Group.
 ID: aws_log_group_encryption_at_rest_enabled
-Title: "Log group encryption at rest should be enabled"
-Description: "To help protect sensitive data at rest, ensure encryption is enabled for your AWS CloudWatch Log Group."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_key_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_key_id is null then title || ' not encrypted at rest.'\n    else title || ' encrypted at rest.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudwatch_log_group;\n"
-  PrimaryTable: aws_cloudwatch_log_group
   ListOfTables:
     - aws_cloudwatch_log_group
   Parameters: []
+  PrimaryTable: aws_cloudwatch_log_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN kms_key_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kms_key_id IS NULL THEN title || ' not encrypted at rest.'
+        ELSE title || ' encrypted at rest.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_cloudwatch_log_group;
 Severity: high
 Tags:
   category:
@@ -28,11 +45,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -46,5 +63,4 @@ Tags:
     - AWS/CloudWatch
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Log group encryption at rest should be enabled

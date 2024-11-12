@@ -1,25 +1,30 @@
+Description: This control checks whether the S3 bucket policy prevents principals from other AWS accounts from performing denied actions on resources in the S3 bucket.
 ID: aws_foundational_security_s3_6
-Title: "6 Amazon S3 permissions granted to other AWS accounts in bucket policies should be restricted"
-Description: "This control checks whether the S3 bucket policy prevents principals from other AWS accounts from performing denied actions on resources in the S3 bucket."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with cross_account_buckets as (
-      select
-        distinct arn
-      from
+  ListOfTables:
+    - aws_s3_bucket
+  Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH cross_account_buckets AS (
+      SELECT DISTINCT
+        arn
+      FROM
         aws_s3_bucket,
-        jsonb_array_elements(policy_std -> 'Statement') as s,
-        jsonb_array_elements_text(s -> 'Principal' -> 'AWS') as p,
-        string_to_array(p, ':') as pa,
-        jsonb_array_elements_text(s -> 'Action') as a
-      where
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+        string_to_array(p, ':') AS pa,
+        jsonb_array_elements_text(s -> 'Action') AS a
+      WHERE
         s ->> 'Effect' = 'Allow'
-        and (
-          pa [5] != account_id
-          or p = '*'
+        AND (
+          pa[5] != account_id
+          OR p = '*'
         )
-        and a in (
+        AND a IN (
           's3:deletebucketpolicy',
           's3:putbucketacl',
           's3:putbucketpolicy',
@@ -27,26 +32,21 @@ Query:
           's3:putobjectacl'
         )
     )
-    select
-      a.arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.arn is null then title || ' restricts cross-account bucket access.'
-        else title || ' allows cross-account bucket access.'
-      end as reason
-    from
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NULL THEN title || ' restricts cross-account bucket access.'
+        ELSE title || ' allows cross-account bucket access.'
+      END AS reason
+    FROM
       aws_s3_bucket a
-      left join cross_account_buckets b on a.arn = b.arn;
-  PrimaryTable: aws_s3_bucket
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
+      LEFT JOIN cross_account_buckets b ON a.arn = b.arn;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 6 Amazon S3 permissions granted to other AWS accounts in bucket policies should be restricted

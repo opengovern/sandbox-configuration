@@ -1,38 +1,40 @@
-ID: aws_iam_role_should_not_have_trust_to_cognito_full_access
-Title: "AWS IAM role should not have permissive trust with the Cognito Identity service and \"FullAccess\" permissions"
 Description: ""
+ID: aws_iam_role_should_not_have_trust_to_cognito_full_access
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with cognito_access as (
-        select role_id,
-            count(*) as num_cognito_access
-        from aws_iam_role,
-            jsonb_array_elements(assume_role_policy->'Statement') as stmt
-        where stmt->'Principal'->>'Federated' = 'cognito-identity.amazonaws.com'
-            and split_part(permissions_boundary_arn, '/', 2) like '%FullAccess%'
-        group by role_id
-        having count(*) > 0
-    )
-    select role.arn as resource,
-        role.og_account_id as og_account_id,
-        role.og_resource_id as og_resource_id,
-        case
-            when cognito_access.role_id is null then 'ok'
-            else 'alarm'
-        end as status,
-        case
-            when cognito_access.role_id is null then role.role_id || ' does not have cognito access'
-            else role.role_id || ' contains ' || cognito_access.num_cognito_access || ' cognito access'
-        end as reason,
-        role.region,
-        role.account_id
-    from aws_iam_role as role
-        left join cognito_access on cognito_access.role_id = role.role_id;
-  PrimaryTable: aws_iam_role
   ListOfTables:
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    WITH cognito_access AS (
+        SELECT role_id,
+               COUNT(*) AS num_cognito_access
+        FROM aws_iam_role,
+             jsonb_array_elements(assume_role_policy->'Statement') AS stmt
+        WHERE stmt->'Principal'->>'Federated' = 'cognito-identity.amazonaws.com'
+          AND split_part(permissions_boundary_arn, '/', 2) LIKE '%FullAccess%'
+        GROUP BY role_id
+        HAVING COUNT(*) > 0
+    )
+    
+    SELECT role.arn AS resource,
+           role.og_account_id AS og_account_id,
+           role.og_resource_id AS og_resource_id,
+           CASE
+               WHEN cognito_access.role_id IS NULL THEN 'ok'
+               ELSE 'alarm'
+           END AS status,
+           CASE
+               WHEN cognito_access.role_id IS NULL THEN role.role_id || ' does not have cognito access'
+               ELSE role.role_id || ' contains ' || cognito_access.num_cognito_access || ' cognito access'
+           END AS reason,
+           role.region,
+           role.account_id
+    FROM aws_iam_role AS role
+    LEFT JOIN cognito_access ON cognito_access.role_id = role.role_id;
 Severity: critical
 Tags:
   category: []
@@ -47,5 +49,4 @@ Tags:
   x-kaytu-explanation: []
   x-kaytu-noncompliance-cost: []
   x-kaytu-usefulness-example: []
-IntegrationType:
-  - aws_cloud_account
+Title: AWS IAM role should not have permissive trust with the Cognito Identity service and "FullAccess" permissions

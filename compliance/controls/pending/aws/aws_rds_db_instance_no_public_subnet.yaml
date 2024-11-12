@@ -1,13 +1,95 @@
+Description: This control checks if RDS DB instance is configured with public subnet as there is a risk of exposing sensitive data.
 ID: aws_rds_db_instance_no_public_subnet
-Title: "RDS DB instances should not use public subnet"
-Description: "This control checks if RDS DB instance is configured with public subnet as there is a risk of exposing sensitive data."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "with subnets_with_explicit_route as (\n  select\n    distinct ( a ->> 'SubnetId') as all_sub\n  from\n    aws_vpc_route_table as t,\n    jsonb_array_elements(associations) as a\n  where\n    a ->> 'SubnetId' is not null\n), public_subnets_with_explicit_route as (\n  select\n    distinct a ->> 'SubnetId' as SubnetId\n  from\n    aws_vpc_route_table as t,\n    jsonb_array_elements(associations) as a,\n    jsonb_array_elements(routes) as r\n  where\n    r ->> 'DestinationCidrBlock' = '0.0.0.0/0'\n    and\n      (\n        r ->> 'GatewayId' like 'igw-%'\n        or r ->> 'NatGatewayId' like 'nat-%'\n      )\n    and a ->> 'SubnetId' is not null\n), public_subnets_with_implicit_route as (\n    select\n    distinct route_table_id,\n    vpc_id,\n    region\n  from\n    aws_vpc_route_table as t,\n    jsonb_array_elements(associations) as a,\n    jsonb_array_elements(routes) as r\n  where\n    a ->> 'Main' = 'true'\n    and r ->> 'DestinationCidrBlock' = '0.0.0.0/0'\n    and (\n        r ->> 'GatewayId' like 'igw-%'\n        or r ->> 'NatGatewayId' like 'nat-%'\n      )\n), subnet_accessibility as (\n  select\n    subnet_id,\n    vpc_id,\n    case\n      when s.subnet_id in (select all_sub from subnets_with_explicit_route where all_sub not in (select SubnetId from public_subnets_with_explicit_route )) then 'private'\n      when p.SubnetId is not null or s.vpc_id in ( select vpc_id from public_subnets_with_implicit_route) then 'public'\n      else 'private'\n    end as access\n  from\n    aws_vpc_subnet as s\n    left join public_subnets_with_explicit_route as p on p.SubnetId = s.subnet_id\n), cluster_public_subnet as (\n  select\n    distinct arn,\n    name as subnet_group_name\n  from\n    aws_rds_db_subnet_group,\n    jsonb_array_elements(subnets) as s\n    left join subnet_accessibility as a on a.subnet_id = s ->> 'SubnetIdentifier'\n  where\n    a.access = 'public'\n)\nselect\n  c.arn as resource,\n  case\n    when s.subnet_group_name is not null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when s.subnet_group_name is not null then c.title || ' has public subnet.'\n    else c.title || ' has private subnet.'\n  end as reason\n  \n  \nfrom\n  aws_rds_db_instance as c\n  left join cluster_public_subnet as s on s.subnet_group_name = c.db_subnet_group_name;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH subnets_with_explicit_route AS (
+      SELECT DISTINCT 
+        (a ->> 'SubnetId') AS all_sub
+      FROM 
+        aws_vpc_route_table AS t,
+        jsonb_array_elements(associations) AS a
+      WHERE 
+        a ->> 'SubnetId' IS NOT NULL
+    ), public_subnets_with_explicit_route AS (
+      SELECT DISTINCT 
+        a ->> 'SubnetId' AS SubnetId
+      FROM 
+        aws_vpc_route_table AS t,
+        jsonb_array_elements(associations) AS a,
+        jsonb_array_elements(routes) AS r
+      WHERE 
+        r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        AND (
+          r ->> 'GatewayId' LIKE 'igw-%'
+          OR r ->> 'NatGatewayId' LIKE 'nat-%'
+        )
+        AND a ->> 'SubnetId' IS NOT NULL
+    ), public_subnets_with_implicit_route AS (
+      SELECT DISTINCT 
+        route_table_id,
+        vpc_id,
+        region
+      FROM 
+        aws_vpc_route_table AS t,
+        jsonb_array_elements(associations) AS a,
+        jsonb_array_elements(routes) AS r
+      WHERE 
+        a ->> 'Main' = 'true'
+        AND r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        AND (
+          r ->> 'GatewayId' LIKE 'igw-%'
+          OR r ->> 'NatGatewayId' LIKE 'nat-%'
+        )
+    ), subnet_accessibility AS (
+      SELECT
+        subnet_id,
+        vpc_id,
+        CASE
+          WHEN s.subnet_id IN (
+            SELECT all_sub FROM subnets_with_explicit_route 
+            WHERE all_sub NOT IN (
+              SELECT SubnetId FROM public_subnets_with_explicit_route
+            )
+          ) THEN 'private'
+          WHEN p.SubnetId IS NOT NULL 
+           OR s.vpc_id IN (
+            SELECT vpc_id FROM public_subnets_with_implicit_route
+          ) THEN 'public'
+          ELSE 'private'
+        END AS access
+      FROM aws_vpc_subnet AS s
+      LEFT JOIN public_subnets_with_explicit_route AS p 
+        ON p.SubnetId = s.subnet_id
+    ), cluster_public_subnet AS (
+      SELECT DISTINCT 
+        arn,
+        name AS subnet_group_name
+      FROM 
+        aws_rds_db_subnet_group,
+        jsonb_array_elements(subnets) AS s
+      LEFT JOIN subnet_accessibility AS a 
+        ON a.subnet_id = s ->> 'SubnetIdentifier'
+      WHERE a.access = 'public'
+    )
+    SELECT
+      c.arn AS resource,
+      CASE
+        WHEN s.subnet_group_name IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN s.subnet_group_name IS NOT NULL THEN c.title || ' has public subnet.'
+        ELSE c.title || ' has private subnet.'
+      END AS reason
+    FROM aws_rds_db_instance AS c
+    LEFT JOIN cluster_public_subnet AS s 
+      ON s.subnet_group_name = c.db_subnet_group_name;
+Severity: low
+Tags: {}
+Title: RDS DB instances should not use public subnet

@@ -1,30 +1,30 @@
+Description: Ensure ACM certificates transparency logging is enabled as certificate transparency logging guards against SSL/TLS certificates issued by mistake or by a compromised certificate authority.
 ID: aws_acm_certificate_transparency_logging_enabled
-Title: "ACM certificates should have transparency logging enabled"
-Description: "Ensure ACM certificates transparency logging is enabled as certificate transparency logging guards against SSL/TLS certificates issued by mistake or by a compromised certificate authority."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      certificate_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when type = 'IMPORTED' then 'skip'
-        when certificate_transparency_logging_preference = 'ENABLED' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when type = 'IMPORTED' then title || ' is imported.'
-        when certificate_transparency_logging_preference = 'ENABLED' then title || ' transparency logging enabled.'
-        else title || ' transparency logging disabled.'
-      end as reason
-    from
-      aws_acm_certificate;
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN type = 'IMPORTED' THEN 'skip'
+        WHEN certificate_transparency_logging_preference = 'ENABLED' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN type = 'IMPORTED' THEN title || ' is imported.'
+        WHEN certificate_transparency_logging_preference = 'ENABLED' THEN title || ' transparency logging enabled.'
+        ELSE title || ' transparency logging disabled.'
+      END AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ACM certificates should have transparency logging enabled

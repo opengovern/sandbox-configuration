@@ -1,31 +1,32 @@
+Description: Ensure that private endpoints are used to access Microsoft Azure Storage accounts.
 ID: azure_private_endpoint_in_use
-Title: "Private Endpoint in Use"
-Description: "Ensure that private endpoints are used to access Microsoft Azure Storage accounts."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when a.private_endpoint_connections is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when a.private_endpoint_connections is null then a.name || ' is not using private endpoints for secure access.'
-        else a.name || ' is using private endpoints for secure access.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN a.private_endpoint_connections IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.private_endpoint_connections IS NULL THEN a.name || ' is not using private endpoints for secure access.'
+        ELSE a.name || ' is using private endpoints for secure access.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS a
+      LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Private Endpoint in Use

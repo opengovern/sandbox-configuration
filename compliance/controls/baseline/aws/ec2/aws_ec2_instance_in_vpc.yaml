@@ -1,30 +1,32 @@
+Description: Ensure EC2 instances are launched using the EC2-VPC platform instead of EC2-Classic outdated platform.
 ID: aws_ec2_instance_in_vpc
-Title: "EC2 Instance In VPC"
-Description: "Ensure EC2 instances are launched using the EC2-VPC platform instead of EC2-Classic outdated platform."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when vpc_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when vpc_id is null then title || ' not in VPC.'
-        else title || ' in VPC.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_instance
-    where instance_state = 'running';
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN vpc_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN vpc_id IS NULL THEN title || ' not in VPC.'
+        ELSE title || ' in VPC.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance
+    WHERE
+      instance_state = 'running';
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -35,5 +37,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Instance In VPC

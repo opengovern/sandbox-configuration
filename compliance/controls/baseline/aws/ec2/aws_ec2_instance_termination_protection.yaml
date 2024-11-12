@@ -1,34 +1,34 @@
+Description: Ensure termination protection safety feature is enabled for EC2 instances that aren't part of ASGs
 ID: aws_ec2_instance_termination_protection
-Title: "EC2 Instance Termination Protection"
-Description: "Ensure termination protection safety feature is enabled for ec2 instances that aren't part of ASGs"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      instance_id as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when disable_api_termination = 'false' then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when disable_api_termination = 'false' then instance_id || ' Termination Protection safety feature is not enabled'
-        else instance_id || ' Termination Protection safety feature is enabled.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_instance
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      instance_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN disable_api_termination = 'false' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN disable_api_termination = 'false' THEN instance_id || ' Termination Protection safety feature is not enabled'
+        ELSE instance_id || ' Termination Protection safety feature is enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_instance
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - AWS EC2
   score_service_name:
     - AWS EC2
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Instance Termination Protection

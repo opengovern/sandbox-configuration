@@ -1,33 +1,34 @@
+Description: Allow trusted Microsoft services to access your Azure Key Vault resources (i.e. encryption keys, secrets and certificates).
 ID: azure_enable_trusted_microsoft_services_for_key_vault_access
-Title: "Enable Trusted Microsoft Services for Key Vault Access"
-Description: "Allow trusted Microsoft services to access your Azure Key Vault resources (i.e. encryption keys, secrets and certificates)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      case
-        when network_acls is null then 'alarm'
-        when network_acls ->> 'bypass' = 'None' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_acls is null then 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-        when network_acls ->> 'bypass' = 'None' then 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-        else 'trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-      end as reason,
-      c.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_key_vault as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_key_vault
   ListOfTables:
     - azure_key_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: |
+    SELECT
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      CASE
+        WHEN network_acls IS NULL THEN 'alarm'
+        WHEN network_acls ->> 'bypass' = 'None' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN network_acls IS NULL THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+        WHEN network_acls ->> 'bypass' = 'None' THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+        ELSE 'trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault AS c
+      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +39,4 @@ Tags:
     - Azure KeyVault
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - azure_subscription
+Title: Enable Trusted Microsoft Services for Key Vault Access

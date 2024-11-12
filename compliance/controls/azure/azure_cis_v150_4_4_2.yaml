@@ -1,34 +1,34 @@
+Description: Ensure TLS version on MySQL flexible servers is set to the default value.
 ID: azure_cis_v150_4_4_2
-Title: "4.4.2 Ensure 'TLS Version' is set to 'TLSV1.2' for MySQL flexible Database Server"
-Description: "Ensure TLS version on MySQL flexible servers is set to the default value."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when minimal_tls_version = 'TLSEnforcementDisabled' then 'alarm'
-        when minimal_tls_version = 'TLS1_2' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimal_tls_version = 'TLSEnforcementDisabled' then s.name || ' TLS enforcement is disabled.'
-        when minimal_tls_version = 'TLS1_2' then s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
-        else s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
-      end as reason
-    from
-      azure_mysql_server as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_mysql_server
   ListOfTables:
     - azure_mysql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_mysql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN minimal_tls_version = 'TLSEnforcementDisabled' THEN 'alarm'
+        WHEN minimal_tls_version = 'TLS1_2' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimal_tls_version = 'TLSEnforcementDisabled' THEN s.name || ' TLS enforcement is disabled.'
+        WHEN minimal_tls_version = 'TLS1_2' THEN s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
+        ELSE s.name || ' minimum TLS version set to ' || minimal_tls_version || '.'
+      END AS reason
+    FROM
+      azure_mysql_server AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 4.4.2 Ensure 'TLS Version' is set to 'TLSV1.2' for MySQL flexible Database Server

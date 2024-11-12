@@ -1,14 +1,25 @@
+Description: This control checks whether an Auto Scaling group spans multiple Availability Zones. The control fails if an Auto Scaling group does not span multiple availability zones.
 ID: aws_foundational_security_autoscaling_2
-Title: "2 Amazon EC2 Auto Scaling group should cover multiple Availability Zones"
-Description: "This control checks whether an Auto Scaling group spans multiple Availability Zones. The control fails if an Auto Scaling group does not span multiple availability zones."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(availability_zones) > 1 then 'ok'\n    else 'alarm'\n  end as status,\n  title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason\n  \n  \nfrom\n  aws_ec2_autoscaling_group;"
-  PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
     - aws_ec2_autoscaling_group
   Parameters: []
+  PrimaryTable: aws_ec2_autoscaling_group
+  QueryToExecute: |
+    SELECT
+      autoscaling_group_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(availability_zones) > 1 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason
+    FROM
+      aws_ec2_autoscaling_group;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2 Amazon EC2 Auto Scaling group should cover multiple Availability Zones

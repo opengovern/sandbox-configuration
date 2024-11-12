@@ -1,13 +1,32 @@
+Description: Set up, organize and manage your AWS accounts for optimal security and manageability.
 ID: aws_multi_account_centralized_management
-Title: "AWS Multi-Account Centralized Management"
-Description: "Set up, organize and manage your AWS accounts for optimal security and manageability."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  organization_id as resource,\n  og_account_id,\n  og_resource_id,\n  CASE\n    WHEN count(*) = 1 THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN count(*) = 1 THEN organization_id || ' only has one account' \n    ELSE organization_id || ' has multiple accounts'\n  END AS reason\nFROM \n  aws_account\nGROUP BY\n  organization_id,\n  og_account_id,\n  og_resource_id;\n"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      organization_id AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN count(*) = 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN count(*) = 1 THEN organization_id || ' only has one account'
+        ELSE organization_id || ' has multiple accounts'
+      END AS reason
+    FROM
+      aws_account
+    GROUP BY
+      organization_id,
+      og_account_id,
+      og_resource_id;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +37,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Tolerate Failures
-IntegrationType:
-  - aws_cloud_account
+Title: AWS Multi-Account Centralized Management

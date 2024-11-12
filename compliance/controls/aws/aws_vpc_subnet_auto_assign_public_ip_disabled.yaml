@@ -1,13 +1,30 @@
+Description: Ensure that AWS Virtual Private Cloud (AWS VPC) subnets are assigned a public IP address. The control is compliant if AWS VPC does not have subnets that are assigned a public IP address. The control is non-compliant if AWS VPC has subnets that are assigned a public IP address.
 ID: aws_vpc_subnet_auto_assign_public_ip_disabled
-Title: "VPC subnet auto assign public IP should be disabled"
-Description: "Ensure that AWS Virtual Private Cloud (AWS VPC) subnets are assigned a public IP address. The control is compliant if AWS VPC does not have subnets that are assigned a public IP address. The control is non-compliant if AWS VPC has subnets that are assigned a public IP address."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  subnet_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when map_public_ip_on_launch = 'false' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when map_public_ip_on_launch = 'false' then title || ' auto assign public IP disabled.'\n    else title || ' auto assign public IP enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_vpc_subnet;\n"
-  PrimaryTable: aws_vpc_subnet
   ListOfTables:
     - aws_vpc_subnet
   Parameters: []
+  PrimaryTable: aws_vpc_subnet
+  QueryToExecute: |
+    SELECT
+      subnet_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN map_public_ip_on_launch = 'false' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN map_public_ip_on_launch = 'false' THEN title || ' auto assign public IP disabled.'
+        ELSE title || ' auto assign public IP enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_subnet;
 Severity: high
 Tags:
   category:
@@ -26,9 +43,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -38,5 +55,4 @@ Tags:
     - "true"
   service:
     - AWS/VPC
-IntegrationType:
-  - aws_cloud_account
+Title: VPC subnet auto assign public IP should be disabled

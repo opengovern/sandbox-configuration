@@ -1,20 +1,26 @@
+Description: AWS provides customers with the option of specifying the contact information for account's security team. It is recommended that this information be provided.
 ID: aws_cis_v150_1_2
-Title: "1.2 Ensure security contact information is registered"
-Description: "AWS provides customers with the option of specifying the contact information for account's security team. It is recommended that this information be provided."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with alternate_security_contact as (
-      select
+  ListOfTables:
+    - aws_account
+    - aws_account_alternate_contact
+  Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    WITH alternate_security_contact AS (
+      SELECT
         name,
         account_id
-      from
+      FROM
         aws_account_alternate_contact
-      where
+      WHERE
         contact_type = 'SECURITY'
     ),
-    account as (
-      select
+    account AS (
+      SELECT
         arn,
         partition,
         title,
@@ -22,35 +28,29 @@ Query:
         _ctx,
         og_account_id,
         og_resource_id
-      from
+      FROM
         aws_account
     )
-    select
-      arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when a.partition = 'aws-us-gov' then 'info'
-        -- Name is a required field if setting a security contact
-        when c.name is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when a.partition = 'aws-us-gov' then a.title || ' in GovCloud, manual verification required.'
-        when c.name is not null then a.title || ' has security contact ' || c.name || ' registered.'
-        else a.title || ' security contact not registered.'
-      end as reason
-    from
-      account as a,
-      alternate_security_contact as c
-    where
+    SELECT
+      arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.partition = 'aws-us-gov' THEN 'info'
+        WHEN c.name IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.partition = 'aws-us-gov' THEN a.title || ' in GovCloud, manual verification required.'
+        WHEN c.name IS NOT NULL THEN a.title || ' has security contact ' || c.name || ' registered.'
+        ELSE a.title || ' security contact not registered.'
+      END AS reason
+    FROM
+      account AS a
+    JOIN
+      alternate_security_contact AS c
+    ON
       c.account_id = a.account_id;
-  PrimaryTable: aws_account
-  ListOfTables:
-    - aws_account
-    - aws_account_alternate_contact
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.2 Ensure security contact information is registered

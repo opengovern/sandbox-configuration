@@ -1,15 +1,53 @@
+Description: Ensure no security group allows unrestricted inbound access to port UDP/137, UDP/138, and TPC/139 (NetBIOS).
 ID: aws_unrestricted_netbios_access
-Title: "Unrestricted NetBIOS Access"
-Description: "Ensure no security group allows unrestricted inbound access to port UDP/137, UDP/138, and TPC/139 (NetBIOS)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  group_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN exists (\n      select 1\n      from jsonb_array_elements(ip_permissions) as p,\n      jsonb_array_elements(p -> 'IpRanges') as r\n      where ('{{.awsNetBiosTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') in ('137', '138', '139')) and ((p ->> 'ToPort') in ('137', '138', '139'))\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN exists (\n      select 1\n      from jsonb_array_elements(ip_permissions) as p,\n      jsonb_array_elements(p -> 'IpRanges') as r\n      where ('{{.awsNetBiosTrustedIpRange}}' not LIKE '%' || (r ->> 'CidrIp') || '%') and ((p ->> 'FromPort') in ('137', '138', '139')) and ((p ->> 'ToPort') in ('137', '138', '139'))\n    ) THEN group_name || ' has Unrestricted NetBIOS Access' \n    ELSE group_name || ' NetBIOS Access is secure'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_vpc_security_group\nWHERE\n  exists (select 1 from jsonb_array_elements(ip_permissions) as p where ((p ->> 'FromPort') in ('137', '138', '139')) and ((p ->> 'ToPort') in ('137', '138', '139')))\n"
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
   Parameters:
     - Key: awsNetBiosTrustedIpRange
       Required: true
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    SELECT
+      group_name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(ip_permissions) AS p,
+               jsonb_array_elements(p -> 'IpRanges') AS r
+          WHERE '{{.awsNetBiosTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+            AND (p ->> 'FromPort') IN ('137', '138', '139')
+            AND (p ->> 'ToPort') IN ('137', '138', '139')
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(ip_permissions) AS p,
+               jsonb_array_elements(p -> 'IpRanges') AS r
+          WHERE '{{.awsNetBiosTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+            AND (p ->> 'FromPort') IN ('137', '138', '139')
+            AND (p ->> 'ToPort') IN ('137', '138', '139')
+        ) THEN group_name || ' has Unrestricted NetBIOS Access'
+        ELSE group_name || ' NetBIOS Access is secure'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_security_group
+    WHERE
+      EXISTS (
+        SELECT 1
+        FROM jsonb_array_elements(ip_permissions) AS p
+        WHERE (p ->> 'FromPort') IN ('137', '138', '139')
+          AND (p ->> 'ToPort') IN ('137', '138', '139')
+      )
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -20,5 +58,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Unrestricted NetBIOS Access

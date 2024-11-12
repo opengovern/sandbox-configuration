@@ -1,29 +1,30 @@
+Description: Ensure encryption is setup for RDS instances to fulfill compliance requirements for data-at-rest encryption.
 ID: aws_rds_encryption_enabled
-Title: "RDS Encryption Enabled"
-Description: "Ensure encryption is setup for RDS instances to fulfill compliance requirements for data-at-rest encryption."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_instance_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when storage_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when storage_encrypted then title || ' encrypted at rest.'
-        else title || ' not encrypted at rest.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN storage_encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN storage_encrypted THEN title || ' encrypted at rest.'
+        ELSE title || ' not encrypted at rest.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_instance;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Encryption Enabled

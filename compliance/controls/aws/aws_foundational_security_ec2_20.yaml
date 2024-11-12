@@ -1,40 +1,45 @@
+Description: This control checks that both VPN tunnels provided by AWS Site-to-Site VPN are in UP status. The control fails if one or both tunnels are in DOWN status.
 ID: aws_foundational_security_ec2_20
-Title: "20 Both VPN tunnels for an AWS Site-to-Site VPN connection should be up"
-Description: "This control checks that both VPN tunnels provided by AWS Site-to-Site VPN are in UP status. The control fails if one or both tunnels are in DOWN status."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with filter_data as (
-      select
-        arn,
-        count(t ->> 'Status')
-      from
-        aws_vpc_vpn_connection,
-        jsonb_array_elements(vgw_telemetry) as t
-      where t ->> 'Status' = 'UP'
-      group by arn
-    )
-    select
-      a.arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.count is null or b.count < 2 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when b.count is null then a.title || ' has both tunnels offline.'
-        when b.count = 1 then a.title || ' has one tunnel offline.'
-        else a.title || ' has both tunnels online.'
-      end as reason
-    from
-      aws_vpc_vpn_connection as a
-      left join filter_data as b on a.arn = b.arn;
-  PrimaryTable: aws_vpc_vpn_connection
   ListOfTables:
     - aws_vpc_vpn_connection
   Parameters: []
+  PrimaryTable: aws_vpc_vpn_connection
+  QueryToExecute: |
+    WITH filter_data AS (
+      SELECT
+        arn,
+        COUNT(t ->> 'Status')
+      FROM
+        aws_vpc_vpn_connection,
+        jsonb_array_elements(vgw_telemetry) AS t
+      WHERE
+        t ->> 'Status' = 'UP'
+      GROUP BY
+        arn
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.count IS NULL OR b.count < 2 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.count IS NULL THEN a.title || ' has both tunnels offline.'
+        WHEN b.count = 1 THEN a.title || ' has one tunnel offline.'
+        ELSE a.title || ' has both tunnels online.'
+      END AS reason
+    FROM
+      aws_vpc_vpn_connection AS a
+    LEFT JOIN
+      filter_data AS b
+    ON
+      a.arn = b.arn;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 20 Both VPN tunnels for an AWS Site-to-Site VPN connection should be up

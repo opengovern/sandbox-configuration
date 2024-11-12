@@ -1,19 +1,47 @@
+Description: This policy audits any SQL Server not configured to use a virtual network service endpoint.
 ID: azure_sql_server_use_virtual_service_endpoint
-Title: "SQL Server should use a virtual network service endpoint"
-Description: "This policy audits any SQL Server not configured to use a virtual network service endpoint."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with sql_server_subnet as (\n  select\n    distinct a.name,\n    rule -> 'properties' -> 'virtualNetworkSubnetId' as subnet_id\n  from\n    azure_sql_server as a,\n    jsonb_array_elements(virtual_network_rules) as rule\n)\nselect\n  distinct a.name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when s.name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when s.name is null then a.name || ' not configured with virtual service endpoint.'\n    else a.name || ' configured with virtual service endpoint.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server as a\n  left join sql_server_subnet as s on a.name = s.name,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    WITH sql_server_subnet AS (
+      SELECT
+        DISTINCT a.name,
+        rule -> 'properties' -> 'virtualNetworkSubnetId' AS subnet_id
+      FROM
+        azure_sql_server AS a,
+        jsonb_array_elements(virtual_network_rules) AS rule
+    )
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.name IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN s.name IS NULL THEN a.name || ' not configured with virtual service endpoint.'
+        ELSE a.name || ' configured with virtual service endpoint.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server AS a
+      LEFT JOIN sql_server_subnet AS s ON a.name = s.name,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
     - "true"
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: SQL Server should use a virtual network service endpoint

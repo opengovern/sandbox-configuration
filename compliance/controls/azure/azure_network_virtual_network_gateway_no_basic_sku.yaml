@@ -1,19 +1,38 @@
+Description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
 ID: azure_network_virtual_network_gateway_no_basic_sku
-Title: "Virtual network gateways should use standard SKUs as a minimum"
-Description: "The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  g.id as resource,\n  g.og_account_id as og_account_id,\n  g.og_resource_id as og_resource_id,\n  case\n    when g.sku_name = 'Basic' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when g.sku_name = 'Basic' then g.title || ' using basic SKU.'\n    else g.title || ' using ' || sku_name || ' SKU.'\n  end as reason\n  \n  , g.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_virtual_network_gateway as g,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = g.subscription_id;\n"
-  PrimaryTable: azure_virtual_network_gateway
   ListOfTables:
     - azure_subscription
     - azure_virtual_network_gateway
   Parameters: []
+  PrimaryTable: azure_virtual_network_gateway
+  QueryToExecute: |
+    SELECT
+      g.id AS resource,
+      g.og_account_id AS og_account_id,
+      g.og_resource_id AS og_resource_id,
+      CASE
+        WHEN g.sku_name = 'Basic' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN g.sku_name = 'Basic' THEN g.title || ' using basic SKU.'
+        ELSE g.title || ' using ' || sku_name || ' SKU.'
+      END AS reason,
+      g.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_virtual_network_gateway AS g,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = g.subscription_id;
 Severity: medium
 Tags:
   cis:
     - "true"
   service:
     - Azure/Network
-IntegrationType:
-  - azure_subscription
+Title: Virtual network gateways should use standard SKUs as a minimum

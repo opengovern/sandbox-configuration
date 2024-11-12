@@ -1,19 +1,44 @@
+Description: Creating a private endpoint for the indicated Storage Sync Service resource allows you to address your Storage Sync Service resource from within the private IP address space of your organization's network, rather than through the internet-accessible public endpoint. Creating a private endpoint by itself does not disable the public endpoint.
 ID: azure_storage_sync_private_link_used
-Title: "Azure File Sync should use private link"
-Description: "Creating a private endpoint for the indicated Storage Sync Service resource allows you to address your Storage Sync Service resource from within the private IP address space of your organization's network, rather than through the internet-accessible public endpoint. Creating a private endpoint by itself does not disable the public endpoint."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with storagesync_service_connection as (\n  select\n    distinct a.id\n  from\n    azure_storage_sync as a,\n    jsonb_array_elements(private_endpoint_connections) as connection\n  where\n    connection -> 'PrivateLinkServiceConnectionState' ->> 'status' = 'Approved'\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when incoming_traffic_policy = 'AllowAllTraffic' then 'alarm'\n    when c.id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when incoming_traffic_policy = 'AllowAllTraffic' then a.name || ' using public networks.'\n    when c.id is null then a.name || ' not uses private link.'\n    else a.name || ' uses private link.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_sync as a\n  left join storagesync_service_connection as c on c.id = a.id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_storage_sync
   ListOfTables:
     - azure_storage_sync
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_sync
+  QueryToExecute: |
+    WITH storagesync_service_connection AS (
+      SELECT DISTINCT a.id
+      FROM azure_storage_sync AS a,
+           jsonb_array_elements(private_endpoint_connections) AS connection
+      WHERE connection -> 'PrivateLinkServiceConnectionState' ->> 'status' = 'Approved'
+    )
+    SELECT a.id AS resource,
+           a.og_account_id AS og_account_id,
+           a.og_resource_id AS og_resource_id,
+           CASE
+             WHEN incoming_traffic_policy = 'AllowAllTraffic' THEN 'alarm'
+             WHEN c.id IS NULL THEN 'alarm'
+             ELSE 'ok'
+           END AS status,
+           CASE
+             WHEN incoming_traffic_policy = 'AllowAllTraffic' THEN a.name || ' using public networks.'
+             WHEN c.id IS NULL THEN a.name || ' not uses private link.'
+             ELSE a.name || ' uses private link.'
+           END AS reason,
+           a.resource_group AS resource_group,
+           sub.display_name AS subscription
+    FROM azure_storage_sync AS a
+    LEFT JOIN storagesync_service_connection AS c ON c.id = a.id,
+         azure_subscription AS sub
+    WHERE sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/FileSync
-IntegrationType:
-  - azure_subscription
+Title: Azure File Sync should use private link

@@ -1,32 +1,32 @@
+Description: The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS. App service allows TLS 1.2 by default, which is the recommended TLS level by industry standards such as PCI DSS.
 ID: azure_cis_v210_9_3
-Title: "9.3 Ensure Web App is using the latest version of TLS encryption"
-Description: "The TLS (Transport Layer Security) protocol secures transmission of data over the internet using standard encryption technology. Encryption should be set with the latest version of TLS. App service allows TLS 1.2 by default, which is the recommended TLS level by industry standards such as PCI DSS."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      app.id as resource,
-      app.og_account_id as og_account_id,
-      app.og_resource_id as og_resource_id,
-      case
-        when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then name || ' not using the latest version of TLS encryption.'
-        else name || ' using the latest version of TLS encryption.'
-      end as reason
-    from
-      azure_app_service_web_app as app,
-      azure_subscription as sub
-    where
-      sub.subscription_id = app.subscription_id;
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN name || ' not using the latest version of TLS encryption.'
+        ELSE name || ' using the latest version of TLS encryption.'
+      END AS reason
+    FROM
+      azure_app_service_web_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 9.3 Ensure Web App is using the latest version of TLS encryption

@@ -1,33 +1,30 @@
+Description: Enable event notifications for RDS.
 ID: aws_rds_event_notifications
-Title: "RDS Event Notifications"
-Description: "Enable event notifications for RDS."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select distinct
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when s.arn
-        is null then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when s.arn is
-        null then 'Event notifications is not enabled for Amazon RDS'
-        else 'Event
-        notifications is enabled for Amazon RDS'
-      end reason,
-      a.account_id
-    from
-      aws_account a
-      left join aws_rds_db_event_subscription s on s.og_account_id
-        = a.og_account_id
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_rds_db_event_subscription
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT DISTINCT
+      a.og_account_id,
+      a.og_resource_id,
+      CASE 
+        WHEN s.arn IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE 
+        WHEN s.arn IS NULL THEN 'Event notifications is not enabled for Amazon RDS'
+        ELSE 'Event notifications is enabled for Amazon RDS'
+      END AS reason,
+      a.account_id
+    FROM aws_account a
+    LEFT JOIN aws_rds_db_event_subscription s 
+      ON s.og_account_id = a.og_account_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +35,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Event Notifications

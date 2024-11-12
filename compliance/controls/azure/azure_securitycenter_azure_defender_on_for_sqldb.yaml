@@ -1,14 +1,34 @@
+Description: Azure Defender for SQL provides functionality for surfacing and mitigating potential database vulnerabilities, detecting anomalous activities that could indicate threats to SQL databases, and discovering and classifying sensitive data.
 ID: azure_securitycenter_azure_defender_on_for_sqldb
-Title: "Azure Defender for Azure SQL Database servers should be enabled"
-Description: "Azure Defender for SQL provides functionality for surfacing and mitigating potential database vulnerabilities, detecting anomalous activities that could indicate threats to SQL databases, and discovering and classifying sensitive data."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sub_pricing.id as resource,\n  sub_pricing.og_account_id as og_account_id,\n  sub_pricing.og_resource_id as og_resource_id,\n  case\n    when pricing_tier = 'Standard' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when pricing_tier = 'Standard' then 'Azure Defender on for SQL database servers.'\n    else 'Azure Defender off for SQL database servers.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_subscription_pricing sub_pricing\n  right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id\nwhere\n  name = 'SqlServers';\n"
-  PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
     - azure_security_center_subscription_pricing
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_subscription_pricing
+  QueryToExecute: |
+    SELECT
+      sub_pricing.id AS resource,
+      sub_pricing.og_account_id AS og_account_id,
+      sub_pricing.og_resource_id AS og_resource_id,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for SQL database servers.'
+        ELSE 'Azure Defender off for SQL database servers.'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM
+      azure_security_center_subscription_pricing sub_pricing
+    RIGHT JOIN
+      azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+    WHERE
+      name = 'SqlServers';
 Severity: low
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/SecurityCenter
-IntegrationType:
-  - azure_subscription
+Title: Azure Defender for Azure SQL Database servers should be enabled

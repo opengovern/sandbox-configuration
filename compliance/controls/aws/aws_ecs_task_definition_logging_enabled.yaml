@@ -1,14 +1,39 @@
+Description: Ensure logging is enabled for task definitions so that you can access your containerized application logs for debugging and auditing purposes. On top of centralized logging, these log drivers often include additional capabilities that are useful for operation.
 ID: aws_ecs_task_definition_logging_enabled
-Title: "ECS task definitions should have logging enabled"
-Description: "Ensure logging is enabled for task definitions so that you can access your containerized application logs for debugging and auditing purposes. On top of centralized logging, these log drivers often include additional capabilities that are useful for operation."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with task_definitions_logging_enabled as (\n  select\n    distinct task_definition_arn as arn\n  from\n    aws_ecs_task_definition,\n    jsonb_array_elements(container_definitions) as c\n  where\n    c ->> 'LogConfiguration' is not null\n)\nselect\n  a.task_definition_arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then a.title || ' logging enabled.'\n    else a.title || ' logging disabled.'\n  end as reason\n  \n  \nfrom\n  aws_ecs_task_definition as a\n  left join task_definitions_logging_enabled as b on a.task_definition_arn = b.arn;"
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH task_definitions_logging_enabled AS (
+      SELECT
+        DISTINCT task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c
+      WHERE
+        c ->> 'LogConfiguration' IS NOT NULL
+    )
+    SELECT
+      a.task_definition_arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN a.title || ' logging enabled.'
+        ELSE a.title || ' logging disabled.'
+      END AS reason
+    FROM
+      aws_ecs_task_definition AS a
+    LEFT JOIN task_definitions_logging_enabled AS b
+      ON a.task_definition_arn = b.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ECS task definitions should have logging enabled

@@ -1,14 +1,49 @@
+Description: Audit built-in roles such as 'Owner, Contributor, Reader' instead of custom RBAC roles, which are error prone. Using custom roles is treated as an exception and requires a rigorous review and threat modeling.
 ID: azure_iam_no_custom_role
-Title: "Audit usage of custom RBAC roles"
-Description: "Audit built-in roles such as 'Owner, Contributor, Reader' instead of custom RBAC roles, which are error prone. Using custom roles is treated as an exception and requires a rigorous review and threat modeling."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with custom_roles as (\n  select\n    role_name,\n    role_type,\n    subscription_id,\n    og_account_id as og_account_id,\n    og_resource_id as og_resource_id,\n    _ctx\n  from\n    azure_role_definition\n  where\n    role_type = 'CustomRole'\n)\nselect\n  cr.subscription_id as resource,\n  cr.og_account_id as og_account_id,\n  cr.og_resource_id as og_resource_id,\n  case\n    when count(*) > 0 then 'alarm'\n    else 'ok'\n  end as status,\n  'There are ' || count(*) || ' custom roles.' as reason\n  \n  , sub.display_name as subscription\nfrom\n  custom_roles as cr,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = cr.subscription_id\ngroup by\n  cr.subscription_id,\n  cr._ctx,\n  sub.display_name,\n  cr.og_account_id,\n  cr.og_resource_id "
-  PrimaryTable: azure_subscription
   ListOfTables:
     - azure_role_definition
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_subscription
+  QueryToExecute: |
+    WITH custom_roles AS (
+      SELECT
+        role_name,
+        role_type,
+        subscription_id,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        _ctx
+      FROM
+        azure_role_definition
+      WHERE
+        role_type = 'CustomRole'
+    )
+    SELECT
+      cr.subscription_id AS resource,
+      cr.og_account_id AS og_account_id,
+      cr.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(*) > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      'There are ' || COUNT(*) || ' custom roles.' AS reason,
+      sub.display_name AS subscription
+    FROM
+      custom_roles AS cr,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = cr.subscription_id
+    GROUP BY
+      cr.subscription_id,
+      cr._ctx,
+      sub.display_name,
+      cr.og_account_id,
+      cr.og_resource_id
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -19,5 +54,4 @@ Tags:
     - "true"
   service:
     - Azure/ActiveDirectory
-IntegrationType:
-  - azure_subscription
+Title: Audit usage of custom RBAC roles

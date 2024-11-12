@@ -1,15 +1,36 @@
+Description: Network Watcher is a regional service that enables you to monitor and diagnose conditions at a network scenario level in, to, and from Azure. Scenario level monitoring enables you to diagnose problems at an end to end network level view. It is required to have a network watcher resource group to be created in every region where a virtual network is present. An alert is enabled if a network watcher resource group is not available in a particular region.
 ID: azure_network_watcher_enabled
-Title: "Network Watcher should be enabled"
-Description: "Network Watcher is a regional service that enables you to monitor and diagnose conditions at a network scenario level in, to, and from Azure. Scenario level monitoring enables you to diagnose problems at an end to end network level view. It is required to have a network watcher resource group to be created in every region where a virtual network is present. An alert is enabled if a network watcher resource group is not available in a particular region."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  loc.id resource,\n  loc.og_account_id as og_account_id,\n  loc.og_resource_id as og_resource_id,\n  case\n    when watcher.id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when watcher.id is null then 'Network watcher not enabled in ' || loc.name || '.'\n    else 'Network watcher enabled in ' || loc.name || '.'\n  end as reason,\n  loc.name\n  \n  \n  , sub.display_name as subscription\nfrom\n  azure_location loc\n  left join azure_network_watcher watcher on watcher.region = loc.name\n  join azure_subscription sub on sub.subscription_id = loc.subscription_id;\n"
-  PrimaryTable: azure_location
   ListOfTables:
     - azure_location
     - azure_network_watcher
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_location
+  QueryToExecute: |
+    SELECT
+      loc.id AS resource,
+      loc.og_account_id AS og_account_id,
+      loc.og_resource_id AS og_resource_id,
+      CASE
+        WHEN watcher.id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN watcher.id IS NULL THEN 'Network watcher not enabled in ' || loc.name || '.'
+        ELSE 'Network watcher enabled in ' || loc.name || '.'
+      END AS reason,
+      loc.name,
+      sub.display_name AS subscription
+    FROM
+      azure_location loc
+    LEFT JOIN azure_network_watcher watcher 
+      ON watcher.region = loc.name
+    JOIN azure_subscription sub 
+      ON sub.subscription_id = loc.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -30,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/Network
-IntegrationType:
-  - azure_subscription
+Title: Network Watcher should be enabled

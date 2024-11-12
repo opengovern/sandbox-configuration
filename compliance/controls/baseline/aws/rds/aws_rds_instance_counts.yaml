@@ -1,13 +1,33 @@
+Description: Ensure fewer Amazon RDS instances than the established limit in your AWS account.
 ID: aws_rds_instance_counts
-Title: "RDS Instance Counts"
-Description: "Ensure fewer Amazon RDS instances than the established limit in your AWS account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "select \n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  count(*) RDS_Instances_Count,\n    case\n    when count(*) > 10 then 'alarm'\n    else 'ok'\n  end status,\n  case\n      when count(*) > 10 then 'The limit the number of RDS instances exceeded'\n      else 'The limit the number of RDS instances not exceeded'\n  end reason,\n    account_id\nfrom \n  aws_rds_db_instance \ngroup by \n  og_account_id, og_resource_id, account_id;\n"
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      COUNT(*) AS RDS_Instances_Count,
+      CASE
+        WHEN COUNT(*) > 10 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN COUNT(*) > 10 THEN 'The limit the number of RDS instances exceeded'
+        ELSE 'The limit the number of RDS instances not exceeded'
+      END AS reason,
+      account_id
+    FROM
+      aws_rds_db_instance
+    GROUP BY
+      og_account_id,
+      og_resource_id,
+      account_id;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +38,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Instance Counts

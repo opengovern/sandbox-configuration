@@ -1,32 +1,37 @@
+Description: Ensure cross-account access roles are using Multi-Factor Authentication (MFA) or External IDs.
 ID: aws_cross_account_access_lacks_external_id_and_mfa
-Title: "Cross-Account Access Lacks External ID and MFA"
-Description: "Ensure cross-account access roles are using Multi-Factor Authentication (MFA) or External IDs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      r.arn as resource,
-      r.og_account_id,
-      r.og_resource_id,
-      case
-        when (s -> 'Principal' ->>'AWS') is null or not((s -> 'Principal' ->>'AWS') ~ '^arn:aws:iam::[0-9]+:root$') then 'pass'
-        when ((s ->> 'Condition') LIKE '%aws:MultiFactorAuthPresent%') or ((s ->> 'Condition') LIKE '%sts:ExternalId%') then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (s -> 'Principal' ->>'AWS') is null or not((s -> 'Principal' ->>'AWS') ~ '^arn:aws:iam::[0-9]+:root$') then r.title || 'cross-account access not enabled.'
-        when ((s ->> 'Condition') LIKE '%aws:MultiFactorAuthPresent%') or ((s ->> 'Condition') LIKE '%sts:ExternalId%') then 'MFA enabled for cross-account access'
-        else r.title || 'MFA not enabled for cross-account access'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_iam_role as r,
-      jsonb_array_elements(assume_role_policy -> 'Statement') as s
-  PrimaryTable: aws_iam_role
   ListOfTables:
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    SELECT
+      r.arn AS resource,
+      r.og_account_id,
+      r.og_resource_id,
+      CASE
+        WHEN (s -> 'Principal' ->> 'AWS') IS NULL
+          OR NOT ((s -> 'Principal' ->> 'AWS') ~ '^arn:aws:iam::[0-9]+:root$') THEN 'pass'
+        WHEN ((s ->> 'Condition') LIKE '%aws:MultiFactorAuthPresent%')
+          OR ((s ->> 'Condition') LIKE '%sts:ExternalId%') THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (s -> 'Principal' ->> 'AWS') IS NULL
+          OR NOT ((s -> 'Principal' ->> 'AWS') ~ '^arn:aws:iam::[0-9]+:root$') THEN r.title || ' cross-account access not enabled.'
+        WHEN ((s ->> 'Condition') LIKE '%aws:MultiFactorAuthPresent%')
+          OR ((s ->> 'Condition') LIKE '%sts:ExternalId%') THEN 'MFA enabled for cross-account access'
+        ELSE r.title || ' MFA not enabled for cross-account access'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_role AS r,
+      jsonb_array_elements(assume_role_policy -> 'Statement') AS s
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -37,5 +42,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Cross-Account Access Lacks External ID and MFA

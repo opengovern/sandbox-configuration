@@ -1,46 +1,46 @@
+Description: Amazon Machine Images should utilize EBS Encrypted snapshots
 ID: aws_cis_compute_service_v100_2_1_2
-Title: "2.1.2 Ensure Images (AMI's) are encrypted"
-Description: "Amazon Machine Images should utilize EBS Encrypted snapshots"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with encryption_status as (
-      select
-        image_id as resource,
+  ListOfTables:
+    - aws_ec2_ami
+  Parameters: []
+  PrimaryTable: aws_ec2_ami
+  QueryToExecute: |
+    WITH encryption_status AS (
+      SELECT
+        image_id AS resource,
         region,
         account_id,
         tags,
         _ctx,
-        bool_and(coalesce((mapping -> 'Ebs' ->> 'Encrypted')::text = 'true', false)) as all_encrypted
-      from
+        BOOL_AND(COALESCE((mapping -> 'Ebs' ->> 'Encrypted')::text = 'true', FALSE)) AS all_encrypted
+      FROM
         aws_ec2_ami
-        cross join jsonb_array_elements(block_device_mappings) as mapping
-      group by
+        CROSS JOIN jsonb_array_elements(block_device_mappings) AS mapping
+      GROUP BY
         image_id,
         region,
         account_id,
         tags,
         _ctx
     )
-    select
+    SELECT
       resource,
-      image_id as og_account_id,
-      image_id as og_resource_id,
-      case
-        when all_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when all_encrypted then resource || ' all EBS volumes are encrypted.'
-        else resource || ' all EBS volumes are not encrypted.'
-      end as reason
-    from
+      image_id AS og_account_id,
+      image_id AS og_resource_id,
+      CASE
+        WHEN all_encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN all_encrypted THEN resource || ' all EBS volumes are encrypted.'
+        ELSE resource || ' all EBS volumes are not encrypted.'
+      END AS reason
+    FROM
       encryption_status;
-  PrimaryTable: aws_ec2_ami
-  ListOfTables:
-    - aws_ec2_ami
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.1.2 Ensure Images (AMI's) are encrypted

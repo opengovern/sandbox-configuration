@@ -1,13 +1,30 @@
+Description: This control checks whether an AWS EC2 Auto Scaling group is created from an EC2 launch template. This control fails if an AWS EC2 Auto Scaling group is not created with a launch template or if a launch template is not specified in a mixed instances policy.
 ID: aws_autoscaling_group_uses_ec2_launch_template
-Title: "EC2 Auto Scaling groups should use EC2 launch templates"
-Description: "This control checks whether an AWS EC2 Auto Scaling group is created from an EC2 launch template. This control fails if an AWS EC2 Auto Scaling group is not created with a launch template or if a launch template is not specified in a mixed instances policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when launch_template_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when launch_template_id is not null then title || ' using an EC2 launch template.'\n    else title || ' not using an EC2 launch template.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_autoscaling_group;\n"
-  PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
     - aws_ec2_autoscaling_group
   Parameters: []
+  PrimaryTable: aws_ec2_autoscaling_group
+  QueryToExecute: |
+    SELECT
+      autoscaling_group_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN launch_template_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN launch_template_id IS NOT NULL THEN title || ' using an EC2 launch template.'
+        ELSE title || ' not using an EC2 launch template.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_autoscaling_group;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/AutoScaling
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 Auto Scaling groups should use EC2 launch templates

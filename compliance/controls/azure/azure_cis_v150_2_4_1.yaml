@@ -1,32 +1,32 @@
+Description: This integration setting enables Microsoft Defender for Cloud Apps (formerly 'Microsoft Cloud App Security' or 'MCAS' - see additional info) to communicate with Microsoft Defender for Cloud.
 ID: azure_cis_v150_2_4_1
-Title: "2.4.1 Ensure that Microsoft Defender for Cloud Apps integration with Microsoft Defender for Cloud is Selected"
-Description: "This integration setting enables Microsoft Defender for Cloud Apps (formerly 'Microsoft Cloud App Security' or 'MCAS' - see additional info) to communicate with Microsoft Defender for Cloud."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sc_sett.id as resource,
-      sc_sett.og_account_id as og_account_id,
-      sc_sett.og_resource_id as og_resource_id,
-      case
-        when enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enabled then 'Windows Defender ATP (WDATP) integrated with Security Center.'
-        else 'Windows Defender ATP (WDATP) not integrated with Security Center.'
-      end as reason
-    from
-      azure_security_center_setting sc_sett
-      right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id
-    where
-      name = 'MCAS';
-  PrimaryTable: azure_security_center_setting
   ListOfTables:
     - azure_security_center_setting
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_setting
+  QueryToExecute: |
+    SELECT
+      sc_sett.id AS resource,
+      sc_sett.og_account_id AS og_account_id,
+      sc_sett.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enabled THEN 'Windows Defender ATP (WDATP) integrated with Security Center.'
+        ELSE 'Windows Defender ATP (WDATP) not integrated with Security Center.'
+      END AS reason
+    FROM
+      azure_security_center_setting sc_sett
+      RIGHT JOIN azure_subscription sub ON sc_sett.subscription_id = sub.subscription_id
+    WHERE
+      name = 'MCAS';
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.4.1 Ensure that Microsoft Defender for Cloud Apps integration with Microsoft Defender for Cloud is Selected

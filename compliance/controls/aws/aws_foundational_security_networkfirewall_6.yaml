@@ -1,29 +1,29 @@
+Description: A rule group contains rules that define how your firewall processes traffic in your VPC. An empty stateless rule group when present in a firewall policy might give the impression that the rule group will process traffic. However, when the stateless rule group is empty, it does not process traffic.
 ID: aws_foundational_security_networkfirewall_6
-Title: "6 Stateless network firewall rule group should not be empty"
-Description: "A rule group contains rules that define how your firewall processes traffic in your VPC. An empty stateless rule group when present in a firewall policy might give the impression that the rule group will process traffic. However, when the stateless rule group is empty, it does not process traffic."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when type = 'STATEFUL' then 'skip'
-        when jsonb_array_length(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when type = 'STATEFUL' then title || ' is a stateful rule group.'
-        else title || ' has ' || jsonb_array_length(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') || ' rule(s).'
-      end as reason
-    from
-      aws_networkfirewall_rule_group;
-  PrimaryTable: aws_networkfirewall_rule_group
   ListOfTables:
     - aws_networkfirewall_rule_group
   Parameters: []
+  PrimaryTable: aws_networkfirewall_rule_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN type = 'STATEFUL' THEN 'skip'
+        WHEN jsonb_array_length(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN type = 'STATEFUL' THEN title || ' is a stateful rule group.'
+        ELSE title || ' has ' || jsonb_array_length(rules_source -> 'StatelessRulesAndCustomActions' -> 'StatelessRules') || ' rule(s).'
+      END AS reason
+    FROM
+      aws_networkfirewall_rule_group;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 6 Stateless network firewall rule group should not be empty

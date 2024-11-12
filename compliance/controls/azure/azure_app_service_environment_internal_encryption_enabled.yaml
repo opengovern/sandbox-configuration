@@ -1,19 +1,49 @@
+Description: Setting InternalEncryption to true encrypts the pagefile, worker disks, and internal network traffic between the front ends and workers in an App Service Environment.
 ID: azure_app_service_environment_internal_encryption_enabled
-Title: "App Service Environment should enable internal encryption"
-Description: "Setting InternalEncryption to true encrypts the pagefile, worker disks, and internal network traffic between the front ends and workers in an App Service Environment."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with app_service_environment as (\n  select\n    distinct id as id\n  from\n    azure_app_service_environment,\n    jsonb_array_elements(cluster_settings ) as s\n  where\n    s ->> 'name' = 'InternalEncryption'\n    and s ->> 'value' = 'true'\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.id is not null then a.title || ' internal encryption enabled.'\n    else a.name || ' internal encryption disabled.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_environment as a\n  left join app_service_environment as b on a.id = b.id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_app_service_environment
   ListOfTables:
     - azure_app_service_environment
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_environment
+  QueryToExecute: |
+    WITH app_service_environment AS (
+      SELECT
+        DISTINCT id AS id
+      FROM
+        azure_app_service_environment,
+        jsonb_array_elements(cluster_settings) AS s
+      WHERE
+        s ->> 'name' = 'InternalEncryption'
+        AND s ->> 'value' = 'true'
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.id IS NOT NULL THEN a.title || ' internal encryption enabled.'
+        ELSE a.name || ' internal encryption disabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_environment AS a
+    LEFT JOIN app_service_environment AS b ON a.id = b.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: App Service Environment should enable internal encryption

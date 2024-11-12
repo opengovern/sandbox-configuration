@@ -1,16 +1,40 @@
+Description: Ensure IAM policy for EC2 IAM roles for app tier is configured.
 ID: aws_attach_policy_to_iam_roles_associated_with_app_tier_ec2_instances
-Title: "Attach Policy to IAM Roles Associated with App-Tier EC2 Instances"
-Description: "Ensure IAM policy for EC2 IAM roles for app tier is configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  instance_id as resource,\n  i.og_account_id,\n  i.og_resource_id,\n  case\n    when r.inline_policies is null and r.attached_policy_arns is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when i.iam_instance_profile_arn is null then instance_id || ' has no role attached'\n    when r.inline_policies is null and r.attached_policy_arns is null then instance_id || ' role does not have any policy'\n    else instance_id || ' role has policy'\n  end as reason,\n  i.region, \n  i.account_id\nfrom\n  aws_ec2_instance as i\n  left join aws_iam_role as r on split_part(i.iam_instance_profile_arn, ':instance-profile/', 2) = r.name\nwhere\n  i.tags::text like '%' || REPLACE(REPLACE((\n      SELECT jsonb_object_agg(key, value)::text\n      FROM jsonb_each_text('{{.awsAppTierTags}}'::jsonb)\n    ), '{', ''), '}', '') || '%'\n"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
     - aws_iam_role
   Parameters:
     - Key: awsAppTierTags
       Required: true
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      instance_id AS resource,
+      i.og_account_id,
+      i.og_resource_id,
+      CASE
+        WHEN r.inline_policies IS NULL AND r.attached_policy_arns IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.iam_instance_profile_arn IS NULL THEN instance_id || ' has no role attached'
+        WHEN r.inline_policies IS NULL AND r.attached_policy_arns IS NULL THEN instance_id || ' role does not have any policy'
+        ELSE instance_id || ' role has policy'
+      END AS reason,
+      i.region, 
+      i.account_id
+    FROM
+      aws_ec2_instance AS i
+      LEFT JOIN aws_iam_role AS r ON split_part(i.iam_instance_profile_arn, ':instance-profile/', 2) = r.name
+    WHERE
+      i.tags::text LIKE '%' || REPLACE(REPLACE((
+        SELECT jsonb_object_agg(key, value)::text
+        FROM jsonb_each_text('{{.awsAppTierTags}}'::jsonb)
+      ), '{', ''), '}', '') || '%'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -21,5 +45,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Attach Policy to IAM Roles Associated with App-Tier EC2 Instances

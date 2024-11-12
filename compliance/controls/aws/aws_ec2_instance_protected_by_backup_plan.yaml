@@ -1,14 +1,40 @@
+Description: Ensure that AWS Elastic Compute Cloud (AWS EC2) instances are protected by a backup plan. The rule is non-compliant if the AWS EC2 instance is not covered by a backup plan.
 ID: aws_ec2_instance_protected_by_backup_plan
-Title: "EC2 instances should be protected by backup plan"
-Description: "Ensure that AWS Elastic Compute Cloud (AWS EC2) instances are protected by a backup plan. The rule is non-compliant if the AWS EC2 instance is not covered by a backup plan."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with backup_protected_instance as (\n  select\n    resource_arn as arn\n  from\n    aws_backup_protected_resource as b\n  where\n    resource_type = 'EC2'\n)\nselect\n  i.arn as resource,\n  i.og_account_id as og_account_id,\n  i.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then i.title || ' is protected by backup plan.'\n    else i.title || ' is not protected by backup plan.'\n  end as reason\n  \n  , i.region, i.account_id\nfrom\n  aws_ec2_instance as i\n  left join backup_protected_instance as b on i.arn = b.arn;\n"
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_backup_protected_resource
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    WITH backup_protected_instance AS (
+      SELECT
+        resource_arn AS arn
+      FROM
+        aws_backup_protected_resource AS b
+      WHERE
+        resource_type = 'EC2'
+    )
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN i.title || ' is protected by backup plan.'
+        ELSE i.title || ' is not protected by backup plan.'
+      END AS reason,
+      i.region,
+      i.account_id
+    FROM
+      aws_ec2_instance AS i
+      LEFT JOIN backup_protected_instance AS b ON i.arn = b.arn;
 Severity: high
 Tags:
   category:
@@ -41,5 +67,4 @@ Tags:
     - AWS/EC2
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 instances should be protected by backup plan

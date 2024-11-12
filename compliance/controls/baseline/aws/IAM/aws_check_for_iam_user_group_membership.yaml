@@ -1,13 +1,30 @@
+Description: Ensure that all Amazon IAM users have group memberships.
 ID: aws_check_for_iam_user_group_membership
-Title: "Check for IAM User Group Membership"
-Description: "Ensure that all Amazon IAM users have group memberships."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN groups is null THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN groups is null THEN name || ' does not belong to any IAM group.' \n    ELSE name || ' belongs to at least one IAM group.'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN groups IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN groups IS NULL THEN name || ' does not belong to any IAM group.'
+        ELSE name || ' belongs to at least one IAM group.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_user
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Check for IAM User Group Membership
