@@ -31,7 +31,6 @@ jobs:
           cd .github/scripts
           go mod download
           go run .
-
       # Conditional step: Bump version and create tag only if the comparison script passes
       - name: Bump Version and Create Tag
         if: ${{ success() && steps.compare_control.outcome == 'success' }}
@@ -39,7 +38,6 @@ jobs:
         run: |
           # Fetch tags from the repository
           git fetch --tags
-
           # Get the latest tag and increment based on semantic versioning rules
           latest_tag=$(git tag --sort=-v:refname | head -n 1)
           if [ -z "$latest_tag" ]; then
@@ -47,16 +45,14 @@ jobs:
             new_tag="v0.1.0"
           else
             # Split the latest tag into major, minor, and patch
-            IFS='.' read -r major minor patch <<< "${latest_tag//v/}"
+            echo "${latest_tag//v/}" | IFS='.' read -r major minor patch
             # Increment the patch version
             patch=$((patch + 1))
             new_tag="v${major}.${minor}.${patch}"
           fi
-
           # Create and push the new tag
           git tag "$new_tag"
           git push origin "$new_tag"
-
           # Set the new_tag as an output
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
         env:
