@@ -1,94 +1,93 @@
+Description: This control checks if ElastiCache clusters are configured with public subnet as there is a risk of exposing sensitive data.
 ID: aws_elasticache_cluster_no_public_subnet
-Title: "ElastiCache clusters should not use public_subnet"
-Description: "This control checks if ElastiCache clusters are configured with public subnet as there is a risk of exposing sensitive data."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with subnets_with_explicit_route as (
-      select
-        distinct ( a ->> 'SubnetId') as all_sub
-      from
-        aws_vpc_route_table as t,
-        jsonb_array_elements(associations) as a
-      where
-        a ->> 'SubnetId' is not null
-    ), public_subnets_with_explicit_route as (
-      select
-        distinct a ->> 'SubnetId' as SubnetId
-      from
-        aws_vpc_route_table as t,
-        jsonb_array_elements(associations) as a,
-        jsonb_array_elements(routes) as r
-      where
-        r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
-        and
-          (
-            r ->> 'GatewayId' like 'igw-%'
-            or r ->> 'NatGatewayId' like 'nat-%'
-          )
-        and a ->> 'SubnetId' is not null
-    ), public_subnets_with_implicit_route as (
-        select
-        distinct route_table_id,
-        vpc_id,
-        region
-      from
-        aws_vpc_route_table as t,
-        jsonb_array_elements(associations) as a,
-        jsonb_array_elements(routes) as r
-      where
-        a ->> 'Main' = 'true'
-        and r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
-        and (
-            r ->> 'GatewayId' like 'igw-%'
-            or r ->> 'NatGatewayId' like 'nat-%'
-          )
-    ), subnet_accessibility as (
-      select
-        subnet_id,
-        vpc_id,
-        case
-          when s.subnet_id in (select all_sub from subnets_with_explicit_route where all_sub not in (select SubnetId from public_subnets_with_explicit_route )) then 'private'
-          when p.SubnetId is not null or s.vpc_id in ( select vpc_id from public_subnets_with_implicit_route) then 'public'
-          else 'private'
-        end as access
-      from
-        aws_vpc_subnet as s
-        left join public_subnets_with_explicit_route as p on p.SubnetId = s.subnet_id
-    ), cluster_public_subnet as (
-      select
-        distinct arn,
-        cache_subnet_group_name
-      from
-        aws_elasticache_subnet_group,
-        jsonb_array_elements(subnets) as s
-        left join subnet_accessibility as a on a.subnet_id = s ->> 'SubnetIdentifier'
-      where
-        a.access = 'public'
-    )
-    select
-      c.arn as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when s.cache_subnet_group_name is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when s.cache_subnet_group_name is not null then c.title || ' has public subnet.'
-        else c.title || ' has private subnet.'
-      end as reason
-    from
-      aws_elasticache_cluster as c
-      left join cluster_public_subnet as s on s.cache_subnet_group_name = c.cache_subnet_group_name;
-  PrimaryTable: aws_elasticache_cluster
   ListOfTables:
     - aws_vpc_route_table
     - aws_vpc_subnet
     - aws_elasticache_subnet_group
     - aws_elasticache_cluster
   Parameters: []
+  PrimaryTable: aws_elasticache_cluster
+  QueryToExecute: |
+    WITH subnets_with_explicit_route AS (
+      SELECT DISTINCT (a ->> 'SubnetId') AS all_sub
+      FROM aws_vpc_route_table AS t,
+           jsonb_array_elements(associations) AS a
+      WHERE a ->> 'SubnetId' IS NOT NULL
+    ),
+    public_subnets_with_explicit_route AS (
+      SELECT DISTINCT a ->> 'SubnetId' AS SubnetId
+      FROM aws_vpc_route_table AS t,
+           jsonb_array_elements(associations) AS a,
+           jsonb_array_elements(routes) AS r
+      WHERE r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        AND (
+          r ->> 'GatewayId' LIKE 'igw-%'
+          OR r ->> 'NatGatewayId' LIKE 'nat-%'
+        )
+        AND a ->> 'SubnetId' IS NOT NULL
+    ),
+    public_subnets_with_implicit_route AS (
+      SELECT DISTINCT route_table_id,
+                      vpc_id,
+                      region
+      FROM aws_vpc_route_table AS t,
+           jsonb_array_elements(associations) AS a,
+           jsonb_array_elements(routes) AS r
+      WHERE a ->> 'Main' = 'true'
+        AND r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        AND (
+          r ->> 'GatewayId' LIKE 'igw-%'
+          OR r ->> 'NatGatewayId' LIKE 'nat-%'
+        )
+    ),
+    subnet_accessibility AS (
+      SELECT subnet_id,
+             vpc_id,
+             CASE
+               WHEN s.subnet_id IN (SELECT all_sub 
+                                    FROM subnets_with_explicit_route 
+                                    WHERE all_sub NOT IN (SELECT SubnetId 
+                                                          FROM public_subnets_with_explicit_route)) 
+               THEN 'private'
+               WHEN p.SubnetId IS NOT NULL 
+               OR s.vpc_id IN (SELECT vpc_id 
+                               FROM public_subnets_with_implicit_route) 
+               THEN 'public'
+               ELSE 'private'
+             END AS access
+      FROM aws_vpc_subnet AS s
+      LEFT JOIN public_subnets_with_explicit_route AS p
+      ON p.SubnetId = s.subnet_id
+    ),
+    cluster_public_subnet AS (
+      SELECT DISTINCT arn,
+                      cache_subnet_group_name
+      FROM aws_elasticache_subnet_group,
+           jsonb_array_elements(subnets) AS s
+      LEFT JOIN subnet_accessibility AS a
+      ON a.subnet_id = s ->> 'SubnetIdentifier'
+      WHERE a.access = 'public'
+    )
+    SELECT c.arn AS resource,
+           c.og_account_id AS og_account_id,
+           c.og_resource_id AS og_resource_id,
+           CASE
+             WHEN s.cache_subnet_group_name IS NOT NULL 
+             THEN 'alarm'
+             ELSE 'ok'
+           END AS status,
+           CASE
+             WHEN s.cache_subnet_group_name IS NOT NULL 
+             THEN c.title || ' has public subnet.'
+             ELSE c.title || ' has private subnet.'
+           END AS reason
+    FROM aws_elasticache_cluster AS c
+    LEFT JOIN cluster_public_subnet AS s
+    ON s.cache_subnet_group_name = c.cache_subnet_group_name;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ElastiCache clusters should not use public_subnet

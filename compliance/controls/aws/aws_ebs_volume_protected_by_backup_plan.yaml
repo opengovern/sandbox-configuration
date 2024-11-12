@@ -1,14 +1,40 @@
+Description: Ensure that AWS Elastic Block Store (AWS EBS) volumes are protected by a backup plan. The rule is non-compliant if the AWS EBS volume is not covered by a backup plan.
 ID: aws_ebs_volume_protected_by_backup_plan
-Title: "EBS volumes should be protected by a backup plan"
-Description: "Ensure that AWS Elastic Block Store (AWS EBS) volumes are protected by a backup plan. The rule is non-compliant if the AWS EBS volume is not covered by a backup plan."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with backup_protected_volume as (\n  select\n    resource_arn as arn\n  from\n    aws_backup_protected_resource as b\n  where\n    resource_type = 'EBS'\n)\nselect\n  v.arn as resource,\n  v.og_account_id as og_account_id,\n  v.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then v.title || ' is protected by backup plan.'\n    else v.title || ' is not protected by backup plan.'\n  end as reason\n  \n  , v.region, v.account_id\nfrom\n  aws_ebs_volume as v\n  left join backup_protected_volume as b on v.arn = b.arn;\n"
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_backup_protected_resource
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    WITH backup_protected_volume AS (
+      SELECT
+        resource_arn AS arn
+      FROM
+        aws_backup_protected_resource AS b
+      WHERE
+        resource_type = 'EBS'
+    )
+    SELECT
+      v.arn AS resource,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN v.title || ' is protected by backup plan.'
+        ELSE v.title || ' is not protected by backup plan.'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_ebs_volume AS v
+    LEFT JOIN backup_protected_volume AS b ON v.arn = b.arn;
 Severity: high
 Tags:
   category:
@@ -39,5 +65,4 @@ Tags:
     - AWS/EBS
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EBS volumes should be protected by a backup plan

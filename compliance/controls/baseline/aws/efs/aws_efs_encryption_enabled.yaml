@@ -1,29 +1,30 @@
+Description: Ensure encryption is enabled for AWS EFS file systems to protect your data at rest.
 ID: aws_efs_encryption_enabled
-Title: "EFS Encryption Enabled"
-Description: "Ensure encryption is enabled for AWS EFS file systems to protect your data at rest."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when encrypted::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted::bool then title || ' encryption enabled.'
-        else title || ' encryption not enabled.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_efs_file_system
-  PrimaryTable: aws_efs_file_system
   ListOfTables:
     - aws_efs_file_system
   Parameters: []
+  PrimaryTable: aws_efs_file_system
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN encrypted::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encrypted::bool THEN title || ' encryption enabled.'
+        ELSE title || ' encryption not enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_efs_file_system
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - Amazon Elastic File System (EFS)
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: EFS Encryption Enabled

@@ -1,32 +1,32 @@
+Description: Ensure that the latest version of Kubernetes is installed on your Amazon EKS clusters.
 ID: aws_kubernetes_cluster_version
-Title: "Kubernetes Cluster Version"
-Description: "Ensure that the latest version of Kubernetes is installed on your Amazon EKS clusters."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |+
-    select
-      arn as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (version) :: decimal >= '{{.awsEksClusterLatestVersion}}' :: decimal then title || ' runs on a supported kubernetes version.'
-        else title || ' is running on version ' || version || ' which is not supported. supported versions are >= ' || '{{.awsEksClusterLatestVersion}}' :: decimal
-      end as reason,
-      region,
-      account_id
-    from
-      aws_eks_cluster;
-
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters:
     - Key: awsEksClusterLatestVersion
       Required: true
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN (version)::decimal >= '{{.awsEksClusterLatestVersion}}'::decimal THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (version)::decimal >= '{{.awsEksClusterLatestVersion}}'::decimal THEN title || ' runs on a supported kubernetes version.'
+        ELSE title || ' is running on version ' || version || ' which is not supported. supported versions are >= ' || '{{.awsEksClusterLatestVersion}}'::decimal
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_eks_cluster;
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -37,5 +37,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Kubernetes Cluster Version

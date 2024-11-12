@@ -1,15 +1,43 @@
+Description: Anonymous public read access to function app in Azure App Service is a convenient way to share data but might present security risks. To prevent data breaches caused by undesired anonymous access, Microsoft recommends preventing public access to a function app unless your scenario requires it.
 ID: azure_appservice_function_app_restrict_public_acces
-Title: "App Service function apps public access should be restricted"
-Description: "Anonymous public read access to function app in Azure App Service is a convenient way to share data but might present security risks. To prevent data breaches caused by undesired anonymous access, Microsoft recommends preventing public access to a function app unless your scenario requires it."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "```sql\nwith public_function_app as (\n  select\n    id\n  from\n    azure_app_service_function_app,\n    jsonb_array_elements(configuration -> 'properties' -> 'ipSecurityRestrictions') as r\n  where\n    r ->> 'ipAddress' = 'Any'\n    and r ->> 'action' = 'Allow'\n)\nselect\n  fa.id as resource,\n  fa.og_account_id as og_account_id,\n  fa.og_resource_id as og_resource_id,\n  case\n    when p.id is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when p.id is null then name || ' not publicly accessible.'\n    else name || ' publicly accessible.'\n  end as reason\n  \n  \n  \nfrom\n  azure_app_service_function_app fa\n  left join public_function_app as p on p.id = fa.id,\n  azure_subscription sub\nwhere\n  sub.subscription_id = fa.subscription_id;\n```"
-  PrimaryTable: azure_app_service_function_app
   ListOfTables:
     - azure_app_service_function_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_function_app
+  QueryToExecute: |
+    WITH public_function_app AS (
+      SELECT
+        id
+      FROM
+        azure_app_service_function_app,
+        jsonb_array_elements(configuration -> 'properties' -> 'ipSecurityRestrictions') AS r
+      WHERE
+        r ->> 'ipAddress' = 'Any'
+        AND r ->> 'action' = 'Allow'
+    )
+    SELECT
+      fa.id AS resource,
+      fa.og_account_id AS og_account_id,
+      fa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.id IS NULL THEN name || ' not publicly accessible.'
+        ELSE name || ' publicly accessible.'
+      END AS reason
+    FROM
+      azure_app_service_function_app fa
+      LEFT JOIN public_function_app AS p ON p.id = fa.id,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = fa.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: App Service function apps public access should be restricted

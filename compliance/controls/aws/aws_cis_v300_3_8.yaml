@@ -1,15 +1,60 @@
+Description: S3 object-level API operations such as GetObject, DeleteObject, and PutObject are called data events. By default, CloudTrail trails don't log data events and so it is recommended to enable Object-level logging for S3 buckets.
 ID: aws_cis_v300_3_8
-Title: "3.8 Ensure that Object-level logging for write events is enabled for S3 bucket"
-Description: "S3 object-level API operations such as GetObject, DeleteObject, and PutObject are called data events. By default, CloudTrail trails don't log data events and so it is recommended to enable Object-level logging for S3 buckets."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with s3_selectors as\n(\n  select\n    name as trail_name,\n    is_multi_region_trail,\n    bucket_selector,\n    og_account_id,\n    og_resource_id\n  from\n    aws_cloudtrail_trail,\n    jsonb_array_elements(event_selectors) as event_selector,\n    jsonb_array_elements(event_selector -> 'DataResources') as data_resource,\n    jsonb_array_elements_text(data_resource -> 'Values') as bucket_selector\n  where\n    is_multi_region_trail\n    and data_resource ->> 'Type' = 'AWS::S3::Object'\n    and event_selector ->> 'ReadWriteType' in\n    (\n      'WriteOnly',\n      'All'\n    )\n)\nselect\n  b.arn as resource,\n  b.og_account_id as og_account_id,\n  b.og_resource_id as og_resource_id,\n  case\n    when count(bucket_selector) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when count(bucket_selector) > 0 then b.name || ' object-level write events logging enabled.'\n    else b.name || ' object-level write events logging disabled.'\n  end as reason\n  \n  \nfrom\n  aws_s3_bucket as b\n  left join\n    s3_selectors\n    on bucket_selector like (b.arn || '%')\n    or bucket_selector = 'arn:aws:s3'\ngroup by\n  b.account_id, b.og_account_id, b.og_resource_id, b.region, b.arn, b.name, b.tags, b._ctx;"
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_cloudtrail_trail
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH s3_selectors AS (
+      SELECT
+        name AS trail_name,
+        is_multi_region_trail,
+        bucket_selector,
+        og_account_id,
+        og_resource_id
+      FROM
+        aws_cloudtrail_trail,
+        jsonb_array_elements(event_selectors) AS event_selector,
+        jsonb_array_elements(event_selector -> 'DataResources') AS data_resource,
+        jsonb_array_elements_text(data_resource -> 'Values') AS bucket_selector
+      WHERE
+        is_multi_region_trail
+        AND data_resource ->> 'Type' = 'AWS::S3::Object'
+        AND event_selector ->> 'ReadWriteType' IN ('WriteOnly', 'All')
+    )
+    SELECT
+      b.arn AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 THEN b.name || ' object-level write events logging enabled.'
+        ELSE b.name || ' object-level write events logging disabled.'
+      END AS reason
+    FROM
+      aws_s3_bucket AS b
+    LEFT JOIN
+      s3_selectors
+    ON
+      bucket_selector LIKE (b.arn || '%')
+      OR bucket_selector = 'arn:aws:s3'
+    GROUP BY
+      b.account_id,
+      b.og_account_id,
+      b.og_resource_id,
+      b.region,
+      b.arn,
+      b.name,
+      b.tags,
+      b._ctx;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3.8 Ensure that Object-level logging for write events is enabled for S3 bucket

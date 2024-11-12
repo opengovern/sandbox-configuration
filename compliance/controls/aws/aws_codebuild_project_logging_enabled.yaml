@@ -1,13 +1,32 @@
+Description: This control checks if an AWS CodeBuild project environment has at least one log option enabled. The rule is non-compliant if the status of all present log configurations is set to 'DISABLED'.
 ID: aws_codebuild_project_logging_enabled
-Title: "CodeBuild projects should have logging enabled"
-Description: "This control checks if an AWS CodeBuild project environment has at least one log option enabled. The rule is non-compliant if the status of all present log configurations is set to 'DISABLED'."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' or logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' then title || ' logging enabled.'\n    else title || ' logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_codebuild_project;\n"
-  PrimaryTable: aws_codebuild_project
   ListOfTables:
     - aws_codebuild_project
   Parameters: []
+  PrimaryTable: aws_codebuild_project
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED'
+          OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED'
+          OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN title || ' logging enabled.'
+        ELSE title || ' logging disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_codebuild_project;
 Severity: medium
 Tags:
   category:
@@ -24,5 +43,4 @@ Tags:
     - aws
   service:
     - AWS/CodeBuild
-IntegrationType:
-  - aws_cloud_account
+Title: CodeBuild projects should have logging enabled

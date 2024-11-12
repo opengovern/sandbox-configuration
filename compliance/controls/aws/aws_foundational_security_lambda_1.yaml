@@ -1,14 +1,46 @@
+Description: This control checks whether the Lambda function resource-based policy prohibits public access outside of your account. The Lambda function should not be publicly accessible, as this may allow unintended access to your code stored in the function.
 ID: aws_foundational_security_lambda_1
-Title: "1 Lambda function policies should prohibit public access"
-Description: "This control checks whether the Lambda function resource-based policy prohibits public access outside of your account. The Lambda function should not be publicly accessible, as this may allow unintended access to your code stored in the function."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with wildcard_action_policies as (\n  select\n    arn,\n    count(*) as statements_num\n  from\n    aws_lambda_function,\n    jsonb_array_elements(policy_std -> 'Statement') as s\n  where\n    s ->> 'Effect' = 'Allow'\n    and (\n      ( s -> 'Principal' -> 'AWS') = '[\"*\"]'\n      or s ->> 'Principal' = '*'\n    )\n  group by\n    arn\n)\nselect\n  f.arn as resource,\n  f.og_account_id as og_account_id,\n  f.og_resource_id as og_resource_id,\n  case\n    when p.arn is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when p.arn is null then title || ' does not allow public access.'\n    else title || ' contains ' || coalesce(p.statements_num,0) ||\n    ' statements that allows public access.'\n  end as reason\n  \n  \nfrom\n  aws_lambda_function as f\n  left join wildcard_action_policies as p on p.arn = f.arn;"
-  PrimaryTable: aws_lambda_function
   ListOfTables:
     - aws_lambda_function
   Parameters: []
+  PrimaryTable: aws_lambda_function
+  QueryToExecute: |
+    WITH wildcard_action_policies AS (
+      SELECT
+        arn,
+        COUNT(*) AS statements_num
+      FROM
+        aws_lambda_function,
+        jsonb_array_elements(policy_std -> 'Statement') AS s
+      WHERE
+        s ->> 'Effect' = 'Allow'
+        AND (
+          (s -> 'Principal' -> 'AWS') = '[\"*\"]'
+          OR s ->> 'Principal' = '*'
+        )
+      GROUP BY
+        arn
+    )
+    SELECT
+      f.arn AS resource,
+      f.og_account_id AS og_account_id,
+      f.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.arn IS NULL THEN title || ' does not allow public access.'
+        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allows public access.'
+      END AS reason
+    FROM
+      aws_lambda_function AS f
+    LEFT JOIN wildcard_action_policies AS p
+      ON p.arn = f.arn
 Severity: critical
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 Lambda function policies should prohibit public access

@@ -1,28 +1,28 @@
+Description: Manage access to the AWS Cloud by ensuring SageMaker training jobs are within an AWS Virtual Private Cloud (AWS VPC).
 ID: aws_sagemaker_training_job_in_vpc
-Title: "SageMaker training jobs should be in VPC"
-Description: "Manage access to the AWS Cloud by ensuring SageMaker training jobs are within an AWS Virtual Private Cloud (AWS VPC)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when vpc_config is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when vpc_config is not null then title || ' in VPC.'
-        else title || ' not in VPC.'
-      end as reason
-    from
-      aws_sagemaker_training_job;
-  PrimaryTable: aws_sagemaker_training_job
   ListOfTables:
     - aws_sagemaker_training_job
   Parameters: []
+  PrimaryTable: aws_sagemaker_training_job
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN vpc_config IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN vpc_config IS NOT NULL THEN title || ' in VPC.'
+        ELSE title || ' not in VPC.'
+      END AS reason
+    FROM
+      aws_sagemaker_training_job;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker training jobs should be in VPC

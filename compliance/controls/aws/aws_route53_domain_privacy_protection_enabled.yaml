@@ -1,28 +1,28 @@
+Description: Ensure that your AWS Route 53 domains have Privacy Protection feature enabled in order to hide all their contact information from WHOIS queries and reduce the amount of spam received. The feature allows you to conceal your personal phone number, email and physical address for the domain names registered and/or transferred to AWS Route 53 service.
 ID: aws_route53_domain_privacy_protection_enabled
-Title: "Route53 domains privacy protection should be enabled"
-Description: "Ensure that your AWS Route 53 domains have Privacy Protection feature enabled in order to hide all their contact information from WHOIS queries and reduce the amount of spam received. The feature allows you to conceal your personal phone number, email and physical address for the domain names registered and/or transferred to AWS Route 53 service."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when admin_privacy then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when admin_privacy then title || ' privacy protection enabled.'
-        else title || ' privacy protection disabled.'
-      end as reason
-    from
-      aws_route53_domain;
-  PrimaryTable: aws_route53_domain
   ListOfTables:
     - aws_route53_domain
   Parameters: []
+  PrimaryTable: aws_route53_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN admin_privacy THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN admin_privacy THEN title || ' privacy protection enabled.'
+        ELSE title || ' privacy protection disabled.'
+      END AS reason
+    FROM
+      aws_route53_domain;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Route53 domains privacy protection should be enabled

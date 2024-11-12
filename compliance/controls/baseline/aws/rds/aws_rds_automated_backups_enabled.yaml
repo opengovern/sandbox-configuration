@@ -1,30 +1,31 @@
+Description: Ensure automated backups are enabled for RDS instances. This feature of Amazon RDS enables point-in-time recovery of your database instance.
 ID: aws_rds_automated_backups_enabled
-Title: "RDS Automated Backups Enabled"
-Description: "Ensure automated backups are enabled for RDS instances. This feature of Amazon RDS enables point-in-time recovery of your database instance."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_instance_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when backup_retention_period < 1 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when backup_retention_period < 1 then title || ' backups not enabled.'
-        else title || ' backups enabled.'
-      end as reason,
-      region,
-      account_id,
-      backup_retention_period
-    from
-      aws_rds_db_instance;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN backup_retention_period < 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN backup_retention_period < 1 THEN title || ' backups not enabled.'
+        ELSE title || ' backups enabled.'
+      END AS reason,
+      region,
+      account_id,
+      backup_retention_period
+    FROM
+      aws_rds_db_instance;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -35,5 +36,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Missing Backup
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Automated Backups Enabled

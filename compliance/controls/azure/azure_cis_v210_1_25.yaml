@@ -1,41 +1,41 @@
+Description: This recommendation aims to maintain a balance between security and operational efficiency by ensuring that a minimum of 2 and a maximum of 4 users are assigned the Global Administrator role in Microsoft Entra ID. Having at least two Global Administrators ensures redundancy, while limiting the number to four reduces the risk of excessive privileged access.
 ID: azure_cis_v210_1_25
-Title: "1.25 Ensure fewer than 5 users have global administrator assignment"
-Description: "This recommendation aims to maintain a balance between security and operational efficiency by ensuring that a minimum of 2 and a maximum of 4 users are assigned the Global Administrator role in Microsoft Entra ID. Having at least two Global Administrators ensures redundancy, while limiting the number to four reduces the risk of excessive privileged access."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with distinct_tenant as (
-      select
-        distinct tenant_id,
+  ListOfTables:
+    - azure_tenant
+    - azuread_directory_role
+  Parameters: []
+  PrimaryTable: azuread_directory_role
+  QueryToExecute: |
+    WITH distinct_tenant AS (
+      SELECT
+        DISTINCT tenant_id,
         title,
         subscription_id,
         og_account_id,
         og_resource_id,
         _ctx
-      from
+      FROM
         azure_tenant
     )
-    select
-      t.tenant_id as resource,
-      t.og_account_id as og_account_id,
-      t.og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(member_ids) <= 5 then 'ok'
-        else 'alarm'
-      end as status,
-      t.title || ' has ' ||  (jsonb_array_length(member_ids)) || ' users with global administrator assignment.'  as reason,
+    SELECT
+      t.tenant_id AS resource,
+      t.og_account_id AS og_account_id,
+      t.og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(member_ids) <= 5 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      t.title || ' has ' || (jsonb_array_length(member_ids)) || ' users with global administrator assignment.' AS reason,
       t.tenant_id
-    from
-      distinct_tenant as t,
+    FROM
+      distinct_tenant AS t,
       azuread_directory_role
-    where
+    WHERE
       display_name = 'Global Administrator'
-  PrimaryTable: azuread_directory_role
-  ListOfTables:
-    - azure_tenant
-    - azuread_directory_role
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 1.25 Ensure fewer than 5 users have global administrator assignment

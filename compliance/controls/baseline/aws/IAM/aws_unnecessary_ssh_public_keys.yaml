@@ -1,14 +1,44 @@
+Description: Ensure there is a maximum of one active SSH public key assigned to any single IAM user.
 ID: aws_unnecessary_ssh_public_keys
-Title: "Unnecessary SSH Public Keys"
-Description: "Ensure there is a maximum of one active SSH public keys assigned to any single IAM user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with active_count AS (\n  select \n    user_name, \n    count(*) \n  from \n    aws_iam_ssh_public_key \n  where \n    status = 'Active' \n  group by \n    user_name\n)\nSELECT \n  arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN c.count > 1 THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'\n    ELSE u.name || ' does not have more than one active ssh key'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_user AS u\n  left join active_count AS c ON u.name = c.user_name;\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_ssh_public_key
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    WITH active_count AS (
+      SELECT 
+        user_name, 
+        COUNT(*) 
+      FROM 
+        aws_iam_ssh_public_key 
+      WHERE 
+        status = 'Active' 
+      GROUP BY 
+        user_name
+    )
+    SELECT 
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN c.count > 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'
+        ELSE u.name || ' does not have more than one active ssh key'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_iam_user AS u
+    LEFT JOIN active_count AS c 
+      ON u.name = c.user_name;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +49,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - aws_cloud_account
+Title: Unnecessary SSH Public Keys

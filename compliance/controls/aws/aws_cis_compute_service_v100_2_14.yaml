@@ -1,41 +1,42 @@
+Description: Tags can help with managing, identifying, organizing, searching for, and filtering resources. Additionally, tags can help with security and compliance. Tags can be propagated from an Auto Scaling group to the EC2 instances that it launches.
 ID: aws_cis_compute_service_v100_2_14
-Title: "2.14 Ensure EC2 Auto Scaling Groups Propagate Tags to EC2 Instances that it launches"
-Description: "Tags can help with managing, identifying, organizing, searching for, and filtering resources. Additionally, tags can help with security and compliance. Tags can be propagated from an Auto Scaling group to the EC2 instances that it launches."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with propagate_tags_to_ec2_instance as (
-      select
-        autoscaling_group_arn,
-        count(*) as count
-      from
-        aws_ec2_autoscaling_group,
-        jsonb_array_elements(tags_src) as t
-      where
-        (t ->> 'PropagateAtLaunch' = 'false')
-      group by
-        autoscaling_group_arn
-    )
-    select
-      p.autoscaling_group_arn as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when count > 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when count > 0 then title || ' does not propagate all tags to the EC2 instance'
-        else title || ' propagate all tags to the EC2 instance.'
-      end as reason
-    from
-      aws_ec2_autoscaling_group as p
-      left join propagate_tags_to_ec2_instance as i on  i.autoscaling_group_arn = p.autoscaling_group_arn;
-  PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
     - aws_ec2_autoscaling_group
   Parameters: []
+  PrimaryTable: aws_ec2_autoscaling_group
+  QueryToExecute: |
+    WITH propagate_tags_to_ec2_instance AS (
+      SELECT
+        autoscaling_group_arn,
+        COUNT(*) AS count
+      FROM
+        aws_ec2_autoscaling_group,
+        jsonb_array_elements(tags_src) AS t
+      WHERE
+        t ->> 'PropagateAtLaunch' = 'false'
+      GROUP BY
+        autoscaling_group_arn
+    )
+    SELECT
+      p.autoscaling_group_arn AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN count > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN count > 0 THEN title || ' does not propagate all tags to the EC2 instance'
+        ELSE title || ' propagate all tags to the EC2 instance.'
+      END AS reason
+    FROM
+      aws_ec2_autoscaling_group AS p
+    LEFT JOIN propagate_tags_to_ec2_instance AS i 
+      ON i.autoscaling_group_arn = p.autoscaling_group_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.14 Ensure EC2 Auto Scaling Groups Propagate Tags to EC2 Instances that it launches

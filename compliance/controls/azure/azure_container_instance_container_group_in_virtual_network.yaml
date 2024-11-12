@@ -1,32 +1,32 @@
+Description: This control ensures that the container group is deployed into a virtual network.
 ID: azure_container_instance_container_group_in_virtual_network
-Title: "Container instance container groups should be in virtual network"
-Description: "This control ensures that the container group is deployed into a virtual network."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      cg.id as resource,
-      cg.og_account_id as og_account_id,
-      cg.og_resource_id as og_resource_id,
-      case
-        when subnet_ids is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when subnet_ids is not null then cg.title || ' in virtual network.'
-        else cg.title || ' not in virtual network.'
-      end as reason
-    from
-      azure_container_group as cg,
-      azure_subscription as sub
-    where
-      sub.subscription_id = cg.subscription_id;
-  PrimaryTable: azure_container_group
   ListOfTables:
     - azure_container_group
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_group
+  QueryToExecute: |
+    SELECT
+      cg.id AS resource,
+      cg.og_account_id AS og_account_id,
+      cg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN subnet_ids IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN subnet_ids IS NOT NULL THEN cg.title || ' in virtual network.'
+        ELSE cg.title || ' not in virtual network.'
+      END AS reason
+    FROM
+      azure_container_group AS cg,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = cg.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container instance container groups should be in virtual network

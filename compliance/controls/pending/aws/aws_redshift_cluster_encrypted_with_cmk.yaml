@@ -1,13 +1,47 @@
+Description: Ensure Redshift cluster is encrypted using CMK. The rule is non-compliant if the Redshift clusters is not encrypted using CMK.
 ID: aws_redshift_cluster_encrypted_with_cmk
-Title: "Redshift clusters should be encrypted with CMK"
-Description: "Ensure Redshift cluster is encrypted using CMK. The rule is non-compliant if the Redshift clusters is not encrypted using CMK."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "with redshift_clusters as (\n  select\n    arn,\n    region,\n    account_id,\n    kms_key_id,\n    encrypted,\n    title,\n    tags,\n    _ctx\n  from\n  aws_redshift_cluster\n), kms_keys as (\n  select\n    k.arn,\n    k.key_manager\n  from\n    aws_kms_key as k\n)\nselect\n  r.arn as resource,\n  case\n    when not encrypted then 'alarm'\n    when encrypted and c.key_manager = 'CUSTOMER' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not encrypted then title || ' not encrypted.'\n    when encrypted and c.key_manager = 'CUSTOMER' then title || ' encrypted with CMK.'\n    else title || ' not encrypted with CMK.'\n  end as reason\n  \n  \nfrom\n  redshift_clusters as r\n  left join kms_keys as c on r.kms_key_id = c.arn;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH redshift_clusters AS (
+      SELECT
+        arn,
+        region,
+        account_id,
+        kms_key_id,
+        encrypted,
+        title,
+        tags,
+        _ctx
+      FROM
+        aws_redshift_cluster
+    ), kms_keys AS (
+      SELECT
+        k.arn,
+        k.key_manager
+      FROM
+        aws_kms_key AS k
+    )
+    SELECT
+      r.arn AS resource,
+      CASE
+        WHEN NOT encrypted THEN 'alarm'
+        WHEN encrypted AND c.key_manager = 'CUSTOMER' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT encrypted THEN title || ' not encrypted.'
+        WHEN encrypted AND c.key_manager = 'CUSTOMER' THEN title || ' encrypted with CMK.'
+        ELSE title || ' not encrypted with CMK.'
+      END AS reason
+    FROM
+      redshift_clusters AS r
+    LEFT JOIN kms_keys AS c ON r.kms_key_id = c.arn;
+Severity: low
+Tags: {}
+Title: Redshift clusters should be encrypted with CMK

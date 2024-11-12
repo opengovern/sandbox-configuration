@@ -1,13 +1,32 @@
+Description: Ensure that Multi-Factor Authentication (MFA) is enabled for your AWS root account.
 ID: aws_root_mfa_enabled
-Title: "Root MFA Enabled"
-Description: "Ensure that Multi-Factor Authentication (MFA) is enabled for your AWS root account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  (user_name || ' in account ' || account_id) as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when mfa_active::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when mfa_active::bool then 'mfa is active for root account'\n    else 'mfa is not active for root account'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_credential_report\nwhere\n  user_name = '<root_account>'\n"
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
     - aws_iam_credential_report
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: |
+    SELECT
+      (user_name || ' in account ' || account_id) AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN mfa_active::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN mfa_active::bool THEN 'mfa is active for root account'
+        ELSE 'mfa is not active for root account'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_credential_report
+    WHERE
+      user_name = '<root_account>'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +37,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Root MFA Enabled

@@ -1,14 +1,41 @@
+Description: Ensure that AWS DynamoDB tables are protected by a backup plan. The rule is non-compliant if the DynamoDB Table is not covered by a backup plan.
 ID: aws_dynamodb_table_protected_by_backup_plan
-Title: "DynamoDB table should be protected by backup plan"
-Description: "Ensure that AWS DynamoDB tables are protected by a backup plan. The rule is non-compliant if the DynamoDB Table is not covered by a backup plan."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with backup_protected_table as (\n  select\n    resource_arn as arn\n  from\n    aws_backup_protected_resource as b\n  where\n    resource_type = 'DynamoDB'\n)\nselect\n  t.arn as resource,\n  t.og_account_id as og_account_id,\n  t.og_resource_id as og_resource_id,\n  case\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is not null then t.title || ' is protected by backup plan.'\n    else t.title || ' is not protected by backup plan.'\n  end as reason\n  \n  , t.region, t.account_id\nfrom\n  aws_dynamodb_table as t\n  left join backup_protected_table as b on t.arn = b.arn;\n"
-  PrimaryTable: aws_dynamodb_table
   ListOfTables:
     - aws_backup_protected_resource
     - aws_dynamodb_table
   Parameters: []
+  PrimaryTable: aws_dynamodb_table
+  QueryToExecute: |
+    WITH backup_protected_table AS (
+      SELECT
+        resource_arn AS arn
+      FROM
+        aws_backup_protected_resource AS b
+      WHERE
+        resource_type = 'DynamoDB'
+    )
+    SELECT
+      t.arn AS resource,
+      t.og_account_id AS og_account_id,
+      t.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN t.title || ' is protected by backup plan.'
+        ELSE t.title || ' is not protected by backup plan.'
+      END AS reason,
+      t.region,
+      t.account_id
+    FROM
+      aws_dynamodb_table AS t
+    LEFT JOIN backup_protected_table AS b
+    ON t.arn = b.arn;
 Severity: high
 Tags:
   category:
@@ -39,5 +66,4 @@ Tags:
     - AWS/DynamoDB
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: DynamoDB table should be protected by backup plan

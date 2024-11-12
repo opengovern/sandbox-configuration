@@ -1,16 +1,47 @@
+Description: Check if SageMaker endpoint configurations have mandatory tags.
 ID: aws_mandatory_sql_sagemaker_endpoint_configuration_mandatory
-Title: "SageMaker endpoint configurations should have mandatory tags"
-Description: "Check if SageMaker endpoint configurations have mandatory tags."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: steampipe-v0.5
-  QueryToExecute: "with analysis as (\n  select\n    og_account_id,\n    og_resource_id,\n    arn,\n    title,\n    tags ?& '{{.awsMandatoryTags}}'::text[] as has_mandatory_tags,\n    to_jsonb('{{.awsMandatoryTags}}'::text[]) - array(select jsonb_object_keys(tags)) as missing_tags,\n    region,\n    account_id,\n    tags,\n    _ctx\n  from\n    aws_sagemaker_endpoint_configuration\n)\nselect\n    og_account_id,\n    og_resource_id,\n    arn as resource,\n  case\n    when has_mandatory_tags then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when has_mandatory_tags then title || ' has all mandatory tags.'\n    else title || ' is missing tags: ' || array_to_string(array(select jsonb_array_elements_text(missing_tags)), ', ') || '.'\n  end as reason\n  \n  , region, account_id\nfrom\n  analysis;\n"
-  PrimaryTable: aws_sagemaker_endpoint_configuration
   ListOfTables:
     - aws_sagemaker_endpoint_configuration
   Parameters:
     - key: awsMandatoryTags
       required: true
+  PrimaryTable: aws_sagemaker_endpoint_configuration
+  QueryToExecute: |
+    WITH analysis AS (
+      SELECT
+        og_account_id,
+        og_resource_id,
+        arn,
+        title,
+        tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
+        to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+        region,
+        account_id,
+        tags,
+        _ctx
+      FROM
+        aws_sagemaker_endpoint_configuration
+    )
+    SELECT
+      og_account_id,
+      og_resource_id,
+      arn AS resource,
+      CASE
+        WHEN has_mandatory_tags THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      analysis;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker endpoint configurations should have mandatory tags

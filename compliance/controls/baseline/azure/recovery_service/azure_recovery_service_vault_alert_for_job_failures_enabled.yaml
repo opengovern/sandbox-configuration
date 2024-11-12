@@ -1,31 +1,32 @@
+Description: Ensure all Recovery Service Vaults alert for job failures are enabled
 ID: azure_recovery_service_vault_alert_for_job_failures_enabled
-Title: "Recovery Service Vault alert for job failures enabled"
-Description: "Ensure all Recovery Service Vaults alert for job failures are enabled"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      v.id as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' then v.name || ' alert for job failiures is enabled.'
-        else v.name || ' alert for job failiures is not enabled.'
-      end as reason,
-      v.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_recovery_services_vault as v
-      left join azure_subscription sub on sub.subscription_id = v.subscription_id;
-  PrimaryTable: azure_recovery_services_vault
   ListOfTables:
     - azure_recovery_services_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_recovery_services_vault
+  QueryToExecute: |
+    SELECT
+      v.id AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN v.og_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN v.name || ' alert for job failures is enabled.'
+        ELSE v.name || ' alert for job failures is not enabled.'
+      END AS reason,
+      v.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_recovery_services_vault AS v
+      LEFT JOIN azure_subscription sub ON sub.subscription_id = v.subscription_id;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure Recovery Services
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - azure_subscription
+Title: Recovery Service Vault alert for job failures enabled

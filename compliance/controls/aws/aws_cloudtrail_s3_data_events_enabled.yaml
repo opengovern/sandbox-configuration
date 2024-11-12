@@ -1,14 +1,59 @@
+Description: The collection of Simple Storage Service (AWS S3) data events helps in detecting any anomalous activity. The details include AWS account information that accessed an AWS S3 bucket, IP address, and time of event.
 ID: aws_cloudtrail_s3_data_events_enabled
-Title: "All S3 buckets should log S3 data events in CloudTrail"
-Description: "The collection of Simple Storage Service (AWS S3) data events helps in detecting any anomalous activity. The details include AWS account information that accessed an AWS S3 bucket, IP address, and time of event."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with s3_selectors as (\n  select\n    name as trail_name,\n    is_multi_region_trail,\n    bucket_selector\n  from\n    aws_cloudtrail_trail,\n    jsonb_array_elements(event_selectors) as event_selector,\n    jsonb_array_elements(event_selector -> 'DataResources') as data_resource,\n    jsonb_array_elements_text(data_resource -> 'Values') as bucket_selector\n  where\n    is_multi_region_trail\n    and data_resource ->> 'Type' = 'AWS::S3::Object'\n    and event_selector ->> 'ReadWriteType' = 'All'\n)\nselect\n  b.arn as resource,\n  b.og_account_id as og_account_id,\n  b.og_resource_id as og_resource_id,\n  case\n    when count(bucket_selector) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when count(bucket_selector) > 0 then b.name || ' object-level data events logging enabled.'\n    else b.name || ' object-level data events logging disabled.'\n  end as reason\n  \n  , b.region, b.account_id\nfrom\n  aws_s3_bucket as b\n  left join s3_selectors on bucket_selector like (b.arn || '%') or bucket_selector = 'arn:aws:s3'\ngroup by\n  b.account_id, b.region, b.arn, b.name, b.tags, b.og_account_id, b.og_resource_id, b._ctx;\n"
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_cloudtrail_trail
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH s3_selectors AS (
+      SELECT
+        name AS trail_name,
+        is_multi_region_trail,
+        bucket_selector
+      FROM
+        aws_cloudtrail_trail,
+        jsonb_array_elements(event_selectors) AS event_selector,
+        jsonb_array_elements(event_selector -> 'DataResources') AS data_resource,
+        jsonb_array_elements_text(data_resource -> 'Values') AS bucket_selector
+      WHERE
+        is_multi_region_trail
+        AND data_resource ->> 'Type' = 'AWS::S3::Object'
+        AND event_selector ->> 'ReadWriteType' = 'All'
+    )
+    SELECT
+      b.arn AS resource,
+      b.og_account_id AS og_account_id,
+      b.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT(bucket_selector) > 0 
+        THEN b.name || ' object-level data events logging enabled.'
+        ELSE b.name || ' object-level data events logging disabled.'
+      END AS reason,
+      b.region,
+      b.account_id
+    FROM
+      aws_s3_bucket AS b
+    LEFT JOIN s3_selectors 
+      ON bucket_selector LIKE (b.arn || '%') 
+      OR bucket_selector = 'arn:aws:s3'
+    GROUP BY
+      b.account_id, 
+      b.region, 
+      b.arn, 
+      b.name, 
+      b.tags, 
+      b.og_account_id, 
+      b.og_resource_id, 
+      b._ctx;
 Severity: medium
 Tags:
   category:
@@ -33,11 +78,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -51,5 +96,4 @@ Tags:
     - AWS/CloudTrail
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: All S3 buckets should log S3 data events in CloudTrail

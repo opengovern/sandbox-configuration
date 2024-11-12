@@ -1,14 +1,43 @@
+Description: Ensure there is a minimum number of two healthy target instances associated with each AWS ELBv2 application load balancer.
 ID: aws_elbv2_alb_minimum_number_of_ec2_target_instances
-Title: "ELBv2 ALB Minimum Number of EC2 Target Instances"
-Description: "Ensure there is a minimum number of two healthy target instances associated with each AWS ELBv2 application load balancer."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with target_resource as (\nselect \n  load_balancer_arn,\n  count(*) as c \nfrom \n  aws_ec2_target_group, \n  jsonb_array_elements_text(load_balancer_arns) as load_balancer_arn \ngroup by load_balancer_arn\n)\nselect\n  a.arn as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when b.load_balancer_arn is null or b.c < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when b.load_balancer_arn is null or b.c < 2 then a.title || ' is not using a fault-tolerant configuration.'\n    else a.title || ' is using a fault-tolerant configuration.'\n  end as reason,\n  a.region,\n  a.account_id\nfrom\n  aws_ec2_application_load_balancer a\n  left join target_resource b on a.arn = b.load_balancer_arn;\n"
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_target_group
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    WITH target_resource AS (
+      SELECT 
+        load_balancer_arn,
+        COUNT(*) AS c
+      FROM 
+        aws_ec2_target_group, 
+        jsonb_array_elements_text(load_balancer_arns) AS load_balancer_arn
+      GROUP BY 
+        load_balancer_arn
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN b.load_balancer_arn IS NULL OR b.c < 2 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.load_balancer_arn IS NULL OR b.c < 2 THEN a.title || ' is not using a fault-tolerant configuration.'
+        ELSE a.title || ' is using a fault-tolerant configuration.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_application_load_balancer a
+    LEFT JOIN target_resource b
+    ON a.arn = b.load_balancer_arn;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +48,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: ELBv2 ALB Minimum Number of EC2 Target Instances

@@ -1,16 +1,44 @@
+Description: Check for all AWS RDS Database Instances to see if they are meeting the required restore time defined.
 ID: aws_rds_database_instances_must_have_a_minimum_acceptable_restore_time
-Title: "AWS RDS Database Instances must have a minimum acceptable restore time"
-Description: "Check for all AWS RDS Database Instances to see if they are meeting the required restore time defined."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n    i.arn as resource,\n    i.og_account_id,\n    i.og_resource_id,\n    case\n      when c.latest_restorable_time is not null then \n        case\n          when now() - c.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'\n          else 'alarm'\n        end\n      else\n        case\n          when now() - i.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval then 'ok'\n          else 'alarm'\n        end\n    end as status,\n    case\n      when c.latest_restorable_time is not null then \n        i.title || ' backup retention period set to ' || c.latest_restorable_time || '.'\n      else\n        i.title || ' backup retention period set to ' || i.latest_restorable_time || '.'\n    end as reason,\n    i.region,\n    i.account_id\n  from\n    aws_rds_db_instance as i\n    left join aws_rds_db_cluster as c on i.db_cluster_identifier = c.db_cluster_identifier\n"
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_cluster
     - aws_rds_db_instance
   Parameters:
     - Key: awsRdsBaselineRestorableTimeInHrs
       Required: true
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      i.arn AS resource,
+      i.og_account_id,
+      i.og_resource_id,
+      CASE
+        WHEN c.latest_restorable_time IS NOT NULL THEN 
+          CASE
+            WHEN now() - c.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval THEN 'ok'
+            ELSE 'alarm'
+          END
+        ELSE
+          CASE
+            WHEN now() - i.latest_restorable_time < '{{.awsRdsBaselineRestorableTimeInHrs}} hours'::interval THEN 'ok'
+            ELSE 'alarm'
+          END
+      END AS status,
+      CASE
+        WHEN c.latest_restorable_time IS NOT NULL THEN 
+          i.title || ' backup retention period set to ' || c.latest_restorable_time || '.'
+        ELSE
+          i.title || ' backup retention period set to ' || i.latest_restorable_time || '.'
+      END AS reason,
+      i.region,
+      i.account_id
+    FROM
+      aws_rds_db_instance AS i
+    LEFT JOIN aws_rds_db_cluster AS c ON i.db_cluster_identifier = c.db_cluster_identifier
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -21,5 +49,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Missing Backup
-IntegrationType:
-  - aws_cloud_account
+Title: AWS RDS Database Instances must have a minimum acceptable restore time

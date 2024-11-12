@@ -1,14 +1,34 @@
+Description: Migrate BLOB based VHD's to Managed Disks on Virtual Machines to exploit the default features of this configuration.
 ID: azure_compute_vm_utilizing_managed_disk
-Title: "Ensure Virtual Machines are utilizing Managed Disks"
-Description: "Migrate BLOB based VHD's to Managed Disks on Virtual Machines to exploit the default features of this configuration."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  vm.id as resource,\n  vm.og_account_id as og_account_id,\n  vm.og_resource_id as og_resource_id,\n  case\n    when managed_disk_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when managed_disk_id is null then vm.name || ' VM not utilizing managed disks.'\n    else vm.name || ' VM utilizing managed disks.'\n  end as reason\n  \n  , vm.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_compute_virtual_machine as vm,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = vm.subscription_id;\n"
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id AS og_account_id,
+      vm.og_resource_id AS og_resource_id,
+      CASE
+        WHEN managed_disk_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN managed_disk_id IS NULL THEN vm.name || ' VM not utilizing managed disks.'
+        ELSE vm.name || ' VM utilizing managed disks.'
+      END AS reason,
+      vm.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/Compute
-IntegrationType:
-  - azure_subscription
+Title: Ensure Virtual Machines are utilizing Managed Disks

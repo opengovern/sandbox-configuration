@@ -1,14 +1,48 @@
+Description: Manage access to resources in the AWS Cloud by ensuring AWS KMS CMK cannot be publicly accessed.
 ID: aws_kms_cmk_policy_prohibit_public_access
-Title: "KMS CMK policies should prohibit public access"
-Description: "Manage access to resources in the AWS Cloud by ensuring AWS KMS CMK cannot be publicly accessed."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with wildcard_action_policies as (\n  select\n    arn,\n    count(*) as statements_num\n  from\n    aws_kms_key,\n    jsonb_array_elements(policy_std -> 'Statement') as s\n  where\n    s ->> 'Effect' = 'Allow'\n    and (\n      ( s -> 'Principal' -> 'AWS') = '[\"*\"]'\n      or  s ->> 'Principal' = '*'\n    )\n    and key_manager = 'CUSTOMER'\n  group by\n    arn\n)\nselect\n  k.arn as resource,\n  k.og_account_id as og_account_id,\n  k.og_resource_id as og_resource_id,\n  case\n    when p.arn is null then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when p.arn is null then title || ' does not allow public access.'\n    else title || ' contains ' || coalesce(p.statements_num, 0) ||\n    ' statements that allow public access.'\n  end as reason\n  \n  \nfrom\n  aws_kms_key as k\n  left join wildcard_action_policies as p on p.arn = k.arn\nwhere\n  key_manager = 'CUSTOMER';"
-  PrimaryTable: aws_kms_key
   ListOfTables:
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_kms_key
+  QueryToExecute: |
+    WITH wildcard_action_policies AS (
+      SELECT
+        arn,
+        COUNT(*) AS statements_num
+      FROM
+        aws_kms_key,
+        jsonb_array_elements(policy_std -> 'Statement') AS s
+      WHERE
+        s ->> 'Effect' = 'Allow'
+        AND (
+          (s -> 'Principal' -> 'AWS') = '[\"*\"]'
+          OR s ->> 'Principal' = '*'
+        )
+        AND key_manager = 'CUSTOMER'
+      GROUP BY
+        arn
+    )
+    SELECT
+      k.arn AS resource,
+      k.og_account_id AS og_account_id,
+      k.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.arn IS NULL THEN title || ' does not allow public access.'
+        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allow public access.'
+      END AS reason
+    FROM
+      aws_kms_key AS k
+    LEFT JOIN wildcard_action_policies AS p ON p.arn = k.arn
+    WHERE
+      key_manager = 'CUSTOMER';
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: KMS CMK policies should prohibit public access

@@ -1,49 +1,49 @@
+Description: This control checks whether virtual machines use managed disks for OS and data disks.
 ID: azure_compute_vm_data_and_os_disk_uses_managed_disk
-Title: "Compute virtual machines should use managed disk for OS and data disk"
-Description: "This control checks whether virtual machines use managed disks for OS and data disks."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with data_disk_with_no_managed_disk as (
-      select
-        id as vm_id,
-        count(*) as count
-      from
-        azure_compute_virtual_machine,
-        jsonb_array_elements(data_disks) as d
-      where
-        d -> 'managedDisk' ->> 'id' is null
-      group by
-        id
-    )
-    select
-      vm.id as resource,
-      vm.og_account_id as og_account_id,
-      vm.og_resource_id as og_resource_id,
-      case
-        when managed_disk_id is null and d.count > 0 then 'alarm'
-        when managed_disk_id is null then 'alarm'
-        when d.count > 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when managed_disk_id is null and d.count > 0 then vm.name || ' not utilizing managed disks for both data and OS disk.'
-        when managed_disk_id is null then vm.name || ' not utilizing managed disks for OS disk.'
-        when d.count > 0 then vm.name || ' not utilizing managed disks for data disk.'
-        else vm.name || ' utilizing managed disks for both data and OS disk.'
-      end as reason
-    from
-      azure_compute_virtual_machine as vm
-      left join data_disk_with_no_managed_disk as d on d.vm_id = vm.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = vm.subscription_id;
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    WITH data_disk_with_no_managed_disk AS (
+      SELECT
+        id AS vm_id,
+        COUNT(*) AS count
+      FROM
+        azure_compute_virtual_machine,
+        jsonb_array_elements(data_disks) AS d
+      WHERE
+        d -> 'managedDisk' ->> 'id' IS NULL
+      GROUP BY
+        id
+    )
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id AS og_account_id,
+      vm.og_resource_id AS og_resource_id,
+      CASE
+        WHEN managed_disk_id IS NULL AND d.count > 0 THEN 'alarm'
+        WHEN managed_disk_id IS NULL THEN 'alarm'
+        WHEN d.count > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN managed_disk_id IS NULL AND d.count > 0 THEN vm.name || ' not utilizing managed disks for both data and OS disk.'
+        WHEN managed_disk_id IS NULL THEN vm.name || ' not utilizing managed disks for OS disk.'
+        WHEN d.count > 0 THEN vm.name || ' not utilizing managed disks for data disk.'
+        ELSE vm.name || ' utilizing managed disks for both data and OS disk.'
+      END AS reason
+    FROM
+      azure_compute_virtual_machine AS vm
+      LEFT JOIN data_disk_with_no_managed_disk AS d ON d.vm_id = vm.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Compute virtual machines should use managed disk for OS and data disk

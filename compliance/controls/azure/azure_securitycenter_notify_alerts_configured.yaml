@@ -1,14 +1,41 @@
+Description: To ensure the relevant people in your organization are notified when there is a potential security breach in one of your subscriptions, enable email notifications for high severity alerts in Security Center.
 ID: azure_securitycenter_notify_alerts_configured
-Title: "Email notification for high severity alerts should be enabled"
-Description: "To ensure the relevant people in your organization are notified when there is a potential security breach in one of your subscriptions, enable email notifications for high severity alerts in Security Center."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with contact_info as (\n  select\n    count(*) filter (where alert_notifications = 'On') as notification_alert_count,\n    subscription_id\n  from\n    azure_security_center_contact\n  group by\n    subscription_id\n  limit 1\n)\nselect\n  sub.subscription_id as resource,\n  sub.og_account_id as og_account_id,\n  sub.og_resource_id as og_resource_id,\n  case\n    when notification_alert_count > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when notification_alert_count > 0 then '\"Notify about alerts with the following severity\" set to High.'\n    else '\"Notify about alerts with the following severity\" not set to High.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_subscription sub\n  left join contact_info ci on sub.subscription_id = ci.subscription_id;\n"
-  PrimaryTable: azure_security_center_contact
   ListOfTables:
     - azure_security_center_contact
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_contact
+  QueryToExecute: |
+    WITH contact_info AS (
+      SELECT
+        COUNT(*) FILTER (WHERE alert_notifications = 'On') AS notification_alert_count,
+        subscription_id
+      FROM
+        azure_security_center_contact
+      GROUP BY
+        subscription_id
+      LIMIT 1
+    )
+    SELECT
+      sub.subscription_id AS resource,
+      sub.og_account_id AS og_account_id,
+      sub.og_resource_id AS og_resource_id,
+      CASE
+        WHEN notification_alert_count > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN notification_alert_count > 0 THEN '"Notify about alerts with the following severity" set to High.'
+        ELSE '"Notify about alerts with the following severity" not set to High.'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM
+      azure_subscription sub
+    LEFT JOIN contact_info ci ON sub.subscription_id = ci.subscription_id;
 Severity: low
 Tags:
   category:
@@ -29,5 +56,4 @@ Tags:
     - azure
   service:
     - Azure/SecurityCenter
-IntegrationType:
-  - azure_subscription
+Title: Email notification for high severity alerts should be enabled

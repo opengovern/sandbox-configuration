@@ -1,31 +1,35 @@
+Description: Manage access to resources in the AWS Cloud by ensuring hardware MFA is enabled for the root user.
 ID: aws_iam_root_user_hardware_mfa_enabled
-Title: "IAM root user hardware MFA should be enabled"
-Description: "Manage access to resources in the AWS Cloud by ensuring hardware MFA is enabled for the root user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || s.partition || ':::' || s.account_id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when account_mfa_enabled and serial_number is null then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when account_mfa_enabled = false then  'MFA not enabled for root account.'
-        when serial_number is not null then 'MFA enabled for root account, but the MFA associated is a virtual device.'
-        else 'Hardware MFA device enabled for root account.'
-      end reason
-      , s.account_id
-    from
-      aws_iam_account_summary as s
-      left join aws_iam_virtual_mfa_device on serial_number = 'arn:' || s.partition || ':iam::' || s.account_id || ':mfa/root-account-mfa-device';
-  PrimaryTable: aws_iam_account_summary
   ListOfTables:
     - aws_iam_account_summary
     - aws_iam_virtual_mfa_device
   Parameters: []
+  PrimaryTable: aws_iam_account_summary
+  QueryToExecute: |
+    SELECT
+      'arn:' || s.partition || ':::' || s.account_id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN account_mfa_enabled AND serial_number IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN account_mfa_enabled = FALSE THEN 'MFA not enabled for root account.'
+        WHEN serial_number IS NOT NULL THEN 'MFA enabled for root account, but the MFA associated is a virtual device.'
+        ELSE 'Hardware MFA device enabled for root account.'
+      END reason,
+      s.account_id
+    FROM
+      aws_iam_account_summary AS s
+    LEFT JOIN 
+      aws_iam_virtual_mfa_device 
+    ON 
+      serial_number = 'arn:' || s.partition || ':iam::' || s.account_id || ':mfa/root-account-mfa-device';
 Severity: high
 Tags:
   category:
@@ -48,11 +52,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -64,5 +68,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM root user hardware MFA should be enabled

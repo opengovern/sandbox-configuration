@@ -1,49 +1,49 @@
+Description: Checks if AWS Identity and Access Management (IAM) policies grant permissions to all actions on individual AWS resources. The rule is non-compliant if the managed IAM policy allows full access to at least 1 AWS service.
 ID: aws_iam_all_policy_no_service_wild_card
-Title: "Ensure IAM policy should not grant full access to service"
-Description: "Checks if AWS Identity and Access Management (IAM) policies grant permissions to all actions on individual AWS resources. The rule is non-compliant if the managed IAM policy allows full access to at least 1 AWS service."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with wildcard_action_policies as (
-      select
-        arn,
-        count(*) as statements_num
-      from
-        aws_iam_policy,
-        jsonb_array_elements(policy_std -> 'Statement') as s,
-        jsonb_array_elements_text(s -> 'Resource') as resource,
-        jsonb_array_elements_text(s -> 'Action') as action
-      where
-        not is_aws_managed
-        and s ->> 'Effect' = 'Allow'
-        and resource = '*'
-        and (
-          action like '%:*'
-          or action = '*'
-        )
-      group by
-        arn
-    )
-    select
-      p.arn as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when w.arn is null then 'ok'
-        else 'alarm'
-      end status,
-      p.name || ' contains ' || coalesce(w.statements_num,0)  ||
-        ' statements that allow action "*" on at least 1 AWS service on resource "*".' as reason
-    from
-      aws_iam_policy as p
-      left join wildcard_action_policies as w on p.arn = w.arn
-    where
-      not p.is_aws_managed;
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    WITH wildcard_action_policies AS (
+      SELECT
+        arn,
+        COUNT(*) AS statements_num
+      FROM
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Resource') AS resource,
+        jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE
+        NOT is_aws_managed
+        AND s ->> 'Effect' = 'Allow'
+        AND resource = '*'
+        AND (
+          action LIKE '%:*'
+          OR action = '*'
+        )
+      GROUP BY
+        arn
+    )
+    SELECT
+      p.arn AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN w.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      p.name || ' contains ' || COALESCE(w.statements_num, 0) || 
+        ' statements that allow action "*" on at least 1 AWS service on resource "*".' AS reason
+    FROM
+      aws_iam_policy AS p
+      LEFT JOIN wildcard_action_policies AS w ON p.arn = w.arn
+    WHERE
+      NOT p.is_aws_managed;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure IAM policy should not grant full access to service

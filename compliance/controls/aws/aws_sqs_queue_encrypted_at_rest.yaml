@@ -1,13 +1,30 @@
+Description: This control checks whether AWS SQS queues are encrypted at rest.
 ID: aws_sqs_queue_encrypted_at_rest
-Title: "AWS SQS queues should be encrypted at rest"
-Description: "This control checks whether AWS SQS queues are encrypted at rest."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  queue_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_master_key_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_master_key_id is null then title || ' encryption at rest disabled.'\n    else title || ' encryption at rest enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_sqs_queue;\n"
-  PrimaryTable: aws_sqs_queue
   ListOfTables:
     - aws_sqs_queue
   Parameters: []
+  PrimaryTable: aws_sqs_queue
+  QueryToExecute: |
+    SELECT
+      queue_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN kms_master_key_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kms_master_key_id IS NULL THEN title || ' encryption at rest disabled.'
+        ELSE title || ' encryption at rest enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_sqs_queue;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/SQS
-IntegrationType:
-  - aws_cloud_account
+Title: AWS SQS queues should be encrypted at rest

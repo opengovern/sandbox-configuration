@@ -1,30 +1,33 @@
+Description: Ensure that SSL/TLS certificates for RDS database instances are rotated according to the AWS schedule.
 ID: aws_rotate_ssltls_certificates_for_database_instances
-Title: "Rotate SSL/TLS Certificates for Database Instances"
-Description: "Ensure that SSL/TLS certificates for RDS database instances are rotated according to the AWS schedule."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-        db_instance_identifier as resource,
-        og_account_id as og_account_id,
-        og_resource_id as og_resource_id,
-      case
-        when ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::INT < 15 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::INT < 15 then title || ' certificate is going to expire in ' || ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::TEXT || ' days'
-        else title || ' certificate is ok' || master_user_name
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance,
-      json_array_elements(certificate::json) as c;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+        db_instance_identifier AS resource,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        CASE
+            WHEN ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::INT < 15 THEN 'alarm'
+            ELSE 'ok'
+        END AS status,
+        CASE
+            WHEN ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::INT < 15 THEN
+                title || ' certificate is going to expire in ' || ((c ->> 'ValidTill')::DATE - CURRENT_DATE)::TEXT || ' days'
+            ELSE
+                title || ' certificate is ok' || master_user_name
+        END AS reason,
+        region,
+        account_id
+    FROM
+        aws_rds_db_instance,
+        json_array_elements(certificate::json) AS c;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -35,5 +38,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: Rotate SSL/TLS Certificates for Database Instances

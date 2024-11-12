@@ -4,28 +4,28 @@ Description: "Use standard storage instead of premium storage for managed disk s
 Query:
   Engine: odysseus-v0.0.1
   QueryToExecute: |
-    select
-      ss.id as resource,
+    SELECT
+      ss.id AS resource,
       ss.og_resource_id,
       ss.og_account_id,
-      case
-        when ss.sku_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ss.sku_tier = 'Standard' then 0
-        else (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/snapshots' and resource_id = ss.og_resource_id limit 1)
-      end as cost_optimization,
-      case
-        when ss.sku_tier = 'Standard' then ss.title || ' has storage type ' || ss.sku_tier || '.'
-        else ss.title || ' has storage type ' || ss.sku_tier || '.'
-      end as reason,
+      CASE
+        WHEN ss.sku_tier = 'Standard' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ss.sku_tier = 'Standard' THEN 0
+        ELSE (SELECT cost FROM pennywise_cost_estimate WHERE resource_type = 'microsoft.compute/snapshots' AND resource_id = ss.og_resource_id LIMIT 1)
+      END AS cost_optimization,
+      CASE
+        WHEN ss.sku_tier = 'Standard' THEN ss.title || ' has storage type ' || ss.sku_tier || '.'
+        ELSE ss.title || ' has storage type ' || ss.sku_tier || '.'
+      END AS reason,
       ss.resource_group,
-      display_name as subscription
-    from
-      azure_compute_snapshot as ss,
-      azure_subscription as sub
-    where
+      display_name AS subscription
+    FROM
+      azure_compute_snapshot AS ss,
+      azure_subscription AS sub
+    WHERE
       ss.subscription_id = sub.subscription_id;
   PrimaryTable: azure_compute_snapshot
   ListOfTables:

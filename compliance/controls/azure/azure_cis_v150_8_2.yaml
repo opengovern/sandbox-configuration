@@ -1,45 +1,47 @@
+Description: Ensure that all Keys in Non Role Based Access Control (RBAC) Azure Key Vaults have an expiration time set.
 ID: azure_cis_v150_8_2
-Title: "8.2 Ensure that the Expiration Date is set for all Keys in Non-RBAC Key Vaults"
-Description: "Ensure that all Keys in Non Role Based Access Control (RBAC) Azure Key Vaults have an expiration time set."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with non_rbac_vault as (
-      select
-        name
-      from
-        azure_key_vault
-      where not enable_rbac_authorization
-    )
-    select
-      kvk.id as resource,
-      kvk.og_account_id as og_account_id,
-      kvk.og_resource_id as og_resource_id,
-      case
-        when v.name is null then 'skip'
-        when enabled and expires_at is null then 'alarm'
-        else 'ok'
-      end as status,
-      vault_name || ' key ' || kvk.name ||
-      case
-        when v.name is null then ' RBAC enabled vault.'
-        when enabled and expires_at is null then ' expiration date not set.'
-        when not enabled then ' disabled.'
-        else ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'
-      end as reason
-    from
-      azure_key_vault_key kvk
-      left join non_rbac_vault as v on v.name = kvk.vault_name,
-      azure_subscription sub
-    where
-      sub.subscription_id = kvk.subscription_id;
-  PrimaryTable: azure_key_vault_key
   ListOfTables:
     - azure_key_vault
     - azure_key_vault_key
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault_key
+  QueryToExecute: |
+    WITH non_rbac_vault AS (
+      SELECT
+        name
+      FROM
+        azure_key_vault
+      WHERE
+        NOT enable_rbac_authorization
+    )
+    
+    SELECT
+      kvk.id AS resource,
+      kvk.og_account_id AS og_account_id,
+      kvk.og_resource_id AS og_resource_id,
+      CASE
+        WHEN v.name IS NULL THEN 'skip'
+        WHEN enabled AND expires_at IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      vault_name || ' key ' || kvk.name ||
+      CASE
+        WHEN v.name IS NULL THEN ' RBAC enabled vault.'
+        WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
+        WHEN NOT enabled THEN ' disabled.'
+        ELSE ' expiration date set to ' || TO_CHAR(expires_at, 'DD-Mon-YYYY') || '.'
+      END AS reason
+    FROM
+      azure_key_vault_key kvk
+      LEFT JOIN non_rbac_vault AS v ON v.name = kvk.vault_name,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = kvk.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 8.2 Ensure that the Expiration Date is set for all Keys in Non-RBAC Key Vaults

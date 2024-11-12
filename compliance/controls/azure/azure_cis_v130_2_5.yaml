@@ -1,32 +1,33 @@
+Description: Turning on Azure Defender enables threat detection for Storage, providing threat intelligence, anomaly detection, and behavior analytics in the Azure Security Center.
 ID: azure_cis_v130_2_5
-Title: "2.5 Ensure that Azure Defender is set to On for Storage"
-Description: "Turning on Azure Defender enables threat detection for Storage, providing threat intelligence, anomaly detection, and behavior analytics in the Azure Security Center."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sub_pricing.id as resource,
-      sub_pricing.og_account_id as og_account_id,
-      sub_pricing.og_resource_id as og_resource_id,
-      case
-        when pricing_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when pricing_tier = 'Standard' then 'Azure Defender on for Storage.'
-        else 'Azure Defender off for Storage.'
-      end as reason
-    from
-      azure_security_center_subscription_pricing sub_pricing
-      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
-    where
-      name = 'StorageAccounts';
-  PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
     - azure_security_center_subscription_pricing
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_subscription_pricing
+  QueryToExecute: |
+    SELECT
+      sub_pricing.id AS resource,
+      sub_pricing.og_account_id AS og_account_id,
+      sub_pricing.og_resource_id AS og_resource_id,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Storage.'
+        ELSE 'Azure Defender off for Storage.'
+      END AS reason
+    FROM
+      azure_security_center_subscription_pricing sub_pricing
+    RIGHT JOIN
+      azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+    WHERE
+      name = 'StorageAccounts';
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.5 Ensure that Azure Defender is set to On for Storage

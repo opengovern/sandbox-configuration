@@ -1,31 +1,31 @@
+Description: Ensure that CloudTrail multi region trail is integrated with CloudWatch logs.
 ID: aws_cloudtrail_multi_region_trail_integrated_with_logs
-Title: "CloudTrail multi region trails should be integrated with CloudWatch logs"
-Description: "Ensure that CloudTrail multi region trail is itegrated with CloudWatch logs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when log_group_arn != 'null' and ((latest_delivery_time) > current_date - 1) then title || ' multi region trail integrated with CloudWatch logs.'
-        else title || ' multi region trail not integrated with CloudWatch logs.'
-      end as reason
-    from
-      aws_cloudtrail_trail
-    where
-      region = home_region
-      and is_multi_region_trail;
-  PrimaryTable: aws_cloudtrail_trail
   ListOfTables:
     - aws_cloudtrail_trail
   Parameters: []
+  PrimaryTable: aws_cloudtrail_trail
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN log_group_arn != 'null' AND ((latest_delivery_time) > CURRENT_DATE - 1) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN log_group_arn != 'null' AND ((latest_delivery_time) > CURRENT_DATE - 1) THEN title || ' multi region trail integrated with CloudWatch logs.'
+        ELSE title || ' multi region trail not integrated with CloudWatch logs.'
+      END AS reason
+    FROM
+      aws_cloudtrail_trail
+    WHERE
+      region = home_region
+      AND is_multi_region_trail;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: CloudTrail multi region trails should be integrated with CloudWatch logs

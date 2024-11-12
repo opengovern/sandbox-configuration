@@ -1,13 +1,30 @@
+Description: Enable log_disconnections on PostgreSQL Servers.
 ID: azure_cis_v150_4_3_4
-Title: "4.3.4 Ensure server parameter 'log_disconnections' is set to 'ON' for PostgreSQL Database Server"
-Description: "Enable log_disconnections on PostgreSQL Servers."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when lower(config -> 'ConfigurationProperties' ->> 'value') != 'on' then name || ' server parameter log_disconnections off.'\n    else name || ' server parameter log_disconnections on.'\n  end as reason\n  \n  \n  \nfrom\n  azure_postgresql_server s,\n  jsonb_array_elements(server_configurations) config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'log_disconnections'\n  and sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN name || ' server parameter log_disconnections off.'
+        ELSE name || ' server parameter log_disconnections on.'
+      END AS reason
+    FROM
+      azure_postgresql_server s,
+      jsonb_array_elements(server_configurations) config,
+      azure_subscription sub
+    WHERE
+      config ->> 'Name' = 'log_disconnections'
+      AND sub.subscription_id = s.subscription_id;
+Severity: low
+Tags: {}
+Title: 4.3.4 Ensure server parameter 'log_disconnections' is set to 'ON' for PostgreSQL Database Server

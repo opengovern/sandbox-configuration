@@ -1,45 +1,47 @@
+Description: Ensure that your Application Load Balancers have a rule that redirects HTTP traffic to HTTPS.
 ID: aws_enable_http_to_https_redirect_for_application_load_balancers
-Title: "Enable HTTP to HTTPS Redirect for Application Load Balancers"
-Description: "Ensure that your Application Load Balancers have a rule that redirects HTTP traffic to HTTPS."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with detailed_listeners as (
-      select
-        arn,
-        load_balancer_arn,
-        protocol
-      from
-        aws_ec2_load_balancer_listener,
-        jsonb_array_elements(default_actions) as ac
-      where
-        split_part(arn, '/', 2) = 'app'
-        and protocol = 'HTTP'
-        and ac ->> 'Type' = 'redirect'
-        and ac -> 'RedirectConfig' ->> 'Protocol' = 'HTTPS'
-    )
-    select
-      a.arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when b.load_balancer_arn is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when b.load_balancer_arn is not null then a.title || ' associated with HTTP redirection.'
-        else a.title || ' not associated with HTTP redirection.'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_application_load_balancer a
-      left join detailed_listeners b on a.arn = b.load_balancer_arn;
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_load_balancer_listener
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    WITH detailed_listeners AS (
+      SELECT
+        arn,
+        load_balancer_arn,
+        protocol
+      FROM
+        aws_ec2_load_balancer_listener,
+        jsonb_array_elements(default_actions) AS ac
+      WHERE
+        split_part(arn, '/', 2) = 'app'
+        AND protocol = 'HTTP'
+        AND ac ->> 'Type' = 'redirect'
+        AND ac -> 'RedirectConfig' ->> 'Protocol' = 'HTTPS'
+    )
+    SELECT
+      a.arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN b.load_balancer_arn IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.load_balancer_arn IS NOT NULL THEN a.title || ' associated with HTTP redirection.'
+        ELSE a.title || ' not associated with HTTP redirection.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_application_load_balancer a
+    LEFT JOIN detailed_listeners b
+      ON a.arn = b.load_balancer_arn;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -50,5 +52,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: Enable HTTP to HTTPS Redirect for Application Load Balancers

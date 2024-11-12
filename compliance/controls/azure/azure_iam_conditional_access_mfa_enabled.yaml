@@ -1,14 +1,31 @@
+Description: For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins.
 ID: azure_iam_conditional_access_mfa_enabled
-Title: "Ensure Multi-factor Authentication is required for Azure Management"
-Description: "For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  p.id as resource,\n  p.og_account_id as og_account_id,\n  p.og_resource_id as og_resource_id,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when p.built_in_controls @> '[\"mfa\"]' then p.display_name || ' MFA enabled.'\n    else p.display_name || ' MFA disabled.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  azure_tenant as t,\n  azuread_conditional_access_policy as p;\n"
-  PrimaryTable: azuread_conditional_access_policy
   ListOfTables:
     - azure_tenant
     - azuread_conditional_access_policy
   Parameters: []
+  PrimaryTable: azuread_conditional_access_policy
+  QueryToExecute: |
+    SELECT
+      p.id AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.built_in_controls @> '["mfa"]' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.built_in_controls @> '["mfa"]' THEN p.display_name || ' MFA enabled.'
+        ELSE p.display_name || ' MFA disabled.'
+      END AS reason,
+      t.tenant_id
+    FROM
+      azure_tenant AS t,
+      azuread_conditional_access_policy AS p;
 Severity: medium
 Tags:
   category:
@@ -29,5 +46,4 @@ Tags:
     - azure
   service:
     - Azure/ActiveDirectory
-IntegrationType:
-  - azure_subscription
+Title: Ensure Multi-factor Authentication is required for Azure Management

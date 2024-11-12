@@ -1,13 +1,30 @@
+Description: Ensure all IAM groups have at least one user.
 ID: aws_unused_iam_group
-Title: "Unused IAM Group"
-Description: "Ensure all IAM groups have at least one user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  name as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when users is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when users is null then name || ' group is unused and should be removed'\n    else name || ' group is being used'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_group\n"
-  PrimaryTable: aws_iam_group
   ListOfTables:
     - aws_iam_group
   Parameters: []
+  PrimaryTable: aws_iam_group
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN users IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN users IS NULL THEN name || ' group is unused and should be removed'
+        ELSE name || ' group is being used'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_group
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Unused IAM Group

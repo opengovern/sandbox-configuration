@@ -1,14 +1,49 @@
+Description: This policy deploys the Windows Guest Configuration extension to Windows virtual machines hosted in Azure that are supported by Guest Configuration. The Windows Guest Configuration extension is a prerequisite for all Windows Guest Configuration assignments and must be deployed to machines before using any Windows Guest Configuration policy definition.
 ID: azure_compute_vm_guest_configuration_installed_windows
-Title: "Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs"
-Description: "This policy deploys the Windows Guest Configuration extension to Windows virtual machines hosted in Azure that are supported by Guest Configuration. The Windows Guest Configuration extension is a prerequisite for all Windows Guest Configuration assignments and must be deployed to machines before using any Windows Guest Configuration policy definition."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with agent_installed_vm as (\n  select\n    distinct a.vm_id\n  from\n    azure_compute_virtual_machine as a,\n    jsonb_array_elements(extensions) as b\n  where\n    b ->> 'Publisher' = 'Microsoft.GuestConfiguration'\n    and b ->> 'ProvisioningState' = 'Succeeded'\n    and b ->> 'ExtensionType' = 'ConfigurationforWindows'\n    and b ->> 'Name' like '%AzurePolicyforWindows'\n)\nselect\n  a.vm_id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.os_type <> 'Windows' then 'skip'\n    when b.vm_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.os_type <> 'Windows' then a.title || ' is of ' || a.os_type || ' operating system.'\n    when b.vm_id is not null then a.title || ' have guest configuration extension installed.'\n    else a.title || ' guest configuration extension not installed.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_compute_virtual_machine as a\n  left join agent_installed_vm as b on a.vm_id = b.vm_id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    WITH agent_installed_vm AS (
+      SELECT
+        DISTINCT a.vm_id
+      FROM
+        azure_compute_virtual_machine AS a,
+        jsonb_array_elements(extensions) AS b
+      WHERE
+        b ->> 'Publisher' = 'Microsoft.GuestConfiguration'
+        AND b ->> 'ProvisioningState' = 'Succeeded'
+        AND b ->> 'ExtensionType' = 'ConfigurationforWindows'
+        AND b ->> 'Name' LIKE '%AzurePolicyforWindows'
+    )
+    SELECT
+      a.vm_id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.os_type <> 'Windows' THEN 'skip'
+        WHEN b.vm_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.os_type <> 'Windows' THEN a.title || ' is of ' || a.os_type || ' operating system.'
+        WHEN b.vm_id IS NOT NULL THEN a.title || ' have guest configuration extension installed.'
+        ELSE a.title || ' guest configuration extension not installed.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS a
+      LEFT JOIN agent_installed_vm AS b ON a.vm_id = b.vm_id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
@@ -17,5 +52,4 @@ Tags:
     - "true"
   service:
     - Azure/Compute
-IntegrationType:
-  - azure_subscription
+Title: Deploy the Windows Guest Configuration extension to enable Guest Configuration assignments on Windows VMs

@@ -1,42 +1,43 @@
+Description: Private endpoints limit network traffic to approved sources.
 ID: azure_cis_v210_4_5_2
-Title: "4.5.2 Ensure That Private Endpoints Are Used Where Possible"
-Description: "Private endpoints limit network traffic to approved sources."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with cosmosdb_private_connection as (
-      select
-        distinct a.id
-      from
-        azure_cosmosdb_account as a,
-        jsonb_array_elements(private_endpoint_connections) as connection
-      where
-        connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
-    )
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when c.id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when c.id is null then a.name || ' not uses private link.'
-        else a.name || ' uses private link.'
-      end as reason
-    from
-      azure_cosmosdb_account as a
-      left join cosmosdb_private_connection as c on c.id = a.id,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    WITH cosmosdb_private_connection AS (
+      SELECT
+        DISTINCT a.id
+      FROM
+        azure_cosmosdb_account AS a,
+        jsonb_array_elements(private_endpoint_connections) AS connection
+      WHERE
+        connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN c.id IS NULL THEN a.name || ' not uses private link.'
+        ELSE a.name || ' uses private link.'
+      END AS reason
+    FROM
+      azure_cosmosdb_account AS a
+    LEFT JOIN
+      cosmosdb_private_connection AS c ON c.id = a.id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 4.5.2 Ensure That Private Endpoints Are Used Where Possible

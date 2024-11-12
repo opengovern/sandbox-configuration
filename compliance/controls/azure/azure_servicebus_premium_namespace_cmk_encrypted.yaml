@@ -1,19 +1,38 @@
+Description: Azure Service Bus supports the option of encrypting data at rest with either Microsoft-managed keys (default) or customer-managed keys. Choosing to encrypt data using customer-managed keys enables you to assign, rotate, disable, and revoke access to the keys that Service Bus will use to encrypt data in your namespace. Note that Service Bus only supports encryption with customer-managed keys for premium namespaces.
 ID: azure_servicebus_premium_namespace_cmk_encrypted
-Title: "Service Bus Premium namespaces should use a customer-managed key for encryption"
-Description: "Azure Service Bus supports the option of encrypting data at rest with either Microsoft-managed keys (default) or customer-managed keys. Choosing to encrypt data using customer-managed keys enables you to assign, rotate, disable, and revoke access to the keys that Service Bus will use to encrypt data in your namespace. Note that Service Bus only supports encryption with customer-managed keys for premium namespaces."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when sku_tier <> 'Premium' then 'skip'\n    when encryption -> 'keySource' = '\"Microsoft.KeyVault\"' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when sku_tier <> 'Premium' then a.name || ' is of ' || sku_tier || ' tier.'\n    when encryption -> 'keySource' = '\"Microsoft.KeyVault\"' then a.name || ' encrypted using CMK.'\n    else a.name || ' not encrypted using CMK.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_servicebus_namespace a,\n  azure_subscription sub;\n"
-  PrimaryTable: azure_servicebus_namespace
   ListOfTables:
     - azure_servicebus_namespace
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_servicebus_namespace
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sku_tier <> 'Premium' THEN 'skip'
+        WHEN encryption -> 'keySource' = '"Microsoft.KeyVault"' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sku_tier <> 'Premium' THEN a.name || ' is of ' || sku_tier || ' tier.'
+        WHEN encryption -> 'keySource' = '"Microsoft.KeyVault"' THEN a.name || ' encrypted using CMK.'
+        ELSE a.name || ' not encrypted using CMK.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_servicebus_namespace a,
+      azure_subscription sub;
 Severity: medium
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/ServiceBus
-IntegrationType:
-  - azure_subscription
+Title: Service Bus Premium namespaces should use a customer-managed key for encryption

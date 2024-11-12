@@ -1,15 +1,46 @@
+Description: Detects when a canary token access key has been used
 ID: aws_canary_access_token
-Title: "Canary Access Token"
-Description: "Detects when a canary token access key has been used"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with users as (\n  select\n    user_id,\n    u.account_id\n  from\n    aws_iam_user as u\n    left join aws_iam_credential_report as r on r.user_arn = u.arn\n  where\n    u.inline_policies is null and u.attached_policy_arns is null and \n    ((not r.password_enabled::bool) and (r.access_key_1_active or r.access_key_2_active))\n)\n\nselect\n  account_id as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when exists(select 1 from users as u where u.account_id = a.account_id) then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when exists(select 1 from users as u where u.account_id = a.account_id) then 'Canary access tokens are used within your AWS account.'\n    else ' anary access tokens are not currently used within your AWS account.'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_account as a\n"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_iam_credential_report
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    WITH users AS (
+      SELECT
+        user_id,
+        u.account_id
+      FROM
+        aws_iam_user AS u
+        LEFT JOIN aws_iam_credential_report AS r ON r.user_arn = u.arn
+      WHERE
+        u.inline_policies IS NULL
+        AND u.attached_policy_arns IS NULL
+        AND ((NOT r.password_enabled::BOOL)
+        AND (r.access_key_1_active OR r.access_key_2_active))
+    )
+
+    SELECT
+      account_id AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN EXISTS(SELECT 1 FROM users AS u WHERE u.account_id = a.account_id) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS(SELECT 1 FROM users AS u WHERE u.account_id = a.account_id) THEN 'Canary access tokens are used within your AWS account.'
+        ELSE 'Canary access tokens are not currently used within your AWS account.'
+      END AS reason,
+      region, 
+      account_id
+    FROM
+      aws_account AS a
 Severity: critical
 Tags:
   platform_score_cloud_service_name:
@@ -20,5 +51,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Insecure Keys
-IntegrationType:
-  - aws_cloud_account
+Title: Canary Access Token

@@ -1,13 +1,30 @@
+Description: Enable log_retention_days on PostgreSQL Servers.
 ID: azure_cis_v140_4_3_6
-Title: "4.3.6 Ensure server parameter 'log_retention_days' is greater than 3 days for PostgreSQL Database Server"
-Description: "Enable log_retention_days on PostgreSQL Servers."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  case\n    when (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 then s.name || ' log files are retained for 3 days or lesser.'\n    else s.name || ' log files are retained for more than 3 days.'\n  end as reason\n  \n  \n  \nfrom\n  azure_postgresql_server s,\n  jsonb_array_elements(server_configurations) as config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'log_retention_days'\n  and sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      CASE
+        WHEN (config -> 'ConfigurationProperties' ->> 'value')::INTEGER <= 3 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (config -> 'ConfigurationProperties' ->> 'value')::INTEGER <= 3 THEN s.name || ' log files are retained for 3 days or lesser.'
+        ELSE s.name || ' log files are retained for more than 3 days.'
+      END AS reason
+    FROM
+      azure_postgresql_server s,
+      jsonb_array_elements(server_configurations) AS config,
+      azure_subscription sub
+    WHERE
+      config ->> 'Name' = 'log_retention_days'
+      AND sub.subscription_id = s.subscription_id;
+Severity: low
+Tags: {}
+Title: 4.3.6 Ensure server parameter 'log_retention_days' is greater than 3 days for PostgreSQL Database Server

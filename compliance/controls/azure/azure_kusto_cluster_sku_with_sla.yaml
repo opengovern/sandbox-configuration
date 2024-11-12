@@ -1,29 +1,29 @@
+Description: This control checks if Kusto clusters use SKU with an SLA. This control is considered non-compliant if Kusto clusters use SKUs without an SLA.
 ID: azure_kusto_cluster_sku_with_sla
-Title: "Kusto clusters should use SKU with an SLA"
-Description: "This control checks if Kusto clusters use SKU with an SLA. This control is considered non-compliant if Kusto clusters use SKUs without an SLA."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      kv.id as resource,
-      kv.og_account_id as og_account_id,
-      kv.og_resource_id as og_resource_id,
-      case
-        when sku_name in ('Dev(No SLA)_Standard_E2a_v4' , 'Dev(No SLA)_Standard_D11_v2') then 'alarm'
-        else 'ok'
-      end as status,
-      name || ' using ' || sku_name || ' SKU tier.' as reason
-    from
-      azure_kusto_cluster as kv,
-      azure_subscription as sub
-    where
-      sub.subscription_id = kv.subscription_id;
-  PrimaryTable: azure_kusto_cluster
   ListOfTables:
     - azure_kusto_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kusto_cluster
+  QueryToExecute: |
+    SELECT
+      kv.id AS resource,
+      kv.og_account_id AS og_account_id,
+      kv.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sku_name IN ('Dev(No SLA)_Standard_E2a_v4', 'Dev(No SLA)_Standard_D11_v2') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      name || ' using ' || sku_name || ' SKU tier.' AS reason
+    FROM
+      azure_kusto_cluster AS kv,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = kv.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Kusto clusters should use SKU with an SLA

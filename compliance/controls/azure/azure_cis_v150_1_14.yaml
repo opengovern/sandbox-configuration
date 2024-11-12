@@ -1,15 +1,39 @@
+Description: Require administrators or appropriately delegated users to register third-party applications.
 ID: azure_cis_v150_1_14
-Title: "1.14 Ensure That ‘Users Can Register Applications’ Is Set to ‘No’"
-Description: "Require administrators or appropriately delegated users to register third-party applications."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with distinct_tenant as (\n  select\n    distinct tenant_id,\n    subscription_id,\n    _ctx\n  from\n    azure_tenant\n)\nselect\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' then a.display_name || ' does not allow user to register applications.'\n    else a.display_name || ' allows user to register applications.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  distinct_tenant as t,\n  azuread_authorization_policy as a;"
-  PrimaryTable: azuread_authorization_policy
   ListOfTables:
     - azure_tenant
     - azuread_authorization_policy
   Parameters: []
+  PrimaryTable: azuread_authorization_policy
+  QueryToExecute: |
+    WITH distinct_tenant AS (
+      SELECT
+        DISTINCT tenant_id,
+        subscription_id,
+        _ctx
+      FROM
+        azure_tenant
+    )
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN a.display_name || ' does not allow user to register applications.'
+        ELSE a.display_name || ' allows user to register applications.'
+      END AS reason,
+      t.tenant_id
+    FROM
+      distinct_tenant AS t,
+      azuread_authorization_policy AS a;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 1.14 Ensure That ‘Users Can Register Applications’ Is Set to ‘No’

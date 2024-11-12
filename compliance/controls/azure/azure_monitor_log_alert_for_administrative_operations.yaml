@@ -1,19 +1,70 @@
+Description: This policy audits specific Administrative operations with no activity log alerts configured.
 ID: azure_monitor_log_alert_for_administrative_operations
-Title: "An activity log alert should exist for specific Administrative operations"
-Description: "This policy audits specific Administrative operations with no activity log alerts configured."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with alert_rule as (\n  select\n    alert.id as alert_id,\n    alert.name as alert_name,\n    alert.enabled,\n    alert.location,\n    alert.subscription_id\n  from\n    azure_log_alert as alert,\n    jsonb_array_elements_text(scopes) as sc\n  where\n    alert.location = 'Global'\n    and alert.enabled\n    and sc = '/subscriptions/' || alert.subscription_id\n    and alert.condition -> 'allOf' @> '[{\"equals\":\"Administrative\",\"field\":\"category\"}]'\n    and (\n      alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Sql/servers/firewallRules/write\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Sql/servers/firewallRules/delete\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Network/networkSecurityGroups/write\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Network/networkSecurityGroups/delete\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.ClassicNetwork/networkSecurityGroups/write\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.ClassicNetwork/networkSecurityGroups/delete\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Network/networkSecurityGroups/securityRules/write\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.Network/networkSecurityGroups/securityRules/delete\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.ClassicNetwork/networkSecurityGroups/securityRules/write\"}]'\n      or alert.condition -> 'allOf' @> '[{\"field\": \"operationName\", \"equals\": \"Microsoft.ClassicNetwork/networkSecurityGroups/securityRules/delete\"}]'\n      )\n  limit 1\n)\nselect\n  sub.subscription_id as resource,\n  sub.og_account_id as og_account_id,\n  sub.og_resource_id as og_resource_id,\n  case\n    when count(a.subscription_id) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when count(a.subscription_id) > 0 then 'Activity log alert exists for administrative operations.'\n    else 'Activity log alert does not exists for administrative operations.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_subscription sub\n  left join alert_rule a on sub.subscription_id = a.subscription_id\ngroup by\n  sub.og_account_id,\n  sub.og_resource_id,\n  sub._ctx,\n  sub.subscription_id,\n  sub.display_name;\n"
-  PrimaryTable: azure_log_alert
   ListOfTables:
     - azure_log_alert
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_log_alert
+  QueryToExecute: |
+    WITH alert_rule AS (
+      SELECT
+        alert.id AS alert_id,
+        alert.name AS alert_name,
+        alert.enabled,
+        alert.location,
+        alert.subscription_id
+      FROM
+        azure_log_alert AS alert,
+        jsonb_array_elements_text(scopes) AS sc
+      WHERE
+        alert.location = 'Global'
+        AND alert.enabled
+        AND sc = '/subscriptions/' || alert.subscription_id
+        AND alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+        AND (
+          alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Sql/servers/firewallRules/write"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Sql/servers/firewallRules/delete"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networkSecurityGroups/write"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networkSecurityGroups/delete"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.ClassicNetwork/networkSecurityGroups/write"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.ClassicNetwork/networkSecurityGroups/delete"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networkSecurityGroups/securityRules/write"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Network/networkSecurityGroups/securityRules/delete"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.ClassicNetwork/networkSecurityGroups/securityRules/write"}]'
+          OR alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.ClassicNetwork/networkSecurityGroups/securityRules/delete"}]'
+        )
+      LIMIT 1
+    )
+    SELECT
+      sub.subscription_id AS resource,
+      sub.og_account_id AS og_account_id,
+      sub.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT(a.subscription_id) > 0 THEN 'Activity log alert exists for administrative operations.'
+        ELSE 'Activity log alert does not exists for administrative operations.'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM
+      azure_subscription sub
+    LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
+    GROUP BY
+      sub.og_account_id,
+      sub.og_resource_id,
+      sub._ctx,
+      sub.subscription_id,
+      sub.display_name
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
     - "true"
   service:
     - Azure/Monitor
-IntegrationType:
-  - azure_subscription
+Title: An activity log alert should exist for specific Administrative operations

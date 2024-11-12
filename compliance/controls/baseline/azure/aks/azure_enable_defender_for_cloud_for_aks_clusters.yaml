@@ -1,31 +1,32 @@
+Description: Ensure that Microsoft Defender for Cloud is enabled for AKS clusters.
 ID: azure_enable_defender_for_cloud_for_aks_clusters
-Title: "Enable Defender for Cloud for AKS Clusters"
-Description: "Ensure that Microsoft Defender for Cloud is enabled for AKS clusters."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      case
-        when (addon_profiles -> 'omsagent' ->> 'enabled')::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (addon_profiles -> 'omsagent' ->> 'enabled')::bool then 'Microsoft Defender is enabled for this resource'
-        else 'Microsoft Defender is not enabled for this resource'
-      end as reason,
-      c.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_kubernetes_cluster as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      CASE
+        WHEN (addon_profiles -> 'omsagent' ->> 'enabled')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (addon_profiles -> 'omsagent' ->> 'enabled')::bool THEN 'Microsoft Defender is enabled for this resource'
+        ELSE 'Microsoft Defender is not enabled for this resource'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_kubernetes_cluster AS c
+      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure Kubernetes (AKS)
   score_tags:
     - Tolerate Failures
-IntegrationType:
-  - azure_subscription
+Title: Enable Defender for Cloud for AKS Clusters

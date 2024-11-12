@@ -1,28 +1,28 @@
+Description: This control checks if SSM parameter has encryption enabled.
 ID: aws_ssm_parameter_encryption_enabled
-Title: "SSM parameters encryption should be enabled"
-Description: "This control checks if SSM parameter has encryption enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when type = 'SecureString' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when type = 'SecureString' then title || ' encryption enabled.'
-        else title || ' encryption disabled.'
-      end as reason
-    from
-      aws_ssm_parameter;
-  PrimaryTable: aws_ssm_parameter
   ListOfTables:
     - aws_ssm_parameter
   Parameters: []
+  PrimaryTable: aws_ssm_parameter
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN type = 'SecureString' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN type = 'SecureString' THEN title || ' encryption enabled.'
+        ELSE title || ' encryption disabled.'
+      END AS reason
+    FROM
+      aws_ssm_parameter;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SSM parameters encryption should be enabled

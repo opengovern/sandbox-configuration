@@ -1,15 +1,35 @@
+Description: Disable anonymous access to blob containers and disallow blob public access on storage account.
 ID: azure_storage_account_blob_containers_public_access_private
-Title: "Ensure that 'Public access level' is set to Private for blob containers"
-Description: "Disable anonymous access to blob containers and disallow blob public access on storage account."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  container.id as resource,\n  container.og_account_id as og_account_id,\n  container.og_resource_id as og_resource_id,\n  case\n    when not account.allow_blob_public_access and container.public_access = 'None' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not account.allow_blob_public_access and container.public_access = 'None'\n      then account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'\n    else account.name || ' container ' || container.name || ' allows anonymous access.'\n  end as reason\n  \n  , container.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_container container\n  join azure_storage_account account on container.account_name = account.name\n  join azure_subscription sub on sub.subscription_id = account.subscription_id;\n"
-  PrimaryTable: azure_storage_container
   ListOfTables:
     - azure_storage_account
     - azure_storage_container
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_container
+  QueryToExecute: |
+    SELECT
+      container.id AS resource,
+      container.og_account_id AS og_account_id,
+      container.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT account.allow_blob_public_access AND container.public_access = 'None' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT account.allow_blob_public_access AND container.public_access = 'None'
+          THEN account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+        ELSE account.name || ' container ' || container.name || ' allows anonymous access.'
+      END AS reason,
+      container.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_container container
+    JOIN azure_storage_account account ON container.account_name = account.name
+    JOIN azure_subscription sub ON sub.subscription_id = account.subscription_id;
 Severity: high
 Tags:
   category:
@@ -30,5 +50,4 @@ Tags:
     - azure
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Ensure that 'Public access level' is set to Private for blob containers

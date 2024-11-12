@@ -1,13 +1,30 @@
+Description: This control checks whether an Amazon CloudFront distribution with an Amazon S3 origin has origin access control (OAC) configured. The control fails if OAC isn't configured for the CloudFront distribution.
 ID: aws_foundational_security_cloudfront_13
-Title: "13 CloudFront distributions should use origin access control"
-Description: "This control checks whether an Amazon CloudFront distribution with an Amazon S3 origin has origin access control (OAC) configured. The control fails if OAC isn't configured for the CloudFront distribution."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  case\n    when o ->> 'DomainName' not like '%s3.amazonaws.com' then 'skip'\n    when o ->> 'DomainName' like '%s3.amazonaws.com'\n    and o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when o ->> 'DomainName' not like '%s3.amazonaws.com' then title || ' origin type is not s3.'\n    when o ->> 'DomainName' like '%s3.amazonaws.com'\n    and o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' then title || ' origin access identity not configured.'\n    else title || ' origin access identity configured.'\n  end as reason\n  \n  \nfrom\n  aws_cloudfront_distribution,\n  jsonb_array_elements(origins) as o;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: medium
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      CASE
+        WHEN o ->> 'DomainName' NOT LIKE '%s3.amazonaws.com' THEN 'skip'
+        WHEN o ->> 'DomainName' LIKE '%s3.amazonaws.com'
+          AND o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN o ->> 'DomainName' NOT LIKE '%s3.amazonaws.com' THEN title || ' origin type is not s3.'
+        WHEN o ->> 'DomainName' LIKE '%s3.amazonaws.com'
+          AND o -> 'S3OriginConfig' ->> 'OriginAccessIdentity' = '' THEN title || ' origin access identity not configured.'
+        ELSE title || ' origin access identity configured.'
+      END AS reason
+    FROM
+      aws_cloudfront_distribution,
+      jsonb_array_elements(origins) AS o;
+Severity: medium
+Tags: {}
+Title: 13 CloudFront distributions should use origin access control

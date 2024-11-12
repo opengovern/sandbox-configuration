@@ -1,37 +1,37 @@
+Description: Ensure that Deletion Protection is enabled for Amazon Gateway Load Balancers.
 ID: aws_enable_deletion_protection
-Title: "Enable Deletion Protection"
-Description: "Ensure that Deletion Protection is enabled for Amazon Gateway Load Balancers."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.arn as resource,
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when lb ->> 'Value' = 'false' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lb ->> 'Value' = 'false' then a.title || ' deletion protection is not enabled.'
-        else a.title || ' deletion protection is enabled.'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_gateway_load_balancer a
-      cross join jsonb_array_elements(load_balancer_attributes) as lb
-    where
-      lb ->> 'Key' = 'deletion_protection.enabled'
-  PrimaryTable: aws_ec2_gateway_load_balancer
   ListOfTables:
     - aws_ec2_gateway_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_gateway_load_balancer
+  QueryToExecute: |
+    SELECT
+      a.arn AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN lb ->> 'Value' = 'false' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN lb ->> 'Value' = 'false' THEN a.title || ' deletion protection is not enabled.'
+        ELSE a.title || ' deletion protection is enabled.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_gateway_load_balancer a
+      CROSS JOIN jsonb_array_elements(load_balancer_attributes) AS lb
+    WHERE
+      lb ->> 'Key' = 'deletion_protection.enabled'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_service_name:
     - AWS Elastic Load Balancing V2 (ELBv2)
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Deletion Protection

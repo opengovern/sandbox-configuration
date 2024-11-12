@@ -1,29 +1,29 @@
+Description: This control checks if Cognitive Search maintains SLA for index updates.
 ID: azure_search_service_replica_count_3
-Title: "Cognitive Search services should maintain SLA for index updates"
-Description: "This control checks if Cognitive Search maintains SLA for index updates."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when replica_count > 3 then 'ok'
-        else 'alarm'
-      end as status,
-        name || ' has ' || replica_count || ' replica count.' as reason
-    from
-      azure_search_service as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_search_service
   ListOfTables:
     - azure_search_service
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_search_service
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN replica_count > 3 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      name || ' has ' || replica_count || ' replica count.' AS reason
+    FROM
+      azure_search_service AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Cognitive Search services should maintain SLA for index updates

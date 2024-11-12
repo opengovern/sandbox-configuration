@@ -1,63 +1,72 @@
+Description: Network security group provides stateful filtering of inbound/outbound network traffic to Azure resources. It is recommended that no network security group allows unrestricted inbound access to TCP port 5432.
 ID: azure_network_security_group_restrict_inbound_tcp_port_5432
-Title: "Network security groups should restrict inbound TCP port 5432 access from internet"
-Description: "Network security group provide stateful filtering of inbound/outbound network traffic to Azure resources. It is recommended that no network security group allows unrestricted inbound access to TCP port 5432."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with unrestricted_inbound as (
-      select
-        distinct name sg_name
-      from
-        azure_network_security_group nsg,
-        jsonb_array_elements(security_rules || default_security_rules ) sg,
-        jsonb_array_elements_text(
-          case
-            when jsonb_array_length(sg -> 'properties' -> 'destinationPortRanges') > 0 then (sg -> 'properties' -> 'destinationPortRanges')
-            else jsonb_build_array(sg -> 'properties' -> 'destinationPortRange')
-          end ) as dport,
-        jsonb_array_elements_text(
-          case
-            when jsonb_array_length(sg -> 'properties' -> 'sourceAddressPrefixes') > 0 then (sg -> 'properties' -> 'sourceAddressPrefixes')
-            else jsonb_build_array(sg -> 'properties' -> 'sourceAddressPrefix')
-          end ) as sip
-      where
-        sg -> 'properties' ->> 'access' = 'Allow'
-        and sg -> 'properties' ->> 'direction' = 'Inbound'
-        and (sg -> 'properties' ->> 'protocol' ilike 'TCP' or sg -> 'properties' ->> 'protocol' = '*')
-        and sip in ('*', '0.0.0.0', '0.0.0.0/0', 'Internet', 'any', '<nw>/0', '/0')
-        and (
-          dport in ('5432', '*')
-          or (
-            dport like '%-%'
-            and (
-              split_part(dport, '-', 1) :: integer = 5432
-              and split_part(dport, '-', 2) :: integer = 5432
-            )
-          )
-        )
-    )
-    select
-      sg.id resource,
-      sg.og_account_id as og_account_id,
-      sg.og_resource_id as og_resource_id,
-      case
-        when nsg.sg_name is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when nsg.sg_name is null then sg.title || ' restricts TCP port 5432 access from internet.'
-        else sg.title || ' allows TCP port 5432 access from internet.'
-      end as reason
-    from
-      azure_network_security_group sg
-      left join unrestricted_inbound nsg on nsg.sg_name = sg.name
-      join azure_subscription sub on sub.subscription_id = sg.subscription_id;
-  PrimaryTable: azure_network_security_group
   ListOfTables:
     - azure_network_security_group
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_network_security_group
+  QueryToExecute: |
+    WITH unrestricted_inbound AS (
+      SELECT DISTINCT
+        name AS sg_name
+      FROM
+        azure_network_security_group nsg,
+        jsonb_array_elements(security_rules || default_security_rules) AS sg,
+        jsonb_array_elements_text(
+          CASE
+            WHEN jsonb_array_length(sg -> 'properties' -> 'destinationPortRanges') > 0 
+              THEN (sg -> 'properties' -> 'destinationPortRanges')
+            ELSE jsonb_build_array(sg -> 'properties' -> 'destinationPortRange')
+          END
+        ) AS dport,
+        jsonb_array_elements_text(
+          CASE
+            WHEN jsonb_array_length(sg -> 'properties' -> 'sourceAddressPrefixes') > 0 
+              THEN (sg -> 'properties' -> 'sourceAddressPrefixes')
+            ELSE jsonb_build_array(sg -> 'properties' -> 'sourceAddressPrefix')
+          END
+        ) AS sip
+      WHERE
+        sg -> 'properties' ->> 'access' = 'Allow'
+        AND sg -> 'properties' ->> 'direction' = 'Inbound'
+        AND (
+          sg -> 'properties' ->> 'protocol' ILIKE 'TCP' 
+          OR sg -> 'properties' ->> 'protocol' = '*'
+        )
+        AND sip IN ('*', '0.0.0.0', '0.0.0.0/0', 'Internet', 'any', '<nw>/0', '/0')
+        AND (
+          dport IN ('5432', '*')
+          OR (
+            dport LIKE '%-%'
+            AND (
+              split_part(dport, '-', 1)::integer = 5432
+              AND split_part(dport, '-', 2)::integer = 5432
+            )
+          )
+        )
+    )
+    SELECT
+      sg.id AS resource,
+      sg.og_account_id AS og_account_id,
+      sg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN nsg.sg_name IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN nsg.sg_name IS NULL THEN sg.title || ' restricts TCP port 5432 access from internet.'
+        ELSE sg.title || ' allows TCP port 5432 access from internet.'
+      END AS reason
+    FROM
+      azure_network_security_group sg
+    LEFT JOIN unrestricted_inbound nsg 
+      ON nsg.sg_name = sg.name
+    JOIN azure_subscription sub 
+      ON sub.subscription_id = sg.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Network security groups should restrict inbound TCP port 5432 access from internet

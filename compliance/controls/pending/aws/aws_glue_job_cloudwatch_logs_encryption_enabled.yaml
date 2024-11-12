@@ -1,13 +1,27 @@
+Description: Ensure Glue jobs have CloudWatch logs encryption enabled to protect sensitive information at rest.
 ID: aws_glue_job_cloudwatch_logs_encryption_enabled
-Title: "Glue jobs CloudWatch logs encryption should be enabled"
-Description: "Ensure Glue jobs have CloudWatch logs encryption enabled to protect sensitive information at rest."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  j.arn as resource,\n  case\n    when cloud_watch_encryption is not null and cloud_watch_encryption ->> 'CloudWatchEncryptionMode' != 'DISABLED' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when cloud_watch_encryption is not null and cloud_watch_encryption ->> 'CloudWatchEncryptionMode' != 'DISABLED' then j.title || ' CloudWatch logs encryption enabled.'\n    else j.title || ' CloudWatch logs encryption disabled.'\n  end as reason\n  \nfrom\n  aws_glue_job as j\n  left join aws_glue_security_configuration as c on j.security_configuration = c.name;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      j.arn AS resource,
+      CASE
+        WHEN cloud_watch_encryption IS NOT NULL AND cloud_watch_encryption ->> 'CloudWatchEncryptionMode' != 'DISABLED' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN cloud_watch_encryption IS NOT NULL AND cloud_watch_encryption ->> 'CloudWatchEncryptionMode' != 'DISABLED' THEN j.title || ' CloudWatch logs encryption enabled.'
+        ELSE j.title || ' CloudWatch logs encryption disabled.'
+      END AS reason
+    FROM
+      aws_glue_job AS j
+    LEFT JOIN
+      aws_glue_security_configuration AS c ON j.security_configuration = c.name;
+Severity: low
+Tags: {}
+Title: Glue jobs CloudWatch logs encryption should be enabled

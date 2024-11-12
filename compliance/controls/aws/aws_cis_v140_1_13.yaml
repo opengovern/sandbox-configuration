@@ -1,24 +1,33 @@
+Description: Access keys are long-term credentials for an IAM user or the AWS account root user. You can use access keys to sign programmatic requests to the AWS CLI or AWS API (directly or using the AWS SDK).
 ID: aws_cis_v140_1_13
-Title: "1.13 Ensure there is only one active access key available for any single IAM user"
-Description: "Access keys are long-term credentials for an IAM user or the AWS account root user. You can use access keys to sign programmatic requests to the AWS CLI or AWS API (directly or using the AWS SDK)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      u.arn as resource,
-      u.og_account_id as og_account_id,
-      u.og_resource_id as og_resource_id,
-      case
-        when count(k.*) > 1 then 'alarm'
-        else 'ok'
-      end as status,
-      u.name || ' has ' || count(k.*) || ' active access key(s).' as reason
-    from
-      aws_iam_user as u
-      left join aws_iam_access_key as k on u.name = k.user_name and u.account_id = k.account_id
-    where
-      k.status = 'Active' or k.status is null
-    group by
+  ListOfTables:
+    - aws_iam_user
+    - aws_iam_access_key
+  Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT
+      u.arn AS resource,
+      u.og_account_id AS og_account_id,
+      u.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(k.*) > 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      u.name || ' has ' || COUNT(k.*) || ' active access key(s).' AS reason
+    FROM
+      aws_iam_user AS u
+    LEFT JOIN
+      aws_iam_access_key AS k
+      ON u.name = k.user_name
+      AND u.account_id = k.account_id
+    WHERE
+      k.status = 'Active' OR k.status IS NULL
+    GROUP BY
       u.arn,
       u.name,
       u.account_id,
@@ -26,12 +35,6 @@ Query:
       u._ctx,
       u.og_account_id,
       u.og_resource_id;
-  PrimaryTable: aws_iam_user
-  ListOfTables:
-    - aws_iam_user
-    - aws_iam_access_key
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.13 Ensure there is only one active access key available for any single IAM user

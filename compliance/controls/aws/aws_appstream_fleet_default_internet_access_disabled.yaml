@@ -1,28 +1,28 @@
+Description: Enabling default internet access for AppStream fleet is not recommended. This control will be considered non-compliant if default internet access is enabled for AppStream fleet.
 ID: aws_appstream_fleet_default_internet_access_disabled
-Title: "AppStream fleet default internet access should be disabled"
-Description: "Enabling default internet access for AppStream fleet is not recommended. This control will be considered non-compliant if default internet access is enabled for AppStream fleet."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when enable_default_internet_access then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when enable_default_internet_access then title || ' has default internet access enabled.'
-        else title || ' has default internet access disabled.'
-      end as reason
-    from
-      aws_appstream_fleet;
-  PrimaryTable: aws_appstream_fleet
   ListOfTables:
     - aws_appstream_fleet
   Parameters: []
+  PrimaryTable: aws_appstream_fleet
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_default_internet_access THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN enable_default_internet_access THEN title || ' has default internet access enabled.'
+        ELSE title || ' has default internet access disabled.'
+      END AS reason
+    FROM
+      aws_appstream_fleet;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: AppStream fleet default internet access should be disabled

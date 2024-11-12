@@ -1,44 +1,44 @@
+Description: Manage access to resources in the AWS Cloud by ensuring MFA is enabled for users with administrative privileges.
 ID: aws_iam_user_with_administrator_access_mfa_enabled
-Title: "IAM administrator users should have MFA enabled"
-Description: "Manage access to resources in the AWS Cloud by ensuring MFA is enabled for users with administrative privileges."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with admin_users as (
-      select
-        user_id,
-        name,
-        attachments
-      from
-        aws_iam_user,
-        jsonb_array_elements_text(attached_policy_arns) as attachments
-      where
-        split_part(attachments, '/', 2) = 'AdministratorAccess'
-    )
-    select
-      u.arn as resource,
-      u.og_account_id as og_account_id,
-      u.og_resource_id as og_resource_id,
-      case
-        when au.user_id is null then 'skip'
-        when au.user_id is not null and u.mfa_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when au.user_id is null then u.name || ' does not have administrator access.'
-        when au.user_id is not null and u.mfa_enabled then u.name || ' has MFA token enabled.'
-        else u.name || ' has MFA token disabled.'
-      end as reason
-    from
-      aws_iam_user as u
-      left join admin_users au on u.user_id = au.user_id
-    order by
-      u.name;
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    WITH admin_users AS (
+      SELECT
+        user_id,
+        name,
+        attachments
+      FROM
+        aws_iam_user,
+        jsonb_array_elements_text(attached_policy_arns) AS attachments
+      WHERE
+        split_part(attachments, '/', 2) = 'AdministratorAccess'
+    )
+    SELECT
+      u.arn AS resource,
+      u.og_account_id AS og_account_id,
+      u.og_resource_id AS og_resource_id,
+      CASE
+        WHEN au.user_id IS NULL THEN 'skip'
+        WHEN au.user_id IS NOT NULL AND u.mfa_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN au.user_id IS NULL THEN u.name || ' does not have administrator access.'
+        WHEN au.user_id IS NOT NULL AND u.mfa_enabled THEN u.name || ' has MFA token enabled.'
+        ELSE u.name || ' has MFA token disabled.'
+      END AS reason
+    FROM
+      aws_iam_user AS u
+      LEFT JOIN admin_users au ON u.user_id = au.user_id
+    ORDER BY
+      u.name;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: IAM administrator users should have MFA enabled

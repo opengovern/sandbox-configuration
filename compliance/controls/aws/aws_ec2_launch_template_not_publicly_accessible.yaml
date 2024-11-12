@@ -1,14 +1,49 @@
+Description: This control checks if AWS EC2 launch templates are configured to assign public IP addresses to network interfaces upon launch. The control fails if an EC2 launch template is configured to assign a public IP address to network interfaces or if there is at least one network interface that has a public IP address.
 ID: aws_ec2_launch_template_not_publicly_accessible
-Title: "AWS EC2 launch templates should not assign public IPs to network interfaces"
-Description: "This control checks if AWS EC2 launch templates are configured to assign public IP addresses to network interfaces upon launch. The control fails if an EC2 launch template is configured to assign a public IP address to network interfaces or if there is at least one network interface that has a public IP address."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with public_launch_templates as (\n  select\n    i.tags ->> 'aws:ec2launchtemplate:id' as public_launch_template_id\n  from\n    aws_ec2_instance as i,\n    jsonb_array_elements(launch_template_data -> 'NetworkInterfaces') as nic\n  where\n    (nic -> 'AssociatePublicIpAddress')::bool\n),\nlaunch_templates_associated_instance as (\n  select\n    distinct tags ->> 'aws:ec2launchtemplate:id' as launch_template_id\n  from\n    aws_ec2_instance\n)\nselect\n  t.launch_template_id as resource,\n  t.og_account_id as og_account_id,\n  t.og_resource_id as og_resource_id,\n  case\n    when i.launch_template_id is null then 'skip'\n    when t.launch_template_id in ( select public_launch_template_id from public_launch_templates ) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when i.launch_template_id is null then t.title || ' does not launch any instance.'\n    when t.launch_template_id in ( select public_launch_template_id from public_launch_templates ) then t.title || ' publicly accessible.'\n    else t.title || ' not publicly accessible.'\n  end as reason\n  \n  , t.region, t.account_id\nfrom\n  aws_ec2_launch_template as t\n  left join launch_templates_associated_instance as i on i.launch_template_id = t.launch_template_id;\n"
-  PrimaryTable: aws_ec2_launch_template
   ListOfTables:
     - aws_ec2_instance
     - aws_ec2_launch_template
   Parameters: []
+  PrimaryTable: aws_ec2_launch_template
+  QueryToExecute: |
+    WITH public_launch_templates AS (
+      SELECT
+        i.tags ->> 'aws:ec2launchtemplate:id' AS public_launch_template_id
+      FROM
+        aws_ec2_instance AS i,
+        JSONB_ARRAY_ELEMENTS(launch_template_data -> 'NetworkInterfaces') AS nic
+      WHERE
+        (nic -> 'AssociatePublicIpAddress')::BOOL
+    ),
+    launch_templates_associated_instance AS (
+      SELECT
+        DISTINCT tags ->> 'aws:ec2launchtemplate:id' AS launch_template_id
+      FROM
+        aws_ec2_instance
+    )
+    SELECT
+      t.launch_template_id AS resource,
+      t.og_account_id AS og_account_id,
+      t.og_resource_id AS og_resource_id,
+      CASE
+        WHEN i.launch_template_id IS NULL THEN 'skip'
+        WHEN t.launch_template_id IN (SELECT public_launch_template_id FROM public_launch_templates) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.launch_template_id IS NULL THEN t.title || ' does not launch any instance.'
+        WHEN t.launch_template_id IN (SELECT public_launch_template_id FROM public_launch_templates) THEN t.title || ' publicly accessible.'
+        ELSE t.title || ' not publicly accessible.'
+      END AS reason,
+      t.region,
+      t.account_id
+    FROM
+      aws_ec2_launch_template AS t
+      LEFT JOIN launch_templates_associated_instance AS i ON i.launch_template_id = t.launch_template_id;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -23,5 +58,4 @@ Tags:
     - aws
   service:
     - AWS/EC2
-IntegrationType:
-  - aws_cloud_account
+Title: AWS EC2 launch templates should not assign public IPs to network interfaces

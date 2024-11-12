@@ -1,19 +1,51 @@
+Description: Although SSH itself provides an encrypted connection, using passwords with SSH still leaves the VM vulnerable to brute-force attacks. The most secure option for authenticating to an Azure Linux virtual machine over SSH is with a public-private key pair, also known as SSH keys.
 ID: azure_compute_vm_ssh_key_authentication_linux
-Title: "Authentication to Linux machines should require SSH keys"
-Description: "Although SSH itself provides an encrypted connection, using passwords with SSH still leaves the VM vulnerable to brute-force attacks. The most secure option for authenticating to an Azure Linux virtual machine over SSH is with a public-private key pair, also known as SSH keys."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with vm_ssh_key_auth as (\n  select\n    distinct a.vm_id\n  from\n    azure_compute_virtual_machine as a,\n    jsonb_array_elements(guest_configuration_assignments) as b\n  where\n    b -> 'guestConfiguration' ->> 'name'= 'LinuxNoPasswordForSSH'\n    and b ->> 'complianceStatus' = 'Compliant'\n)\nselect\n  a.vm_id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.os_type <> 'Linux' then 'skip'\n    when b.vm_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.os_type <> 'Linux' then a.title || ' is of ' || a.os_type || ' operating system.'\n    when b.vm_id is not null then a.title || ' have SSH keys authentication.'\n    else a.title || ' does not have SSH keys authentication.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_compute_virtual_machine as a\n  left join vm_ssh_key_auth as b on a.vm_id = b.vm_id,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    WITH vm_ssh_key_auth AS (
+      SELECT
+        DISTINCT a.vm_id
+      FROM
+        azure_compute_virtual_machine AS a,
+        jsonb_array_elements(guest_configuration_assignments) AS b
+      WHERE
+        b -> 'guestConfiguration' ->> 'name' = 'LinuxNoPasswordForSSH'
+        AND b ->> 'complianceStatus' = 'Compliant'
+    )
+    SELECT
+      a.vm_id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.os_type <> 'Linux' THEN 'skip'
+        WHEN b.vm_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.os_type <> 'Linux' THEN a.title || ' is of ' || a.os_type || ' operating system.'
+        WHEN b.vm_id IS NOT NULL THEN a.title || ' have SSH keys authentication.'
+        ELSE a.title || ' does not have SSH keys authentication.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS a
+      LEFT JOIN vm_ssh_key_auth AS b ON a.vm_id = b.vm_id,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/Compute
-IntegrationType:
-  - azure_subscription
+Title: Authentication to Linux machines should require SSH keys

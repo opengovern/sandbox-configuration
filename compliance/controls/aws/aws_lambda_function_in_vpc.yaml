@@ -1,13 +1,30 @@
+Description: Deploy AWS Lambda functions within an AWS Virtual Private Cloud (AWS VPC) for a secure communication between a function and other services within the AWS VPC.
 ID: aws_lambda_function_in_vpc
-Title: "Lambda functions should be in a VPC"
-Description: "Deploy AWS Lambda functions within an AWS Virtual Private Cloud (AWS VPC) for a secure communication between a function and other services within the AWS VPC."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when vpc_id is null or vpc_id = '' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when vpc_id is null or vpc_id = '' then title || ' is not in VPC.'\n    else title || ' is in VPC ' || vpc_id || '.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_lambda_function;\n"
-  PrimaryTable: aws_lambda_function
   ListOfTables:
     - aws_lambda_function
   Parameters: []
+  PrimaryTable: aws_lambda_function
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN vpc_id IS NULL OR vpc_id = '' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN vpc_id IS NULL OR vpc_id = '' THEN title || ' is not in VPC.'
+        ELSE title || ' is in VPC ' || vpc_id || '.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_lambda_function;
 Severity: medium
 Tags:
   category:
@@ -28,11 +45,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -46,5 +63,4 @@ Tags:
     - AWS/Lambda
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Lambda functions should be in a VPC

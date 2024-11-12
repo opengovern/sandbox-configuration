@@ -1,14 +1,34 @@
+Description: Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks.
 ID: azure_appservice_web_app_use_https
-Title: "Web Application should only be accessible over HTTPS"
-Description: "Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  app.id as resource,\n  app.og_account_id as og_account_id,\n  app.og_resource_id as og_resource_id,\n  case\n    when not https_only then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not https_only then name || ' does not redirect all HTTP traffic to HTTPS.'\n    else name || ' redirects all HTTP traffic to HTTPS.'\n  end as reason\n  \n  , app.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_web_app as app,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = app.subscription_id;\n"
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT https_only THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT https_only THEN name || ' does not redirect all HTTP traffic to HTTPS.'
+        ELSE name || ' redirects all HTTP traffic to HTTPS.'
+      END AS reason,
+      app.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_web_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: Web Application should only be accessible over HTTPS

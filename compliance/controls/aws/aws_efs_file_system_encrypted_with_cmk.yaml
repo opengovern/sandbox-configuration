@@ -1,14 +1,44 @@
+Description: Ensure AWS Elastic File Systems (AWS EFS) are encrypted using CMK. The rule is non-compliant if the EFS File System is not encrypted using CMK.
 ID: aws_efs_file_system_encrypted_with_cmk
-Title: "EFS file systems should be encrypted with CMK"
-Description: "Ensure AWS Elastic File Systems (AWS EFS) are encrypted using CMK. The rule is non-compliant if the EFS File System is not encrypted using CMK."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with encrypted_fs as (\n  select\n    fs.arn as arn,\n    key_manager\n  from\n    aws_efs_file_system as fs\n    left join aws_kms_key as k on fs.kms_key_id = k.arn\n  where\n    enabled\n)\nselect\n  f.arn as resource,\n  f.og_account_id as og_account_id,\n  f.og_resource_id as og_resource_id,\n  case\n    when not encrypted then 'alarm'\n    when encrypted and e.key_manager = 'CUSTOMER' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not encrypted then title || ' not encrypted.'\n    when encrypted and e.key_manager = 'CUSTOMER' then title || ' encrypted with CMK.'\n    else title || ' not encrypted with CMK.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_efs_file_system as f\n  left join encrypted_fs as e on f.arn = e.arn;\n"
-  PrimaryTable: aws_efs_file_system
   ListOfTables:
     - aws_efs_file_system
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_efs_file_system
+  QueryToExecute: |
+    WITH encrypted_fs AS (
+      SELECT
+        fs.arn AS arn,
+        key_manager
+      FROM
+        aws_efs_file_system AS fs
+        LEFT JOIN aws_kms_key AS k ON fs.kms_key_id = k.arn
+      WHERE
+        enabled
+    )
+    SELECT
+      f.arn AS resource,
+      f.og_account_id AS og_account_id,
+      f.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT encrypted THEN 'alarm'
+        WHEN encrypted AND e.key_manager = 'CUSTOMER' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT encrypted THEN title || ' not encrypted.'
+        WHEN encrypted AND e.key_manager = 'CUSTOMER' THEN title || ' encrypted with CMK.'
+        ELSE title || ' not encrypted with CMK.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_efs_file_system AS f
+      LEFT JOIN encrypted_fs AS e ON f.arn = e.arn
 Severity: high
 Tags:
   category:
@@ -21,5 +51,4 @@ Tags:
     - aws
   service:
     - AWS/EFS
-IntegrationType:
-  - aws_cloud_account
+Title: EFS file systems should be encrypted with CMK

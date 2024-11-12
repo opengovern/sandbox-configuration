@@ -1,14 +1,36 @@
+Description: The key vault contains object keys, secrets and certificates. Accidental unavailability of a key vault can cause immediate data loss or loss of security functions (authentication, validation, verification, non-repudiation, etc.) supported by the key vault objects. It is recommended the key vault be made recoverable by enabling the "Do Not Purge" and "Soft Delete" functions.
 ID: azure_keyvault_vault_recoverable
-Title: "Ensure the key vault is recoverable"
-Description: "The key vault contains object keys, secrets and certificates. Accidental unavailability of a key vault can cause immediate data loss or loss of security functions (authentication, validation, verification, non-repudiation, etc.) supported by the key vault objects. It is recommended the key vault be made recoverable by enabling the \\\"Do Not Purge\\\" and \\\"Soft Delete\\\" functions."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  kv.id as resource,\n  kv.og_account_id as og_account_id,\n  kv.og_resource_id as og_resource_id,\n  case\n    when soft_delete_enabled and purge_protection_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when not soft_delete_enabled and not purge_protection_enabled then name || ' \"soft delete\" and \"do not purge\" not enabled.'\n    when not soft_delete_enabled then name || ' \"soft delete\" not enabled.'\n    when not purge_protection_enabled then name || ' \"do not purge\" not enabled.'\n    else name || ' \"soft delete\" and \"do not purge\" enabled.'\n  end as reason\n  \n  , kv.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_key_vault kv,\n  azure_subscription sub\nwhere\n  sub.subscription_id = kv.subscription_id;\n"
-  PrimaryTable: azure_key_vault
   ListOfTables:
     - azure_key_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: |
+    SELECT 
+      kv.id AS resource,
+      kv.og_account_id AS og_account_id,
+      kv.og_resource_id AS og_resource_id,
+      CASE
+        WHEN soft_delete_enabled AND purge_protection_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN NOT soft_delete_enabled AND NOT purge_protection_enabled THEN name || ' "soft delete" and "do not purge" not enabled.'
+        WHEN NOT soft_delete_enabled THEN name || ' "soft delete" not enabled.'
+        WHEN NOT purge_protection_enabled THEN name || ' "do not purge" not enabled.'
+        ELSE name || ' "soft delete" and "do not purge" enabled.'
+      END AS reason,
+      kv.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault kv,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = kv.subscription_id;
 Severity: critical
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/KeyVault
-IntegrationType:
-  - azure_subscription
+Title: Ensure the key vault is recoverable

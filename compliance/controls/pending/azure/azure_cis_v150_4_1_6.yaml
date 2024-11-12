@@ -1,13 +1,31 @@
+Description: SQL Server Audit Retention should be configured to be greater than 90 days.
 ID: azure_cis_v150_4_1_6
-Title: "4.1.6 Ensure that 'Auditing' Retention is 'greater than 90 days'"
-Description: "SQL Server Audit Retention should be configured to be greater than 90 days."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  case\n    when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then 'ok'\n    when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when (audit -> 'properties' ->> 'retentionDays')::integer = 0 then name || ' audit retention set to unlimited days.'\n    when (audit -> 'properties' ->> 'retentionDays')::integer >= 90 then name || ' audit retention greater than 90 days.'\n    else  name || ' audit retention less than 90 days.'\n  end as reason\n  \n  \n  \nfrom\n  azure_sql_server s,\n  jsonb_array_elements(server_audit_policy) audit,\n  azure_subscription sub\nwhere\n  sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      CASE
+        WHEN (audit -> 'properties' ->> 'retentionDays')::integer = 0 THEN 'ok'
+        WHEN (audit -> 'properties' ->> 'retentionDays')::integer >= 90 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (audit -> 'properties' ->> 'retentionDays')::integer = 0 THEN name || ' audit retention set to unlimited days.'
+        WHEN (audit -> 'properties' ->> 'retentionDays')::integer >= 90 THEN name || ' audit retention greater than 90 days.'
+        ELSE name || ' audit retention less than 90 days.'
+      END AS reason
+    FROM
+      azure_sql_server s,
+      jsonb_array_elements(server_audit_policy) audit,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
+Severity: low
+Tags: {}
+Title: 4.1.6 Ensure that 'Auditing' Retention is 'greater than 90 days'

@@ -1,14 +1,35 @@
+Description: Ensure that OpenSearch domains are encrypted with KMS Customer Master Keys (CMKs).
 ID: aws_opensearch_domain_encrypted_with_kms_cmks
-Title: "OpenSearch Domain Encrypted with KMS CMKs"
-Description: "Ensure that OpenSearch domains are encrypted with KMS Customer Master Keys (CMKs)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN kms.key_manager is NULL THEN 'alarm'\n    WHEN kms.key_manager = 'AWS' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN kms.key_manager is NULL THEN domain_name || ' encryption with kms key not enabled' \n    WHEN kms.key_manager = 'AWS' THEN domain_name || ' is not encrypted with CMK' \n    ELSE domain_name || ' is encrypted with CMK'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n  left join (select arn, key_manager from aws_kms_key) kms on (encryption_at_rest_options ->> 'KmsKeyId') = kms.arn\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_kms_key
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      domain_name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN kms.key_manager IS NULL THEN 'alarm'
+        WHEN kms.key_manager = 'AWS' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kms.key_manager IS NULL THEN domain_name || ' encryption with kms key not enabled'
+        WHEN kms.key_manager = 'AWS' THEN domain_name || ' is not encrypted with CMK'
+        ELSE domain_name || ' is encrypted with CMK'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_opensearch_domain
+    LEFT JOIN (SELECT arn, key_manager FROM aws_kms_key) kms
+      ON (encryption_at_rest_options ->> 'KmsKeyId') = kms.arn
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +40,4 @@ Tags:
     - AWS OpenSearch Service
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch Domain Encrypted with KMS CMKs

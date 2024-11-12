@@ -1,13 +1,43 @@
+Description: This control checks if the privileged parameter in the container definition of AWS ECS Task Definitions is set to true. The control fails if this parameter is equal to true.
 ID: aws_ecs_task_definition_container_non_privileged
-Title: "ECS containers should run as non-privileged"
-Description: "This control checks if the privileged parameter in the container definition of AWS ECS Task Definitions is set to true. The control fails if this parameter is equal to true."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with privileged_container_definition as (\n  select\n    distinct task_definition_arn as arn\n  from\n    aws_ecs_task_definition,\n    jsonb_array_elements(container_definitions) as c\n  where\n    c ->> 'Privileged' = 'true'\n)\nselect\n  d.task_definition_arn as resource,\n  d.og_account_id as og_account_id,\n  d.og_resource_id as og_resource_id,\n  case\n    when c.arn is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when c.arn is null then d.title || ' does not have elevated privileges.'\n    else d.title || ' has elevated privileges.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ecs_task_definition as d\n  left join privileged_container_definition as c on d.task_definition_arn = c.arn;\n"
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH privileged_container_definition AS (
+      SELECT DISTINCT
+        task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c
+      WHERE
+        c ->> 'Privileged' = 'true'
+    )
+    SELECT
+      d.task_definition_arn AS resource,
+      d.og_account_id AS og_account_id,
+      d.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN c.arn IS NULL THEN d.title || ' does not have elevated privileges.'
+        ELSE d.title || ' has elevated privileges.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ecs_task_definition AS d
+    LEFT JOIN
+      privileged_container_definition AS c
+    ON
+      d.task_definition_arn = c.arn;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -22,5 +52,4 @@ Tags:
     - aws
   service:
     - AWS/ECS
-IntegrationType:
-  - aws_cloud_account
+Title: ECS containers should run as non-privileged

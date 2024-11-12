@@ -1,29 +1,30 @@
+Description: Ensure RDS instances aren't public facing to minimise security risks.
 ID: aws_rds_publicly_accessible
-Title: "RDS Publicly Accessible"
-Description: "Ensure RDS instances aren't public facing to minimise security risks."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when publicly_accessible then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when publicly_accessible then title || ' publicly accessible.'
-        else title || ' not publicly accessible.'
-      end reason,
-      region,
-      account_id
-    from
-      aws_rds_db_instance;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN publicly_accessible THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN publicly_accessible THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_instance;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: RDS Publicly Accessible

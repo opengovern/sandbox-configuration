@@ -1,14 +1,28 @@
+Description: This control checks whether Amazon EFS access points are configured to enforce a user identity. This control fails if a POSIX user identity is not defined while creating the EFS access point.
 ID: aws_foundational_security_efs_4
-Title: "4 EFS access points should enforce a user identity"
-Description: "This control checks whether Amazon EFS access points are configured to enforce a user identity. This control fails if a POSIX user identity is not defined while creating the EFS access point."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  access_point_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when posix_user is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when posix_user is null then title || ' does not enforce a user identity.'\n    else title || ' enforces a user identity.'\n  end as reason\n  \n  \nfrom\n  aws_efs_access_point;"
-  PrimaryTable: aws_efs_access_point
   ListOfTables:
     - aws_efs_access_point
   Parameters: []
+  PrimaryTable: aws_efs_access_point
+  QueryToExecute: |
+    SELECT
+      access_point_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN posix_user IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN posix_user IS NULL THEN title || ' does not enforce a user identity.'
+        ELSE title || ' enforces a user identity.'
+      END AS reason
+    FROM
+      aws_efs_access_point;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 4 EFS access points should enforce a user identity

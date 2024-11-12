@@ -1,19 +1,38 @@
+Description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
 ID: azure_network_public_ip_no_basic_sku
-Title: "Network public IPs should use standard SKUs as a minimum"
-Description: "The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  i.id as resource,\n  i.og_account_id as og_account_id,\n  i.og_resource_id as og_resource_id,\n  case\n    when i.sku_name = 'Basic' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when i.sku_name = 'Basic' then i.title || ' using basic SKU.'\n    else i.title || ' using ' || sku_name || ' SKU.'\n  end as reason\n  \n  , i.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_public_ip as i,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = i.subscription_id;\n"
-  PrimaryTable: azure_public_ip
   ListOfTables:
     - azure_public_ip
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_public_ip
+  QueryToExecute: |
+    SELECT
+      i.id AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN i.sku_name = 'Basic' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.sku_name = 'Basic' THEN i.title || ' using basic SKU.'
+        ELSE i.title || ' using ' || sku_name || ' SKU.'
+      END AS reason,
+      i.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_public_ip AS i,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = i.subscription_id;
 Severity: low
 Tags:
   cis:
     - "true"
   service:
     - Azure/Network
-IntegrationType:
-  - azure_subscription
+Title: Network public IPs should use standard SKUs as a minimum

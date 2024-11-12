@@ -1,29 +1,29 @@
+Description: This control checks whether any EC2 instances have been stopped for more than the allowed number of days. An EC2 instance fails this check if it is stopped for longer than the maximum allowed time period, which by default is 30 days.
 ID: aws_foundational_security_ec2_4
-Title: "4 Stopped EC2 instances should be removed after a specified time period"
-Description: "This control checks whether any EC2 instances have been stopped for more than the allowed number of days. An EC2 instance fails this check if it is stopped for longer than the maximum allowed time period, which by default is 30 days."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when instance_state not in ('stopped', 'stopping') then 'skip'
-        when state_transition_time <= (current_date - interval '30' day) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when instance_state not in ('stopped', 'stopping') then title || ' is in ' || instance_state || ' state.'
-        else title || ' stopped since ' || to_char(state_transition_time , 'DD-Mon-YYYY') || ' (' || extract(day from current_timestamp - state_transition_time) || ' days).'
-      end as reason
-    from
-      aws_ec2_instance;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN instance_state NOT IN ('stopped', 'stopping') THEN 'skip'
+        WHEN state_transition_time <= (CURRENT_DATE - INTERVAL '30' DAY) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN instance_state NOT IN ('stopped', 'stopping') THEN title || ' is in ' || instance_state || ' state.'
+        ELSE title || ' stopped since ' || TO_CHAR(state_transition_time , 'DD-Mon-YYYY') || ' (' || EXTRACT(DAY FROM CURRENT_TIMESTAMP - state_transition_time) || ' days).'
+      END AS reason
+    FROM
+      aws_ec2_instance;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 4 Stopped EC2 instances should be removed after a specified time period

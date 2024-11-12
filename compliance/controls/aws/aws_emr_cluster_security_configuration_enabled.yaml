@@ -1,14 +1,28 @@
+Description: Ensure EMR cluster have security configuration enabled. This control fails if security configuration is not enabled for EMR cluster.
 ID: aws_emr_cluster_security_configuration_enabled
-Title: "EMR clusters should have security configuration enabled"
-Description: "Ensure EMR cluster have security configuration enabled. This control fails if security configuration is not enabled for EMR cluster."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  cluster_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when security_configuration is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when security_configuration is not null then title || ' security configuration enabled.'\n    else title || ' security configuration disabled.'\n  end as reason\n  \n  \nfrom\n  aws_emr_cluster;"
-  PrimaryTable: aws_emr_cluster
   ListOfTables:
     - aws_emr_cluster
   Parameters: []
+  PrimaryTable: aws_emr_cluster
+  QueryToExecute: |
+    SELECT
+      cluster_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN security_configuration IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN security_configuration IS NOT NULL THEN title || ' security configuration enabled.'
+        ELSE title || ' security configuration disabled.'
+      END AS reason
+    FROM
+      aws_emr_cluster;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EMR clusters should have security configuration enabled

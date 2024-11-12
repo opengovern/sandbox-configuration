@@ -1,31 +1,32 @@
+Description: Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts.
 ID: azure_enable_infrastructure_encryption
-Title: "Enable Infrastructure Encryption"
-Description: "Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when require_infrastructure_encryption is null or require_infrastructure_encryption = 'false' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when require_infrastructure_encryption is null or require_infrastructure_encryption = 'false' then a.name || ' Infrastructure Encryption feature is not enabled.'
-        else a.name || ' Infrastructure Encryption feature is not enabled.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN a.name || ' Infrastructure Encryption feature is not enabled.'
+        ELSE a.name || ' Infrastructure Encryption feature is enabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS a
+      LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - azure_subscription
+Title: Enable Infrastructure Encryption

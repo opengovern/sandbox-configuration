@@ -1,14 +1,28 @@
+Description: Ensure that there are no Auto Scaling Groups (ASGs) with suspended processes provisioned in your AWS account in order to avoid disrupting the auto scaling workflow.
 ID: aws_autoscaling_group_no_suspended_process
-Title: "Auto Scaling groups should not have any suspended processes"
-Description: "Ensure that there are no Auto Scaling Groups (ASGs) with suspended processes provisioned in your AWS account in order to avoid disrupting the auto scaling workflow."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  autoscaling_group_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when suspended_processes is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when suspended_processes is null then title || ' has no suspended process.'\n    else title || ' has suspended process.'\n  end as reason\n  \n  \nfrom\n  aws_ec2_autoscaling_group;"
-  PrimaryTable: aws_ec2_autoscaling_group
   ListOfTables:
     - aws_ec2_autoscaling_group
   Parameters: []
+  PrimaryTable: aws_ec2_autoscaling_group
+  QueryToExecute: |
+    SELECT
+      autoscaling_group_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN suspended_processes IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN suspended_processes IS NULL THEN title || ' has no suspended process.'
+        ELSE title || ' has suspended process.'
+      END AS reason
+    FROM
+      aws_ec2_autoscaling_group;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Auto Scaling groups should not have any suspended processes

@@ -1,42 +1,42 @@
+Description: Role assume policies can provide access to roles in external AWS accounts.
 ID: aws_iam_policy_custom_no_assume_role
-Title: "IAM roles should not have any assume role policies attached"
-Description: "Role assume policies can provide access to roles in external AWS accounts."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with filter_users as (
-      select
-        user_id,
-        name,
-        policies
-      from
-        aws_iam_user,
-        jsonb_array_elements_text(inline_policies) as policies
-      where
-        policies like '%AssumeRole%'
-    )
-    select
-      u.arn as resource,
-      u.og_account_id as og_account_id,
-      u.og_resource_id as og_resource_id,
-      case
-        when fu.user_id is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when fu.user_id is not null then u.name || ' custom policies allow STS Role assumption.'
-        else u.name || ' custom policies does not allow STS Role assumption.'
-      end as reason
-    from
-      aws_iam_user as u
-      left join filter_users as fu on u.user_id = fu.user_id
-    order by
-      u.name;
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    WITH filter_users AS (
+      SELECT
+        user_id,
+        name,
+        policies
+      FROM
+        aws_iam_user,
+        JSONB_ARRAY_ELEMENTS_TEXT(inline_policies) AS policies
+      WHERE
+        policies LIKE '%AssumeRole%'
+    )
+    SELECT
+      u.arn AS resource,
+      u.og_account_id AS og_account_id,
+      u.og_resource_id AS og_resource_id,
+      CASE
+        WHEN fu.user_id IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN fu.user_id IS NOT NULL THEN u.name || ' custom policies allow STS Role assumption.'
+        ELSE u.name || ' custom policies does not allow STS Role assumption.'
+      END AS reason
+    FROM
+      aws_iam_user AS u
+    LEFT JOIN filter_users AS fu ON u.user_id = fu.user_id
+    ORDER BY
+      u.name;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: IAM roles should not have any assume role policies attached

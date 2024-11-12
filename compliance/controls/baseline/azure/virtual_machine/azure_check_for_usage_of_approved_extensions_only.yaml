@@ -1,44 +1,47 @@
+Description: Ensure that only approved extensions are installed on your Microsoft Azure virtual machines.
 ID: azure_check_for_usage_of_approved_extensions_only
-Title: "Check for usage of Approved Extensions Only"
-Description: "Ensure that only approved extensions are installed on your Microsoft Azure virtual machines."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when exists(
-          select 1 from jsonb_array_elements(vm.extensions) as ex
-          where '{{.azureAllowedVmExtentions}}' not like '%' || (ex ->> 'name') || '%'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when exists(
-          select 1 from jsonb_array_elements(vm.extensions) as ex
-          where '{{.azureAllowedVmExtentions}}' not like '%' || (ex ->> 'name') || '%'
-        ) then 'VM is using a not allowed extention'
-        else 'VM is only using allowed extentions'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm
-      left join azure_subscription as sub on sub.subscription_id = vm.subscription_id
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters:
     - Key: azureAllowedVmExtentions
       Required: true
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(vm.extensions) AS ex
+          WHERE '{{.azureAllowedVmExtentions}}' NOT LIKE '%' || (ex ->> 'name') || '%'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(vm.extensions) AS ex
+          WHERE '{{.azureAllowedVmExtentions}}' NOT LIKE '%' || (ex ->> 'name') || '%'
+        ) THEN 'VM is using a not allowed extension'
+        ELSE 'VM is only using allowed extensions'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm
+    LEFT JOIN 
+      azure_subscription AS sub 
+    ON 
+      sub.subscription_id = vm.subscription_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for usage of Approved Extensions Only

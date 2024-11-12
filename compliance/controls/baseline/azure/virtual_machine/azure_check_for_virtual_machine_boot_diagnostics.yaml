@@ -1,38 +1,38 @@
+Description: Ensure that Microsoft Azure virtual machines are configured to use Boot Diagnostics feature.
 ID: azure_check_for_virtual_machine_boot_diagnostics
-Title: "Check for Virtual Machine Boot Diagnostics"
-Description: "Ensure that Microsoft Azure virtual machines are configured to use Boot Diagnostics feature."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when (boot_diagnostics_enabled)::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (boot_diagnostics_enabled)::bool then 'Boot Diagnostics feature is enabled'
-        else 'Boot Diagnostics feature is not enabled'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm,
-      azure_subscription as sub
-    where
-      sub.subscription_id = vm.subscription_id;
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN (boot_diagnostics_enabled)::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (boot_diagnostics_enabled)::bool THEN 'Boot Diagnostics feature is enabled'
+        ELSE 'Boot Diagnostics feature is not enabled'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for Virtual Machine Boot Diagnostics

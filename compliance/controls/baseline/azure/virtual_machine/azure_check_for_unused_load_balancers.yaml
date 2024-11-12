@@ -1,44 +1,52 @@
+Description: Identify and remove unused load balancers from your Microsoft Azure cloud account.
 ID: azure_check_for_unused_load_balancers
-Title: "Check for Unused Load Balancers"
-Description: "Identify and remove unused load balancers from your Microsoft Azure cloud account."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      lb.name as resource,
-      lb.og_resource_id,
-      lb.og_account_id,
-      case
-        when EXISTS (
-          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-          WHERE p -> 'properties' ->> 'backendIPConfigurations' is not null
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when EXISTS (
-              SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-              WHERE p -> 'properties' ->> 'backendIPConfigurations' is not null
-            ) then lb.name || ' is used.'
-        else lb.name || ' is unused.'
-      end as reason,
-      case
-        when EXISTS (
-          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-          WHERE p -> 'properties' ->> 'backendIPConfigurations' is not null
-        ) then 0
-        else (SELECT COALESCE(cost, 0) from pennywise_cost_estimate where resource_type = 'microsoft.network/loadbalancers' AND resource_id = lb.og_resource_id limit 1)
-      end as cost_optimization,
-      lb.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_lb as lb
-      left join azure_subscription as sub on lb.subscription_id = sub.subscription_id
-  PrimaryTable: azure_lb
   ListOfTables:
     - azure_lb
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_lb
+  QueryToExecute: |
+    SELECT
+      lb.name AS resource,
+      lb.og_resource_id,
+      lb.og_account_id,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
+          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
+          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
+        ) THEN lb.name || ' is used.'
+        ELSE lb.name || ' is unused.'
+      END AS reason,
+      CASE
+        WHEN EXISTS (
+          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
+          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
+        ) THEN 0
+        ELSE (
+          SELECT COALESCE(cost, 0)
+          FROM pennywise_cost_estimate
+          WHERE resource_type = 'microsoft.network/loadbalancers'
+            AND resource_id = lb.og_resource_id
+          LIMIT 1
+        )
+      END AS cost_optimization,
+      lb.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_lb AS lb
+    LEFT JOIN azure_subscription AS sub
+      ON lb.subscription_id = sub.subscription_id
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -49,5 +57,4 @@ Tags:
     - Azure Network
   score_tags:
     - Orphaned Resources
-IntegrationType:
-  - azure_subscription
+Title: Check for Unused Load Balancers

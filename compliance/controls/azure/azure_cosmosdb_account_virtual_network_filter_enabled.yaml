@@ -1,14 +1,36 @@
-ID: azure_cosmosdb_account_virtual_network_filter_enabled
-Title: "Ensure That 'Firewalls & Networks' Is Limited to Use Selected Networks Instead of All Networks"
 Description: ""
+ID: azure_cosmosdb_account_virtual_network_filter_enabled
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when public_network_access = 'Disabled' then 'ok'\n    when public_network_access = 'Enabled' and is_virtual_network_filter_enabled = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when public_network_access = 'Disabled' then a.name || ' public network access disabled.'\n    when public_network_access = 'Enabled' and is_virtual_network_filter_enabled = 'true' then a.name || ' virtual network filter enabled.'\n    else a.name || ' virtual network filter disabled.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_cosmosdb_account as a,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN public_network_access = 'Disabled' THEN 'ok'
+        WHEN public_network_access = 'Enabled' AND is_virtual_network_filter_enabled = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN public_network_access = 'Disabled' THEN a.name || ' public network access disabled.'
+        WHEN public_network_access = 'Enabled' AND is_virtual_network_filter_enabled = 'true' THEN a.name || ' virtual network filter enabled.'
+        ELSE a.name || ' virtual network filter disabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_cosmosdb_account AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: critical
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: Ensure That 'Firewalls & Networks' Is Limited to Use Selected Networks Instead of All Networks

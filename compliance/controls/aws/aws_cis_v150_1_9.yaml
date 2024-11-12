@@ -1,31 +1,34 @@
+Description: IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords.
 ID: aws_cis_v150_1_9
-Title: "1.9 Ensure IAM password policy prevents password reuse"
-Description: "IAM password policies can prevent the reuse of a given password by the same user. It is recommended that the password policy prevent the reuse of passwords."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || a.partition || ':::' || a.account_id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when password_reuse_prevention >= 24 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimum_password_length is null then 'No password policy set.'
-        when password_reuse_prevention is null then 'Password reuse prevention not set.'
-        else 'Password reuse prevention set to ' || password_reuse_prevention || '.'
-      end as reason
-    from
-      aws_account as a
-      left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;
-  PrimaryTable: aws_iam_account_password_policy
   ListOfTables:
     - aws_account
     - aws_iam_account_password_policy
   Parameters: []
+  PrimaryTable: aws_iam_account_password_policy
+  QueryToExecute: |
+    SELECT
+      'arn:' || a.partition || ':::' || a.account_id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN password_reuse_prevention >= 24 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimum_password_length IS NULL THEN 'No password policy set.'
+        WHEN password_reuse_prevention IS NULL THEN 'Password reuse prevention not set.'
+        ELSE 'Password reuse prevention set to ' || password_reuse_prevention || '.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN
+      aws_iam_account_password_policy AS pol
+    ON
+      a.account_id = pol.account_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.9 Ensure IAM password policy prevents password reuse

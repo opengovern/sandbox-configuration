@@ -1,13 +1,30 @@
+Description: Ensure expired SSL/TLS certificates are removed from AWS Certificate Manager (ACM).
 ID: aws_acm_certificate_expired
-Title: "ACM Certificate Expired"
-Description: "Ensure expired SSL/TLS certificates are removed from AWS Certificate Manager (ACM)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  certificate_arn as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN status = 'EXPIRED' THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN status = 'EXPIRED' THEN 'certificate has been expired' \n    ELSE 'certificate not expired'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_acm_certificate\n"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN status = 'EXPIRED' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN status = 'EXPIRED' THEN 'certificate has been expired'
+        ELSE 'certificate not expired'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_acm_certificate
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Certificate Manager
   score_tags:
     - Tolerate Failures
-IntegrationType:
-  - aws_cloud_account
+Title: ACM Certificate Expired

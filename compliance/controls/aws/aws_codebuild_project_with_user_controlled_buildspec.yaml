@@ -1,14 +1,28 @@
+Description: This control checks if buildspec.yml is used from a trusted source which user cant interfere with.
 ID: aws_codebuild_project_with_user_controlled_buildspec
-Title: "CodeBuild projects should not use an user controlled buildspec"
-Description: "This control checks if buildspec.yml is used from a trusted source which user cant interfere with."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when split_part(source ->> 'Buildspec', '.', -1) = 'yml' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when split_part(source ->> 'Buildspec', '.', -1) = 'yml' then title || ' uses a user controlled buildspec.'\n    else title || ' does not uses a user controlled buildspec.'\n  end as reason\n  \n  \nfrom\n  aws_codebuild_project;"
-  PrimaryTable: aws_codebuild_project
   ListOfTables:
     - aws_codebuild_project
   Parameters: []
+  PrimaryTable: aws_codebuild_project
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN split_part(source ->> 'Buildspec', '.', -1) = 'yml' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN split_part(source ->> 'Buildspec', '.', -1) = 'yml' THEN title || ' uses a user controlled buildspec.'
+        ELSE title || ' does not use a user controlled buildspec.'
+      END AS reason
+    FROM
+      aws_codebuild_project;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: CodeBuild projects should not use an user controlled buildspec

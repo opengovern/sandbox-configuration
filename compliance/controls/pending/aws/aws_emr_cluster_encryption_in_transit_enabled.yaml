@@ -1,13 +1,32 @@
+Description: This control checks whether EMR clusters have encryption in transit enabled. This control fails if an EMR cluster isn't encrypted in transit.
 ID: aws_emr_cluster_encryption_in_transit_enabled
-Title: "EMR clusters encryption in transit should be enabled"
-Description: "This control checks whether EMR clusters have encryption in transit enabled. This control fails if an EMR cluster isn't encrypted in transit."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  cluster_arn as resource,\n  case\n    when s.name is null then 'alarm'\n    when s.name is not null and (encryption_configuration -> 'EnableInTransitEncryption')::bool then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when s.name is null then c.title || ' security configuration disabled.'\n    when s.name is not null and (encryption_configuration -> 'EnableInTransitEncryption')::bool then c.title || ' encryption in transit enabled.'\n    else c.title || ' encryption in transit disabled.'\n  end as reason\n  \n  \nfrom\n  aws_emr_cluster as c\n  left join aws_emr_security_configuration as s on c.security_configuration = s.name and s.region = s.region and s.account_id = c.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      cluster_arn AS resource,
+      CASE
+        WHEN s.name IS NULL THEN 'alarm'
+        WHEN s.name IS NOT NULL AND (encryption_configuration -> 'EnableInTransitEncryption')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.name IS NULL THEN c.title || ' security configuration disabled.'
+        WHEN s.name IS NOT NULL AND (encryption_configuration -> 'EnableInTransitEncryption')::bool THEN c.title || ' encryption in transit enabled.'
+        ELSE c.title || ' encryption in transit disabled.'
+      END AS reason
+    FROM
+      aws_emr_cluster AS c
+    LEFT JOIN
+      aws_emr_security_configuration AS s
+      ON c.security_configuration = s.name
+      AND s.region = s.region
+      AND s.account_id = c.account_id;
+Severity: low
+Tags: {}
+Title: EMR clusters encryption in transit should be enabled

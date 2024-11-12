@@ -1,14 +1,30 @@
+Description: To help protect sensitive data at rest, ensure encryption is enabled for your AWS SQS queues with KMS CMK.
 ID: aws_sqs_queue_encrypted_with_kms_cmk
-Title: "SQS queues should be encrypted with KMS CMK"
-Description: "To help protect sensitive data at rest, ensure encryption is enabled for your AWS SQS queues with KMS CMK."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  queue_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when kms_master_key_id is null then 'alarm'\n    when kms_master_key_id is not null and kms_master_key_id = 'alias/aws/sqs' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kms_master_key_id is null then title || ' encryption at rest disabled.'\n    when kms_master_key_id is not null and kms_master_key_id = 'alias/aws/sqs' then title || ' not encrypted with CMK.'\n    else title || ' encrypted with CMK.'\n  end as reason\n  \n  \nfrom\n  aws_sqs_queue;"
-  PrimaryTable: aws_sqs_queue
   ListOfTables:
     - aws_sqs_queue
   Parameters: []
+  PrimaryTable: aws_sqs_queue
+  QueryToExecute: |
+    SELECT
+      queue_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN kms_master_key_id IS NULL THEN 'alarm'
+        WHEN kms_master_key_id IS NOT NULL AND kms_master_key_id = 'alias/aws/sqs' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kms_master_key_id IS NULL THEN title || ' encryption at rest disabled.'
+        WHEN kms_master_key_id IS NOT NULL AND kms_master_key_id = 'alias/aws/sqs' THEN title || ' not encrypted with CMK.'
+        ELSE title || ' encrypted with CMK.'
+      END AS reason
+    FROM
+      aws_sqs_queue;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: SQS queues should be encrypted with KMS CMK

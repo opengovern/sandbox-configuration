@@ -1,51 +1,50 @@
+Description: Ensure that no custom IAM policies exist which allow permissive role assumption.
 ID: aws_iam_policy_custom_no_permissive_role_assumption
-Title: "IAM custom policy should not have overly permissive STS role assumption"
-Description: "Ensure that no custom IAM policies exist which allow permissive role assumption."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with bad_policies as (
-      select
-        arn,
-        count(*) as num
-      from
-        aws_iam_policy,
-        jsonb_array_elements(policy_std -> 'Statement') as s,
-        jsonb_array_elements_text(s -> 'Resource') as resource,
-        jsonb_array_elements_text(s -> 'Action') as action
-      where
-        not is_aws_managed
-        and s ->> 'Effect' = 'Allow'
-        and resource = '*'
-        and (
-          ( action = '*'
-            or action = 'sts:*'
-            or action = 'sts:AssumeRole'
-          )
-        )
-      group by
-        arn
-    )
-    select
-      p.arn as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when b.arn is not null then 'alarm'
-        else 'ok'
-      end as status,
-      p.name || ' contains ' || coalesce(b.num, 0) ||
-          ' statements that allow overly permissive STS role assumption.' as reason
-    from
-      aws_iam_policy as p
-      left join bad_policies as b on p.arn = b.arn
-    where
-        not is_aws_managed;
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    WITH bad_policies AS (
+      SELECT
+        arn,
+        COUNT(*) AS num
+      FROM
+        aws_iam_policy,
+        jsonb_array_elements(policy_std -> 'Statement') AS s,
+        jsonb_array_elements_text(s -> 'Resource') AS resource,
+        jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE
+        NOT is_aws_managed
+        AND s ->> 'Effect' = 'Allow'
+        AND resource = '*'
+        AND (
+          action = '*'
+          OR action = 'sts:*'
+          OR action = 'sts:AssumeRole'
+        )
+      GROUP BY
+        arn
+    )
+    SELECT
+      p.arn AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      p.name || ' contains ' || COALESCE(b.num, 0) ||
+          ' statements that allow overly permissive STS role assumption.' AS reason
+    FROM
+      aws_iam_policy AS p
+    LEFT JOIN bad_policies AS b ON p.arn = b.arn
+    WHERE
+      NOT is_aws_managed;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: IAM custom policy should not have overly permissive STS role assumption

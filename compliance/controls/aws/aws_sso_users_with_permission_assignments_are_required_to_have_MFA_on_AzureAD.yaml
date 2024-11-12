@@ -1,15 +1,41 @@
+Description: AWS SSO Users with Permission Assignments are required to have MFA on AzureAD
 ID: aws_sso_users_with_permission_assignments_are_required_to_have_MFA_on_AzureAD
-Title: "AWS SSO Users with Permission Assignments are required to have MFA on AzureAD"
-Description: "AWS SSO Users with Permission Assignments are required to have MFA on AzureAD"
+IntegrationType:
+  - aws_cloud_account
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select \n  iden.id as resource,\n  iden.og_account_id,\n  iden.og_resource_id,\n  case\n    when is_mfa_registered::bool then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when is_mfa_registered::bool then iden.name || ' has MFA registered'\n    else iden.name || ' doesnt have MFA'\n  end reason\nfrom \n  (aws_identitystore_user cross join jsonb_array_elements(external_ids) as external_id) iden\n  inner join azuread_user_registration_details az on az.id = value ->> 'Id'\nwhere \n  exists(select * from aws_ssoadmin_account_assignment where principal_type = 'USER' and principal_id = iden.id) \n"
-  PrimaryTable: aws_identitystore_user
   ListOfTables:
     - aws_identitystore_user
     - aws_ssoadmin_account_assignment
     - azuread_user_registration_details
   Parameters: []
+  PrimaryTable: aws_identitystore_user
+  QueryToExecute: |
+    SELECT 
+      iden.id AS resource,
+      iden.og_account_id,
+      iden.og_resource_id,
+      CASE
+        WHEN is_mfa_registered::BOOL THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN is_mfa_registered::BOOL THEN iden.name || ' has MFA registered'
+        ELSE iden.name || ' doesnt have MFA'
+      END reason
+    FROM 
+      (aws_identitystore_user 
+      CROSS JOIN jsonb_array_elements(external_ids) AS external_id) iden
+    INNER JOIN azuread_user_registration_details az 
+      ON az.id = value ->> 'Id'
+    WHERE 
+      EXISTS (
+        SELECT * 
+        FROM aws_ssoadmin_account_assignment 
+        WHERE principal_type = 'USER' 
+        AND principal_id = iden.id
+      )
 Severity: high
 Tags:
   category:
@@ -18,6 +44,4 @@ Tags:
     - aws
   score_service_name:
     - AWS Single Sign-On (SSO)
-IntegrationType:
-  - aws_cloud_account
-  - azure_subscription
+Title: AWS SSO Users with Permission Assignments are required to have MFA on AzureAD

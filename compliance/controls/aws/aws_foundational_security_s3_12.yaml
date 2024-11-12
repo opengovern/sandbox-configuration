@@ -1,24 +1,29 @@
+Description: This control checks whether Amazon S3 buckets provide user permissions via ACLs. The control fails if ACLs are configured for managing user access on S3 buckets.
 ID: aws_foundational_security_s3_12
-Title: "12 S3 access control lists (ACLs) should not be used to manage user access to buckets"
-Description: "This control checks whether Amazon S3 buckets provide user permissions via ACLs. The control fails if ACLs are configured for managing user access on S3 buckets."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with bucket_acl_details as (
-      select
+  ListOfTables:
+    - aws_s3_bucket
+  Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH bucket_acl_details AS (
+      SELECT
         arn,
         title,
-        array[acl -> 'Owner' ->> 'ID'] as bucket_owner,
-        array_agg(grantee_id) as bucket_acl_permissions,
+        ARRAY[acl -> 'Owner' ->> 'ID'] AS bucket_owner,
+        array_agg(grantee_id) AS bucket_acl_permissions,
         object_ownership_controls,
         region,
         account_id,
         _ctx,
         tags
-      from
+      FROM
         aws_s3_bucket,
-        jsonb_path_query(acl, '$.Grants.Grantee.ID') as grantee_id
-      group by
+        jsonb_path_query(acl, '$.Grants.Grantee.ID') AS grantee_id
+      GROUP BY
         arn,
         title,
         acl,
@@ -28,40 +33,35 @@ Query:
         _ctx,
         tags
     ),
-    bucket_acl_checks as (
-      select
+    bucket_acl_checks AS (
+      SELECT
         arn,
         title,
-        to_jsonb(bucket_acl_permissions) - bucket_owner as additional_permissions,
+        TO_JSONB(bucket_acl_permissions) - bucket_owner AS additional_permissions,
         object_ownership_controls,
         region,
         account_id,
         _ctx,
         tags
-      from
+      FROM
         bucket_acl_details
     )
-    select
-      arn as resource,
-      account_id as og_account_id,
-      arn as og_resource_id,
-      case
-        when object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"} ]' then 'ok'
-        when jsonb_array_length(additional_permissions) = 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"} ]' then title || ' ACLs are disabled.'
-        when jsonb_array_length(additional_permissions) = 0 then title || ' does not have ACLs for user access.'
-        else title || ' has ACLs for user access.'
-      end as reason
-    from
+    SELECT
+      arn AS resource,
+      account_id AS og_account_id,
+      arn AS og_resource_id,
+      CASE
+        WHEN object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"}]' THEN 'ok'
+        WHEN JSONB_ARRAY_LENGTH(additional_permissions) = 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"}]' THEN title || ' ACLs are disabled.'
+        WHEN JSONB_ARRAY_LENGTH(additional_permissions) = 0 THEN title || ' does not have ACLs for user access.'
+        ELSE title || ' has ACLs for user access.'
+      END AS reason
+    FROM
       bucket_acl_checks;
-  PrimaryTable: aws_s3_bucket
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 12 S3 access control lists (ACLs) should not be used to manage user access to buckets

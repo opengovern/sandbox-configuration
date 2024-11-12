@@ -1,31 +1,32 @@
+Description: Ensure that FTP access is disabled for your Azure App Services web applications.
 ID: azure_disable_plain_ftp_deployment
-Title: "Disable Plain FTP Deployment"
-Description: "Ensure that FTP access is disabled for your Azure App Services web applications."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      wa.name as resource,
-      wa.og_resource_id,
-      wa.og_account_id,
-      case
-        when configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' then name || ' default FTP deployment is not disabled'
-        else name || ' default FTP deployment is disabled'
-      end as reason,
-      wa.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_app_service_web_app as wa
-      left join azure_subscription as sub on wa.subscription_id = sub.subscription_id
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      wa.name AS resource,
+      wa.og_resource_id,
+      wa.og_account_id,
+      CASE
+        WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN name || ' default FTP deployment is not disabled'
+        ELSE name || ' default FTP deployment is disabled'
+      END AS reason,
+      wa.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_web_app AS wa
+      LEFT JOIN azure_subscription AS sub ON wa.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure App Services
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - azure_subscription
+Title: Disable Plain FTP Deployment

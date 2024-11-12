@@ -1,13 +1,30 @@
+Description: Manage access to the AWS Cloud by ensuring SageMaker notebook instances are within an AWS Virtual Private Cloud (AWS VPC).
 ID: aws_sagemaker_notebook_instance_in_vpc
-Title: "SageMaker notebook instances should be in a VPC"
-Description: "Manage access to the AWS Cloud by ensuring SageMaker notebook instances are within an AWS Virtual Private Cloud (AWS VPC)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when subnet_id is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when subnet_id is not null then title || ' in VPC.'\n    else title || ' not in VPC.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_sagemaker_notebook_instance;\n"
-  PrimaryTable: aws_sagemaker_notebook_instance
   ListOfTables:
     - aws_sagemaker_notebook_instance
   Parameters: []
+  PrimaryTable: aws_sagemaker_notebook_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN subnet_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN subnet_id IS NOT NULL THEN title || ' in VPC.'
+        ELSE title || ' not in VPC.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_sagemaker_notebook_instance;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/SageMaker
-IntegrationType:
-  - aws_cloud_account
+Title: SageMaker notebook instances should be in a VPC

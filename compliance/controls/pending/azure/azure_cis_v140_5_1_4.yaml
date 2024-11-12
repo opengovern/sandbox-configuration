@@ -1,13 +1,32 @@
+Description: The storage account with the activity log export container is configured to use BYOK (Use Your Own Key).
 ID: azure_cis_v140_5_1_4
-Title: "5.1.4 Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)"
-Description: "The storage account with the activity log export container is configured to use BYOK (Use Your Own Key)."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault'\n      then a.name || ' container insights-operational-logs encrypted with BYOK.'\n    else a.name || ' container insights-operational-logs not encrypted with BYOK.'\n  end as reason\n  \n  \n  \nfrom\n  azure_storage_container c,\n  azure_storage_account a,\n  azure_subscription sub\nwhere\n  c.name = 'insights-operational-logs'\n  and c.account_name = a.name\n  and sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      CASE
+        WHEN a.encryption_key_source = 'Microsoft.Keyvault' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.encryption_key_source = 'Microsoft.Keyvault'
+          THEN a.name || ' container insights-operational-logs encrypted with BYOK.'
+        ELSE a.name || ' container insights-operational-logs not encrypted with BYOK.'
+      END AS reason
+    FROM
+      azure_storage_container c,
+      azure_storage_account a,
+      azure_subscription sub
+    WHERE
+      c.name = 'insights-operational-logs'
+      AND c.account_name = a.name
+      AND sub.subscription_id = a.subscription_id;
+Severity: low
+Tags: {}
+Title: 5.1.4 Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)

@@ -1,26 +1,26 @@
+Description: Is it recommended to monitor certificate expiration and implement automated alerts to notify the responsible team for timely certificate replacement or removal.
 ID: aws_directory_service_certificate_expires_90_days
-Title: "Directory Service certificates should not expire within 90 days"
-Description: "Is is recommended to monitor certificate expiration and implement automated alerts to notify the responsible team for timely certificate replacement or removal."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      certificate_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when date(expiry_date_time) - date(current_date) >= 90 then 'ok'
-        else 'alarm'
-      end as status,
-      title || ' expires ' || to_char(expiry_date_time, 'DD-Mon-YYYY') ||
-        ' (' || extract(day from expiry_date_time - current_date) || ' days).' as reason
-    from
-      aws_directory_service_certificate;
-  PrimaryTable: aws_directory_service_certificate
   ListOfTables:
     - aws_directory_service_certificate
   Parameters: []
+  PrimaryTable: aws_directory_service_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN DATE(expiry_date_time) - DATE(CURRENT_DATE) >= 90 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      title || ' expires ' || TO_CHAR(expiry_date_time, 'DD-Mon-YYYY') ||
+        ' (' || EXTRACT(DAY FROM expiry_date_time - CURRENT_DATE) || ' days).' AS reason
+    FROM
+      aws_directory_service_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Directory Service certificates should not expire within 90 days

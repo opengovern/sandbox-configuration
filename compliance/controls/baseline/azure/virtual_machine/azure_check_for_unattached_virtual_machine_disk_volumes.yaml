@@ -1,37 +1,44 @@
+Description: Remove any unattached Azure virtual machine (VM) disk volumes to improve security and reduce costs
 ID: azure_check_for_unattached_virtual_machine_disk_volumes
-Title: "Check for Unattached Virtual Machine Disk Volumes"
-Description: "Remove any unattached Azure virtual machine (VM) disk volumes to improve security and reduce costs"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      disk.id as resource,
-      disk.og_account_id,
-      disk.og_resource_id,
-      case
-        when disk.disk_state = 'Unattached' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when disk.disk_state = 'Unattached' then disk.title || ' has no attachments.'
-        else disk.title || ' has attachments.'
-      end as reason,
-      case
-        when disk.disk_state = 'Unattached' then (SELECT cost FROM pennywise_cost_estimate where resource_type = 'microsoft.compute/disks' and resource_id = disk.og_resource_id limit 1)
-        else 0
-      end as cost_optimization,
-      disk.resource_group,
-      display_name as subscription
-    from
-      azure_compute_disk as disk,
-      azure_subscription as sub
-    where
-      sub.subscription_id = disk.subscription_id;
-  PrimaryTable: azure_compute_disk
   ListOfTables:
     - azure_compute_disk
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_disk
+  QueryToExecute: |
+    SELECT
+      disk.id AS resource,
+      disk.og_account_id,
+      disk.og_resource_id,
+      CASE
+        WHEN disk.disk_state = 'Unattached' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN disk.disk_state = 'Unattached' THEN disk.title || ' has no attachments.'
+        ELSE disk.title || ' has attachments.'
+      END AS reason,
+      CASE
+        WHEN disk.disk_state = 'Unattached' THEN (
+          SELECT cost 
+          FROM pennywise_cost_estimate 
+          WHERE resource_type = 'microsoft.compute/disks' 
+            AND resource_id = disk.og_resource_id 
+          LIMIT 1
+        )
+        ELSE 0
+      END AS cost_optimization,
+      disk.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_disk AS disk,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = disk.subscription_id;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -42,5 +49,4 @@ Tags:
     - Azure Virtual Machines
   score_tags:
     - Orphaned Resources
-IntegrationType:
-  - azure_subscription
+Title: Check for Unattached Virtual Machine Disk Volumes

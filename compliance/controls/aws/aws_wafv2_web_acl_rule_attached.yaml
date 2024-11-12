@@ -1,13 +1,45 @@
+Description: This control checks whether a WAFV2 web access control list (web ACL) contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
 ID: aws_wafv2_web_acl_rule_attached
-Title: "A WAFV2 web ACL should have at least one rule or rule group"
-Description: "This control checks whether a WAFV2 web access control list (web ACL) contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with rule_group_count as (\n  select\n    arn,\n    count(*) as rule_group_count\n  from\n    aws_wafv2_web_acl,\n    jsonb_array_elements(rules) as r\n  where\n    r -> 'Statement' -> 'RuleGroupReferenceStatement' ->> 'ARN' is not null\n  group by\n    arn\n)\nselect\n  a.arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when rules is null or jsonb_array_length(rules) = 0 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when rules is null or jsonb_array_length(rules) = 0 then title || ' has no attached rules.'\n    else title || ' has ' || c.rule_group_count || ' rule group(s) and ' || (jsonb_array_length(rules) - c.rule_group_count) || ' rule(s) attached.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_wafv2_web_acl as a\n  left join rule_group_count as c on c.arn = a.arn;\n"
-  PrimaryTable: aws_wafv2_web_acl
   ListOfTables:
     - aws_wafv2_web_acl
   Parameters: []
+  PrimaryTable: aws_wafv2_web_acl
+  QueryToExecute: |
+    WITH rule_group_count AS (
+      SELECT
+        arn,
+        COUNT(*) AS rule_group_count
+      FROM
+        aws_wafv2_web_acl,
+        jsonb_array_elements(rules) AS r
+      WHERE
+        r -> 'Statement' -> 'RuleGroupReferenceStatement' ->> 'ARN' IS NOT NULL
+      GROUP BY
+        arn
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN title || ' has no attached rules.'
+        ELSE title || ' has ' || c.rule_group_count || ' rule group(s) and ' || (jsonb_array_length(rules) - c.rule_group_count) || ' rule(s) attached.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_wafv2_web_acl AS a
+    LEFT JOIN rule_group_count AS c
+    ON
+      c.arn = a.arn;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +54,4 @@ Tags:
     - aws
   service:
     - AWS/WAF
-IntegrationType:
-  - aws_cloud_account
+Title: A WAFV2 web ACL should have at least one rule or rule group

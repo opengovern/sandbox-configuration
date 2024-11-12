@@ -1,51 +1,47 @@
+Description: AWS CloudTrail is a web service that records AWS API calls for your account and delivers log files to you. The recorded information includes the identity of the API caller, the time of the API call, the source IP address of the API caller, the request parameters, and the response elements returned by the AWS service. CloudTrail provides a history of AWS API calls for an account, including API calls made via the Management Console, SDKs, command line tools, and higher-level AWS services (such as CloudFormation).
 ID: aws_cloudtrail_multi_region_read_write_enabled
-Title: "CloudTrail trails should be enabled in all regions"
-Description: "AWS CloudTrail is a web service that records AWS API calls for your account and delivers log files to you. The recorded information includes the identity of the API caller, the time of the API call, the source IP address of the API caller, the request parameters, and the response elements returned by the AWS service. CloudTrail provides a history of AWS API calls for an account, including API calls made via the Management Console, SDKs, command line tools, and higher-level AWS services (such as CloudFormation)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with event_selectors_trail_details as (
-      select
-        distinct account_id
-      from
-        aws_cloudtrail_trail,
-        jsonb_array_elements(event_selectors) as e
-      where
-        (is_logging and is_multi_region_trail and e ->> 'ReadWriteType' = 'All')
-    ),
-    advanced_event_selectors_trail_details as (
-      select
-        distinct account_id
-      from
-        aws_cloudtrail_trail,
-        jsonb_array_elements_text(advanced_event_selectors) as a
-      where
-      -- when readOnly = true, then it is readOnly, when readOnly = false then it is writeOnly, if advanced_event_selectors is not null then it is both ReadWriteType
-        (is_logging and is_multi_region_trail and advanced_event_selectors is not null and (not a like '%readOnly%'))
-    )
-    select
-      a.title as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when d.account_id is null and ad.account_id is null then 'alarm'
-        else 'ok'
-      end as status,
-        case
-        when d.account_id is null and ad.account_id is null then 'cloudtrail disabled.'
-        else 'cloudtrail enabled.'
-      end as reason
-
-      , a.account_id
-    from
-      aws_account as a
-      left join event_selectors_trail_details as d on d.account_id = a.account_id
-      left join advanced_event_selectors_trail_details as ad on ad.account_id = a.account_id;
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_cloudtrail_trail
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    WITH event_selectors_trail_details AS (
+      SELECT DISTINCT account_id
+      FROM aws_cloudtrail_trail,
+           jsonb_array_elements(event_selectors) AS e
+      WHERE is_logging
+        AND is_multi_region_trail
+        AND e ->> 'ReadWriteType' = 'All'
+    ),
+    advanced_event_selectors_trail_details AS (
+      SELECT DISTINCT account_id
+      FROM aws_cloudtrail_trail,
+           jsonb_array_elements_text(advanced_event_selectors) AS a
+      WHERE is_logging
+        AND is_multi_region_trail
+        AND advanced_event_selectors IS NOT NULL
+        AND (NOT a LIKE '%readOnly%')
+    )
+    SELECT a.title AS resource,
+           a.og_account_id AS og_account_id,
+           a.og_resource_id AS og_resource_id,
+           CASE
+             WHEN d.account_id IS NULL AND ad.account_id IS NULL THEN 'alarm'
+             ELSE 'ok'
+           END AS status,
+           CASE
+             WHEN d.account_id IS NULL AND ad.account_id IS NULL THEN 'cloudtrail disabled.'
+             ELSE 'cloudtrail enabled.'
+           END AS reason,
+           a.account_id
+    FROM aws_account AS a
+    LEFT JOIN event_selectors_trail_details AS d ON d.account_id = a.account_id
+    LEFT JOIN advanced_event_selectors_trail_details AS ad ON ad.account_id = a.account_id;
 Severity: high
 Tags:
   category:
@@ -66,5 +62,4 @@ Tags:
     - aws
   service:
     - AWS/CloudTrail
-IntegrationType:
-  - aws_cloud_account
+Title: CloudTrail trails should be enabled in all regions

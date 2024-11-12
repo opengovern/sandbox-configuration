@@ -1,36 +1,41 @@
+Description: Ensure that support for gRPC protocol is enabled for Application Load Balancers (ALBs).
 ID: aws_enable_support_for_grpc_protocol
-Title: "Enable Support for gRPC Protocol"
-Description: "Ensure that support for gRPC protocol is enabled for Application Load Balancers (ALBs)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.arn as resource,
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' then a.title || ' is  configured to send requests to targets using the gRPC protocol.'
-        else a.title || ' is not configured to send requests to targets using the gRPC protocol.'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_application_load_balancer a
-      left join aws_ec2_target_group as tg on tg.load_balancer_arns::text like '%' || a.arn || '%'
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_ec2_target_group
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    SELECT
+      a.arn AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 
+          a.title || ' is configured to send requests to targets using the gRPC protocol.'
+        ELSE 
+          a.title || ' is not configured to send requests to targets using the gRPC protocol.'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_application_load_balancer a
+    LEFT JOIN
+      aws_ec2_target_group AS tg 
+    ON 
+      tg.load_balancer_arns::text LIKE '%' || a.arn || '%'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_service_name:
     - AWS Elastic Load Balancing V2 (ELBv2)
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Support for gRPC Protocol

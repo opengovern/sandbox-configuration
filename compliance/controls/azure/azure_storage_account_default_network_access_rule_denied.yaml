@@ -1,14 +1,34 @@
+Description: Network access to storage accounts should be restricted. Configure network rules so only applications from allowed networks can access the storage account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges.
 ID: azure_storage_account_default_network_access_rule_denied
-Title: "Storage accounts should restrict network access"
-Description: "Network access to storage accounts should be restricted. Configure network rules so only applications from allowed networks can access the storage account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  sa.og_account_id as og_account_id,\n  sa.og_resource_id as og_resource_id,\n  case\n    when sa.network_rule_default_action = 'Allow' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when sa.network_rule_default_action = 'Allow' then name || ' allows traffic from all networks.'\n    else name || ' allows traffic from specific networks.'\n  end as reason\n  \n  , sa.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id AS og_account_id,
+      sa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
+        ELSE name || ' allows traffic from specific networks.'
+      END AS reason,
+      sa.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
 Severity: high
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Storage accounts should restrict network access

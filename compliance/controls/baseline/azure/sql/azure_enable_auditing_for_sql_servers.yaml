@@ -1,41 +1,38 @@
+Description: Enable all types of threat detection for your Microsoft Azure SQL database servers.
 ID: azure_enable_all_types_of_threat_detection_on_sql_servers
-Title: "Enable All Types of Threat Detection on SQL Servers"
-Description: "Enable all types of threat detection for your Microsoft Azure SQL database servers."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    with sql_server_audit_enabled as (
-      select
-        distinct id
-      from
-        azure_sql_server as s,
-        jsonb_array_elements(server_audit_policy) as audit
-      where
-        audit -> 'properties' ->> 'state' = 'Enabled'
-    )
-    select
-      name as resource,
-      s.og_resource_id,
-      s.og_account_id,
-      case
-        when a.id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when a.id is not null then 'auditing is enabled for server.'
-        else 'auditing is not enabled for server.'
-      end as reason,
-      resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_sql_server as s
-      left join azure_subscription as sub on s.subscription_id = sub.subscription_id
-      left join sql_server_audit_enabled as a on lower(s.id) = lower(a.id);
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    WITH sql_server_audit_enabled AS (
+      SELECT DISTINCT id
+      FROM azure_sql_server AS s,
+           jsonb_array_elements(server_audit_policy) AS audit
+      WHERE audit -> 'properties' ->> 'state' = 'Enabled'
+    )
+    SELECT 
+      name AS resource,
+      s.og_resource_id,
+      s.og_account_id,
+      CASE 
+        WHEN a.id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.id IS NOT NULL THEN 'auditing is enabled for server.'
+        ELSE 'auditing is not enabled for server.'
+      END AS reason,
+      resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM azure_sql_server AS s
+    LEFT JOIN azure_subscription AS sub ON s.subscription_id = sub.subscription_id
+    LEFT JOIN sql_server_audit_enabled AS a ON LOWER(s.id) = LOWER(a.id);
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -46,5 +43,4 @@ Tags:
     - Azure Managed SQL Service
   score_tags:
     - Problem Identities
-IntegrationType:
-  - azure_subscription
+Title: Enable All Types of Threat Detection on SQL Servers

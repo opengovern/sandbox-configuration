@@ -1,13 +1,68 @@
+Description: Manage access to resources in the AWS Cloud by only allowing authorized users, processes, and devices access to AWS Simple Storage Service (AWS S3) buckets.
 ID: aws_s3_bucket_restrict_public_write_access
-Title: "S3 buckets should prohibit public write access"
-Description: "Manage access to resources in the AWS Cloud by only allowing authorized users, processes, and devices access to AWS Simple Storage Service (AWS S3) buckets."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with public_acl as (\n  select\n    distinct name\n  from\n    aws_s3_bucket,\n    jsonb_array_elements(case jsonb_typeof(acl -> 'Grants') \n    when 'array' then acl -> 'Grants' \n    else '[]' end) as grants\n  where\n    (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'\n    or grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')\n    and (\n      grants ->> 'Permission' = 'FULL_CONTROL'\n      or grants ->> 'Permission' = 'WRITE_ACP'\n      or grants ->> 'Permission' = 'WRITE'\n    )\n), write_access_policy as (\n    select\n      distinct name\n    from\n      aws_s3_bucket,\n      jsonb_array_elements(case jsonb_typeof(policy_std -> 'Statement') \n    when 'array' then policy_std -> 'Statement' \n    else '[]' end ) as s,\n      jsonb_array_elements_text(case jsonb_typeof(s -> 'Action') \n    when 'array' then s -> 'Action'\n    else '[]' end) as action\n    where\n      s ->> 'Effect' = 'Allow'\n      and (\n        s -> 'Principal' -> 'AWS' = '[\"*\"]'\n        or s ->> 'Principal' = '*'\n      )\n      and (\n        action = '*'\n        or action = '*:*'\n        or action = 's3:*'\n        or action ilike 's3:put%'\n        or action ilike 's3:delete%'\n        or action ilike 's3:create%'\n        or action ilike 's3:update%'\n        or action ilike 's3:replicate%'\n        or action ilike 's3:restore%'\n      )\n)\nselect\n  b.arn as resource,\n  b.og_account_id as og_account_id,\n  b.og_resource_id as og_resource_id,\n  case\n    when (block_public_acls or a.name is null) and not bucket_policy_is_public then 'ok'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and block_public_policy) then 'ok'\n    when bucket_policy_is_public and p.name is null then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when (block_public_acls or a.name is null ) and not bucket_policy_is_public then b.title || ' not publicly writable.'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and block_public_policy) then b.title || ' not publicly writable.'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and p.name is null) then b.title || ' not publicly writable.'\n    else b.title || ' publicly writable.'\n  end reason\n\n  , b.region, b.account_id\nfrom\n  aws_s3_bucket as b\n  left join public_acl as a on b.name = a.name\n  left join write_access_policy as p on b.name = p.name;\n"
-  PrimaryTable: aws_s3_bucket
   ListOfTables:
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_s3_bucket
+  QueryToExecute: |
+    WITH public_acl AS (
+      SELECT DISTINCT name
+      FROM aws_s3_bucket,
+           jsonb_array_elements(CASE jsonb_typeof(acl -> 'Grants')
+              WHEN 'array' THEN acl -> 'Grants'
+              ELSE '[]' END) AS grants
+      WHERE (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'
+             OR grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')
+        AND (grants ->> 'Permission' = 'FULL_CONTROL'
+             OR grants ->> 'Permission' = 'WRITE_ACP'
+             OR grants ->> 'Permission' = 'WRITE')
+    ),
+    write_access_policy AS (
+      SELECT DISTINCT name
+      FROM aws_s3_bucket,
+           jsonb_array_elements(CASE jsonb_typeof(policy_std -> 'Statement')
+              WHEN 'array' THEN policy_std -> 'Statement'
+              ELSE '[]' END) AS s,
+           jsonb_array_elements_text(CASE jsonb_typeof(s -> 'Action')
+              WHEN 'array' THEN s -> 'Action'
+              ELSE '[]' END) AS action
+      WHERE s ->> 'Effect' = 'Allow'
+        AND (s -> 'Principal' -> 'AWS' = '[\"*\"]'
+             OR s ->> 'Principal' = '*')
+        AND (action = '*'
+             OR action = '*:*'
+             OR action = 's3:*'
+             OR action ILIKE 's3:put%'
+             OR action ILIKE 's3:delete%'
+             OR action ILIKE 's3:create%'
+             OR action ILIKE 's3:update%'
+             OR action ILIKE 's3:replicate%'
+             OR action ILIKE 's3:restore%')
+    )
+    SELECT b.arn AS resource,
+           b.og_account_id AS og_account_id,
+           b.og_resource_id AS og_resource_id,
+           CASE
+             WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN 'ok'
+             WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND block_public_policy) THEN 'ok'
+             WHEN bucket_policy_is_public AND p.name IS NULL THEN 'ok'
+             ELSE 'alarm'
+           END AS status,
+           CASE
+             WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN b.title || ' not publicly writable.'
+             WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND block_public_policy) THEN b.title || ' not publicly writable.'
+             WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND p.name IS NULL) THEN b.title || ' not publicly writable.'
+             ELSE b.title || ' publicly writable.'
+           END AS reason,
+           b.region,
+           b.account_id
+    FROM aws_s3_bucket AS b
+         LEFT JOIN public_acl AS a ON b.name = a.name
+         LEFT JOIN write_access_policy AS p ON b.name = p.name;
 Severity: high
 Tags:
   audit_manager_control_tower:
@@ -30,11 +85,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -48,5 +103,4 @@ Tags:
     - AWS/S3
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: S3 buckets should prohibit public write access

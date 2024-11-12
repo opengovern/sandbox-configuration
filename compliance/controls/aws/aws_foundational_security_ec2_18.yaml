@@ -1,43 +1,43 @@
+Description: This control checks whether the security groups that are in use allow unrestricted incoming traffic. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. The default values for authorizedTcpPorts are 80 and 443.
 ID: aws_foundational_security_ec2_18
-Title: "18 Security groups should only allow unrestricted incoming traffic for authorized ports"
-Description: "This control checks whether the security groups that are in use allow unrestricted incoming traffic. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. The default values for authorizedTcpPorts are 80 and 443."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with ingress_unauthorized_ports as (
-      select
-        group_id,
-        count(*)
-      from
-        aws_vpc_security_group_rule
-      where
-        type = 'ingress'
-        and cidr_ipv4 = '0.0.0.0/0'
-        and (from_port is null or from_port not in (80,443))
-      group by
-        group_id
-    )
-    select
-      sg.arn as resource,
-      sg.og_account_id as og_account_id,
-      sg.og_resource_id as og_resource_id,
-      case
-        when ingress_unauthorized_ports.count > 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ingress_unauthorized_ports.count > 0 then sg.title || ' having unrestricted incoming traffic other than default ports from 0.0.0.0/0 '
-        else sg.title || ' allows unrestricted incoming traffic for authorized default ports (80,443).'
-      end as reason
-    from
-      aws_vpc_security_group as sg
-      left join ingress_unauthorized_ports on ingress_unauthorized_ports.group_id = sg.group_id;
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group_rule
     - aws_vpc_security_group
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH ingress_unauthorized_ports AS (
+      SELECT
+        group_id,
+        COUNT(*)
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        type = 'ingress'
+        AND cidr_ipv4 = '0.0.0.0/0'
+        AND (from_port IS NULL OR from_port NOT IN (80, 443))
+      GROUP BY
+        group_id
+    )
+    SELECT
+      sg.arn AS resource,
+      sg.og_account_id AS og_account_id,
+      sg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN ingress_unauthorized_ports.count > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN ingress_unauthorized_ports.count > 0 THEN sg.title || ' having unrestricted incoming traffic other than default ports from 0.0.0.0/0 '
+        ELSE sg.title || ' allows unrestricted incoming traffic for authorized default ports (80, 443).'
+      END AS reason
+    FROM
+      aws_vpc_security_group AS sg
+      LEFT JOIN ingress_unauthorized_ports ON ingress_unauthorized_ports.group_id = sg.group_id;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 18 Security groups should only allow unrestricted incoming traffic for authorized ports

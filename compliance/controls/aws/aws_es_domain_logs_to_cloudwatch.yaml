@@ -1,13 +1,54 @@
+Description: Ensure that AWS OpenSearch Service (OpenSearch Service) domains are configured to send logs to AWS CloudWatch Logs. The rule is compliant if a log is enabled for an OpenSearch Service domain. This rule is non-compliant if logging is not configured.
 ID: aws_es_domain_logs_to_cloudwatch
-Title: "Elasticsearch domain should send logs to CloudWatch"
-Description: "Ensure that AWS OpenSearch Service (OpenSearch Service) domains are configured to send logs to AWS CloudWatch Logs. The rule is compliant if a log is enabled for an OpenSearch Service domain. This rule is non-compliant if logging is not configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when\n      ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      )\n      and\n      ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      )\n      and\n      ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      )\n      then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when\n      ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      )\n      and\n      ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      )\n      and\n      ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'\n        and log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null\n      ) then title || ' logging enabled for search , index and error.'\n    else title || ' logging not enabled for all search, index and error.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticsearch_domain;\n"
-  PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
     - aws_elasticsearch_domain
   Parameters: []
+  PrimaryTable: aws_elasticsearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN
+          ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          AND
+          ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          AND
+          ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN
+          ( log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          AND
+          ( log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'SEARCH_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          AND
+          ( log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'Enabled' = 'true'
+            AND log_publishing_options -> 'INDEX_SLOW_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL
+          )
+          THEN title || ' logging enabled for search, index, and error.'
+        ELSE title || ' logging not enabled for all search, index, and error.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_elasticsearch_domain;
 Severity: high
 Tags:
   category:
@@ -26,9 +67,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -42,5 +83,4 @@ Tags:
     - AWS/ES
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Elasticsearch domain should send logs to CloudWatch

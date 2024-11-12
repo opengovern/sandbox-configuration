@@ -1,32 +1,32 @@
+Description: This control checks if the PostgreSQL server is upgraded to the latest TLS version.
 ID: azure_postgres_db_server_latest_tls_version
-Title: "PostgreSQL servers should have the latest TLS version"
-Description: "This control checks if the PostgreSQL server is upgraded to the latest TLS version."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      s.id as resource,
-      s.og_account_id as og_account_id,
-      s.og_resource_id as og_resource_id,
-      case
-        when minimal_tls_version = 'TLS1_2' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when minimal_tls_version = 'TLS1_2' then name || ' uses the latest version of TLS encryption.'
-        else name || ' does not use the latest version of TLS encryption.'
-      end as reason
-    from
-      azure_postgresql_server as s,
-      azure_subscription as sub
-    where
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN minimal_tls_version = 'TLS1_2' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimal_tls_version = 'TLS1_2' THEN name || ' uses the latest version of TLS encryption.'
+        ELSE name || ' does not use the latest version of TLS encryption.'
+      END AS reason
+    FROM
+      azure_postgresql_server AS s,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = s.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: PostgreSQL servers should have the latest TLS version

@@ -1,28 +1,30 @@
+Description: This control checks whether WAF regional rule contains any conditions. The control fails if no conditions are present within a rule.
 ID: aws_waf_regional_rule_condition_attached
-Title: "WAF regional rule should have at least one condition"
-Description: "This control checks whether WAF regional rule contains any conditions. The control fails if no conditions are present within a rule."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      rule_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when predicates is null or jsonb_array_length(predicates) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when predicates is null or jsonb_array_length(predicates) = 0 then title || ' has no attached conditions.'
-        else title || ' has ' || jsonb_array_length(predicates) || ' condition(s) attached.'
-      end as reason
-      , region, account_id
-    from
-      aws_wafregional_rule;
-  PrimaryTable: aws_wafregional_rule
   ListOfTables:
     - aws_wafregional_rule
   Parameters: []
+  PrimaryTable: aws_wafregional_rule
+  QueryToExecute: |
+    SELECT
+      rule_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
+        ELSE title || ' has ' || jsonb_array_length(predicates) || ' condition(s) attached.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_wafregional_rule;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -37,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/WAF
-IntegrationType:
-  - aws_cloud_account
+Title: WAF regional rule should have at least one condition

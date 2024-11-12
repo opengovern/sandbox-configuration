@@ -1,21 +1,51 @@
+Description: Ensure that AKS clusters are configured to use the Network Contributor role.
 ID: azure_use_network_contributor_role_for_managing_azure_network_resources
-Title: "Use Network Contributor Role for Managing Azure Network Resources"
-Description: "Ensure that AKS clusters are configured to use the Network Contributor role."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: "with rd as (\n  select\n    scope, ARRAY_AGG(role_name) as roles\n  from\n    azure_role_assignment as ra left join azure_role_definition as rd on ra.role_definition_id = rd.id\n  group by scope limit 10\n)\n  \nselect\n  c.name as resource,\n  c.og_resource_id,\n  c.og_account_id,\n  case\n    when rd.roles::text ilike '%Network Contributor%' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when rd.roles::text ilike '%Network Contributor%' then c.name || ' is using a Network Contributor role to manage network resources.'\n    else c.name || ' is not using a Network Contributor role to manage network resources.'\n  end as reason,\n    c.resource_group as resource_group,\n    sub.display_name as subscription\n  from\n  azure_kubernetes_cluster as c\n    left join azure_subscription as sub on c.subscription_id = sub.subscription_id\n    left join rd as rd on c.id like '%' || rd.scope || '%'\n"
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_role_assignment
     - azure_role_definition
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    WITH rd AS (
+      SELECT
+        scope,
+        ARRAY_AGG(role_name) AS roles
+      FROM
+        azure_role_assignment AS ra
+        LEFT JOIN azure_role_definition AS rd ON ra.role_definition_id = rd.id
+      GROUP BY
+        scope
+      LIMIT 10
+    )
+    
+    SELECT
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      CASE
+        WHEN rd.roles::text ILIKE '%Network Contributor%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN rd.roles::text ILIKE '%Network Contributor%' THEN c.name || ' is using a Network Contributor role to manage network resources.'
+        ELSE c.name || ' is not using a Network Contributor role to manage network resources.'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_kubernetes_cluster AS c
+      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
+      LEFT JOIN rd AS rd ON c.id LIKE '%' || rd.scope || '%'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Kubernetes (AKS)
   score_service_name:
     - Azure Kubernetes (AKS)
-IntegrationType:
-  - azure_subscription
+Title: Use Network Contributor Role for Managing Azure Network Resources

@@ -1,108 +1,107 @@
+Description: Checks whether the inline policies that are embedded in your IAM identities (role, user, or group) allow the AWS KMS decryption actions on all KMS keys. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys in an inline policy.
 ID: aws_kms_key_decryption_restricted_in_iam_inline_policy
-Title: "KMS key decryption should be restricted in IAM inline policy"
-Description: "Checks whether the inline policies that are embedded in your IAM identities (role, user, or group) allow the AWS KMS decryption actions on all KMS keys. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys in an inline policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with user_with_decrypt_grant as (
-      select
-        distinct arn
-      from
-        aws_iam_user,
-        jsonb_array_elements(inline_policies_std) as inline_policy,
-        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') as statement
-      where
-        statement ->> 'Effect' = 'Allow'
-        and statement -> 'Resource' ?| array['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
-        and statement -> 'Action' ?| array['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
-    ),
-    role_with_decrypt_grant as (
-      select
-        distinct arn
-      from
-        aws_iam_role,
-        jsonb_array_elements(inline_policies_std) as inline_policy,
-        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') as statement
-      where
-        statement ->> 'Effect' = 'Allow'
-        and statement -> 'Resource' ?| array['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
-        and statement -> 'Action' ?| array['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
-    ),
-    group_with_decrypt_grant as (
-      select
-        distinct arn
-      from
-        aws_iam_group,
-        jsonb_array_elements(inline_policies_std) as inline_policy,
-        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') as statement
-      where
-        statement ->> 'Effect' = 'Allow'
-        and statement -> 'Resource' ?| array['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
-        and statement -> 'Action' ?| array['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
-    )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      'aws_iam_user' as og_table_name,
-      case
-        when d.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when d.arn is null then 'User ' || i.title || ' not allowed to perform decryption actions on all keys.'
-        else 'User ' || i.title || ' allowed to perform decryption actions on all keys.'
-      end as reason
-
-      , i.account_id
-    from
-      aws_iam_user i
-      left join user_with_decrypt_grant d on i.arn = d.arn
-    union
-    select
-      r.arn as resource,
-      r.og_account_id as og_account_id,
-      r.og_resource_id as og_resource_id,
-      'aws_iam_role' as og_table_name,
-      case
-        when d.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when d.arn is null then 'Role ' || r.title || ' not allowed to perform decryption actions on all keys.'
-        else 'Role ' || r.title || ' allowed to perform decryption actions on all keys.'
-      end as reason
-
-      , r.account_id
-    from
-      aws_iam_role r
-      left join role_with_decrypt_grant d on r.arn = d.arn
-    where
-      r.arn not like '%service-role/%'
-    union
-    select
-      g.arn as resource,
-      g.og_account_id as og_account_id,
-      g.og_resource_id as og_resource_id,
-      'aws_iam_group' as og_table_name,
-      case
-        when d.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when d.arn is null then 'Role ' || g.title || ' not allowed to perform decryption actions on all keys.'
-        else 'Group ' || g.title || ' allowed to perform decryption actions on all keys.'
-      end as reason
-      , g.account_id
-    from
-      aws_iam_group g
-      left join group_with_decrypt_grant d on g.arn = d.arn;
-  PrimaryTable: ""
   ListOfTables:
     - aws_iam_group
     - aws_iam_role
     - aws_iam_user
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH user_with_decrypt_grant AS (
+      SELECT
+        DISTINCT arn
+      FROM
+        aws_iam_user,
+        jsonb_array_elements(inline_policies_std) AS inline_policy,
+        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') AS statement
+      WHERE
+        statement ->> 'Effect' = 'Allow'
+        AND statement -> 'Resource' ?| ARRAY['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+        AND statement -> 'Action' ?| ARRAY['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
+    ),
+    role_with_decrypt_grant AS (
+      SELECT
+        DISTINCT arn
+      FROM
+        aws_iam_role,
+        jsonb_array_elements(inline_policies_std) AS inline_policy,
+        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') AS statement
+      WHERE
+        statement ->> 'Effect' = 'Allow'
+        AND statement -> 'Resource' ?| ARRAY['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+        AND statement -> 'Action' ?| ARRAY['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
+    ),
+    group_with_decrypt_grant AS (
+      SELECT
+        DISTINCT arn
+      FROM
+        aws_iam_group,
+        jsonb_array_elements(inline_policies_std) AS inline_policy,
+        jsonb_array_elements(inline_policy -> 'PolicyDocument' -> 'Statement') AS statement
+      WHERE
+        statement ->> 'Effect' = 'Allow'
+        AND statement -> 'Resource' ?| ARRAY['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+        AND statement -> 'Action' ?| ARRAY['*', 'kms:*', 'kms:decrypt', 'kms:deencrypt*', 'kms:reencryptfrom']
+    )
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      'aws_iam_user' AS og_table_name,
+      CASE
+        WHEN d.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.arn IS NULL THEN 'User ' || i.title || ' not allowed to perform decryption actions on all keys.'
+        ELSE 'User ' || i.title || ' allowed to perform decryption actions on all keys.'
+      END AS reason,
+      i.account_id
+    FROM
+      aws_iam_user i
+    LEFT JOIN user_with_decrypt_grant d ON i.arn = d.arn
+    UNION
+    SELECT
+      r.arn AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      'aws_iam_role' AS og_table_name,
+      CASE
+        WHEN d.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.arn IS NULL THEN 'Role ' || r.title || ' not allowed to perform decryption actions on all keys.'
+        ELSE 'Role ' || r.title || ' allowed to perform decryption actions on all keys.'
+      END AS reason,
+      r.account_id
+    FROM
+      aws_iam_role r
+    LEFT JOIN role_with_decrypt_grant d ON r.arn = d.arn
+    WHERE
+      r.arn NOT LIKE '%service-role/%'
+    UNION
+    SELECT
+      g.arn AS resource,
+      g.og_account_id AS og_account_id,
+      g.og_resource_id AS og_resource_id,
+      'aws_iam_group' AS og_table_name,
+      CASE
+        WHEN d.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN d.arn IS NULL THEN 'Group ' || g.title || ' not allowed to perform decryption actions on all keys.'
+        ELSE 'Group ' || g.title || ' allowed to perform decryption actions on all keys.'
+      END AS reason,
+      g.account_id
+    FROM
+      aws_iam_group g
+    LEFT JOIN group_with_decrypt_grant d ON g.arn = d.arn;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -117,5 +116,4 @@ Tags:
     - aws
   service:
     - AWS/KMS
-IntegrationType:
-  - aws_cloud_account
+Title: KMS key decryption should be restricted in IAM inline policy

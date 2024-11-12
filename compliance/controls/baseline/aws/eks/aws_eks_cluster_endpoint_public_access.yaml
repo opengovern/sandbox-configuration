@@ -1,31 +1,34 @@
+Description: Ensure that AWS EKS cluster endpoint access isn't public and prone to security risks.
 ID: aws_eks_cluster_endpoint_public_access
-Title: "EKS Cluster Endpoint Public Access"
-Description: "Ensure that AWS EKS cluster endpoint access isn't public and prone to security risks."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      og_account_id,
-      og_resource_id,
-      case
-        when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' and
-        (resources_vpc_config ->> 'PublicAccessCidrs')::text like '%"0.0.0.0/0"%' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when resources_vpc_config ->> 'EndpointPublicAccess' = 'true' and
-        (resources_vpc_config ->> 'PublicAccessCidrs')::text like '%"0.0.0.0/0"%' then name || ' Kubernetes API endpoint configured is publicly accessible.'
-        else name || ' Kubernetes API endpoint configured is not publicly accessible.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_eks_cluster;
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
+          AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
+          AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
+        THEN name || ' Kubernetes API endpoint configured is publicly accessible.'
+        ELSE name || ' Kubernetes API endpoint configured is not publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_eks_cluster;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +39,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: EKS Cluster Endpoint Public Access

@@ -1,38 +1,39 @@
+Description: This control checks if ECS containers are limited to read-only access to mounted root filesystems. This control fails if the ReadonlyRootFilesystem parameter in the container definition of ECS task definitions is set to false.
 ID: aws_foundational_security_ecs_5
-Title: "5 ECS containers should be limited to read-only access to root filesystems"
-Description: "This control checks if ECS containers are limited to read-only access to mounted root filesystems. This control fails if the ReadonlyRootFilesystem parameter in the container definition of ECS task definitions is set to false."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with privileged_container_definition as (
-      select
-        distinct task_definition_arn as arn
-      from
-        aws_ecs_task_definition,
-        jsonb_array_elements(container_definitions) as c
-      where
-        c ->> 'ReadonlyRootFilesystem' = 'true'
-    )
-    select
-      d.task_definition_arn as resource,
-      d.og_account_id as og_account_id,
-      d.og_resource_id as og_resource_id,
-      case
-        when c.arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when c.arn is not null then d.title || ' containers limited to read-only access to root filesystems.'
-        else d.title || ' containers not limited to read-only access to root filesystems.'
-      end as reason
-    from
-      aws_ecs_task_definition as d
-      left join privileged_container_definition as c on d.task_definition_arn = c.arn;
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH privileged_container_definition AS (
+      SELECT
+        DISTINCT task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c
+      WHERE
+        c ->> 'ReadonlyRootFilesystem' = 'true'
+    )
+    SELECT
+      d.task_definition_arn AS resource,
+      d.og_account_id AS og_account_id,
+      d.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN c.arn IS NOT NULL THEN d.title || ' containers limited to read-only access to root filesystems.'
+        ELSE d.title || ' containers not limited to read-only access to root filesystems.'
+      END AS reason
+    FROM
+      aws_ecs_task_definition AS d
+    LEFT JOIN privileged_container_definition AS c
+    ON d.task_definition_arn = c.arn;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 5 ECS containers should be limited to read-only access to root filesystems

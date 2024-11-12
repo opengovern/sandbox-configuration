@@ -1,14 +1,34 @@
+Description: Periodically, newer versions are released for HTTP either due to security flaws or to include additional functionality. Using the latest HTTP version for web apps to take advantage of security fixes, if any, and/or new functionalities of the newer version. Currently, this policy only applies to Linux web apps.
 ID: azure_appservice_web_app_latest_http_version
-Title: "Ensure that 'HTTP Version' is the latest, if used to run the Web app"
-Description: "Periodically, newer versions are released for HTTP either due to security flaws or to include additional functionality. Using the latest HTTP version for web apps to take advantage of security fixes, if any, and/or new functionalities of the newer version. Currently, this policy only applies to Linux web apps."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  app.id as resource,\n  app.og_account_id as og_account_id,\n  app.og_resource_id as og_resource_id,\n  case\n    when not (configuration -> 'properties' ->> 'http20Enabled') :: boolean then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not (configuration -> 'properties' ->> 'http20Enabled') :: boolean then name || ' HTTP version not latest.'\n    else name || ' HTTP version is latest.'\n  end as reason\n  \n  , app.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_web_app as app,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = app.subscription_id;\n"
-  PrimaryTable: azure_app_service_web_app
   ListOfTables:
     - azure_app_service_web_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_web_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT (configuration -> 'properties' ->> 'http20Enabled')::boolean THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT (configuration -> 'properties' ->> 'http20Enabled')::boolean THEN name || ' HTTP version not latest.'
+        ELSE name || ' HTTP version is latest.'
+      END AS reason,
+      app.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_web_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: Ensure that 'HTTP Version' is the latest, if used to run the Web app

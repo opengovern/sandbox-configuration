@@ -1,14 +1,29 @@
+Description: This control checks whether a Neptune manual DB cluster snapshot is public. The control fails if a Neptune manual DB cluster snapshot is public.
 ID: aws_neptune_db_cluster_snapshot_prohibit_public_access
-Title: "Neptune DB cluster snapshots should not be public"
-Description: "This control checks whether a Neptune manual DB cluster snapshot is public. The control fails if a Neptune manual DB cluster snapshot is public."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  db_cluster_snapshot_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when cluster_snapshot -> 'AttributeValues' = '[\"all\"]' then title || ' publicly accessible.'\n    else title || ' not publicly accessible.'\n  end reason\n  \nfrom\n  aws_neptune_db_cluster_snapshot,\n  jsonb_array_elements(db_cluster_snapshot_attributes) as cluster_snapshot;"
-  PrimaryTable: aws_neptune_db_cluster_snapshot
   ListOfTables:
     - aws_neptune_db_cluster_snapshot
   Parameters: []
+  PrimaryTable: aws_neptune_db_cluster_snapshot
+  QueryToExecute: |
+    SELECT
+      db_cluster_snapshot_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
+        ELSE 'ok'
+      END status,
+      CASE
+        WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END reason
+    FROM
+      aws_neptune_db_cluster_snapshot,
+      jsonb_array_elements(db_cluster_snapshot_attributes) AS cluster_snapshot;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Neptune DB cluster snapshots should not be public

@@ -1,38 +1,39 @@
+Description: Ensure EC2 instances provisioned in your AWS account are not associated with security groups that have their name prefixed with 'launch-wizard', in order to enforce using secure and custom security groups that exercise the principle of least privilege.
 ID: aws_ec2_instance_no_launch_wizard_security_group
-Title: "EC2 instances should not be attached to 'launch wizard' security groups"
-Description: "Ensure EC2 instances provisioned in your AWS account are not associated with security groups that have their name prefixed with 'launch-wizard', in order to enforce using secure and custom security groups that exercise the principle of least privilege."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with launch_wizard_sg_attached_instance as (
-      select
-        distinct arn as arn
-      from
-        aws_ec2_instance,
-        jsonb_array_elements(security_groups) as sg
-      where
-        sg ->> 'GroupName' like 'launch-wizard%'
-    )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when sg.arn is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when sg.arn is null then i.title || ' not associated with launch-wizard security group.'
-        else i.title || ' associated with launch-wizard security group.'
-      end as reason
-    from
-      aws_ec2_instance as i
-      left join launch_wizard_sg_attached_instance as sg on i.arn = sg.arn;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    WITH launch_wizard_sg_attached_instance AS (
+      SELECT
+        DISTINCT arn AS arn
+      FROM
+        aws_ec2_instance,
+        jsonb_array_elements(security_groups) AS sg
+      WHERE
+        sg ->> 'GroupName' LIKE 'launch-wizard%'
+    )
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN sg.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN sg.arn IS NULL THEN i.title || ' not associated with launch-wizard security group.'
+        ELSE i.title || ' associated with launch-wizard security group.'
+      END AS reason
+    FROM
+      aws_ec2_instance AS i
+    LEFT JOIN 
+      launch_wizard_sg_attached_instance AS sg ON i.arn = sg.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EC2 instances should not be attached to 'launch wizard' security groups

@@ -1,31 +1,32 @@
+Description: Ensure EBS volumes are encrypted to meet security and encryption compliance requirements. Encryption is a key mechanism for you to ensure that you are in full control over who has access to your data.
 ID: aws_ebs_encrypted
-Title: "EBS Volumes need to be encrypted"
-Description: "Ensure EBS volumes are encrypted to meet security and encryption compliance requirements. Encryption is a key mechanism for you to ensure that you are in full control over who has access to your data."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encrypted then volume_id || ' encrypted.'
-        else volume_id || ' not encrypted.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ebs_volume
-    where
-      state = 'in-use'
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encrypted THEN volume_id || ' encrypted.'
+        ELSE volume_id || ' not encrypted.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ebs_volume
+    WHERE
+      state = 'in-use'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: EBS Volumes need to be encrypted

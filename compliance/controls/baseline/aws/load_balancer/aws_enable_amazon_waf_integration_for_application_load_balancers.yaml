@@ -1,38 +1,40 @@
+Description: Use Amazon WAF to protect Application Load Balancers from common web exploits.
 ID: aws_enable_amazon_waf_integration_for_application_load_balancers
-Title: "Enable Amazon WAF Integration for Application Load Balancers"
-Description: "Use Amazon WAF to protect Application Load Balancers from common web exploits."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with associated_resource as (
-      select
-        arns
-      from
-        aws_wafv2_web_acl,
-        jsonb_array_elements_text(associated_resources) as arns
-    )
-    select
-      arn as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when ar.arns is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ar.arns is not null then title || ' WAF enabled.'
-        else title || ' WAF disabled.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_application_load_balancer as lb
-      left join associated_resource as ar on lb.arn = ar.arns;
-  PrimaryTable: aws_ec2_application_load_balancer
   ListOfTables:
     - aws_ec2_application_load_balancer
     - aws_wafv2_web_acl
   Parameters: []
+  PrimaryTable: aws_ec2_application_load_balancer
+  QueryToExecute: |
+    WITH associated_resource AS (
+      SELECT
+        arns
+      FROM 
+        aws_wafv2_web_acl,
+        JSONB_ARRAY_ELEMENTS_TEXT(associated_resources) AS arns
+    )
+    SELECT
+      arn AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN ar.arns IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ar.arns IS NOT NULL THEN title || ' WAF enabled.'
+        ELSE title || ' WAF disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_ec2_application_load_balancer AS lb
+      LEFT JOIN associated_resource AS ar 
+      ON lb.arn = ar.arns;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -43,5 +45,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Amazon WAF Integration for Application Load Balancers

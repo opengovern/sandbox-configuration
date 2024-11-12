@@ -1,14 +1,25 @@
+Description: This control ensures that ACM certificates are not in pending validation state. When certificates are not validated within 72 hours after the request is made, those certificates become invalid.
 ID: aws_acm_certificate_no_pending_validation_certificate
-Title: "Ensure that ACM certificates are not in pending validation state"
-Description: "This control ensures that ACM certificates are not in pending validation state. When certificates are not validated within 72 hours after the request is made, those certificates become invalid."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  certificate_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when status = 'PENDING_VALIDATION' then 'info'\n    else 'ok'\n  end as status,\n  title || ' status is ' || status || '.'  as reason\n  \n  \nfrom\n  aws_acm_certificate;"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN status = 'PENDING_VALIDATION' THEN 'info'
+        ELSE 'ok'
+      END AS status,
+      title || ' status is ' || status || '.' AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure that ACM certificates are not in pending validation state

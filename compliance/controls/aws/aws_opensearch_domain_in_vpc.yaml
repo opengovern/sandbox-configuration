@@ -1,50 +1,44 @@
+Description: This control checks whether AWS OpenSearch domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access.
 ID: aws_opensearch_domain_in_vpc
-Title: "OpenSearch domains should be in a VPC"
-Description: "This control checks whether AWS OpenSearch domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with public_subnets as (
-      select
-        distinct a -> 'SubnetId' as SubnetId
-      from
-        aws_vpc_route_table as t,
-        jsonb_array_elements(associations) as a,
-        jsonb_array_elements(routes) as r
-      where
-        r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
-        and  r ->>  'GatewayId' like 'igw-%'
-    ), opensearch_domain_with_public_subnet as (
-      select
-        arn
-      from
-        aws_opensearch_domain ,
-        jsonb_array_elements(vpc_options -> 'SubnetIds') as s
-      where
-        s in (select SubnetId from public_subnets)
-    )
-    select
-      d.arn as resource,
-      d.og_account_id as og_account_id,
-      d.og_resource_id as og_resource_id,
-      case
-        when d.vpc_options ->> 'VPCId' is null then 'alarm'
-        when d.vpc_options ->> 'VPCId' is not null and p.arn is not null then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when vpc_options ->> 'VPCId' is null then title || ' not in VPC.'
-        when d.vpc_options ->> 'VPCId' is not null and p.arn is not null then title || ' attached to public subnet.'
-        else title || ' in VPC ' || (vpc_options ->> 'VPCId') || '.'
-      end reason, d.region, d.account_id
-    from
-      aws_opensearch_domain as d
-      left join opensearch_domain_with_public_subnet as p on d.arn = p.arn;
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
     - aws_vpc_route_table
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    WITH public_subnets AS (
+      SELECT DISTINCT a -> 'SubnetId' AS SubnetId
+      FROM aws_vpc_route_table AS t,
+           jsonb_array_elements(associations) AS a,
+           jsonb_array_elements(routes) AS r
+      WHERE r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+        AND r ->> 'GatewayId' LIKE 'igw-%'
+    ), opensearch_domain_with_public_subnet AS (
+      SELECT arn
+      FROM aws_opensearch_domain,
+           jsonb_array_elements(vpc_options -> 'SubnetIds') AS s
+      WHERE s IN (SELECT SubnetId FROM public_subnets)
+    )
+    SELECT d.arn AS resource,
+           d.og_account_id AS og_account_id,
+           d.og_resource_id AS og_resource_id,
+           CASE
+             WHEN d.vpc_options ->> 'VPCId' IS NULL THEN 'alarm'
+             WHEN d.vpc_options ->> 'VPCId' IS NOT NULL AND p.arn IS NOT NULL THEN 'alarm'
+             ELSE 'ok'
+           END status,
+           CASE
+             WHEN vpc_options ->> 'VPCId' IS NULL THEN title || ' not in VPC.'
+             WHEN d.vpc_options ->> 'VPCId' IS NOT NULL AND p.arn IS NOT NULL THEN title || ' attached to public subnet.'
+             ELSE title || ' in VPC ' || (vpc_options ->> 'VPCId') || '.'
+           END reason,
+           d.region, d.account_id
+    FROM aws_opensearch_domain AS d
+    LEFT JOIN opensearch_domain_with_public_subnet AS p ON d.arn = p.arn;
 Severity: critical
 Tags:
   aws_foundational_security:
@@ -61,5 +55,4 @@ Tags:
     - Exposed Endpoints
   service:
     - AWS/OpenSearch
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch domains should be in a VPC

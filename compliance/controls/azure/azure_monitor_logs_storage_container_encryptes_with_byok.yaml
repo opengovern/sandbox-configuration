@@ -1,15 +1,39 @@
+Description: The storage account with the activity log export container is configured to use BYOK (Use Your Own Key).
 ID: azure_monitor_logs_storage_container_encryptes_with_byok
-Title: "Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)"
-Description: "The storage account with the activity log export container is configured to use BYOK (Use Your Own Key)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.encryption_key_source = 'Microsoft.Keyvault'\n      then a.name || ' container insights-operational-logs encrypted with BYOK.'\n    else a.name || ' container insights-operational-logs not encrypted with BYOK.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_container c,\n  azure_storage_account a,\n  azure_subscription sub\nwhere\n  c.name = 'insights-operational-logs'\n  and c.account_name = a.name\n  and sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_storage_container
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.encryption_key_source = 'Microsoft.Keyvault' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.encryption_key_source = 'Microsoft.Keyvault'
+          THEN a.name || ' container insights-operational-logs encrypted with BYOK.'
+        ELSE a.name || ' container insights-operational-logs not encrypted with BYOK.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_container c,
+      azure_storage_account a,
+      azure_subscription sub
+    WHERE
+      c.name = 'insights-operational-logs'
+      AND c.account_name = a.name
+      AND sub.subscription_id = a.subscription_id
 Severity: medium
 Tags:
   category:
@@ -30,5 +54,4 @@ Tags:
     - azure
   service:
     - Azure/Monitor
-IntegrationType:
-  - azure_subscription
+Title: Ensure the storage account containing the container with activity logs is encrypted with BYOK (Use Your Own Key)

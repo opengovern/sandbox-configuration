@@ -1,42 +1,42 @@
+Description: AWS IAM role should not be attached Administratoraccess policy.
 ID: aws_iam_role_no_administrator_access_policy_attached
-Title: "Ensure IAM role not attached with Administratoraccess policy"
-Description: "AWS IAM role should not be attached Administratoraccess policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with admin_roles as (
-      select
-        arn,
-        name,
-        attachments
-      from
-        aws_iam_role,
-        jsonb_array_elements_text(attached_policy_arns) as attachments
-      where
-        split_part(attachments, '/', 2) = 'AdministratorAccess'
-    )
-    select
-      r.arn as resource,
-      r.og_account_id as og_account_id,
-      r.og_resource_id as og_resource_id,
-      case
-        when ar.arn is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when ar.arn is not null then r.name || ' have AdministratorAccess policy attached.'
-        else r.name || ' does not have AdministratorAccess policy attached.'
-      end as reason
-    from
-      aws_iam_role as r
-      left join admin_roles ar on r.arn = ar.arn
-    order by
-      r.name;
-  PrimaryTable: aws_iam_role
   ListOfTables:
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    WITH admin_roles AS (
+      SELECT
+        arn,
+        name,
+        attachments
+      FROM
+        aws_iam_role,
+        JSONB_ARRAY_ELEMENTS_TEXT(attached_policy_arns) AS attachments
+      WHERE
+        SPLIT_PART(attachments, '/', 2) = 'AdministratorAccess'
+    )
+    SELECT
+      r.arn AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN ar.arn IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN ar.arn IS NOT NULL THEN r.name || ' have AdministratorAccess policy attached.'
+        ELSE r.name || ' does not have AdministratorAccess policy attached.'
+      END AS reason
+    FROM
+      aws_iam_role AS r
+    LEFT JOIN admin_roles ar ON r.arn = ar.arn
+    ORDER BY
+      r.name;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure IAM role not attached with Administratoraccess policy

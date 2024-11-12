@@ -1,13 +1,30 @@
+Description: AWS Elastic Beanstalk enhanced health reporting enables a more rapid response to changes in the health of the underlying infrastructure. These changes could result in a lack of availability of the application. Elastic Beanstalk enhanced health reporting provides a status descriptor to gauge the severity of the identified issues and identify possible causes to investigate.
 ID: aws_elastic_beanstalk_enhanced_health_reporting_enabled
-Title: "Elastic Beanstalk enhanced health reporting should be enabled"
-Description: "AWS Elastic Beanstalk enhanced health reporting enables a more rapid response to changes in the health of the underlying infrastructure. These changes could result in a lack of availability of the application. Elastic Beanstalk enhanced health reporting provides a status descriptor to gauge the severity of the identified issues and identify possible causes to investigate."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  application_name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when health_status is not null and health is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when health_status is not null and health is not null then application_name || ' enhanced health check enabled.'\n    else application_name || ' enhanced health check disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elastic_beanstalk_environment;\n"
-  PrimaryTable: aws_elastic_beanstalk_environment
   ListOfTables:
     - aws_elastic_beanstalk_environment
   Parameters: []
+  PrimaryTable: aws_elastic_beanstalk_environment
+  QueryToExecute: |
+    SELECT
+      application_name AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN health_status IS NOT NULL AND health IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN health_status IS NOT NULL AND health IS NOT NULL THEN application_name || ' enhanced health check enabled.'
+        ELSE application_name || ' enhanced health check disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_elastic_beanstalk_environment;
 Severity: medium
 Tags:
   category:
@@ -26,5 +43,4 @@ Tags:
     - aws
   service:
     - AWS/ElasticBeanstalk
-IntegrationType:
-  - aws_cloud_account
+Title: Elastic Beanstalk enhanced health reporting should be enabled

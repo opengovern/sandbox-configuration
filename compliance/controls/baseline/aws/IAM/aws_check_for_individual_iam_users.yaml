@@ -1,14 +1,33 @@
+Description: Ensure there is at least one IAM user used to access your AWS cloud account.
 ID: aws_check_for_individual_iam_users
-Title: "Check for Individual IAM Users"
-Description: "Ensure there is at least one IAM user used to access your AWS cloud account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.account_id as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when user_id is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when u.user_id is null then a.account_id || ' account has no user'\n    else a.account_id || ' account has user'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_account as a\n  left join aws_iam_user as u on a.account_id = u.account_id\n"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT
+      a.account_id AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN user_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN u.user_id IS NULL THEN a.account_id || ' account has no user'
+        ELSE a.account_id || ' account has user'
+      END AS reason,
+      a.region, 
+      a.account_id
+    FROM
+      aws_account AS a
+    LEFT JOIN aws_iam_user AS u 
+      ON a.account_id = u.account_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +38,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Check for Individual IAM Users

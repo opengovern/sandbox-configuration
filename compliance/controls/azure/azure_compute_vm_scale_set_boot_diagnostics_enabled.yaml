@@ -1,32 +1,32 @@
+Description: This policy identifies Azure Virtual Machines scale sets which has Boot Diagnostics setting Disabled. Boot Diagnostics when enabled for virtual machine, captures Screenshot and Console Output during virtual machine startup. This would help in troubleshooting virtual machine when it enters a non-bootable state.
 ID: azure_compute_vm_scale_set_boot_diagnostics_enabled
-Title: "Virtual Machine scale sets boot diagnostics should be enabled"
-Description: "This policy identifies Azure Virtual Machines scale sets which has Boot Diagnostics setting Disabled. Boot Diagnostics when enabled for virtual machine, captures Screenshot and Console Output during virtual machine startup. This would help in troubleshooting virtual machine when it enters a non-bootable state."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when (virtual_machine_diagnostics_profile -> 'bootDiagnostics' ->> 'enabled') :: boolean then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (virtual_machine_diagnostics_profile -> 'bootDiagnostics' ->> 'enabled') :: boolean then a.title || ' boot diagnostics enabled.'
-        else a.title || ' boot diagnostics disabled.'
-      end as reason
-    from
-      azure_compute_virtual_machine_scale_set as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_compute_virtual_machine_scale_set
   ListOfTables:
     - azure_compute_virtual_machine_scale_set
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine_scale_set
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN (virtual_machine_diagnostics_profile -> 'bootDiagnostics' ->> 'enabled') :: boolean THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (virtual_machine_diagnostics_profile -> 'bootDiagnostics' ->> 'enabled') :: boolean THEN a.title || ' boot diagnostics enabled.'
+        ELSE a.title || ' boot diagnostics disabled.'
+      END AS reason
+    FROM
+      azure_compute_virtual_machine_scale_set AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Virtual Machine scale sets boot diagnostics should be enabled

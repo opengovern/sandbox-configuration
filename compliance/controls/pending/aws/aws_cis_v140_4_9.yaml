@@ -1,13 +1,89 @@
+Description: Real-time monitoring of API calls can be achieved by directing CloudTrail Logs to CloudWatch Logs and establishing corresponding metric filters and alarms. It is recommended that a metric filter and alarm be established for detecting changes to CloudTrail's configurations.
 ID: aws_cis_v140_4_9
-Title: "4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes"
-Description: "Real-time monitoring of API calls can be achieved by directing CloudTrail Logs to CloudWatch Logs and establishing corresponding metric filters and alarms. It is recommended that a metric filter and alarm be established for detecting changes to CloudTrail's configurations."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "with trails as (\n  select\n    trail.account_id,\n    trail.name as trail_name,\n    trail.is_logging,\n    split_part(trail.log_group_arn, ':', 7) as log_group_name\n  from\n    aws_cloudtrail_trail as trail,\n    jsonb_array_elements(trail.event_selectors) as se\n  where\n    trail.is_multi_region_trail is true\n    and trail.is_logging\n    and se ->> 'ReadWriteType' = 'All'\n    and trail.log_group_arn is not null\n  order by\n    trail_name\n),\nalarms as (\n  select\n    metric_name,\n    action_arn as topic_arn\n  from\n    aws_cloudwatch_alarm,\n    jsonb_array_elements_text(aws_cloudwatch_alarm.alarm_actions) as action_arn\n  order by\n    metric_name\n),\ntopic_subscriptions as (\n  select\n    subscription_arn,\n    topic_arn\n  from\n    aws_sns_topic_subscription\n  order by\n    subscription_arn\n),\nmetric_filters as (\n  select\n    filter.name as filter_name,\n    filter_pattern,\n    log_group_name,\n    metric_transformation_name\n  from\n    aws_cloudwatch_log_metric_filter as filter\n  where\n    filter.filter_pattern ~ '\\s*\\$\\.eventSource\\s*=\\s*config.amazonaws.com.+\\$\\.eventName\\s*=\\s*StopConfigurationRecorder.+\\$\\.eventName\\s*=\\s*DeleteDeliveryChannel.+\\$\\.eventName\\s*=\\s*PutDeliveryChannel.+\\$\\.eventName\\s*=\\s*PutConfigurationRecorder'\n  order by\n    filter_name\n),\nfilter_data as (\n  select\n    t.account_id,\n    t.trail_name,\n    f.filter_name\n  from\n    trails as t\n  join\n    metric_filters as f on f.log_group_name = t.log_group_name\n  join\n    alarms as alarm on alarm.metric_name = f.metric_transformation_name\n  join\n    topic_subscriptions as subscription on subscription.topic_arn = alarm.topic_arn\n)\nselect\n  distinct 'arn:' || a.partition || ':::' || a.account_id as resource,\n  case\n    when f.trail_name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when f.trail_name is null then 'No log metric filter and alarm exist for AWS Config configuration changes.'\n    else filter_name || ' forwards events for AWS Config configuration changes.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join filter_data as f on a.account_id = f.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH trails AS (
+      SELECT
+        trail.account_id,
+        trail.name AS trail_name,
+        trail.is_logging,
+        SPLIT_PART(trail.log_group_arn, ':', 7) AS log_group_name
+      FROM
+        aws_cloudtrail_trail AS trail,
+        JSONB_ARRAY_ELEMENTS(trail.event_selectors) AS se
+      WHERE
+        trail.is_multi_region_trail IS TRUE
+        AND trail.is_logging
+        AND se ->> 'ReadWriteType' = 'All'
+        AND trail.log_group_arn IS NOT NULL
+      ORDER BY
+        trail_name
+    ),
+    alarms AS (
+      SELECT
+        metric_name,
+        action_arn AS topic_arn
+      FROM
+        aws_cloudwatch_alarm,
+        JSONB_ARRAY_ELEMENTS_TEXT(aws_cloudwatch_alarm.alarm_actions) AS action_arn
+      ORDER BY
+        metric_name
+    ),
+    topic_subscriptions AS (
+      SELECT
+        subscription_arn,
+        topic_arn
+      FROM
+        aws_sns_topic_subscription
+      ORDER BY
+        subscription_arn
+    ),
+    metric_filters AS (
+      SELECT
+        filter.name AS filter_name,
+        filter_pattern,
+        log_group_name,
+        metric_transformation_name
+      FROM
+        aws_cloudwatch_log_metric_filter AS filter
+      WHERE
+        filter.filter_pattern ~ '\s*\$\.eventSource\s*=\s*config.amazonaws.com.+\$\.eventName\s*=\s*StopConfigurationRecorder.+\$\.eventName\s*=\s*DeleteDeliveryChannel.+\$\.eventName\s*=\s*PutDeliveryChannel.+\$\.eventName\s*=\s*PutConfigurationRecorder'
+      ORDER BY
+        filter_name
+    ),
+    filter_data AS (
+      SELECT
+        t.account_id,
+        t.trail_name,
+        f.filter_name
+      FROM
+        trails AS t
+      JOIN
+        metric_filters AS f ON f.log_group_name = t.log_group_name
+      JOIN
+        alarms AS alarm ON alarm.metric_name = f.metric_transformation_name
+      JOIN
+        topic_subscriptions AS subscription ON subscription.topic_arn = alarm.topic_arn
+    )
+    SELECT
+      DISTINCT 'arn:' || a.partition || ':::' || a.account_id AS resource,
+      CASE
+        WHEN f.trail_name IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN f.trail_name IS NULL THEN 'No log metric filter and alarm exist for AWS Config configuration changes.'
+        ELSE filter_name || ' forwards events for AWS Config configuration changes.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN filter_data AS f ON a.account_id = f.account_id
+Severity: low
+Tags: {}
+Title: 4.9 Ensure a log metric filter and alarm exist for AWS Config configuration changes

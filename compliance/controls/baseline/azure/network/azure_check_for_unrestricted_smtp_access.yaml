@@ -1,45 +1,49 @@
+Description: Ensure that no network security groups allow unrestricted inbound access on TCP port 25.
 ID: azure_check_for_unrestricted_smtp_access
-Title: "Check for Unrestricted SMTP Access"
-Description: "Ensure that no network security groups allow unrestricted inbound access on TCP port 25."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      sg.id as resource,
-      sg.og_account_id,
-      sg.og_resource_id,
-      case
-        when (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') or
-        (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') or
-        (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') or
-        (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') or
-        (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') then 'The SMTP inbound access to the associated Microsoft Azure virtual machine(s) is not secured.'
-        else 'The SMTP inbound access to the associated Microsoft Azure virtual machine(s) is secured.'
-      end as reason,
-      sg.resource_group,
-      display_name as subscription
-    from
-      azure_network_security_group as sg,
-      azure_subscription as sub,
-      jsonb_array_elements(security_rules) as sr
-    where
-      sub.subscription_id = sg.subscription_id and
-      sr -> 'properties' ->> 'access' = 'Allow' and sr -> 'properties' ->> 'protocol' = 'Tcp' and
-      (sr -> 'properties' ->> 'destinationPortRanges' = '25' or sr -> 'properties' ->> 'destinationPortRanges' like '%"25"%' or sr -> 'properties' ->> 'destinationPortRanges' = '*') and sr -> 'properties' ->> 'direction' = 'Inbound'
-  PrimaryTable: azure_network_security_group
   ListOfTables:
     - azure_network_security_group
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_network_security_group
+  QueryToExecute: |
+    SELECT
+      sg.id AS resource,
+      sg.og_account_id,
+      sg.og_resource_id,
+      CASE
+        WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') OR
+             (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') OR
+             (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') OR
+             (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') OR
+             (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') THEN 'The SMTP inbound access to the associated Microsoft Azure virtual machine(s) is not secured.'
+        ELSE 'The SMTP inbound access to the associated Microsoft Azure virtual machine(s) is secured.'
+      END AS reason,
+      sg.resource_group,
+      display_name AS subscription
+    FROM
+      azure_network_security_group AS sg,
+      azure_subscription AS sub,
+      jsonb_array_elements(security_rules) AS sr
+    WHERE
+      sub.subscription_id = sg.subscription_id
+      AND sr -> 'properties' ->> 'access' = 'Allow'
+      AND sr -> 'properties' ->> 'protocol' = 'Tcp'
+      AND (sr -> 'properties' ->> 'destinationPortRanges' = '25'
+           OR sr -> 'properties' ->> 'destinationPortRanges' LIKE '%"25"%'
+           OR sr -> 'properties' ->> 'destinationPortRanges' = '*')
+      AND sr -> 'properties' ->> 'direction' = 'Inbound'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - Azure Network
   score_service_name:
     - Azure Network
-IntegrationType:
-  - azure_subscription
+Title: Check for Unrestricted SMTP Access

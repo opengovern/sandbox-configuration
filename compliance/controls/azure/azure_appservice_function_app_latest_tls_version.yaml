@@ -1,14 +1,34 @@
+Description: Periodically, newer versions are released for TLS either due to security flaws, include additional functionality, and enhance speed. Upgrade to the latest TLS version for Function apps to take advantage of security fixes, if any, and/or new functionalities of the latest version.
 ID: azure_appservice_function_app_latest_tls_version
-Title: "Function apps should use the latest TLS version"
-Description: "Periodically, newer versions are released for TLS either due to security flaws, include additional functionality, and enhance speed. Upgrade to the latest TLS version for Function apps to take advantage of security fixes, if any, and/or new functionalities of the latest version."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  app.id as resource,\n  app.og_account_id as og_account_id,\n  app.og_resource_id as og_resource_id,\n  case\n    when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when configuration -> 'properties' ->> 'minTlsVersion' < '1.2' then name || ' not using the latest version of TLS encryption.'\n    else name || ' using the latest version of TLS encryption.'\n  end as reason\n  \n  , app.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_app_service_function_app as app,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = app.subscription_id;\n"
-  PrimaryTable: azure_app_service_function_app
   ListOfTables:
     - azure_app_service_function_app
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_app_service_function_app
+  QueryToExecute: |
+    SELECT
+      app.id AS resource,
+      app.og_account_id AS og_account_id,
+      app.og_resource_id AS og_resource_id,
+      CASE
+        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN name || ' not using the latest version of TLS encryption.'
+        ELSE name || ' using the latest version of TLS encryption.'
+      END AS reason,
+      app.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_app_service_function_app AS app,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = app.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +37,4 @@ Tags:
     - "true"
   service:
     - Azure/AppService
-IntegrationType:
-  - azure_subscription
+Title: Function apps should use the latest TLS version

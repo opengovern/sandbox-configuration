@@ -1,28 +1,30 @@
+Description: Ensure that a recovery point is encrypted. The rule is non-compliant if the recovery point is not encrypted.
 ID: aws_backup_recovery_point_encryption_enabled
-Title: "Backup recovery points should be encrypted"
-Description: "Ensure that a recovery point is encrypted. The rule is non-compliant if the recovery point is not encrypted."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      recovery_point_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when is_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when is_encrypted then recovery_point_arn || ' encryption enabled.'
-        else recovery_point_arn || ' encryption disabled.'
-      end as reason
-      , region, account_id
-    from
-      aws_backup_recovery_point;
-  PrimaryTable: aws_backup_recovery_point
   ListOfTables:
     - aws_backup_recovery_point
   Parameters: []
+  PrimaryTable: aws_backup_recovery_point
+  QueryToExecute: |
+    SELECT
+      recovery_point_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN is_encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN is_encrypted THEN recovery_point_arn || ' encryption enabled.'
+        ELSE recovery_point_arn || ' encryption disabled.'
+      END AS reason,
+      region, 
+      account_id
+    FROM
+      aws_backup_recovery_point;
 Severity: high
 Tags:
   category:
@@ -51,5 +53,4 @@ Tags:
     - AWS/Backup
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Backup recovery points should be encrypted

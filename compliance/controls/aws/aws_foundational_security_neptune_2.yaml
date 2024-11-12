@@ -1,29 +1,29 @@
+Description: This control checks whether a Neptune DB cluster publishes audit logs to Amazon CloudWatch Logs. The control fails if a Neptune DB cluster doesn't publish audit logs to CloudWatch Logs. EnableCloudWatchLogsExport should be set to Audit.
 ID: aws_foundational_security_neptune_2
-Title: "2 Neptune DB clusters should publish audit logs to CloudWatch Logs"
-Description: "This control checks whether a Neptune DB cluster publishes audit logs to Amazon CloudWatch Logs. The control fails if a Neptune DB cluster doesn't publish audit logs to CloudWatch Logs. EnableCloudWatchLogsExport should be set to Audit."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      engine,
-      case
-        when enabled_cloudwatch_logs_exports @> '["audit"]' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enabled_cloudwatch_logs_exports @> '["audit"]' then title || ' audit logging enabled.'
-        else title || ' audit logging disabled.'
-      end as reason
-    from
-      aws_neptune_db_cluster;
-  PrimaryTable: aws_neptune_db_cluster
   ListOfTables:
     - aws_neptune_db_cluster
   Parameters: []
+  PrimaryTable: aws_neptune_db_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      engine,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports @> '["audit"]' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enabled_cloudwatch_logs_exports @> '["audit"]' THEN title || ' audit logging enabled.'
+        ELSE title || ' audit logging disabled.'
+      END AS reason
+    FROM
+      aws_neptune_db_cluster;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2 Neptune DB clusters should publish audit logs to CloudWatch Logs

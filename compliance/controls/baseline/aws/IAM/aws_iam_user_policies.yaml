@@ -1,13 +1,30 @@
+Description: Ensure AWS IAM policies are attached to groups instead of users as an IAM best practice.
 ID: aws_iam_user_policies
-Title: "IAM User Policies"
-Description: "Ensure AWS IAM policies are attached to groups instead of users as an IAM best practice."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  u.name as resource,\n  u.og_account_id,\n  u.og_resource_id,\n  case\n    when attached_policy_arns is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when attached_policy_arns is null then 'this user does not have any policies attached'\n    else 'policies are better to be attached to only iam groups'\n  end as reason,\n  u.region, \n  u.account_id\nfrom\n  aws_iam_user as u\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT
+      u.name AS resource,
+      u.og_account_id,
+      u.og_resource_id,
+      CASE
+        WHEN attached_policy_arns IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN attached_policy_arns IS NULL THEN 'this user does not have any policies attached'
+        ELSE 'policies are better to be attached to only IAM groups'
+      END AS reason,
+      u.region,
+      u.account_id
+    FROM
+      aws_iam_user AS u
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM User Policies

@@ -1,72 +1,73 @@
+Description: Ensure that your AWS Network Load Balancer listeners are using a secure protocol such as TLS.
 ID: aws_elbv2_nlb_listener_security
-Title: "ELBv2 NLB Listener Security"
-Description: "Ensure that your AWS Network Load Balancer listeners are using a secure protocol such as TLS."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
+  ListOfTables:
+    - aws_ec2_load_balancer_listener
+    - aws_ec2_network_load_balancer
+  Parameters: []
+  PrimaryTable: aws_ec2_network_load_balancer
   QueryToExecute: |
-    with tls_listeners as (
-      select
-        distinct load_balancer_arn
-      from
+    WITH tls_listeners AS (
+      SELECT
+        DISTINCT load_balancer_arn
+      FROM
         aws_ec2_load_balancer_listener
-      where
+      WHERE
         protocol = 'TLS'
-        and ssl_policy not in (
+        AND ssl_policy NOT IN (
           'ELBSecurityPolicy-2016-08',
           'ELBSecurityPolicy-FS-2018-0',
           'ELBSecurityPolicy-TLS13-1-2-Ext1-2021-06',
           'ELBSecurityPolicy-TLS13-1-2-2021-06'
         )
-      group by
+      GROUP BY
         load_balancer_arn
     ),
-    nwl_without_tls_listener as (
-      select
+    nwl_without_tls_listener AS (
+      SELECT
         load_balancer_arn,
-        count(*)
-      from
+        COUNT(*)
+      FROM
         aws_ec2_load_balancer_listener
-      where
+      WHERE
         protocol = 'TLS'
-      group by
+      GROUP BY
         load_balancer_arn
     )
-    select
-      lb.arn as resource,
+    SELECT
+      lb.arn AS resource,
       og_resource_id,
       og_account_id,
-      case
-        when l.load_balancer_arn is not null
-        and lb.arn in (
-          select
+      CASE
+        WHEN l.load_balancer_arn IS NOT NULL
+        AND lb.arn IN (
+          SELECT
             load_balancer_arn
-          from
+          FROM
             tls_listeners
-        ) then 'alarm'
-        when l.load_balancer_arn is not null then 'ok'
-        else 'info'
-      end as status,
-      case
-        when l.load_balancer_arn is not null
-        and lb.arn in (
-          select
+        ) THEN 'alarm'
+        WHEN l.load_balancer_arn IS NOT NULL THEN 'ok'
+        ELSE 'info'
+      END AS status,
+      CASE
+        WHEN l.load_balancer_arn IS NOT NULL
+        AND lb.arn IN (
+          SELECT
             load_balancer_arn
-          from
+          FROM
             tls_listeners
-        ) then lb.title || ' TLS listener security policy not updated.'
-        when l.load_balancer_arn is not null then lb.title || ' TLS listener security policy updated.'
-        else lb.title || ' does not use TLS listener.'
-      end as reason,
+        ) THEN lb.title || ' TLS listener security policy not updated.'
+        WHEN l.load_balancer_arn IS NOT NULL THEN lb.title || ' TLS listener security policy updated.'
+        ELSE lb.title || ' does not use TLS listener.'
+      END AS reason,
       lb.region,
       lb.account_id
-    from
-      aws_ec2_network_load_balancer as lb
-      left join nwl_without_tls_listener as l on l.load_balancer_arn = lb.arn;
-  PrimaryTable: aws_ec2_network_load_balancer
-  ListOfTables:
-    - aws_ec2_load_balancer_listener
-    - aws_ec2_network_load_balancer
-  Parameters: []
+    FROM
+      aws_ec2_network_load_balancer AS lb
+      LEFT JOIN nwl_without_tls_listener AS l ON l.load_balancer_arn = lb.arn;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -77,5 +78,4 @@ Tags:
     - AWS Elastic Load Balancing V2 (ELBv2)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: ELBv2 NLB Listener Security

@@ -1,33 +1,34 @@
+Description: Ensure that AKS clusters are using the latest available version of Kubernetes software.
 ID: azure_check_for_kubernetes_version
-Title: "Check for Kubernetes Version"
-Description: "Ensure that AKS clusters are using the latest available version of Kubernetes software."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      case
-        when kubernetes_version < '{{.azureAksLatestVersion}}' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when kubernetes_version < '{{.azureAksLatestVersion}}' then c.name || ' is not using the latest available version of Kubernetes software'
-        else c.name || ' is using the latest available version of Kubernetes software'
-      end as reason,
-      c.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_kubernetes_cluster as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters:
     - Key: azureAksLatestVersion
       Required: true
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT 
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      CASE 
+        WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE 
+        WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN c.name || ' is not using the latest available version of Kubernetes software'
+        ELSE c.name || ' is using the latest available version of Kubernetes software'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM 
+      azure_kubernetes_cluster AS c
+      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +39,4 @@ Tags:
     - Azure Kubernetes (AKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - azure_subscription
+Title: Check for Kubernetes Version

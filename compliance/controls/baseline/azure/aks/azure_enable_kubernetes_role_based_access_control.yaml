@@ -1,32 +1,34 @@
+Description: Ensure that Kubernetes Role-Based Access Control is enabled for Azure Kubernetes clusters.
 ID: azure_enable_kubernetes_role_based_access_control
-Title: "Enable Kubernetes Role-Based Access Control"
-Description: "Ensure that Kubernetes Role-Based Access Control is enabled for Azure Kubernetes clusters."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      c.name as resource,
-      c.og_resource_id,
-      c.og_account_id,
-      kubernetes_version,
-      case
-        when enable_rbac then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enable_rbac then c.name || ' Role-Based Access Control (RBAC) is enabled'
-        else c.name || ' Role-Based Access Control (RBAC) is not enabled'
-      end as reason,
-      c.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_kubernetes_cluster as c
-      left join azure_subscription as sub on c.subscription_id = sub.subscription_id
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.name AS resource,
+      c.og_resource_id,
+      c.og_account_id,
+      kubernetes_version,
+      CASE
+        WHEN enable_rbac THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_rbac THEN c.name || ' Role-Based Access Control (RBAC) is enabled'
+        ELSE c.name || ' Role-Based Access Control (RBAC) is not enabled'
+      END AS reason,
+      c.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_kubernetes_cluster AS c
+      LEFT JOIN azure_subscription AS sub
+        ON c.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -37,5 +39,4 @@ Tags:
     - Azure Kubernetes (AKS)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - azure_subscription
+Title: Enable Kubernetes Role-Based Access Control

@@ -1,53 +1,55 @@
+Description: Ensure DLM EBS snapshot lifecycle policy is enabled in all the regions with EBS snapshots.
 ID: aws_dlm_ebs_snapshot_lifecycle_policy_enabled
-Title: "DLM EBS snapshot lifecycle policy should be enabled"
-Description: "Ensure DLM EBS snapshot lifecycle policy is enabled in all the regions with EBS snapshots."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with region_with_ebs_snapshots as(
-          select
-            distinct region,
-            partition,
-            account_id,
-            _ctx,
-            og_account_id as og_account_id,
-            og_resource_id as og_resource_id
-          from
-            aws_ebs_snapshot
-        ), dlm_ebs_lifecycle_policy as (
-          select
-            region,
-            account_id,
-            count(*)
-          from
-            aws_dlm_lifecycle_policy
-          where
-            policy_details ->> 'PolicyType' like 'EBS_SNAPSHOT%'
-          group by
-            region,
-            account_id
-        )
-        select
-          'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,
-          r.og_account_id as og_account_id,
-          r.og_resource_id as og_resource_id,
-          case
-            when p.region is not null then 'ok'
-            else 'alarm'
-          end as status,
-          case
-            when p.region is not null then 'EBS snapshot DLM policy exist in region ' || r.region || '.'
-            else 'EBS snapshots DLM policy does not exist in region ' || r.region || '.'
-          end as reason
-        from
-          region_with_ebs_snapshots as r
-          left join dlm_ebs_lifecycle_policy as p on p.region = r.region and r.account_id = p.account_id;
-  PrimaryTable: aws_dlm_lifecycle_policy
   ListOfTables:
     - aws_ebs_snapshot
     - aws_dlm_lifecycle_policy
   Parameters: []
+  PrimaryTable: aws_dlm_lifecycle_policy
+  QueryToExecute: |
+    WITH region_with_ebs_snapshots AS (
+      SELECT
+        DISTINCT region,
+        partition,
+        account_id,
+        _ctx,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id
+      FROM
+        aws_ebs_snapshot
+    ),
+    dlm_ebs_lifecycle_policy AS (
+      SELECT
+        region,
+        account_id,
+        COUNT(*)
+      FROM
+        aws_dlm_lifecycle_policy
+      WHERE
+        policy_details ->> 'PolicyType' LIKE 'EBS_SNAPSHOT%'
+      GROUP BY
+        region,
+        account_id
+    )
+    SELECT
+      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN p.region IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN p.region IS NOT NULL THEN 'EBS snapshot DLM policy exist in region ' || r.region || '.'
+        ELSE 'EBS snapshots DLM policy does not exist in region ' || r.region || '.'
+      END AS reason
+    FROM
+      region_with_ebs_snapshots AS r
+    LEFT JOIN dlm_ebs_lifecycle_policy AS p 
+      ON p.region = r.region AND r.account_id = p.account_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: DLM EBS snapshot lifecycle policy should be enabled

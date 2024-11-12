@@ -1,15 +1,31 @@
+Description: This control ensures that image scan for container registries are enabled.
 ID: azure_securitycenter_container_image_scan_enabled
-Title: "Security Center container image scan should be enabled"
-Description: "This control ensures that image scan for container registries are enabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sub_assessment.id as resource,\n  sub_assessment.og_account_id as og_account_id,\n  sub_assessment.og_resource_id as og_resource_id,\n  case\n    when container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' then sub_assessment.name || ' container image scan enabled.'\n    else sub_assessment.name || ' container image scan disabled.'\n  end as reason  \nfrom\n  azure_security_center_sub_assessment sub_assessment\n  right join azure_subscription sub on sub_assessment.subscription_id = sub.subscription_id;"
-  PrimaryTable: azure_security_center_sub_assessment
   ListOfTables:
     - azure_security_center_sub_assessment
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_sub_assessment
+  QueryToExecute: |
+    SELECT
+      sub_assessment.id AS resource,
+      sub_assessment.og_account_id AS og_account_id,
+      sub_assessment.og_resource_id AS og_resource_id,
+      CASE
+        WHEN container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN container_registry_vulnerability_properties ->> 'AssessedResourceType' = 'ContainerRegistryVulnerability' THEN sub_assessment.name || ' container image scan enabled.'
+        ELSE sub_assessment.name || ' container image scan disabled.'
+      END AS reason
+    FROM
+      azure_security_center_sub_assessment sub_assessment
+    RIGHT JOIN azure_subscription sub 
+    ON sub_assessment.subscription_id = sub.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Security Center container image scan should be enabled

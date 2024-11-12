@@ -1,14 +1,43 @@
+Description: 'The Storage Blob service provides scalable, cost-efficient objective storage in the cloud. Storage Logging happens server-side and allows details for both successful and failed requests to be recorded in the storage account. These logs allow users to see the details of read, write, and delete operations against the blobs. Storage Logging log entries contain the following information about individual requests: Timing information such as start time, end-to-end latency, and server latency, authentication details, concurrency information, and the sizes of the request and response messages.'
 ID: azure_storage_account_blob_service_logging_enabled
-Title: "Ensure Storage logging is enabled for Blob service for read, write, and delete requests"
-Description: "The Storage Blob service provides scalable, cost-efficient objective storage in the cloud. Storage Logging happens server-side and allows details for both successful and failed requests to be recorded in the storage account. These logs allow users to see the details of read, write, and delete operations against the blobs. Storage Logging log entries contain the following information about individual requests: Timing information such as start time, end-to-end latency, and server latency, authentication details, concurrency information, and the sizes of the request and response messages."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  sa.og_account_id as og_account_id,\n  sa.og_resource_id as og_resource_id,\n  case\n    when not (sa.blob_service_logging ->> 'Read') :: boolean\n    or not (sa.blob_service_logging ->> 'Write') :: boolean\n    or not (sa.blob_service_logging ->> 'Delete') :: boolean then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not (sa.blob_service_logging ->> 'Read') :: boolean\n    or not (sa.blob_service_logging ->> 'Write') :: boolean\n    or not (sa.blob_service_logging ->> 'Delete') :: boolean then name || ' blob service logging not enabled for ' ||\n      concat_ws(', ',\n        case when not (sa.blob_service_logging ->> 'Write') :: boolean then 'write' end,\n        case when not (sa.blob_service_logging ->> 'Read') :: boolean then 'read' end,\n        case when not (sa.blob_service_logging ->> 'Delete') :: boolean then 'delete' end\n      ) || ' requests.'\n    else name || ' blob service logging enabled for read, write, delete requests.'\n  end as reason\n  \n  , sa.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_storage_account sa,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id;\n"
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      sa.og_account_id AS og_account_id,
+      sa.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT (sa.blob_service_logging ->> 'Read')::BOOLEAN
+          OR NOT (sa.blob_service_logging ->> 'Write')::BOOLEAN
+          OR NOT (sa.blob_service_logging ->> 'Delete')::BOOLEAN THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT (sa.blob_service_logging ->> 'Read')::BOOLEAN
+          OR NOT (sa.blob_service_logging ->> 'Write')::BOOLEAN
+          OR NOT (sa.blob_service_logging ->> 'Delete')::BOOLEAN THEN name || ' blob service logging not enabled for ' ||
+            CONCAT_WS(', ',
+              CASE WHEN NOT (sa.blob_service_logging ->> 'Write')::BOOLEAN THEN 'write' END,
+              CASE WHEN NOT (sa.blob_service_logging ->> 'Read')::BOOLEAN THEN 'read' END,
+              CASE WHEN NOT (sa.blob_service_logging ->> 'Delete')::BOOLEAN THEN 'delete' END
+            ) || ' requests.'
+        ELSE name || ' blob service logging enabled for read, write, delete requests.'
+      END AS reason,
+      sa.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account sa,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +58,4 @@ Tags:
     - azure
   service:
     - Azure/Storage
-IntegrationType:
-  - azure_subscription
+Title: Ensure Storage logging is enabled for Blob service for read, write, and delete requests

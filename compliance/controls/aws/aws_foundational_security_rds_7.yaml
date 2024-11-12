@@ -1,28 +1,28 @@
+Description: This control checks whether RDS clusters have deletion protection enabled. This control is intended for RDS DB instances. However, it can also generate findings for Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters. If these findings are not useful, then you can suppress them.
 ID: aws_foundational_security_rds_7
-Title: "7 RDS clusters should have deletion protection enabled"
-Description: "This control checks whether RDS clusters have deletion protection enabled. This control is intended for RDS DB instances. However, it can also generate findings for Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters. If these findings are not useful,then you can suppress them."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when deletion_protection then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when deletion_protection then title || ' deletion protection enabled.'
-        else title || ' deletion protection not enabled.'
-      end as reason
-    from
-      aws_rds_db_cluster;
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN deletion_protection THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN deletion_protection THEN title || ' deletion protection enabled.'
+        ELSE title || ' deletion protection not enabled.'
+      END AS reason
+    FROM
+      aws_rds_db_cluster;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 7 RDS clusters should have deletion protection enabled

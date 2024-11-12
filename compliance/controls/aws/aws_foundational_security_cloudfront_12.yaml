@@ -1,15 +1,52 @@
+Description: This control checks whether Amazon CloudFront distributions are pointing to non-existent Amazon S3 origins. The control fails for a CloudFront distribution if the origin is configured to point to a non-existent bucket. This control only applies to CloudFront distributions where an S3 bucket without static website hosting is the S3 origin.
 ID: aws_foundational_security_cloudfront_12
-Title: "12 CloudFront distributions should not point to non-existent S3 origins"
-Description: "This control checks whether Amazon CloudFront distributions are pointing to non-existent Amazon S3 origins. The control fails for a CloudFront distribution if the origin is configured to point to a non-existent bucket. This control only applies to CloudFront distributions where an S3 bucket without static website hosting is the S3 origin."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with distribution_with_non_existent_bucket as (\n  select\n    distinct d.arn as arn,\n    to_jsonb(string_to_array((string_agg(split_part(o ->> 'Id', '.s3', 1), ',')),',')) as bucket_name_list\n  from\n    aws_cloudfront_distribution as d,\n    jsonb_array_elements(d.origins) as o\n    left join aws_s3_bucket as b on b.name = split_part(o ->> 'Id', '.s3', 1)\n  where\n    b.name is null\n    and o ->> 'DomainName' like '%.s3.%'\n  group by\n    d.arn\n)\nselect\n  distinct b.arn as resource,\nd.og_account_id as og_account_id,\nd.og_resource_id as og_resource_id,\n  case\n    when b.arn is null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when b.arn is null then title || ' does not point to any non-existent S3 origins.'\n    when jsonb_array_length(b.bucket_name_list) > 0\n      then title ||\n    case\n      when jsonb_array_length(b.bucket_name_list) > 2\n        then concat(' point to non-existent S3 origins ', b.bucket_name_list #>> '{0}', ', ', b.bucket_name_list #>> '{1}', ' and ' || (jsonb_array_length(b.bucket_name_list) - 2)::text || ' more.' )\n      when jsonb_array_length(b.bucket_name_list) = 2\n        then concat(' point to non-existent S3 origins ', b.bucket_name_list #>> '{0}', ' and ', b.bucket_name_list #>> '{1}', '.')\n    else concat(' point to non-existent S3 origin ', b.bucket_name_list #>> '{0}', '.')\n    end\n  end as reason\n  \n  \nfrom\n  aws_cloudfront_distribution as d\n  left join distribution_with_non_existent_bucket as b on b.arn = d.arn;"
-  PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
     - aws_cloudfront_distribution
     - aws_s3_bucket
   Parameters: []
+  PrimaryTable: aws_cloudfront_distribution
+  QueryToExecute: |
+    WITH distribution_with_non_existent_bucket AS (
+      SELECT
+        DISTINCT d.arn AS arn,
+        TO_JSONB(STRING_TO_ARRAY((STRING_AGG(SPLIT_PART(o ->> 'Id', '.s3', 1), ',')), ',')) AS bucket_name_list
+      FROM
+        aws_cloudfront_distribution AS d,
+        JSONB_ARRAY_ELEMENTS(d.origins) AS o
+        LEFT JOIN aws_s3_bucket AS b ON b.name = SPLIT_PART(o ->> 'Id', '.s3', 1)
+      WHERE
+        b.name IS NULL
+        AND o ->> 'DomainName' LIKE '%.s3.%'
+      GROUP BY
+        d.arn
+    )
+    SELECT
+      DISTINCT b.arn AS resource,
+      d.og_account_id AS og_account_id,
+      d.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.arn IS NULL THEN title || ' does not point to any non-existent S3 origins.'
+        WHEN JSONB_ARRAY_LENGTH(b.bucket_name_list) > 0
+        THEN title ||
+        CASE
+          WHEN JSONB_ARRAY_LENGTH(b.bucket_name_list) > 2
+          THEN CONCAT(' point to non-existent S3 origins ', b.bucket_name_list #>> '{0}', ', ', b.bucket_name_list #>> '{1}', ' and ' || (JSONB_ARRAY_LENGTH(b.bucket_name_list) - 2)::TEXT || ' more.' )
+          WHEN JSONB_ARRAY_LENGTH(b.bucket_name_list) = 2
+          THEN CONCAT(' point to non-existent S3 origins ', b.bucket_name_list #>> '{0}', ' and ', b.bucket_name_list #>> '{1}', '.')
+        ELSE CONCAT(' point to non-existent S3 origin ', b.bucket_name_list #>> '{0}', '.')
+        END
+      END AS reason
+    FROM
+      aws_cloudfront_distribution AS d
+    LEFT JOIN distribution_with_non_existent_bucket AS b ON b.arn = d.arn;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 12 CloudFront distributions should not point to non-existent S3 origins

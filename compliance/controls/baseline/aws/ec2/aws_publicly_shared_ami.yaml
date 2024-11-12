@@ -1,29 +1,30 @@
+Description: Ensure AMIs aren't publicly shared to avoid exposing sensitive data.
 ID: aws_publicly_shared_ami
-Title: "Publicly Shared AMI"
-Description: "Ensure AMIs aren't publicly shared to avoid exposing sensitive data."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      title as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when public then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public then title || ' publicly accessible.'
-        else title || ' not publicly accessible.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ec2_ami;
-  PrimaryTable: aws_ec2_ami
   ListOfTables:
     - aws_ec2_ami
   Parameters: []
+  PrimaryTable: aws_ec2_ami
+  QueryToExecute: |
+    SELECT
+      title AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN public THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_ami;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Publicly Shared AMI

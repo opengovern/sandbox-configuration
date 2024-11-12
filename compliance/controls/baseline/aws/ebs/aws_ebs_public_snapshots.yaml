@@ -1,29 +1,30 @@
+Description: Ensure that your Amazon EBS volume snapshots are not accessible to all AWS accounts.
 ID: aws_ebs_public_snapshots
-Title: "Amazon EBS Public Snapshots"
-Description: "Ensure that your Amazon EBS volume snapshots are not accessible to all AWS accounts."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':snapshot/' || snapshot_id as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when create_volume_permissions @> '[{"Group": "all", "UserId": null}]' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when create_volume_permissions @> '[{"Group": "all", "UserId": null}]' then title || ' is publicly restorable.'
-        else title || ' is not publicly restorable.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_ebs_snapshot;
-  PrimaryTable: aws_ebs_snapshot
   ListOfTables:
     - aws_ebs_snapshot
   Parameters: []
+  PrimaryTable: aws_ebs_snapshot
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':snapshot/' || snapshot_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN create_volume_permissions @> '[{"Group": "all", "UserId": null}]' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN create_volume_permissions @> '[{"Group": "all", "UserId": null}]' THEN title || ' is publicly restorable.'
+        ELSE title || ' is not publicly restorable.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ebs_snapshot;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Amazon EBS Public Snapshots

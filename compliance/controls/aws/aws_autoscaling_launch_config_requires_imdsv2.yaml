@@ -1,28 +1,30 @@
+Description: This control checks whether IMDSv2 is enabled on all instances launched by AWS EC2 Auto Scaling groups. The control fails if the Instance Metadata Service (IMDS) version is not included in the launch configuration or if both IMDSv1 and IMDSv2 are enabled.
 ID: aws_autoscaling_launch_config_requires_imdsv2
-Title: "Auto Scaling group should configure EC2 instances to require Instance Metadata Service Version 2 (IMDSv2)"
-Description: "This control checks whether IMDSv2 is enabled on all instances launched by AWS EC2 Auto Scaling groups. The control fails if the Instance Metadata Service (IMDS) version is not included in the launch configuration or if both IMDSv1 and IMDSv2 are enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      launch_configuration_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when metadata_options_http_tokens = 'required' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when metadata_options_http_tokens = 'required' then title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
-        else title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
-      end as reason
-      , region, account_id
-    from
-      aws_ec2_launch_configuration;
-  PrimaryTable: aws_ec2_launch_configuration
   ListOfTables:
     - aws_ec2_launch_configuration
   Parameters: []
+  PrimaryTable: aws_ec2_launch_configuration
+  QueryToExecute: |
+    SELECT
+      launch_configuration_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN metadata_options_http_tokens = 'required' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN metadata_options_http_tokens = 'required' THEN title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+        ELSE title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_launch_configuration;
 Severity: high
 Tags:
   aws_foundational_security:
@@ -37,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/AutoScaling
-IntegrationType:
-  - aws_cloud_account
+Title: Auto Scaling group should configure EC2 instances to require Instance Metadata Service Version 2 (IMDSv2)

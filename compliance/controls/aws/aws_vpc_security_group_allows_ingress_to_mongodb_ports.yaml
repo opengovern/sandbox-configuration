@@ -1,55 +1,48 @@
+Description: This control checks whether the VPC security groups that are in use allow ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 from ports 27017 and 27018.
 ID: aws_vpc_security_group_allows_ingress_to_mongodb_ports
-Title: "VPC security groups should restrict ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018"
-Description: "This control checks whether the VPC security groups that are in use allow ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 from ports 27017 and 27018."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with ingress_ssh_rules as (
-      select
-        group_id,
-        count(*) as num_ssh_rules
-      from
-        aws_vpc_security_group_rule
-      where
-        type = 'ingress'
-        and cidr_ipv4 = '0.0.0.0/0'
-        and (
-            ( ip_protocol = '-1'
-            and from_port is null
-            )
-            or (
-                from_port >= 27017
-                and to_port <= 27017
-            )
-            or (
-                from_port >= 27018
-                and to_port <= 27018
-            )
-        )
-      group by
-        group_id
-    )
-    select
-      arn as resource,
-      sg.og_account_id as og_account_id,
-      sg.og_resource_id as og_resource_id,
-      case
-        when ingress_ssh_rules.group_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when ingress_ssh_rules.group_id is null then sg.group_id || ' ingress restricted for mongodb ports from 0.0.0.0/0.'
-        else sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for mongodb ports from 0.0.0.0/0.'
-      end as reason
-    from
-      aws_vpc_security_group as sg
-      left join ingress_ssh_rules on ingress_ssh_rules.group_id = sg.group_id;
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group_rule
     - aws_vpc_security_group
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH ingress_ssh_rules AS (
+      SELECT
+        group_id,
+        COUNT(*) AS num_ssh_rules
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        type = 'ingress'
+        AND cidr_ipv4 = '0.0.0.0/0'
+        AND (
+          (ip_protocol = '-1' AND from_port IS NULL)
+          OR (from_port >= 27017 AND to_port <= 27017)
+          OR (from_port >= 27018 AND to_port <= 27018)
+        )
+      GROUP BY
+        group_id
+    )
+    SELECT
+      arn AS resource,
+      sg.og_account_id AS og_account_id,
+      sg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN ingress_ssh_rules.group_id IS NULL THEN sg.group_id || ' ingress restricted for mongodb ports from 0.0.0.0/0.'
+        ELSE sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for mongodb ports from 0.0.0.0/0.'
+      END AS reason
+    FROM
+      aws_vpc_security_group AS sg
+    LEFT JOIN ingress_ssh_rules 
+      ON ingress_ssh_rules.group_id = sg.group_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: VPC security groups should restrict ingress from 0.0.0.0/0 or ::/0 to mongoDB ports 27017 and 27018

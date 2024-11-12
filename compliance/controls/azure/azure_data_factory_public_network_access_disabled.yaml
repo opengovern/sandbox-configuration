@@ -1,32 +1,32 @@
+Description: Disabling public network access improves security by ensuring that your Data Factory is not exposed on the public internet.
 ID: azure_data_factory_public_network_access_disabled
-Title: "Data factories should disable public network access"
-Description: "Disabling public network access improves security by ensuring that your Data Factory is not exposed on the public internet."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when public_network_access = 'Enabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public_network_access = 'Enabled' then a.name || ' public network access enabled.'
-        else a.name || ' public network access disabled.'
-      end as reason
-    from
-      azure_data_factory as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_data_factory
   ListOfTables:
     - azure_data_factory
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_data_factory
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN a.name || ' public network access enabled.'
+        ELSE a.name || ' public network access disabled.'
+      END AS reason
+    FROM
+      azure_data_factory AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Data factories should disable public network access

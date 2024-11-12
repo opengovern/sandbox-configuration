@@ -1,29 +1,9 @@
+Description: Ensure Amazon Backup plans have a compliant lifecycle configuration enabled.
 ID: aws_backup_service_lifecycle_configuration
-Title: "AWS Backup Service Lifecycle Configuration"
-Description: "Ensure Amazon Backup plans have a compliant lifecycle configuration enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      account_id || ' backup region setting in ' || region as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when r -> 'Lifecycle' ->> 'DeleteAfterDays' is null and r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' is null then 'alarm'
-        when r -> 'Lifecycle' ->> 'DeleteAfterDays' <> '{{.awsBackupPlanDeleteAfterDays}}' or r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' <> '{{.awsBackupPlanMoveToColdStorageAfterDays}}' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when r -> 'Lifecycle' ->> 'DeleteAfterDays' is null and r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' is null then 'there is no lifecycle configuration enabled'
-        when r -> 'Lifecycle' ->> 'DeleteAfterDays' <> '{{.awsBackupPlanDeleteAfterDays}}' or r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' <> '{{.awsBackupPlanMoveToColdStorageAfterDays}}' then 'lifecycle configuration is not compatible with your setting'
-        else 'lifecycle configuration is compatible with your setting'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_backup_plan,
-      jsonb_array_elements(rules) as r
-  PrimaryTable: aws_backup_plan
   ListOfTables:
     - aws_backup_plan
   Parameters:
@@ -31,11 +11,39 @@ Query:
       Required: true
     - Key: awsBackupPlanMoveToColdStorageAfterDays
       Required: true
+  PrimaryTable: aws_backup_plan
+  QueryToExecute: |
+    SELECT
+      account_id || ' backup region setting in ' || region AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN r -> 'Lifecycle' ->> 'DeleteAfterDays' IS NULL 
+          AND r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' IS NULL 
+          THEN 'alarm'
+        WHEN r -> 'Lifecycle' ->> 'DeleteAfterDays' <> '{{.awsBackupPlanDeleteAfterDays}}' 
+          OR r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' <> '{{.awsBackupPlanMoveToColdStorageAfterDays}}' 
+          THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN r -> 'Lifecycle' ->> 'DeleteAfterDays' IS NULL 
+          AND r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' IS NULL 
+          THEN 'there is no lifecycle configuration enabled'
+        WHEN r -> 'Lifecycle' ->> 'DeleteAfterDays' <> '{{.awsBackupPlanDeleteAfterDays}}' 
+          OR r -> 'Lifecycle' ->> 'MoveToColdStorageAfterDays' <> '{{.awsBackupPlanMoveToColdStorageAfterDays}}' 
+          THEN 'lifecycle configuration is not compatible with your setting'
+        ELSE 'lifecycle configuration is compatible with your setting'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_backup_plan,
+      jsonb_array_elements(rules) AS r
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - AWS Backup
   score_service_name:
     - AWS Backup
-IntegrationType:
-  - aws_cloud_account
+Title: AWS Backup Service Lifecycle Configuration

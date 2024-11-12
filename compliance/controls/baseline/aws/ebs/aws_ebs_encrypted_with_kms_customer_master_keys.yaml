@@ -1,33 +1,36 @@
+Description: Ensure EBS volumes are encrypted with CMKs to have full control over encrypting and decrypting data.
 ID: aws_ebs_encrypted_with_kms_customer_master_keys
-Title: "EBS Encrypted With KMS Customer Master Keys"
-Description: "Ensure EBS volumes are encrypted with CMKs to have full control over encrypting and decrypting data."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      volume_id as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when kms_key_id is null then 'alarm'
-        when k.key_manager = 'CUSTOMER' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when kms_key_id is null then volume_id || ' is not using a master key'
-        when k.key_manager = 'CUSTOMER' then volume_id || ' is using a customer master key'
-        else volume_id || ' is using a AWS-managed master key'
-      end as reason,
-      V.region,
-      V.account_id
-    from
-      aws_ebs_volume as v
-      left join aws_kms_key as k on v.kms_key_id = k.arn
-  PrimaryTable: aws_ebs_volume
   ListOfTables:
     - aws_ebs_volume
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_ebs_volume
+  QueryToExecute: |
+    SELECT 
+      volume_id AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN kms_key_id IS NULL THEN 'alarm'
+        WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN kms_key_id IS NULL THEN volume_id || ' is not using a master key'
+        WHEN k.key_manager = 'CUSTOMER' THEN volume_id || ' is using a customer master key'
+        ELSE volume_id || ' is using an AWS-managed master key'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM 
+      aws_ebs_volume AS v
+    LEFT JOIN 
+      aws_kms_key AS k 
+      ON v.kms_key_id = k.arn
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +41,4 @@ Tags:
     - AWS Elastic Block Store (EBS)
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: EBS Encrypted With KMS Customer Master Keys

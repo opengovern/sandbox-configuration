@@ -1,13 +1,38 @@
+Description: Enable key rotation to ensure that keys are rotated once they have reached the end of their crypto period.
 ID: aws_kms_cmk_rotation_enabled
-Title: "KMS CMK rotation should be enabled"
-Description: "Enable key rotation to ensure that keys are rotated once they have reached the end of their crypto period."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when origin = 'EXTERNAL' then 'skip'\n    when key_state = 'PendingDeletion' then 'skip'\n    when key_state = 'Disabled' then 'skip'\n    when not key_rotation_enabled then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when origin = 'EXTERNAL' then title || ' has imported key material.'\n    when key_state = 'PendingDeletion' then title || ' is pending deletion.'\n    when key_state = 'Disabled' then title || ' is disabled.'\n    when not key_rotation_enabled then title || ' key rotation disabled.'\n    else title || ' key rotation enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_kms_key\nwhere\n  key_manager = 'CUSTOMER';\n"
-  PrimaryTable: aws_kms_key
   ListOfTables:
     - aws_kms_key
   Parameters: []
+  PrimaryTable: aws_kms_key
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN origin = 'EXTERNAL' THEN 'skip'
+        WHEN key_state = 'PendingDeletion' THEN 'skip'
+        WHEN key_state = 'Disabled' THEN 'skip'
+        WHEN NOT key_rotation_enabled THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN origin = 'EXTERNAL' THEN title || ' has imported key material.'
+        WHEN key_state = 'PendingDeletion' THEN title || ' is pending deletion.'
+        WHEN key_state = 'Disabled' THEN title || ' is disabled.'
+        WHEN NOT key_rotation_enabled THEN title || ' key rotation disabled.'
+        ELSE title || ' key rotation enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_kms_key
+    WHERE
+      key_manager = 'CUSTOMER';
 Severity: medium
 Tags:
   category:
@@ -24,11 +49,11 @@ Tags:
     - "true"
   gxp_21_cfr_part_11:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -38,5 +63,4 @@ Tags:
     - "true"
   service:
     - AWS/KMS
-IntegrationType:
-  - aws_cloud_account
+Title: KMS CMK rotation should be enabled

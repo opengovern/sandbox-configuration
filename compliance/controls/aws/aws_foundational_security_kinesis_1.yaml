@@ -1,28 +1,28 @@
+Description: This control checks if Kinesis Data Streams are encrypted at rest with server-side encryption. This control fails if a Kinesis stream is not encrypted at rest with server-side encryption.
 ID: aws_foundational_security_kinesis_1
-Title: "1 Kinesis Data Streams should be encrypted at rest"
-Description: "This control checks if Kinesis Data Streams are encrypted at rest with server-side encryption. This control fails if a Kinesis stream is not encrypted at rest with server-side encryption."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      stream_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when encryption_type = 'KMS' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when encryption_type = 'KMS' then title || ' server side encryption enabled.'
-        else title || ' server side encryption disabled.'
-      end as reason
-    from
-      aws_kinesis_stream;
-  PrimaryTable: aws_kinesis_stream
   ListOfTables:
     - aws_kinesis_stream
   Parameters: []
+  PrimaryTable: aws_kinesis_stream
+  QueryToExecute: |
+    SELECT
+      stream_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN encryption_type = 'KMS' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN encryption_type = 'KMS' THEN title || ' server side encryption enabled.'
+        ELSE title || ' server side encryption disabled.'
+      END AS reason
+    FROM
+      aws_kinesis_stream;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 Kinesis Data Streams should be encrypted at rest

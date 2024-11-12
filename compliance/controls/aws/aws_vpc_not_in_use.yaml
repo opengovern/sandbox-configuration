@@ -1,38 +1,38 @@
+Description: This control checks whether there are any unused VPCs.
 ID: aws_vpc_not_in_use
-Title: "VPCs should be in use"
-Description: "This control checks whether there are any unused VPCs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with vpc_without_subnet as (
-      select
-        distinct vpc_id
-      from
-        aws_vpc
-      where
-        vpc_id not in (select vpc_id from aws_vpc_subnet)
-    )
-    select
-      arn as resource,
-      v.og_account_id as og_account_id,
-      v.og_resource_id as og_resource_id,
-      case
-        when s.vpc_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when s.vpc_id is null then title || ' in use.'
-        else title || ' not in use.'
-      end as reason
-    from
-      aws_vpc as v
-      left join vpc_without_subnet as s on s.vpc_id = v.vpc_id;
-  PrimaryTable: aws_vpc
   ListOfTables:
     - aws_vpc
     - aws_vpc_subnet
   Parameters: []
+  PrimaryTable: aws_vpc
+  QueryToExecute: |
+    WITH vpc_without_subnet AS (
+      SELECT
+        DISTINCT vpc_id
+      FROM
+        aws_vpc
+      WHERE
+        vpc_id NOT IN (SELECT vpc_id FROM aws_vpc_subnet)
+    )
+    SELECT
+      arn AS resource,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
+      CASE
+        WHEN s.vpc_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN s.vpc_id IS NULL THEN title || ' in use.'
+        ELSE title || ' not in use.'
+      END AS reason
+    FROM
+      aws_vpc AS v
+      LEFT JOIN vpc_without_subnet AS s ON s.vpc_id = v.vpc_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: VPCs should be in use

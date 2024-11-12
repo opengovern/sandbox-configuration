@@ -1,31 +1,32 @@
+Description: Enable AWS RDS Cluster Deletion Protection.
 ID: aws_cluster_deletion_protection
-Title: "Cluster Deletion Protection"
-Description: "Enable AWS RDS Cluster Deletion Protection."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    select
-      db_cluster_identifier as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not deletion_protection then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not deletion_protection then title || ' Deletion Protection safety feature is not enabled'
-        else title || ' Deletion Protection safety feature is enabled'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_rds_db_cluster
-    where
-     engine = 'aurora-mysql' or engine = 'aurora-postgresql'
-  PrimaryTable: aws_rds_db_cluster
   ListOfTables:
     - aws_rds_db_cluster
   Parameters: []
+  PrimaryTable: aws_rds_db_cluster
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT deletion_protection THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT deletion_protection THEN title || ' Deletion Protection safety feature is not enabled'
+        ELSE title || ' Deletion Protection safety feature is enabled'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_rds_db_cluster
+    WHERE
+      engine = 'aurora-mysql' OR engine = 'aurora-postgresql'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Cluster Deletion Protection

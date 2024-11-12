@@ -1,28 +1,28 @@
+Description: This control checks whether direct internet access is disabled for an SageMaker notebook instance. To do this, it checks whether the DirectInternetAccess field is disabled for the notebook instance. If you configure your SageMaker instance without a VPC, then by default direct internet access is enabled on your instance. You should configure your instance with a VPC and change the default setting to Disable — Access the internet through a VPC.
 ID: aws_foundational_security_sagemaker_1
-Title: "1 SageMaker notebook instances should not have direct internet access"
-Description: "This control checks whether direct internet access is disabled for an SageMaker notebook instance. To do this, it checks whether the DirectInternetAccess field is disabled for the notebook instance. If you configure your SageMaker instance without a VPC, then by default direct internet access is enabled on your instance. You should configure your instance with a VPC and change the default setting to Disable — Access the internet through a VPC."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when direct_internet_access = 'Enabled' then 'alarm'
-        else 'ok'
-      end status,
-      case
-        when direct_internet_access = 'Enabled' then title || ' direct internet access enabled.'
-        else title || ' direct internet access disabled.'
-      end reason
-    from
-      aws_sagemaker_notebook_instance;
-  PrimaryTable: aws_sagemaker_notebook_instance
   ListOfTables:
     - aws_sagemaker_notebook_instance
   Parameters: []
+  PrimaryTable: aws_sagemaker_notebook_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN direct_internet_access = 'Enabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN direct_internet_access = 'Enabled' THEN title || ' direct internet access enabled.'
+        ELSE title || ' direct internet access disabled.'
+      END AS reason
+    FROM
+      aws_sagemaker_notebook_instance;
 Severity: high
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1 SageMaker notebook instances should not have direct internet access

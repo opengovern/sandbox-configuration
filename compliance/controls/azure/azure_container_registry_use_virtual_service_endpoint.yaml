@@ -1,20 +1,51 @@
+Description: This policy audits any Container Registry not configured to use a virtual network service endpoint.
 ID: azure_container_registry_use_virtual_service_endpoint
-Title: "Container Registry should use a virtual network service endpoint"
-Description: "This policy audits any Container Registry not configured to use a virtual network service endpoint."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with container_registry_subnet as (\n  select\n    distinct a.name,\n    rule ->> 'id' as id\n  from\n    azure_container_registry as a,\n    jsonb_array_elements(network_rule_set -> 'virtualNetworkRules') as rule,\n    azure_subnet as subnet\n)\nselect\n  distinct a.name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when network_rule_set ->> 'defaultAction' <> 'Deny' then 'alarm'\n    when s.name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when network_rule_set ->> 'defaultAction' <> 'Deny' then a.name || ' not configured with virtual service endpoint.'\n    when s.name is null then a.name || ' not configured with virtual service endpoint.'\n    else a.name || ' configured with virtual service endpoint.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_container_registry as a\n  left join container_registry_subnet as s on a.name = s.name,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_container_registry
   ListOfTables:
     - azure_container_registry
     - azure_subnet
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_registry
+  QueryToExecute: |
+    WITH container_registry_subnet AS (
+      SELECT
+        DISTINCT a.name,
+        rule ->> 'id' AS id
+      FROM
+        azure_container_registry AS a,
+        jsonb_array_elements(network_rule_set -> 'virtualNetworkRules') AS rule,
+        azure_subnet AS subnet
+    )
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN network_rule_set ->> 'defaultAction' <> 'Deny' THEN 'alarm'
+        WHEN s.name IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN network_rule_set ->> 'defaultAction' <> 'Deny' THEN a.name || ' not configured with virtual service endpoint.'
+        WHEN s.name IS NULL THEN a.name || ' not configured with virtual service endpoint.'
+        ELSE a.name || ' configured with virtual service endpoint.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_container_registry AS a
+      LEFT JOIN container_registry_subnet AS s ON a.name = s.name,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
     - "true"
   service:
     - Azure/ContainerRegistry
-IntegrationType:
-  - azure_subscription
+Title: Container Registry should use a virtual network service endpoint

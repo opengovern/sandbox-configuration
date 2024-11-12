@@ -1,19 +1,51 @@
+Description: Audit SQL servers without Advanced Data Security.
 ID: azure_sql_server_azure_defender_enabled
-Title: "Azure Defender for SQL should be enabled for unprotected Azure SQL servers"
-Description: "Audit SQL servers without Advanced Data Security."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with sql_server_policy as (\n  select\n    distinct a.name\n  from\n    azure_sql_server as a,\n    jsonb_array_elements(server_security_alert_policy) as policy\n  where\n    policy ->> 'name' = 'Default'\n    and policy -> 'properties' ->> 'state' = 'Enabled'\n)\nselect\n  distinct a.name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when kind like '%analytics%' then 'skip'\n    when s.name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when kind like '%analytics%' then a.name || ' azure defender not applicable.'\n    when s.name is null then a.name || 'sql azure defender disabled.'\n    else a.name || ' sql azure defender enabled.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_sql_server as a\n  left join sql_server_policy as s on a.name = s.name,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_sql_server
   ListOfTables:
     - azure_sql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_sql_server
+  QueryToExecute: |
+    WITH sql_server_policy AS (
+      SELECT
+        DISTINCT a.name
+      FROM
+        azure_sql_server AS a,
+        jsonb_array_elements(server_security_alert_policy) AS policy
+      WHERE
+        policy ->> 'name' = 'Default'
+        AND policy -> 'properties' ->> 'state' = 'Enabled'
+    )
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN kind LIKE '%analytics%' THEN 'skip'
+        WHEN s.name IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN kind LIKE '%analytics%' THEN a.name || ' azure defender not applicable.'
+        WHEN s.name IS NULL THEN a.name || ' sql azure defender disabled.'
+        ELSE a.name || ' sql azure defender enabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_sql_server AS a
+      LEFT JOIN sql_server_policy AS s ON a.name = s.name,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/SQL
-IntegrationType:
-  - azure_subscription
+Title: Azure Defender for SQL should be enabled for unprotected Azure SQL servers

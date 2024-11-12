@@ -1,13 +1,30 @@
+Description: Ensure CloudFormation stacks are associated with an SNS topic to receive notifications when an event occurs.
 ID: aws_cloudformation_stack_notifications_enabled
-Title: "CloudFormation stacks should have notifications enabled"
-Description: "Ensure CloudFormation stacks are associated with an SNS topic to receive notifications when an event occurs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(notification_arns) > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when jsonb_array_length(notification_arns) > 0 then title || ' notifications enabled.'\n    else title || ' notifications disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudformation_stack;\n"
-  PrimaryTable: aws_cloudformation_stack
   ListOfTables:
     - aws_cloudformation_stack
   Parameters: []
+  PrimaryTable: aws_cloudformation_stack
+  QueryToExecute: |
+    SELECT
+      id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(notification_arns) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(notification_arns) > 0 THEN title || ' notifications enabled.'
+        ELSE title || ' notifications disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_cloudformation_stack;
 Severity: low
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/CloudFormation
-IntegrationType:
-  - aws_cloud_account
+Title: CloudFormation stacks should have notifications enabled

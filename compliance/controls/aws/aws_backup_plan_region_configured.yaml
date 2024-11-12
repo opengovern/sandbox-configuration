@@ -1,41 +1,43 @@
+Description: Ensure that there exists at least one backup plan in a region. The rule is non-compliant if there are no backup plans in a region.
 ID: aws_backup_plan_region_configured
-Title: "Backup plan should exist in a region"
-Description: "Ensure that there exists at least one backup plan in a region. The rule is non-compliant if there are no backup plans in a region."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with count_plans as (
-      select
-        region,
-        account_id,
-        count(*) as count
-      from
-        aws_backup_plan
-      group by
-        region,
-        account_id
-    )
-    select
-      'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,
-      r.og_account_id as og_account_id,
-      r.og_resource_id as og_resource_id,
-      case
-        when cp.count > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when cp.count > 0 then cp.count || ' backup plan(s) exist in region ' || r.region || '.'
-        else 'No backup plans exist in region ' || r.region || '.'
-      end as reason
-    from
-      aws_region as r
-      left join count_plans as cp on r.account_id = cp.account_id and r.region = cp.region;
-  PrimaryTable: aws_backup_plan
   ListOfTables:
     - aws_backup_plan
     - aws_region
   Parameters: []
+  PrimaryTable: aws_backup_plan
+  QueryToExecute: |
+    WITH count_plans AS (
+      SELECT
+        region,
+        account_id,
+        COUNT(*) AS count
+      FROM
+        aws_backup_plan
+      GROUP BY
+        region,
+        account_id
+    )
+    SELECT
+      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN cp.count > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN cp.count > 0 THEN cp.count || ' backup plan(s) exist in region ' || r.region || '.'
+        ELSE 'No backup plans exist in region ' || r.region || '.'
+      END AS reason
+    FROM
+      aws_region AS r
+      LEFT JOIN count_plans AS cp 
+        ON r.account_id = cp.account_id 
+        AND r.region = cp.region;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Backup plan should exist in a region

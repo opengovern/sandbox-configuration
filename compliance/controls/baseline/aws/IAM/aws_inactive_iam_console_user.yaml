@@ -1,14 +1,39 @@
+Description: Ensure no AWS IAM users have been inactive for a long (specified) period of time.
 ID: aws_inactive_iam_console_user
-Title: "Inactive IAM Console User"
-Description: "Ensure no AWS IAM users have been inactive for a long (specified) period of time."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  name as resource,\n  u.og_resource_id,\n  u.og_account_id,\n  CASE\n    WHEN (k.access_key_id is null and \n      (password_last_used is null or\n      password_last_used::timestamp < now() - '90 days'::interval)\n    ) THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN (k.access_key_id is null and \n      (password_last_used is null or\n      password_last_used::timestamp < now() - '90 days'::interval)\n    ) THEN 'certificate has been expired'\n    ELSE 'certificate is not expired'\n  END AS reason,\n  u.region,\n  u.account_id\nFROM \n  aws_iam_user AS u\n  LEFT JOIN aws_iam_access_key AS k ON u.name = k.user_name\n"
-  PrimaryTable: aws_iam_user
   ListOfTables:
     - aws_iam_access_key
     - aws_iam_user
   Parameters: []
+  PrimaryTable: aws_iam_user
+  QueryToExecute: |
+    SELECT 
+      name AS resource,
+      u.og_resource_id,
+      u.og_account_id,
+      CASE
+        WHEN (k.access_key_id IS NULL AND 
+              (password_last_used IS NULL OR 
+               password_last_used::timestamp < NOW() - '90 days'::interval)
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (k.access_key_id IS NULL AND
+              (password_last_used IS NULL OR 
+               password_last_used::timestamp < NOW() - '90 days'::interval)
+        ) THEN 'certificate has been expired'
+        ELSE 'certificate is not expired'
+      END AS reason,
+      u.region,
+      u.account_id
+    FROM 
+      aws_iam_user AS u
+      LEFT JOIN aws_iam_access_key AS k 
+      ON u.name = k.user_name
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +44,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Inactive IAM Console User

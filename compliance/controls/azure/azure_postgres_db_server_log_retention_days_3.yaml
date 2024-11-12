@@ -1,14 +1,36 @@
+Description: Enable log_retention_days on PostgreSQL Servers.
 ID: azure_postgres_db_server_log_retention_days_3
-Title: "Ensure server parameter 'log_retention_days' is greater than 3 days for PostgreSQL Database Server"
-Description: "Enable log_retention_days on PostgreSQL Servers."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  s.id as resource,\n  s.og_account_id as og_account_id,\n  s.og_resource_id as og_resource_id,\n  case\n    when (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 then s.name || ' log files are retained for 3 days or lesser.'\n    else s.name || ' log files are retained for more than 3 days.'\n  end as reason\n  \n  , s.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_postgresql_server s,\n  jsonb_array_elements(server_configurations) as config,\n  azure_subscription sub\nwhere\n  config ->> 'Name' = 'log_retention_days'\n  and sub.subscription_id = s.subscription_id;\n"
-  PrimaryTable: azure_postgresql_server
   ListOfTables:
     - azure_postgresql_server
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_postgresql_server
+  QueryToExecute: |
+    SELECT
+      s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
+      CASE
+        WHEN (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN (config -> 'ConfigurationProperties' ->> 'value')::integer <= 3 THEN s.name || ' log files are retained for 3 days or lesser.'
+        ELSE s.name || ' log files are retained for more than 3 days.'
+      END AS reason,
+      s.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_postgresql_server s,
+      jsonb_array_elements(server_configurations) AS config,
+      azure_subscription sub
+    WHERE
+      config ->> 'Name' = 'log_retention_days'
+      AND sub.subscription_id = s.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/PostgreSQL
-IntegrationType:
-  - azure_subscription
+Title: Ensure server parameter 'log_retention_days' is greater than 3 days for PostgreSQL Database Server

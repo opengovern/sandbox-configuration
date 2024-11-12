@@ -1,46 +1,46 @@
+Description: Tag policies help you standardize tags on all tagged resources across your organization
 ID: aws_organizational_tag_policies_enabled
-Title: "Ensure Tag Policies are enabled"
-Description: "Tag policies help you standardize tags on all tagged resources across your organization"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with tag_policy_enabled as (
-      select
+  ListOfTables:
+    - aws_organizations_policy
+  Parameters: []
+  PrimaryTable: aws_organizations_policy
+  QueryToExecute: |
+    WITH tag_policy_enabled AS (
+      SELECT
         _ctx,
         account_id,
         region,
-        count(*) as count,
+        COUNT(*) AS count,
         og_account_id,
         og_resource_id
-      from
+      FROM
         aws_organizations_policy
-      where
+      WHERE
         type = 'TAG_POLICY'
-      group by
+      GROUP BY
         _ctx,
         region,
         account_id,
         og_account_id,
         og_resource_id
     )
-    select
+    SELECT
       og_account_id,
       og_resource_id,
-      case
-        when count > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when count > 0 then 'Organizational tag policies are enabled.'
-        else 'Organizational tag policies are disabled.'
-      end as reason
-    from
+      CASE
+        WHEN count > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN count > 0 THEN 'Organizational tag policies are enabled.'
+        ELSE 'Organizational tag policies are disabled.'
+      END AS reason
+    FROM
       tag_policy_enabled;
-  PrimaryTable: aws_organizations_policy
-  ListOfTables:
-    - aws_organizations_policy
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure Tag Policies are enabled

@@ -1,31 +1,32 @@
+Description: Ensure that your Microsoft Azure Key Vault instances are recoverable.
 ID: azure_enable_key_vault_recoverability
-Title: "Enable Key Vault Recoverability"
-Description: "Ensure that your Microsoft Azure Key Vault instances are recoverable."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when soft_delete_enabled and purge_protection_enabled then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when soft_delete_enabled and purge_protection_enabled then name || ' objects are recoverable'
-        else name || ' objects are not recoverable'
-      end as reason,
-      resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_key_vault as v
-      left join azure_subscription as sub on v.subscription_id = sub.subscription_id
-  PrimaryTable: azure_key_vault
   ListOfTables:
     - azure_key_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN soft_delete_enabled AND purge_protection_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN soft_delete_enabled AND purge_protection_enabled THEN name || ' objects are recoverable'
+        ELSE name || ' objects are not recoverable'
+      END AS reason,
+      resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault AS v
+    LEFT JOIN azure_subscription AS sub ON v.subscription_id = sub.subscription_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure KeyVault
   score_tags:
     - Problem Identities
-IntegrationType:
-  - azure_subscription
+Title: Enable Key Vault Recoverability

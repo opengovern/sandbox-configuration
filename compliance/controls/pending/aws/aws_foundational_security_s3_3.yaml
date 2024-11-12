@@ -1,13 +1,59 @@
+Description: This control checks whether your S3 buckets allow public write access. It evaluates the block public access settings, the bucket policy, and the bucket access control list (ACL).
 ID: aws_foundational_security_s3_3
-Title: "3 S3 buckets should prohibit public write access"
-Description: "This control checks whether your S3 buckets allow public write access. It evaluates the block public access settings, the bucket policy, and the bucket access control list (ACL)."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "with public_acl as (\n  select\n    distinct name\n  from\n    aws_s3_bucket,\n    jsonb_array_elements(acl -> 'Grants') as grants\n  where\n    (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'\n    or grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')\n    and (\n      grants ->> 'Permission' = 'FULL_CONTROL'\n      or grants ->> 'Permission' = 'WRITE_ACP'\n      or grants ->> 'Permission' = 'WRITE'\n    )\n), write_access_policy as (\n    select\n      distinct name\n    from\n      aws_s3_bucket,\n      jsonb_array_elements(policy_std -> 'Statement') as s,\n      jsonb_array_elements_text(s -> 'Action') as action\n    where\n      s ->> 'Effect' = 'Allow'\n      and (\n        s -> 'Principal' -> 'AWS' = '[\"*\"]'\n        or s ->> 'Principal' = '*'\n      )\n      and (\n        action = '*'\n        or action = '*:*'\n        or action = 's3:*'\n        or action ilike 's3:put%'\n        or action ilike 's3:delete%'\n        or action ilike 's3:create%'\n        or action ilike 's3:update%'\n        or action ilike 's3:replicate%'\n        or action ilike 's3:restore%'\n      )\n)\nselect\n  b.arn as resource,\n  case\n    when (block_public_acls or a.name is null) and not bucket_policy_is_public then 'ok'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and block_public_policy) then 'ok'\n    when bucket_policy_is_public and p.name is null then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when (block_public_acls or a.name is null ) and not bucket_policy_is_public then b.title || ' not publicly writable.'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and block_public_policy) then b.title || ' not publicly writable.'\n    when (block_public_acls or a.name is null) and (bucket_policy_is_public and p.name is null) then b.title || ' not publicly writable.'\n    else b.title || ' publicly writable.'\n  end reason\n  \n  \nfrom\n  aws_s3_bucket as b\n  left join public_acl as a on b.name = a.name\n  left join write_access_policy as p on b.name = p.name;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: critical
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    WITH public_acl AS (
+      SELECT DISTINCT name
+      FROM aws_s3_bucket,
+           jsonb_array_elements(acl -> 'Grants') AS grants
+      WHERE 
+        (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'
+        OR grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')
+        AND (grants ->> 'Permission' = 'FULL_CONTROL'
+          OR grants ->> 'Permission' = 'WRITE_ACP'
+          OR grants ->> 'Permission' = 'WRITE')
+    ), write_access_policy AS (
+      SELECT DISTINCT name
+      FROM aws_s3_bucket,
+           jsonb_array_elements(policy_std -> 'Statement') AS s,
+           jsonb_array_elements_text(s -> 'Action') AS action
+      WHERE 
+        s ->> 'Effect' = 'Allow'
+        AND (s -> 'Principal' -> 'AWS' = '[\"*\"]'
+          OR s ->> 'Principal' = '*')
+        AND (action = '*'
+          OR action = '*:*'
+          OR action = 's3:*'
+          OR action ILIKE 's3:put%'
+          OR action ILIKE 's3:delete%'
+          OR action ILIKE 's3:create%'
+          OR action ILIKE 's3:update%'
+          OR action ILIKE 's3:replicate%'
+          OR action ILIKE 's3:restore%')
+    )
+    SELECT 
+      b.arn AS resource,
+      CASE
+        WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN 'ok'
+        WHEN (block_public_acls OR a.name IS NULL) AND bucket_policy_is_public AND block_public_policy THEN 'ok'
+        WHEN bucket_policy_is_public AND p.name IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN b.title || ' not publicly writable.'
+        WHEN (block_public_acls OR a.name IS NULL) AND bucket_policy_is_public AND block_public_policy THEN b.title || ' not publicly writable.'
+        WHEN (block_public_acls OR a.name IS NULL) AND bucket_policy_is_public AND p.name IS NULL THEN b.title || ' not publicly writable.'
+        ELSE b.title || ' publicly writable.'
+      END reason
+    FROM aws_s3_bucket AS b
+    LEFT JOIN public_acl AS a ON b.name = a.name
+    LEFT JOIN write_access_policy AS p ON b.name = p.name;
+Severity: critical
+Tags: {}
+Title: 3 S3 buckets should prohibit public write access

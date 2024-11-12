@@ -1,35 +1,36 @@
+Description: Ensure that your virtual machine instances are of a given SKU size (e.g. Standard_A8_v2).
 ID: azure_check_for_desired_vm_sku_sizes
-Title: "Check for Desired VM SKU Size(s)"
-Description: "Ensure that your virtual machine instances are of a given SKU size (e.g. Standard_A8_v2)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when '{{.azureAllowedVmSizes}}' not like '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' then 'the virtual machine vm size is not allowed by your organization'
-        else 'the virtual machine vm size is allowed by your organization'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm,
-      azure_subscription as sub
-    where
-      sub.subscription_id = vm.subscription_id;
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters:
     - Key: azureAllowedVmSizes
       Required: true
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'the virtual machine vm size is not allowed by your organization'
+        ELSE 'the virtual machine vm size is allowed by your organization'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -40,5 +41,4 @@ Tags:
     - Azure Virtual Machines
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - azure_subscription
+Title: Check for Desired VM SKU Size(s)

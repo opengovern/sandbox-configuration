@@ -1,31 +1,32 @@
+Description: Ensure that default network access (i.e. public access) is denied within your Azure Cosmos DB account configuration.
 ID: azure_restrict_default_network_access_for_azure_cosmos_db_accounts
-Title: "Restrict Default Network Access for Azure Cosmos DB Accounts"
-Description: "Ensure that default network access (i.e. public access) is denied within your Azure Cosmos DB account configuration."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when not is_virtual_network_filter_enabled and ip_rules is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not is_virtual_network_filter_enabled and ip_rules is null then 'all networks can access'
-        else name || 'network access is filtered'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_cosmosdb_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE 
+        WHEN NOT is_virtual_network_filter_enabled AND ip_rules IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT is_virtual_network_filter_enabled AND ip_rules IS NULL THEN 'all networks can access'
+        ELSE name || ' network access is filtered'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_cosmosdb_account AS a
+      LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +37,4 @@ Tags:
     - Azure Managed SQL Service
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Restrict Default Network Access for Azure Cosmos DB Accounts

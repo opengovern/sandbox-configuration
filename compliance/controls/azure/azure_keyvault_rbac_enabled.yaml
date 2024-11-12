@@ -1,14 +1,34 @@
+Description: Role assignments disappear when a Key Vault has been deleted (soft- delete) and recovered. Afterwards it will be required to recreate all role assignments. This is a limitation of the soft-delete feature across all Azure services.
 ID: azure_keyvault_rbac_enabled
-Title: "Enable Role Based Access Control for Azure Key Vault"
-Description: "Role assignments disappear when a Key Vault has been deleted (soft- delete) and recovered. Afterwards it will be required to recreate all role assignments. This is a limitation of the soft-delete feature across all Azure services."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  kv.id as resource,\n  kv.og_account_id as og_account_id,\n  kv.og_resource_id as og_resource_id,\n  case\n    when enable_rbac_authorization then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enable_rbac_authorization then name || ' has RBAC enabled.'\n    else name || ' have RBAC disabled.'\n  end as reason\n  \n  , kv.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_key_vault as kv,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = kv.subscription_id;\n"
-  PrimaryTable: azure_key_vault
   ListOfTables:
     - azure_key_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_key_vault
+  QueryToExecute: |
+    SELECT
+      kv.id AS resource,
+      kv.og_account_id AS og_account_id,
+      kv.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_rbac_authorization THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_rbac_authorization THEN name || ' has RBAC enabled.'
+        ELSE name || ' have RBAC disabled.'
+      END AS reason,
+      kv.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_key_vault AS kv,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = kv.subscription_id;
 Severity: medium
 Tags:
   category:
@@ -29,5 +49,4 @@ Tags:
     - azure
   service:
     - Azure/KeyVault
-IntegrationType:
-  - azure_subscription
+Title: Enable Role Based Access Control for Azure Key Vault

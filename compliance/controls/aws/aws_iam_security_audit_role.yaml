@@ -1,51 +1,53 @@
+Description: Ensure IAM Security Audit role is created. By creating an IAM role with a security audit policy, a distinct segregation of responsibilities is established between the security team and other teams within the organization.
 ID: aws_iam_security_audit_role
-Title: "IAM Security Audit role should be created to conduct security audits"
-Description: "Ensure IAM Security Audit role is created. By creating an IAM role with a security audit policy, a distinct segregation of responsibilities is established between the security team and other teams within the organization."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with security_audit_role_count as(
-      select
-        'arn:' || a.partition || ':::' || a.account_id as resource,
-        count(policy_arn),
+  ListOfTables:
+    - aws_account
+    - aws_iam_role
+  Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    WITH security_audit_role_count AS (
+      SELECT
+        'arn:' || a.partition || ':::' || a.account_id AS resource,
+        COUNT(policy_arn),
         a.account_id,
         a._ctx,
         a.og_account_id,
         a.og_resource_id
-      from
-        aws_account as a
-        left join aws_iam_role as r on r.account_id = a.account_id
-        left join jsonb_array_elements_text(attached_policy_arns) as policy_arn on true
-      where
+      FROM
+        aws_account AS a
+      LEFT JOIN aws_iam_role AS r 
+        ON r.account_id = a.account_id
+      LEFT JOIN jsonb_array_elements_text(attached_policy_arns) AS policy_arn 
+        ON TRUE
+      WHERE
         policy_arn = 'arn:aws:iam::aws:policy/SecurityAudit'
-      group by
+      GROUP BY
         a.account_id,
         a.partition,
         a._ctx,
         a.og_account_id,
         a.og_resource_id
     )
-    select
+    SELECT
       resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when count > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when count = 1 then 'SecurityAudit policy attached to 1 role.'
-        when count > 1 then 'SecurityAudit policy attached to ' || count || ' roles.'
-        else 'SecurityAudit policy not attached to any role.'
-      end as reason
-    from
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT = 1 THEN 'SecurityAudit policy attached to 1 role.'
+        WHEN COUNT > 1 THEN 'SecurityAudit policy attached to ' || COUNT || ' roles.'
+        ELSE 'SecurityAudit policy not attached to any role.'
+      END AS reason
+    FROM
       security_audit_role_count;
-  PrimaryTable: aws_iam_role
-  ListOfTables:
-    - aws_account
-    - aws_iam_role
-  Parameters: []
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Security Audit role should be created to conduct security audits

@@ -1,28 +1,28 @@
+Description: Ensure the Instance Metadata Service Version 2 (IMDSv2) method is enabled on all running instances.
 ID: aws_cis_compute_service_v100_2_8
-Title: "2.8 Ensure the Use of IMDSv2 is Enforced on All Existing Instances"
-Description: "Ensure the Instance Metadata Service Version 2 (IMDSv2) method is enabled on all running instances."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when metadata_options ->> 'HttpTokens' = 'optional' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when metadata_options ->> 'HttpTokens' = 'optional' then title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
-        else title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
-      end as reason
-    from
-      aws_ec2_instance;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+        ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+      END AS reason
+    FROM
+      aws_ec2_instance;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.8 Ensure the Use of IMDSv2 is Enforced on All Existing Instances

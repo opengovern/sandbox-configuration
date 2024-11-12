@@ -1,14 +1,35 @@
+Description: To provide granular filtering on the actions that users can perform, use Role-Based Access Control (RBAC) to manage permissions in Kubernetes Service Clusters and configure relevant authorization policies.
 ID: azure_kubernetes_instance_rbac_enabled
-Title: "Role-Based Access Control (RBAC) should be used on Kubernetes Services"
-Description: "To provide granular filtering on the actions that users can perform, use Role-Based Access Control (RBAC) to manage permissions in Kubernetes Service Clusters and configure relevant authorization policies."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  kc.id as resource,\n  kc.og_account_id as og_account_id,\n  kc.og_resource_id as og_resource_id,\n  case\n    when enable_rbac then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enable_rbac then name || ' role based access control enabled.'\n    else name || ' role based access control disabled.'\n  end as reason,\n  enable_rbac\n  \n  , kc.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_kubernetes_cluster kc,\n  azure_subscription sub\nwhere\n  sub.subscription_id = kc.subscription_id;\n"
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      kc.id AS resource,
+      kc.og_account_id AS og_account_id,
+      kc.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_rbac THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_rbac THEN name || ' role based access control enabled.'
+        ELSE name || ' role based access control disabled.'
+      END AS reason,
+      enable_rbac,
+      kc.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_kubernetes_cluster kc,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = kc.subscription_id;
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +38,4 @@ Tags:
     - "true"
   service:
     - Azure/KubernetesService
-IntegrationType:
-  - azure_subscription
+Title: Role-Based Access Control (RBAC) should be used on Kubernetes Services

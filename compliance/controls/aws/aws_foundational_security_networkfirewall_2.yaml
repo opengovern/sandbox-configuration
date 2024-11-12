@@ -1,14 +1,28 @@
+Description: This control checks whether logging is enabled for an AWS Network Firewall firewall. The control fails if logging isn't enabled for at least one log type or if the logging destination doesn't exist.
 ID: aws_foundational_security_networkfirewall_2
-Title: "2 Network Firewall logging should be enabled"
-Description: "This control checks whether logging is enabled for an AWS Network Firewall firewall. The control fails if logging isn't enabled for at least one log type or if the logging destination doesn't exist."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(logging_configuration) > 0 then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(logging_configuration) > 0 then title || ' logging enabled.'\n    else title || ' logging disabled.'\n  end reason\n  \n  \nfrom\n  aws_networkfirewall_firewall;"
-  PrimaryTable: aws_networkfirewall_firewall
   ListOfTables:
     - aws_networkfirewall_firewall
   Parameters: []
+  PrimaryTable: aws_networkfirewall_firewall
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(logging_configuration) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(logging_configuration) > 0 THEN title || ' logging enabled.'
+        ELSE title || ' logging disabled.'
+      END AS reason
+    FROM
+      aws_networkfirewall_firewall;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2 Network Firewall logging should be enabled

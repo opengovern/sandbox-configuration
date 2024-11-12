@@ -1,38 +1,40 @@
+Description: Ensure that Azure Blob Storage service has a lifecycle management policy configured.
 ID: azure_enable_blob_storage_lifecycle_management
-Title: "Enable Blob Storage Lifecycle Management"
-Description: "Ensure that Azure Blob Storage service has a lifecycle management policy configured."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      sa.id as resource,
-      sa.og_account_id,
-      sa.og_resource_id,
-      case
-        when lifecycle_management_policy = '{}' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when lifecycle_management_policy = '{}' then 'Lifecycle management is not enabled for the blob data available in the selected Microsoft Azure Storage account.'
-        else 'Lifecycle management is enabled for the blob data available in the selected Microsoft Azure Storage account.'
-      end as reason,
-      sa.resource_group,
-      display_name as subscription
-    from
-      azure_storage_account as sa,
-      azure_subscription as sub
-    where
-      sub.subscription_id = sa.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT 
+      sa.id AS resource,
+      sa.og_account_id,
+      sa.og_resource_id,
+      CASE 
+        WHEN lifecycle_management_policy = '{}' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE 
+        WHEN lifecycle_management_policy = '{}' THEN 
+          'Lifecycle management is not enabled for the blob data available in the selected Microsoft Azure Storage account.'
+        ELSE 
+          'Lifecycle management is enabled for the blob data available in the selected Microsoft Azure Storage account.'
+      END AS reason,
+      sa.resource_group,
+      display_name AS subscription
+    FROM 
+      azure_storage_account AS sa,
+      azure_subscription AS sub
+    WHERE 
+      sub.subscription_id = sa.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Storage Accounts
   score_service_name:
     - Azure Storage Accounts
-IntegrationType:
-  - azure_subscription
+Title: Enable Blob Storage Lifecycle Management

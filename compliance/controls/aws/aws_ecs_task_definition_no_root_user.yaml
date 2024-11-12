@@ -1,38 +1,41 @@
+Description: This control checks if ECS task definitions have root user. This control fails if the ECS task definitions have root user.
 ID: aws_ecs_task_definition_no_root_user
-Title: "ECS task definitions should not use root user."
-Description: "This control checks if ECS task definitions have root user. This control fails if the ECS task definitions have root user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with root_user_task_definition as (
-      select
-        distinct task_definition_arn as arn
-      from
-        aws_ecs_task_definition,
-        jsonb_array_elements(container_definitions) as c
-      where
-        c ->> 'User' = 'root'
-    )
-    select
-      a.task_definition_arn as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when b.arn is not null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when b.arn is not null then a.title || ' have root user.'
-        else a.title || ' does not have root user.'
-      end as reason
-    from
-      aws_ecs_task_definition as a
-      left join root_user_task_definition as b on a.task_definition_arn = b.arn;
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH root_user_task_definition AS (
+      SELECT DISTINCT
+        task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c
+      WHERE
+        c ->> 'User' = 'root'
+    )
+    SELECT
+      a.task_definition_arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.arn IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.arn IS NOT NULL THEN a.title || ' have root user.'
+        ELSE a.title || ' does not have root user.'
+      END AS reason
+    FROM
+      aws_ecs_task_definition AS a
+    LEFT JOIN
+      root_user_task_definition AS b
+    ON
+      a.task_definition_arn = b.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ECS task definitions should not use root user.

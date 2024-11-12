@@ -1,14 +1,37 @@
+Description: Ensure hardware MFA is enabled for the 'root' account.
 ID: aws_hardware_mfa_for_aws_root_account
-Title: "Hardware MFA for AWS Root Account"
-Description: "Ensure hardware MFA is enabled for the 'root' account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  (r.user_name || ' in account ' || r.account_id) as resource,\n  r.og_account_id,\n  r.og_resource_id,\n  case\n    when not r.mfa_active::bool then 'alarm'\n    when m.serial_number is not null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not r.mfa_active::bool then 'mfa is not activated'\n    when m.serial_number is not null then 'user is using virtual mfa'\n    else 'user is using hardware mfs'\n  end as reason,\n  r.region, \n  r.account_id\nfrom\n  aws_iam_credential_report as r\n  left join aws_iam_virtual_mfa_device as m on (m.user -> 'Arn')::text = r.user_arn\nwhere\n  r.user_name = '<root_account>'\n"
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
     - aws_iam_credential_report
     - aws_iam_virtual_mfa_device
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: |
+    SELECT
+      (r.user_name || ' in account ' || r.account_id) AS resource,
+      r.og_account_id,
+      r.og_resource_id,
+      CASE
+        WHEN NOT r.mfa_active::bool THEN 'alarm'
+        WHEN m.serial_number IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT r.mfa_active::bool THEN 'mfa is not activated'
+        WHEN m.serial_number IS NOT NULL THEN 'user is using virtual mfa'
+        ELSE 'user is using hardware mfa'
+      END AS reason,
+      r.region,
+      r.account_id
+    FROM
+      aws_iam_credential_report AS r
+    LEFT JOIN aws_iam_virtual_mfa_device AS m
+      ON (m.user -> 'Arn')::text = r.user_arn
+    WHERE
+      r.user_name = '<root_account>'
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +42,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Hardware MFA for AWS Root Account

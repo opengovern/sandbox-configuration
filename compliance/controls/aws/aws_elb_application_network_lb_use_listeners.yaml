@@ -1,11 +1,18 @@
+Description: Ensure that application and network load balancer must have one or more listeners. A listener is a process that checks for connection requests, using the protocol and port that you configure. The rules that you define for a listener determine how the load balancer routes requests to its registered targets.
 ID: aws_elb_application_network_lb_use_listeners
-Title: "ELB application and network load balancers should use listeners"
-Description: "Ensure that application and network load balancer must have one or more listeners. A listener is a process that checks for connection requests, using the protocol and port that you configure. The rules that you define for a listener determine how the load balancer routes requests to its registered targets."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with load_balancers as (
-      select
+  ListOfTables:
+    - aws_ec2_network_load_balancer
+    - aws_ec2_application_load_balancer
+    - aws_ec2_load_balancer_listener
+  Parameters: []
+  PrimaryTable: aws_ec2_network_load_balancer
+  QueryToExecute: |
+    WITH load_balancers AS (
+      SELECT
         n.arn,
         n.title,
         n.region,
@@ -14,10 +21,10 @@ Query:
         n.og_resource_id,
         tags,
         _ctx
-      from
-        aws_ec2_network_load_balancer as n
-      union
-      select
+      FROM
+        aws_ec2_network_load_balancer AS n
+      UNION
+      SELECT
         a.arn,
         a.title,
         a.region,
@@ -26,31 +33,25 @@ Query:
         a.og_resource_id,
         tags,
         _ctx
-      from
-        aws_ec2_application_load_balancer as a
+      FROM
+        aws_ec2_application_load_balancer AS a
     )
-    select
-      distinct lb.arn as resource,
-      lb.og_account_id as og_account_id,
-      lb.og_resource_id as og_resource_id,
-      case
-        when l.load_balancer_arn is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when l.load_balancer_arn is not null then lb.title || ' uses listener.'
-        else lb.title || ' does not uses listener.'
-      end as reason
-    from
-      load_balancers as lb
-      left join aws_ec2_load_balancer_listener as l on lb.arn = l.load_balancer_arn;
-  PrimaryTable: aws_ec2_network_load_balancer
-  ListOfTables:
-    - aws_ec2_network_load_balancer
-    - aws_ec2_application_load_balancer
-    - aws_ec2_load_balancer_listener
-  Parameters: []
+    SELECT
+      DISTINCT lb.arn AS resource,
+      lb.og_account_id AS og_account_id,
+      lb.og_resource_id AS og_resource_id,
+      CASE
+        WHEN l.load_balancer_arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN l.load_balancer_arn IS NOT NULL THEN lb.title || ' uses listener.'
+        ELSE lb.title || ' does not use listener.'
+      END AS reason
+    FROM
+      load_balancers AS lb
+    LEFT JOIN aws_ec2_load_balancer_listener AS l 
+      ON lb.arn = l.load_balancer_arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: ELB application and network load balancers should use listeners

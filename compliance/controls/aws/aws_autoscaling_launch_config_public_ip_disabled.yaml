@@ -1,28 +1,30 @@
+Description: Ensure that AWS EC2 Auto Scaling groups have public IP addresses enabled through Launch Configurations. This rule is non-compliant if the Launch Configuration for an Auto Scaling group has AssociatePublicIpAddress set to 'true'.
 ID: aws_autoscaling_launch_config_public_ip_disabled
-Title: "Auto Scaling launch config public IP should be disabled"
-Description: "Ensure that AWS EC2 Auto Scaling groups have public IP addresses enabled through Launch Configurations. This rule is non-compliant if the Launch Configuration for an Auto Scaling group has AssociatePublicIpAddress set to 'true'."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      launch_configuration_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when associate_public_ip_address then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when associate_public_ip_address then title || ' public IP enabled.'
-        else title || ' public IP disabled.'
-      end as reason
-      , region, account_id
-    from
-      aws_ec2_launch_configuration;
-  PrimaryTable: aws_ec2_launch_configuration
   ListOfTables:
     - aws_ec2_launch_configuration
   Parameters: []
+  PrimaryTable: aws_ec2_launch_configuration
+  QueryToExecute: |
+    SELECT
+      launch_configuration_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN associate_public_ip_address THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN associate_public_ip_address THEN title || ' public IP enabled.'
+        ELSE title || ' public IP disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_launch_configuration;
 Severity: high
 Tags:
   category:
@@ -41,9 +43,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -55,5 +57,4 @@ Tags:
     - "true"
   service:
     - AWS/AutoScaling
-IntegrationType:
-  - aws_cloud_account
+Title: Auto Scaling launch config public IP should be disabled

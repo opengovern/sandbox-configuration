@@ -1,30 +1,33 @@
+Description: Ensure API Gateway stages have authorizers configured.
 ID: aws_apigateway_rest_api_authorizers_configured
-Title: "API Gateway stages should have authorizers configured"
-Description: "Ensure API Gateway stages have authorizers configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      p.name as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(a.provider_arns) > 0 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when jsonb_array_length(a.provider_arns) > 0 then p.name || ' authorizers configured.'
-        else p.name || ' authorizers not configured.'
-      end as reason
-    from
-      aws_api_gateway_rest_api as p
-      left join aws_api_gateway_authorizer as a on p.api_id = a.rest_api_id;
-  PrimaryTable: aws_api_gateway_rest_api
   ListOfTables:
     - aws_api_gateway_rest_api
     - aws_api_gateway_authorizer
   Parameters: []
+  PrimaryTable: aws_api_gateway_rest_api
+  QueryToExecute: |
+    SELECT
+      p.name AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(a.provider_arns) > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(a.provider_arns) > 0 THEN p.name || ' authorizers configured.'
+        ELSE p.name || ' authorizers not configured.'
+      END AS reason
+    FROM
+      aws_api_gateway_rest_api AS p
+    LEFT JOIN
+      aws_api_gateway_authorizer AS a
+    ON
+      p.api_id = a.rest_api_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: API Gateway stages should have authorizers configured

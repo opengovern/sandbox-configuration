@@ -1,36 +1,36 @@
+Description: It is important to enable encryption of Automation account variable assets when storing sensitive data
 ID: azure_automation_account_variable_encryption_enabled
-Title: "Automation account variables should be encrypted"
-Description: "It is important to enable encryption of Automation account variable assets when storing sensitive data"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when is_encrypted then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when is_encrypted then a.title || ' encryption enabled.'
-        else a.title || ' encryption disabled.'
-      end as reason
-      , a.resource_group as resource_group
-      , sub.display_name as subscription
-    from
-      azure_automation_variable as a,
-      azure_subscription as sub;
-  PrimaryTable: azure_automation_variable
   ListOfTables:
     - azure_automation_variable
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_automation_variable
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN is_encrypted THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN is_encrypted THEN a.title || ' encryption enabled.'
+        ELSE a.title || ' encryption disabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_automation_variable AS a,
+      azure_subscription AS sub;
 Severity: high
 Tags:
   pci_dss_v321:
     - "true"
   service:
     - Azure/Automation
-IntegrationType:
-  - azure_subscription
+Title: Automation account variables should be encrypted

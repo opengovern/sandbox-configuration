@@ -1,13 +1,30 @@
+Description: Ensure there are no unused network access control lists (network ACLs). The rule is compliant if each network ACL is associated with a subnet. The rule is non-compliant if a network ACL is not associated with a subnet.
 ID: aws_vpc_network_acl_unused
-Title: "VPC network access control lists (network ACLs) should be associated with a subnet."
-Description: "Ensure there are no unused network access control lists (network ACLs). The rule is compliant if each network ACL is associated with a subnet. The rule is non-compliant if a network ACL is not associated with a subnet."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  network_acl_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(associations) >= 1  then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when jsonb_array_length(associations) >= 1 then title || ' associated with subnet.'\n    else title || ' not associated with subnet.'\n  end reason\n  \n  , region, account_id\nfrom\n  aws_vpc_network_acl;\n"
-  PrimaryTable: aws_vpc_network_acl
   ListOfTables:
     - aws_vpc_network_acl
   Parameters: []
+  PrimaryTable: aws_vpc_network_acl
+  QueryToExecute: |
+    SELECT
+      network_acl_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(associations) >= 1 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(associations) >= 1 THEN title || ' associated with subnet.'
+        ELSE title || ' not associated with subnet.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_network_acl;
 Severity: medium
 Tags:
   category:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/VPC
-IntegrationType:
-  - aws_cloud_account
+Title: VPC network access control lists (network ACLs) should be associated with a subnet.

@@ -1,13 +1,32 @@
+Description: This policy identifies Azure Storage account containing VHD OS disk which are not encrypted with CMK. VHD's attached to Virtual Machines are stored in Azure storage. By default Azure Storage account is encrypted using Microsoft Managed Keys. It is recommended to use Customer Managed Keys to encrypt data in Azure Storage accounts for better control on the data.
 ID: azure_storage_account_containing_vhd_os_disk_cmk_encrypted
-Title: "Storage account containing VHD OS disk not encrypted with CMK"
-Description: "This policy identifies Azure Storage account containing VHD OS disk which are not encrypted with CMK. VHD's attached to Virtual Machines are stored in Azure storage. By default Azure Storage account is encrypted using Microsoft Managed Keys. It is recommended to use Customer Managed Keys to encrypt data in Azure Storage accounts for better control on the data."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sa.id as resource,\n  case\n    when sa.encryption_key_source = 'Microsoft.Storage'\n    and vm.os_disk_vhd_uri is not null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when sa.encryption_key_source = 'Microsoft.Storage'\n    and vm.os_disk_vhd_uri is not null then sa.name || ' storage account containing VHD OS disk not encrypted with CMK.'\n    else sa.name || ' storage account containing VHD OS disk encrypted with CMK.'\n  end as reason\n  \n  \n  \n  \nfrom\n  azure_storage_account sa,\n  azure_compute_virtual_machine vm,\n  azure_subscription sub\nwhere\n  sub.subscription_id = sa.subscription_id\n  and vm.os_disk_vhd_uri like '%' || sa.name || '%';\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - azure_subscription
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      sa.id AS resource,
+      CASE
+        WHEN sa.encryption_key_source = 'Microsoft.Storage'
+        AND vm.os_disk_vhd_uri IS NOT NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN sa.encryption_key_source = 'Microsoft.Storage'
+        AND vm.os_disk_vhd_uri IS NOT NULL THEN sa.name || ' storage account containing VHD OS disk not encrypted with CMK.'
+        ELSE sa.name || ' storage account containing VHD OS disk encrypted with CMK.'
+      END AS reason
+    FROM
+      azure_storage_account sa,
+      azure_compute_virtual_machine vm,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = sa.subscription_id
+      AND vm.os_disk_vhd_uri LIKE '%' || sa.name || '%';
+Severity: low
+Tags: {}
+Title: Storage account containing VHD OS disk not encrypted with CMK

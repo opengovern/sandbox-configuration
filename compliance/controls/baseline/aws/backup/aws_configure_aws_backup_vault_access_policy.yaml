@@ -1,39 +1,46 @@
+Description: Prevent deletion of backups using an Amazon Backup vault resource-based access policy.
 ID: aws_configure_aws_backup_vault_access_policy
-Title: "Configure AWS Backup Vault Access Policy"
-Description: "Prevent deletion of backups using an Amazon Backup vault resource-based access policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when policy is null then 'alarm'
-        when exists(
-          select 1
-          from jsonb_array_elements(policy -> 'Statement') as s
-          where ((s ->> 'Effect') = 'Deny') and ((s ->> 'Action') LIKE '%backup:DeleteRecoveryPoint%')
-        ) then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when policy is null then 'there is no policy defined'
-        when exists(
-          select 1
-          from jsonb_array_elements(policy -> 'Statement') as s
-          where ((s ->> 'Effect') = 'Deny') and ((s ->> 'Action') LIKE '%backup:DeleteRecoveryPoint%')
-        ) then 'has deletion protection enabled for its backups.'
-        else 'does not have deletion protection enabled for its backups.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_backup_vault
-  PrimaryTable: aws_backup_vault
   ListOfTables:
     - aws_backup_vault
   Parameters: []
+  PrimaryTable: aws_backup_vault
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN policy IS NULL THEN 'alarm'
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(policy -> 'Statement') AS s
+          WHERE 
+            (s ->> 'Effect') = 'Deny' 
+            AND 
+            (s ->> 'Action') LIKE '%backup:DeleteRecoveryPoint%'
+        ) THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN policy IS NULL THEN 'there is no policy defined'
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(policy -> 'Statement') AS s
+          WHERE 
+            (s ->> 'Effect') = 'Deny'
+            AND 
+            (s ->> 'Action') LIKE '%backup:DeleteRecoveryPoint%'
+        ) THEN 'has deletion protection enabled for its backups.'
+        ELSE 'does not have deletion protection enabled for its backups.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_backup_vault
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -44,5 +51,4 @@ Tags:
     - AWS Backup
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Configure AWS Backup Vault Access Policy

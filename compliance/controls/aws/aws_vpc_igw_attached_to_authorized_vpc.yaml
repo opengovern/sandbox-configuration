@@ -1,33 +1,34 @@
+Description: Manage access to resources in the AWS Cloud by ensuring that internet gateways are only attached to authorized AWS Virtual Private Cloud (AWS VPC).
 ID: aws_vpc_igw_attached_to_authorized_vpc
-Title: "VPC internet gateways should be attached to authorized vpc"
-Description: "Manage access to resources in the AWS Cloud by ensuring that internet gateways are only attached to authorized AWS Virtual Private Cloud (AWS VPC)."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':internet-gateway/' || title as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when jsonb_array_length(attachments) = 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when jsonb_array_length(attachments) = 0 then title || ' not attached to VPC.'
-        else title || ' attached to ' || split_part(
-          substring(attachments :: text, 3, length(attachments :: text) -6),
-          '"VpcId": "',
-          2
-        ) || '.'
-      end as reason
-
-      , region, account_id
-    from
-      aws_vpc_internet_gateway;
-  PrimaryTable: aws_vpc_internet_gateway
   ListOfTables:
     - aws_vpc_internet_gateway
   Parameters: []
+  PrimaryTable: aws_vpc_internet_gateway
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':internet-gateway/' || title AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(attachments) = 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN jsonb_array_length(attachments) = 0 THEN title || ' not attached to VPC.'
+        ELSE title || ' attached to ' || split_part(
+          SUBSTRING(attachments::text, 3, LENGTH(attachments::text) - 6),
+          '"VpcId": "',
+          2
+        ) || '.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_internet_gateway;
 Severity: high
 Tags:
   category:
@@ -38,9 +39,9 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -54,5 +55,4 @@ Tags:
     - AWS/VPC
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: VPC internet gateways should be attached to authorized vpc

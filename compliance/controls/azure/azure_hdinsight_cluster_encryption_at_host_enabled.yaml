@@ -1,19 +1,40 @@
+Description: Enabling encryption at host helps protect and safeguard your data to meet your organizational security and compliance commitments. When you enable encryption at host, data stored on the VM host is encrypted at rest and flows encrypted to the Storage service.
 ID: azure_hdinsight_cluster_encryption_at_host_enabled
-Title: "Azure HDInsight clusters should use encryption at host to encrypt data at rest"
-Description: "Enabling encryption at host helps protect and safeguard your data to meet your organizational security and compliance commitments. When you enable encryption at host, data stored on the VM host is encrypted at rest and flows encrypted to the Storage service."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.id as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when provisioning_state <> 'Succeeded' then 'skip'\n    when disk_encryption_properties -> 'encryptionAtHost' = 'true' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when provisioning_state <> 'Succeeded' then a.name || ' is in ' || provisioning_state || ' state.'\n    when disk_encryption_properties -> 'encryptionAtHost' = 'true' then a.name || ' uses encryption at host to encrypt data at rest.'\n    else a.name || ' not uses encryption at host to encrypt data at rest.'\n  end as reason\n  \n  , a.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_hdinsight_cluster as a,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = a.subscription_id;\n"
-  PrimaryTable: azure_hdinsight_cluster
   ListOfTables:
     - azure_hdinsight_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_hdinsight_cluster
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN provisioning_state <> 'Succeeded' THEN 'skip'
+        WHEN disk_encryption_properties -> 'encryptionAtHost' = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN provisioning_state <> 'Succeeded' THEN a.name || ' is in ' || provisioning_state || ' state.'
+        WHEN disk_encryption_properties -> 'encryptionAtHost' = 'true' THEN a.name || ' uses encryption at host to encrypt data at rest.'
+        ELSE a.name || ' not uses encryption at host to encrypt data at rest.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_hdinsight_cluster AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: high
 Tags:
   nist_sp_800_53_rev_5:
     - "true"
   service:
     - Azure/HDInsight
-IntegrationType:
-  - azure_subscription
+Title: Azure HDInsight clusters should use encryption at host to encrypt data at rest

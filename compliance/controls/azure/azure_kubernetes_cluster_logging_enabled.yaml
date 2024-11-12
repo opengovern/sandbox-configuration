@@ -1,32 +1,36 @@
+Description: This control checks if OMS agent is enabled for Kubernetes cluster.
 ID: azure_kubernetes_cluster_logging_enabled
-Title: "Kubernetes clusters should have logging enabled"
-Description: "This control checks if OMS agent is enabled for Kubernetes cluster."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      c.id as resource,
-      c.og_account_id as og_account_id,
-      c.og_resource_id as og_resource_id,
-      case
-        when addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' and addon_profiles -> 'omsAgent' ->> 'config' is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' and addon_profiles -> 'omsAgent' ->> 'config' is not null  then c.name || ' logging enabled.'
-        else c.name || ' logging disabled.'
-      end as reason
-    from
-      azure_kubernetes_cluster c,
-      azure_subscription sub
-    where
-      sub.subscription_id = c.subscription_id;
-  PrimaryTable: azure_kubernetes_cluster
   ListOfTables:
     - azure_kubernetes_cluster
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_kubernetes_cluster
+  QueryToExecute: |
+    SELECT
+      c.id AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
+             AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
+          THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
+             AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
+          THEN c.name || ' logging enabled.'
+        ELSE c.name || ' logging disabled.'
+      END AS reason
+    FROM
+      azure_kubernetes_cluster c,
+      azure_subscription sub
+    WHERE
+      sub.subscription_id = c.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Kubernetes clusters should have logging enabled

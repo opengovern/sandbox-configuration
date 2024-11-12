@@ -1,13 +1,30 @@
+Description: Ensure expired SSL/TLS certificates are removed from AWS IAM.
 ID: aws_expired_ssl_tls_certificate
-Title: "Expired SSL/TLS Certificate"
-Description: "Ensure expired SSL/TLS certificates are removed from AWS IAM."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN expiration < now() THEN 'alarm'\n    ELSE 'ok'\n  END AS status,\n  CASE\n    WHEN expiration < now() THEN 'certificate has been expired'\n    ELSE 'certificate is not expired'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_iam_server_certificate\n"
-  PrimaryTable: aws_iam_server_certificate
   ListOfTables:
     - aws_iam_server_certificate
   Parameters: []
+  PrimaryTable: aws_iam_server_certificate
+  QueryToExecute: |
+    SELECT 
+      name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN expiration < NOW() THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN expiration < NOW() THEN 'certificate has been expired'
+        ELSE 'certificate is not expired'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_iam_server_certificate
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Expiring Certificates
-IntegrationType:
-  - aws_cloud_account
+Title: Expired SSL/TLS Certificate

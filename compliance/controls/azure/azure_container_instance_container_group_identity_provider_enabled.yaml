@@ -1,32 +1,32 @@
+Description: Ensure that managed identity provider is enabled for the container instance container group. This control is non-compliant if container instance container group identity provider is disabled.
 ID: azure_container_instance_container_group_identity_provider_enabled
-Title: "Container instance container groups identity provider should be enabled"
-Description: "Ensure that managed identity provider is enabled for the container instance container group. This control is non-compliant if container instance container group identity provider is disabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      cg.id as resource,
-      cg.og_account_id as og_account_id,
-      cg.og_resource_id as og_resource_id,
-      case
-        when identity is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when identity is null then cg.name || ' identity provider disabled.'
-        else cg.name || ' identity provider enabled.'
-      end as reason
-    from
-      azure_container_group as cg,
-      azure_subscription as sub
-    where
-      sub.subscription_id = cg.subscription_id;
-  PrimaryTable: azure_container_group
   ListOfTables:
     - azure_container_group
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_group
+  QueryToExecute: |
+    SELECT
+      cg.id AS resource,
+      cg.og_account_id AS og_account_id,
+      cg.og_resource_id AS og_resource_id,
+      CASE
+        WHEN identity IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN identity IS NULL THEN cg.name || ' identity provider disabled.'
+        ELSE cg.name || ' identity provider enabled.'
+      END AS reason
+    FROM
+      azure_container_group AS cg,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = cg.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container instance container groups identity provider should be enabled

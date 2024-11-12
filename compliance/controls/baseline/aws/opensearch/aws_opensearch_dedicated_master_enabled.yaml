@@ -1,13 +1,30 @@
+Description: Ensure Amazon OpenSearch clusters are using dedicated master nodes to increase the production environment stability.
 ID: aws_opensearch_dedicated_master_enabled
-Title: "OpenSearch Dedicated Master Enabled"
-Description: "Ensure Amazon OpenSearch clusters are using dedicated master nodes to increase the production environment stability."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "SELECT \n  domain_name as resource,\n  og_resource_id,\n  og_account_id,\n  CASE\n    WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN 'ok'\n    ELSE 'alarm'\n  END AS status,\n  CASE\n    WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN domain_name || ' is configured to use dedicated mater nodes.' \n    ELSE domain_name || ' is not configured to use dedicated mater nodes'\n  END AS reason,\n  region,\n  account_id\nFROM \n  aws_opensearch_domain\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      domain_name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN domain_name || ' is configured to use dedicated master nodes.'
+        ELSE domain_name || ' is not configured to use dedicated master nodes'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_opensearch_domain
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +35,4 @@ Tags:
     - AWS OpenSearch Service
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch Dedicated Master Enabled

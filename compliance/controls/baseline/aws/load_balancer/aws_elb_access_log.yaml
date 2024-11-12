@@ -1,34 +1,34 @@
+Description: Ensure ELB access logging is enabled for security, troubleshooting, and statistical analysis purposes
 ID: aws_elb_access_log
-Title: "ELB Access Log"
-Description: "Ensure ELB access logging is enabled for security, troubleshooting, and statistical analysis purposes"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      a.arn as resource,
-      a.og_account_id,
-      a.og_resource_id,
-      case
-        when og_description -> 'Attributes' -> 'AccessLog' ->> 'Enabled' = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when og_description -> 'Attributes' -> 'AccessLog' ->> 'Enabled' = 'true' then a.title || ' Access Logging feature is enabled'
-        else a.title || ' Access Logging feature is not enabled'
-      end as reason,
-      a.region,
-      a.account_id
-    from
-      aws_ec2_classic_load_balancer a
-  PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
     - aws_ec2_classic_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_classic_load_balancer
+  QueryToExecute: |
+    SELECT
+      a.arn AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN og_description -> 'Attributes' -> 'AccessLog' ->> 'Enabled' = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN og_description -> 'Attributes' -> 'AccessLog' ->> 'Enabled' = 'true' THEN a.title || ' Access Logging feature is enabled'
+        ELSE a.title || ' Access Logging feature is not enabled'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM
+      aws_ec2_classic_load_balancer a
 Severity: high
 Tags:
   platform_score_cloud_service_name:
     - AWS Elastic Load Balancing (ELB)
   score_service_name:
     - AWS Elastic Load Balancing (ELB)
-IntegrationType:
-  - aws_cloud_account
+Title: ELB Access Log

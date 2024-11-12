@@ -1,13 +1,30 @@
+Description: Ensure Glue jobs have S3 encryption enabled to protect sensitive information at rest.
 ID: aws_glue_job_s3_encryption_enabled
-Title: "Glue jobs S3 encryption should be enabled"
-Description: "Ensure Glue jobs have S3 encryption enabled to protect sensitive information at rest."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  j.arn as resource,\n  case\n    when e is not null and e ->> 'S3EncryptionMode' != 'DISABLED' then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when e is not null and e ->> 'S3EncryptionMode' != 'DISABLED' then j.title || ' S3 encryption enabled.'\n    else j.title || ' S3 encryption disabled.'\n  end as reason\n  \nfrom\n  aws_glue_job as j\n  left join aws_glue_security_configuration as s on j.security_configuration = s.name,\n  jsonb_array_elements(s.s3_encryption) e;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      j.arn AS resource,
+      CASE
+        WHEN e IS NOT NULL AND e ->> 'S3EncryptionMode' != 'DISABLED' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN e IS NOT NULL AND e ->> 'S3EncryptionMode' != 'DISABLED' THEN j.title || ' S3 encryption enabled.'
+        ELSE j.title || ' S3 encryption disabled.'
+      END AS reason
+    FROM
+      aws_glue_job AS j
+    LEFT JOIN 
+      aws_glue_security_configuration AS s 
+    ON 
+      j.security_configuration = s.name,
+      jsonb_array_elements(s.s3_encryption) e;
+Severity: low
+Tags: {}
+Title: Glue jobs S3 encryption should be enabled

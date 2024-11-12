@@ -1,28 +1,28 @@
+Description: This control checks whether API Gateway V2 has an authorizer configured. This rule is non-compliant if API Gateway V2 has no authorizers configured.
 ID: aws_api_gatewayv2_route_authorizer_configured
-Title: "API Gateway V2 authorizer should be configured"
-Description: "This control checks whether API Gateway V2 has an authorizer configured. This rule is non-compliant if API Gateway V2 has no authorizers configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/routes/' || route_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when authorizer_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when authorizer_id is null then route_id || ' authorizer not configured.'
-        else route_id || ' authorizer ' || authorizer_id || ' configured.'
-      end as reason
-    from
-      aws_api_gatewayv2_route;
-  PrimaryTable: aws_api_gatewayv2_route
   ListOfTables:
     - aws_api_gatewayv2_route
   Parameters: []
+  PrimaryTable: aws_api_gatewayv2_route
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/routes/' || route_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN authorizer_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN authorizer_id IS NULL THEN route_id || ' authorizer not configured.'
+        ELSE route_id || ' authorizer ' || authorizer_id || ' configured.'
+      END AS reason
+    FROM
+      aws_api_gatewayv2_route;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: API Gateway V2 authorizer should be configured

@@ -1,14 +1,32 @@
+Description: Ensure alternate contacts are set to improve the security of your AWS account.
 ID: aws_account_alternate_contacts
-Title: "Account Alternate Contacts"
-Description: "Ensure alternate contacts are set to improve the security of your AWS account."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  a.account_id as resource,\n  a.og_account_id,\n  a.og_resource_id,\n  case\n    when c.name is null then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when c.name is null then 'account does not have any alternate contact'\n    else 'account has an alternate contact'\n  end as reason,\n  a.region, \n  a.account_id\nfrom\n  aws_account as a\n  left join aws_account_alternate_contact as c on a.account_id = c.account_id\n"
-  PrimaryTable: aws_account
   ListOfTables:
     - aws_account
     - aws_account_alternate_contact
   Parameters: []
+  PrimaryTable: aws_account
+  QueryToExecute: |
+    SELECT 
+      a.account_id AS resource,
+      a.og_account_id,
+      a.og_resource_id,
+      CASE
+        WHEN c.name IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN c.name IS NULL THEN 'account does not have any alternate contact'
+        ELSE 'account has an alternate contact'
+      END AS reason,
+      a.region,
+      a.account_id
+    FROM aws_account AS a
+    LEFT JOIN aws_account_alternate_contact AS c 
+      ON a.account_id = c.account_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -19,5 +37,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: Account Alternate Contacts

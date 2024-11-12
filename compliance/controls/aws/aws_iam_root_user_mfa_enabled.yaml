@@ -1,28 +1,29 @@
+Description: Manage access to resources in the AWS Cloud by ensuring MFA is enabled for the root user.
 ID: aws_iam_root_user_mfa_enabled
-Title: "IAM root user MFA should be enabled"
-Description: "Manage access to resources in the AWS Cloud by ensuring MFA is enabled for the root user."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || ':::' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when account_mfa_enabled then 'ok'
-        else 'alarm'
-      end status,
-      case
-        when account_mfa_enabled then 'MFA enabled for root account.'
-        else 'MFA not enabled for root account.'
-      end reason
-      , account_id
-    from
-      aws_iam_account_summary;
-  PrimaryTable: aws_iam_account_summary
   ListOfTables:
     - aws_iam_account_summary
   Parameters: []
+  PrimaryTable: aws_iam_account_summary
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':::' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN account_mfa_enabled THEN 'ok'
+        ELSE 'alarm'
+      END status,
+      CASE
+        WHEN account_mfa_enabled THEN 'MFA enabled for root account.'
+        ELSE 'MFA not enabled for root account.'
+      END reason,
+      account_id
+    FROM
+      aws_iam_account_summary;
 Severity: critical
 Tags:
   audit_manager_control_tower:
@@ -47,11 +48,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -61,5 +62,4 @@ Tags:
     - AWS/IAM
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: IAM root user MFA should be enabled

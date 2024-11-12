@@ -1,42 +1,43 @@
+Description: Ensure no security group opens range of ports.
 ID: aws_security_group_port_range
-Title: "Security Group Port Range"
-Description: "Ensure no security group opens range of ports."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with ingress_sg as (
-      select
-        group_id
-      from
-        aws_vpc_security_group_rule
-      where
-        from_port = from_port
-        and not is_egress
-      group by
-        group_id
-    )
-    select
-      sg.group_id as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when isg.group_id is null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when isg.group_id is null then sg.group_id || ' does not allow unrestricted FTP access'
-        else sg.group_id || ' allows unrestricted FTP access'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_vpc_security_group as sg
-      left join ingress_sg as isg on sg.group_id = isg.group_id
-  PrimaryTable: aws_vpc_security_group
   ListOfTables:
     - aws_vpc_security_group
     - aws_vpc_security_group_rule
   Parameters: []
+  PrimaryTable: aws_vpc_security_group
+  QueryToExecute: |
+    WITH ingress_sg AS (
+      SELECT
+        group_id
+      FROM
+        aws_vpc_security_group_rule
+      WHERE
+        from_port = from_port
+        AND NOT is_egress
+      GROUP BY
+        group_id
+    )
+    SELECT
+      sg.group_id AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN isg.group_id IS NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN isg.group_id IS NULL THEN sg.group_id || ' does not allow unrestricted FTP access'
+        ELSE sg.group_id || ' allows unrestricted FTP access'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_security_group AS sg
+      LEFT JOIN ingress_sg AS isg ON sg.group_id = isg.group_id
 Severity: very high
 Tags:
   platform_score_cloud_service_name:
@@ -47,5 +48,4 @@ Tags:
     - AWS EC2
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Security Group Port Range

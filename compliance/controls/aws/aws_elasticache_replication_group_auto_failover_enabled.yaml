@@ -1,28 +1,30 @@
+Description: This control checks if ElastiCache for Redis replication groups have automatic failover enabled. This control fails if automatic failover isn't enabled for a Redis replication group.
 ID: aws_elasticache_replication_group_auto_failover_enabled
-Title: "ElastiCache for Redis replication groups should have automatic failover enabled"
-Description: "This control checks if ElastiCache for Redis replication groups have automatic failover enabled. This control fails if automatic failover isn't enabled for a Redis replication group."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when automatic_failover = 'enabled' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when automatic_failover = 'enabled' then title || ' automatic failover enabled.'
-        else title || ' automatic failover disabled.'
-      end as reason
-      , region, account_id
-    from
-      aws_elasticache_replication_group;
-  PrimaryTable: aws_elasticache_replication_group
   ListOfTables:
     - aws_elasticache_replication_group
   Parameters: []
+  PrimaryTable: aws_elasticache_replication_group
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN automatic_failover = 'enabled' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN automatic_failover = 'enabled' THEN title || ' automatic failover enabled.'
+        ELSE title || ' automatic failover disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_elasticache_replication_group;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -37,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/ElastiCache
-IntegrationType:
-  - aws_cloud_account
+Title: ElastiCache for Redis replication groups should have automatic failover enabled

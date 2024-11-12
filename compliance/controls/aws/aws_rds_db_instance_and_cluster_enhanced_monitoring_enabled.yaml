@@ -1,14 +1,56 @@
+Description: Enable AWS Relational Database Service (AWS RDS) to help monitor AWS RDS availability. This provides detailed visibility into the health of your AWS RDS database instances.
 ID: aws_rds_db_instance_and_cluster_enhanced_monitoring_enabled
-Title: "RDS DB instance and cluster enhanced monitoring should be enabled"
-Description: "Enable AWS Relational Database Service (AWS RDS) to help monitor AWS RDS availability. This provides detailed visibility into the health of your AWS RDS database instances."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "(\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'aws_rds_db_cluster' as og_table_name,\n  case\n    when enabled_cloudwatch_logs_exports is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enabled_cloudwatch_logs_exports is not null then title || ' enhanced monitoring enabled.'\n    else title || ' enhanced monitoring not enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_cluster\n)\nunion\n(\nselect\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  'aws_rds_db_instance' as og_table_name,\n  case\n    when class = 'db.m1.small' then 'skip'\n    when enhanced_monitoring_resource_arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when class = 'db.m1.small' then title || ' enhanced monitoring not supported.'\n    when enhanced_monitoring_resource_arn is not null then title || ' enhanced monitoring enabled.'\n    else title || ' enhanced monitoring not enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_rds_db_instance\n);\n"
-  PrimaryTable: ""
   ListOfTables:
     - aws_rds_db_cluster
     - aws_rds_db_instance
   Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    (
+      SELECT
+        arn AS resource,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_rds_db_cluster' AS og_table_name,
+        CASE
+          WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN 'ok'
+          ELSE 'alarm'
+        END AS status,
+        CASE
+          WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN title || ' enhanced monitoring enabled.'
+          ELSE title || ' enhanced monitoring not enabled.'
+        END AS reason,
+        region,
+        account_id
+      FROM
+        aws_rds_db_cluster
+    )
+    UNION
+    (
+      SELECT
+        arn AS resource,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        'aws_rds_db_instance' AS og_table_name,
+        CASE
+          WHEN class = 'db.m1.small' THEN 'skip'
+          WHEN enhanced_monitoring_resource_arn IS NOT NULL THEN 'ok'
+          ELSE 'alarm'
+        END AS status,
+        CASE
+          WHEN class = 'db.m1.small' THEN title || ' enhanced monitoring not supported.'
+          WHEN enhanced_monitoring_resource_arn IS NOT NULL THEN title || ' enhanced monitoring enabled.'
+          ELSE title || ' enhanced monitoring not enabled.'
+        END AS reason,
+        region,
+        account_id
+      FROM
+        aws_rds_db_instance
+    );
 Severity: low
 Tags:
   category:
@@ -23,11 +65,11 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -35,5 +77,4 @@ Tags:
     - aws
   service:
     - AWS/RDS
-IntegrationType:
-  - aws_cloud_account
+Title: RDS DB instance and cluster enhanced monitoring should be enabled

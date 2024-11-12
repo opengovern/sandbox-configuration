@@ -1,33 +1,35 @@
+Description: Enable Network Watcher for Azure subscriptions.
 ID: azure_cis_v210_6_6
-Title: "6.6 Ensure that Network Watcher is 'Enabled'"
-Description: "Enable Network Watcher for Azure subscriptions."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      loc.id resource,
-      loc.og_account_id as og_account_id,
-      loc.og_resource_id as og_resource_id,
-      case
-        when watcher.id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when watcher.id is null then 'Network watcher not enabled in ' || loc.name || '.'
-        else 'Network watcher enabled in ' || loc.name || '.'
-      end as reason,
-      loc.name
-    from
-      azure_location loc
-      left join azure_network_watcher watcher on watcher.region = loc.name
-      join azure_subscription sub on sub.subscription_id = loc.subscription_id;
-  PrimaryTable: azure_network_watcher
   ListOfTables:
     - azure_location
     - azure_network_watcher
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_network_watcher
+  QueryToExecute: |
+    SELECT
+      loc.id AS resource,
+      loc.og_account_id AS og_account_id,
+      loc.og_resource_id AS og_resource_id,
+      CASE
+        WHEN watcher.id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN watcher.id IS NULL THEN 'Network watcher not enabled in ' || loc.name || '.'
+        ELSE 'Network watcher enabled in ' || loc.name || '.'
+      END AS reason,
+      loc.name
+    FROM
+      azure_location loc
+    LEFT JOIN
+      azure_network_watcher watcher ON watcher.region = loc.name
+    JOIN
+      azure_subscription sub ON sub.subscription_id = loc.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 6.6 Ensure that Network Watcher is 'Enabled'

@@ -1,13 +1,30 @@
+Description: Checks if AWS CloudWatch alarm actions are in enabled state. The rule is non-compliant if the CloudWatch alarm actions are not in enabled state.
 ID: aws_cloudwatch_alarm_action_enabled_check
-Title: "CloudWatch alarm action should be enabled"
-Description: "Checks if AWS CloudWatch alarm actions are in enabled state. The rule is non-compliant if the CloudWatch alarm actions are not in enabled state."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when actions_enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when actions_enabled then title || ' alarm actions enabled.'\n    else title || ' alarm actions disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_cloudwatch_alarm;\n"
-  PrimaryTable: aws_cloudwatch_alarm
   ListOfTables:
     - aws_cloudwatch_alarm
   Parameters: []
+  PrimaryTable: aws_cloudwatch_alarm
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN actions_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN actions_enabled THEN title || ' alarm actions enabled.'
+        ELSE title || ' alarm actions disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_cloudwatch_alarm;
 Severity: medium
 Tags:
   category:
@@ -22,5 +39,4 @@ Tags:
     - AWS/CloudWatch
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: CloudWatch alarm action should be enabled

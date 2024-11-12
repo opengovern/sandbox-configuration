@@ -1,31 +1,36 @@
+Description: Ensure Recovery Service Vaults are not publicly accessible and not encrypted
 ID: azure_recovery_service_vault_not_publicly_accessible_and_not_encrypted
-Title: "Recovery Service Vault not publicly accessible and not encrypted"
-Description: "Ensure Recovery Service Vaults are not publicly accessible and not encrypted"
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      v.id as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' is null and v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' then v.name || ' is not encrypted and publicly accessible.'
-        else v.name || ' is not publicly accessible.'
-      end as reason,
-      v.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_recovery_services_vault as v
-      left join azure_subscription sub on sub.subscription_id = v.subscription_id
-  PrimaryTable: azure_recovery_services_vault
   ListOfTables:
     - azure_recovery_services_vault
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_recovery_services_vault
+  QueryToExecute: |
+    SELECT
+      v.id AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
+             AND v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
+          THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
+             AND v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
+          THEN v.name || ' is not encrypted and publicly accessible.'
+        ELSE v.name || ' is not publicly accessible.'
+      END AS reason,
+      v.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_recovery_services_vault AS v
+      LEFT JOIN azure_subscription AS sub ON sub.subscription_id = v.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +41,4 @@ Tags:
     - Azure Recovery Services
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - azure_subscription
+Title: Recovery Service Vault not publicly accessible and not encrypted

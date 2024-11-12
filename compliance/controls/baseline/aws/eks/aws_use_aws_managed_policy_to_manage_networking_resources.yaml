@@ -1,31 +1,33 @@
+Description: Ensure that EKS cluster node groups implement the "AmazonEKS_CNI_Policy" managed policy.
 ID: aws_use_aws_managed_policy_to_manage_networking_resources
-Title: "Use AWS-managed policy to Manage Networking Resources"
-Description: "Ensure that EKS cluster node groups implement the \"AmazonEKS_CNI_Policy\" managed policy."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      ng.nodegroup_name as resource,
-      ng.og_account_id,
-      ng.og_resource_id,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when attached_policy_arns::text like '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' then 'node group policies contains AmazonEKS_CNI_Policy'
-        else 'node group policies does not contain AmazonEKS_CNI_Policy'
-      end as reason,
-      ng.region,
-      ng.account_id
-    from
-      aws_eks_node_group as ng
-      left join aws_iam_role as r on r.arn = ng.node_role
-  PrimaryTable: aws_eks_node_group
   ListOfTables:
     - aws_eks_node_group
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_eks_node_group
+  QueryToExecute: |
+    SELECT 
+      ng.nodegroup_name AS resource,
+      ng.og_account_id,
+      ng.og_resource_id,
+      CASE
+        WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'node group policies contains AmazonEKS_CNI_Policy'
+        ELSE 'node group policies does not contain AmazonEKS_CNI_Policy'
+      END AS reason,
+      ng.region,
+      ng.account_id
+    FROM 
+      aws_eks_node_group AS ng
+    LEFT JOIN aws_iam_role AS r 
+      ON r.arn = ng.node_role
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -36,5 +38,4 @@ Tags:
     - AWS Elastic Kubernetes Service (EKS)
   score_tags:
     - Lacking High Availability
-IntegrationType:
-  - aws_cloud_account
+Title: Use AWS-managed policy to Manage Networking Resources

@@ -1,36 +1,38 @@
+Description: Enable automatic failover for Microsoft Azure Cosmos DB accounts.
 ID: azure_enable_automatic_failover
-Title: "Enable Automatic Failover"
-Description: "Enable automatic failover for Microsoft Azure Cosmos DB accounts."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      a.name as resource,
-      a.og_resource_id,
-      a.og_account_id,
-      case
-        when enable_automatic_failover = 'true' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when enable_automatic_failover = 'true' then 'Automatic Failover feature is enabled.'
-        else 'Automatic Failover feature is not enabled.'
-      end as reason,
-      a.resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_cosmosdb_account as a
-      left join azure_subscription as sub on a.subscription_id = sub.subscription_id
-  PrimaryTable: azure_cosmosdb_account
   ListOfTables:
     - azure_cosmosdb_account
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_cosmosdb_account
+  QueryToExecute: |
+    SELECT
+      a.name AS resource,
+      a.og_resource_id,
+      a.og_account_id,
+      CASE
+        WHEN enable_automatic_failover = 'true' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_automatic_failover = 'true' THEN 'Automatic Failover feature is enabled.'
+        ELSE 'Automatic Failover feature is not enabled.'
+      END AS reason,
+      a.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_cosmosdb_account AS a
+    LEFT JOIN 
+      azure_subscription AS sub 
+      ON a.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Network
   score_service_name:
     - Azure Network
-IntegrationType:
-  - azure_subscription
+Title: Enable Automatic Failover

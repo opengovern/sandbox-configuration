@@ -1,14 +1,28 @@
+Description: Geographic restriction is used to restrict access to all of the files that are associated with a distribution at the country level.
 ID: aws_cloudfront_distribution_geo_restrictions_enabled
-Title: "CloudFront distributions should have geo restriction enabled"
-Description: "Geographic restriction is used to restrict access to all of the files that are associated with a distribution at the country level."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when restrictions -> 'GeoRestriction' ->> 'RestrictionType' = 'none' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when restrictions -> 'GeoRestriction' ->> 'RestrictionType' = 'none' then title || ' Geo Restriction disabled.'\n    else title || ' Geo Restriction enabled.'\n  end as reason\n  \n  \nfrom\n  aws_cloudfront_distribution;"
-  PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
     - aws_cloudfront_distribution
   Parameters: []
+  PrimaryTable: aws_cloudfront_distribution
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN restrictions -> 'GeoRestriction' ->> 'RestrictionType' = 'none' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN restrictions -> 'GeoRestriction' ->> 'RestrictionType' = 'none' THEN title || ' Geo Restriction disabled.'
+        ELSE title || ' Geo Restriction enabled.'
+      END AS reason
+    FROM
+      aws_cloudfront_distribution;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: CloudFront distributions should have geo restriction enabled

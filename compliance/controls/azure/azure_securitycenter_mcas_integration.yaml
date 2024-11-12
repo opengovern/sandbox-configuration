@@ -1,14 +1,36 @@
+Description: This setting enables Microsoft Defender for Cloud Apps (MCAS) integration with Microsoft Defender for Cloud.
 ID: azure_securitycenter_mcas_integration
-Title: "Ensure that Microsoft Defender for Cloud Apps (MCAS) Integration with Microsoft Defender for Cloud is selected"
-Description: "This setting enables Microsoft Defender for Cloud Apps (MCAS) integration with Microsoft Defender for Cloud."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  sc_sett.id as resource,\n  sc_sett.og_account_id as og_account_id,\n  sc_sett.og_resource_id as og_resource_id,\n  case\n    when enabled then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enabled then 'Windows Defender ATP (WDATP) integrated with Security Center.'\n    else 'Windows Defender ATP (WDATP) not integrated with Security Center.'\n  end as reason\n  \n  , sub.display_name as subscription\nfrom\n  azure_security_center_setting sc_sett\n  right join azure_subscription sub on sc_sett.subscription_id = sub.subscription_id\nwhere\n  name = 'MCAS';\n"
-  PrimaryTable: azure_security_center_setting
   ListOfTables:
     - azure_security_center_setting
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_setting
+  QueryToExecute: |
+    SELECT
+      sc_sett.id AS resource,
+      sc_sett.og_account_id AS og_account_id,
+      sc_sett.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enabled THEN 'Windows Defender ATP (WDATP) integrated with Security Center.'
+        ELSE 'Windows Defender ATP (WDATP) not integrated with Security Center.'
+      END AS reason,
+      sub.display_name AS subscription
+    FROM
+      azure_security_center_setting sc_sett
+    RIGHT JOIN
+      azure_subscription sub
+    ON
+      sc_sett.subscription_id = sub.subscription_id
+    WHERE
+      name = 'MCAS';
 Severity: high
 Tags:
   category:
@@ -29,5 +51,4 @@ Tags:
     - azure
   service:
     - Azure/SecurityCenter
-IntegrationType:
-  - azure_subscription
+Title: Ensure that Microsoft Defender for Cloud Apps (MCAS) Integration with Microsoft Defender for Cloud is selected

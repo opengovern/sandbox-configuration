@@ -1,15 +1,49 @@
+Description: This control checks whether there are VPCs present in multiple regions.
 ID: aws_vpc_in_more_than_one_region
-Title: "VPCs should exist in multiple regions"
-Description: "This control checks whether there are VPCs present in multiple regions."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with vpc_region_list as (\n  select\n    distinct region, account_id\n  from\n    aws_vpc\n), vpc_count_in_account as (\n    select\n    count(*) as num,\n    account_id\n  from\n    vpc_region_list\n    group by account_id\n)\nselect\n  arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when v.num > 1 then 'ok'\n    when v.num = 1 then 'alarm'\n    else 'alarm'\n  end as status,\n  case\n    when v.num > 1 then 'VPCs exist in ' || v.num || ' regions.'\n    when v.num = 1 then 'VPCs exist only in one region.'\n    else 'VPC does not exist.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join vpc_count_in_account as v on v.account_id = a.account_id;"
-  PrimaryTable: aws_vpc
   ListOfTables:
     - aws_vpc
     - aws_account
   Parameters: []
+  PrimaryTable: aws_vpc
+  QueryToExecute: |
+    WITH vpc_region_list AS (
+      SELECT
+        DISTINCT region,
+        account_id
+      FROM
+        aws_vpc
+    ),
+    vpc_count_in_account AS (
+      SELECT
+        COUNT(*) AS num,
+        account_id
+      FROM
+        vpc_region_list
+      GROUP BY
+        account_id
+    )
+    SELECT
+      arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN v.num > 1 THEN 'ok'
+        WHEN v.num = 1 THEN 'alarm'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN v.num > 1 THEN 'VPCs exist in ' || v.num || ' regions.'
+        WHEN v.num = 1 THEN 'VPCs exist only in one region.'
+        ELSE 'VPC does not exist.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN
+      vpc_count_in_account AS v ON v.account_id = a.account_id
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: VPCs should exist in multiple regions

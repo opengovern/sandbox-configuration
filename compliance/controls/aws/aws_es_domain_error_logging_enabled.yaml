@@ -1,13 +1,36 @@
+Description: This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs.
 ID: aws_es_domain_error_logging_enabled
-Title: "Elasticsearch domain error logging to CloudWatch Logs should be enabled"
-Description: "This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when\n      log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n      and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when\n      log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'\n      and log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' is not null then title || ' error logging enabled.'\n    else title || ' error logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_elasticsearch_domain;\n"
-  PrimaryTable: aws_elasticsearch_domain
   ListOfTables:
     - aws_elasticsearch_domain
   Parameters: []
+  PrimaryTable: aws_elasticsearch_domain
+  QueryToExecute: |
+    SELECT 
+      arn AS resource, 
+      og_account_id AS og_account_id, 
+      og_resource_id AS og_resource_id, 
+      CASE 
+        WHEN 
+          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' 
+          AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN 'ok'
+        ELSE 
+          'alarm'
+      END AS status, 
+      CASE 
+        WHEN 
+          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true' 
+          AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN title || ' error logging enabled.'
+        ELSE 
+          title || ' error logging disabled.'
+      END AS reason,
+      region, 
+      account_id
+    FROM 
+      aws_elasticsearch_domain;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +45,4 @@ Tags:
     - aws
   service:
     - AWS/ES
-IntegrationType:
-  - aws_cloud_account
+Title: Elasticsearch domain error logging to CloudWatch Logs should be enabled

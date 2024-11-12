@@ -1,48 +1,47 @@
+Description: Checks if a backup plan has a backup rule that satisfies the required frequency and retention period(35 Days). The rule is non-compliant if recovery points are not created at least as often as the specified frequency or expire before the specified period.
 ID: aws_backup_plan_min_retention_35_days
-Title: "Backup plan min frequency and min retention check"
-Description: "Checks if a backup plan has a backup rule that satisfies the required frequency and retention period(35 Days). The rule is non-compliant if recovery points are not created at least as often as the specified frequency or expire before the specified period."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    with all_plans as (
-      select
-        arn,
-        r as Rules,
-        title,
-        region,
-        account_id,
-        og_account_id as og_account_id,
-        og_resource_id as og_resource_id,
-        _ctx
-      from
-        aws_backup_plan,
-        jsonb_array_elements(backup_plan -> 'Rules') as r
-    )
-    select
-      -- The resource ARN can be duplicate as we are checking all the associated rules to the backup-plan
-      -- Backup plans are composed of one or more backup rules.
-      -- https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html
-      r.arn as resource,
-      r.og_account_id as og_account_id,
-      r.og_resource_id as og_resource_id,
-      case
-        when r.Rules is null then 'alarm'
-        when r.Rules ->> 'Lifecycle' is null then 'ok'
-        when (r.Rules -> 'Lifecycle' ->> 'DeleteAfterDays')::int >= 35 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when r.Rules is null then r.title || ' retention period not set.'
-        when r.Rules ->> 'Lifecycle' is null then (r.Rules ->> 'RuleName') || ' retention period set to never expire.'
-        else (r.Rules ->> 'RuleName') || ' retention period set to ' || (r.Rules -> 'Lifecycle' ->> 'DeleteAfterDays') || ' days.'
-      end as reason
-      , region, account_id
-    from
-      all_plans as r;
-  PrimaryTable: aws_backup_plan
   ListOfTables:
     - aws_backup_plan
   Parameters: []
+  PrimaryTable: aws_backup_plan
+  QueryToExecute: |
+    WITH all_plans AS (
+      SELECT
+        arn,
+        r AS rules,
+        title,
+        region,
+        account_id,
+        og_account_id AS og_account_id,
+        og_resource_id AS og_resource_id,
+        _ctx
+      FROM
+        aws_backup_plan,
+        jsonb_array_elements(backup_plan -> 'Rules') AS r
+    )
+    SELECT
+      r.arn AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN r.rules IS NULL THEN 'alarm'
+        WHEN r.rules ->> 'Lifecycle' IS NULL THEN 'ok'
+        WHEN (r.rules -> 'Lifecycle' ->> 'DeleteAfterDays')::int >= 35 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN r.rules IS NULL THEN r.title || ' retention period not set.'
+        WHEN r.rules ->> 'Lifecycle' IS NULL THEN (r.rules ->> 'RuleName') || ' retention period set to never expire.'
+        ELSE (r.rules ->> 'RuleName') || ' retention period set to ' || (r.rules -> 'Lifecycle' ->> 'DeleteAfterDays') || ' days.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      all_plans AS r;
 Severity: medium
 Tags:
   category:
@@ -75,5 +74,4 @@ Tags:
     - AWS/Backup
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Backup plan min frequency and min retention check

@@ -1,16 +1,50 @@
+Description: External accounts with write privileges should be removed from your subscription in order to prevent unmonitored access.
 ID: azure_iam_external_user_with_write_permission
-Title: "Guest accounts with write permissions on Azure resources should be removed"
-Description: "External accounts with write privileges should be removed from your subscription in order to prevent unmonitored access."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with all_write_permission_users as (\n  select\n    distinct\n    u.display_name,\n    d.role_name,\n    u.account_enabled,\n    u.user_principal_name,\n    d.subscription_id,\n    u.og_account_id as og_account_id,\n    u.og_resource_id as og_resource_id\n  from\n    azuread_user as u\n    left join azure_role_assignment as a on a.principal_id = u.id\n    left join azure_role_definition as d on d.id = a.role_definition_id\n  where\n    d.role_name = any(array['Owner', 'Contributor'])\n)\nselect\n  a.user_principal_name as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.user_principal_name like '%EXT%' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when a.user_principal_name like '%EXT%' then a.display_name || ' is external user with ' || a.role_name || ' role.'\n    else a.display_name || ' is domain user with ' || a.role_name || ' role.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  azure_tenant as t,\n  all_write_permission_users as a;\n"
-  PrimaryTable: azuread_user
   ListOfTables:
     - azure_role_assignment
     - azure_role_definition
     - azure_tenant
     - azuread_user
   Parameters: []
+  PrimaryTable: azuread_user
+  QueryToExecute: |
+    WITH all_write_permission_users AS (
+      SELECT
+        DISTINCT
+        u.display_name,
+        d.role_name,
+        u.account_enabled,
+        u.user_principal_name,
+        d.subscription_id,
+        u.og_account_id AS og_account_id,
+        u.og_resource_id AS og_resource_id
+      FROM
+        azuread_user AS u
+        LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
+        LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
+      WHERE
+        d.role_name = ANY(ARRAY['Owner', 'Contributor'])
+    )
+    SELECT
+      a.user_principal_name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.user_principal_name LIKE '%EXT%' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN a.user_principal_name LIKE '%EXT%' THEN a.display_name || ' is external user with ' || a.role_name || ' role.'
+        ELSE a.display_name || ' is domain user with ' || a.role_name || ' role.'
+      END AS reason,
+      t.tenant_id
+    FROM
+      azure_tenant AS t,
+      all_write_permission_users AS a;
 Severity: high
 Tags:
   hipaa_hitrust_v92:
@@ -21,5 +55,4 @@ Tags:
     - "true"
   service:
     - Azure/ActiveDirectory
-IntegrationType:
-  - azure_subscription
+Title: Guest accounts with write permissions on Azure resources should be removed

@@ -1,13 +1,30 @@
+Description: This control checks whether OpenSearch service domains have audit logging enabled. The rule is non-compliant if an OpenSearch service domain does not have audit logging enabled.
 ID: aws_opensearch_domain_audit_logging_enabled
-Title: "OpenSearch domains should have audit logging enabled."
-Description: "This control checks whether OpenSearch service domains have audit logging enabled. The rule is non-compliant if an OpenSearch service domain does not have audit logging enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' then 'ok'\n    else 'ok'\n  end as status,\n  case\n    when log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' then title || ' audit logging enabled.'\n    else title || ' audit logging disabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' THEN 'ok'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' THEN title || ' audit logging enabled.'
+        ELSE title || ' audit logging disabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_opensearch_domain;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +39,4 @@ Tags:
     - aws
   service:
     - AWS/OpenSearch
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch domains should have audit logging enabled.

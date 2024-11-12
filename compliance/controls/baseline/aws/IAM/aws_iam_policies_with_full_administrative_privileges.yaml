@@ -1,13 +1,45 @@
+Description: Ensure IAM policies that allow full '*:*' administrative privileges aren't created.
 ID: aws_iam_policies_with_full_administrative_privileges
-Title: "IAM Policies With Full Administrative Privileges"
-Description: "Ensure IAM policies that allow full '*:*' administrative privileges aren't created."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id,\n  og_resource_id,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when exists(select 1 from jsonb_array_elements_text(stmt -> 'Action') as a where a = '*') and stmt ->> 'Effect' = 'Allow' and stmt ->> 'Resource' = '[\"*\"]' then 'policy allows full administrative privileges'\n    else 'policy does not allow full administrative privileges'\n  end as reason,\n  region, \n  account_id\nfrom\n  aws_iam_policy as p,\n  jsonb_array_elements(p.policy_std -> 'Statement') as stmt\n"
-  PrimaryTable: aws_iam_policy
   ListOfTables:
     - aws_iam_policy
   Parameters: []
+  PrimaryTable: aws_iam_policy
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id,
+      og_resource_id,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 
+          FROM jsonb_array_elements_text(stmt -> 'Action') AS a 
+          WHERE a = '*'
+        ) 
+        AND stmt ->> 'Effect' = 'Allow' 
+        AND stmt ->> 'Resource' = '[\"*\"]' 
+        THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN EXISTS(
+          SELECT 1 
+          FROM jsonb_array_elements_text(stmt -> 'Action') AS a 
+          WHERE a = '*'
+        ) 
+        AND stmt ->> 'Effect' = 'Allow' 
+        AND stmt ->> 'Resource' = '[\"*\"]' 
+        THEN 'policy allows full administrative privileges'
+        ELSE 'policy does not allow full administrative privileges'
+      END AS reason,
+      region, 
+      account_id
+    FROM
+      aws_iam_policy AS p,
+      jsonb_array_elements(p.policy_std -> 'Statement') AS stmt
 Severity: high
 Tags:
   platform_score_cloud_service_name:
@@ -18,5 +50,4 @@ Tags:
     - AWS Identity and Access Management (IAM)
   score_tags:
     - Problem Identities
-IntegrationType:
-  - aws_cloud_account
+Title: IAM Policies With Full Administrative Privileges

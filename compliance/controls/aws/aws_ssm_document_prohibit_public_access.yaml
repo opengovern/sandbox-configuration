@@ -1,13 +1,32 @@
+Description: This control checks whether AWS Systems Manager documents that are owned by the account are public. This control fails if SSM documents with the owner Self are public.
 ID: aws_ssm_document_prohibit_public_access
-Title: "SSM documents should not be public"
-Description: "This control checks whether AWS Systems Manager documents that are owned by the account are public. This control fails if SSM documents with the owner Self are public."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when account_ids :: jsonb ? 'all' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when account_ids :: jsonb ? 'all' then title || ' publicly accesible.'\n    else title || ' not publicly accesible.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ssm_document\nwhere\n  owner_type = 'Self';\n"
-  PrimaryTable: aws_ssm_document
   ListOfTables:
     - aws_ssm_document
   Parameters: []
+  PrimaryTable: aws_ssm_document
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN account_ids :: jsonb ? 'all' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN account_ids :: jsonb ? 'all' THEN title || ' publicly accessible.'
+        ELSE title || ' not publicly accessible.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ssm_document
+    WHERE
+      owner_type = 'Self';
 Severity: critical
 Tags:
   aws_foundational_security:
@@ -22,5 +41,4 @@ Tags:
     - aws
   service:
     - AWS/SSM
-IntegrationType:
-  - aws_cloud_account
+Title: SSM documents should not be public

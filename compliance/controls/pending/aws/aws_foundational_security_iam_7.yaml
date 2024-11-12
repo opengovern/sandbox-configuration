@@ -1,13 +1,46 @@
+Description: This control checks whether the account password policy for IAM users uses the recommended configurations.
 ID: aws_foundational_security_iam_7
-Title: "7 Password policies for IAM users should have strong configurations"
-Description: "This control checks whether the account password policy for IAM users uses the recommended configurations."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || a.partition || ':::' || a.account_id as resource,\n  case\n    when\n      minimum_password_length >= 8\n      and require_lowercase_characters = 'true'\n      and require_uppercase_characters = 'true'\n      and require_numbers = 'true'\n      and require_symbols = 'true'\n    then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when minimum_password_length is null then 'No password policy set.'\n    when\n      minimum_password_length >= 8\n      and require_lowercase_characters = 'true'\n      and require_uppercase_characters = 'true'\n      and require_numbers = 'true'\n      and require_symbols = 'true'\n    then 'Strong password policies configured.'\n    else 'Password policy ' ||\n      concat_ws(', ',\n        case when minimum_password_length < 8 then ('minimum password length set to ' || minimum_password_length) end,\n        case when not (require_lowercase_characters = 'true') then 'lowercase characters not required' end,\n        case when not (require_uppercase_characters = 'true') then 'uppercase characters not required' end,\n        case when not (require_numbers) then 'numbers not required' end,\n        case when not (require_symbols) then 'symbols not required' end\n      ) || '.'\n  end as reason\n  \nfrom\n  aws_account as a\n  left join aws_iam_account_password_policy as pol on a.account_id = pol.account_id;\n"
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: medium
-Tags: {}
 IntegrationType:
   - aws_cloud_account
+Query:
+  Engine: CloudQL-v0.0.1
+  ListOfTables: []
+  Parameters: []
+  PrimaryTable: ""
+  QueryToExecute: |
+    SELECT
+      'arn:' || a.partition || ':::' || a.account_id AS resource,
+      CASE
+        WHEN
+          minimum_password_length >= 8
+          AND require_lowercase_characters = 'true'
+          AND require_uppercase_characters = 'true'
+          AND require_numbers = 'true'
+          AND require_symbols = 'true'
+        THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN minimum_password_length IS NULL THEN 'No password policy set.'
+        WHEN
+          minimum_password_length >= 8
+          AND require_lowercase_characters = 'true'
+          AND require_uppercase_characters = 'true'
+          AND require_numbers = 'true'
+          AND require_symbols = 'true'
+        THEN 'Strong password policies configured.'
+        ELSE 'Password policy ' ||
+          CONCAT_WS(', ',
+            CASE WHEN minimum_password_length < 8 THEN ('minimum password length set to ' || minimum_password_length) END,
+            CASE WHEN NOT (require_lowercase_characters = 'true') THEN 'lowercase characters not required' END,
+            CASE WHEN NOT (require_uppercase_characters = 'true') THEN 'uppercase characters not required' END,
+            CASE WHEN NOT (require_numbers) THEN 'numbers not required' END,
+            CASE WHEN NOT (require_symbols) THEN 'symbols not required' END
+          ) || '.'
+      END AS reason
+    FROM
+      aws_account AS a
+    LEFT JOIN aws_iam_account_password_policy AS pol ON a.account_id = pol.account_id;
+Severity: medium
+Tags: {}
+Title: 7 Password policies for IAM users should have strong configurations

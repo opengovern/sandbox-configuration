@@ -1,38 +1,39 @@
+Description: AWS GuardDuty can help to monitor and detect potential cybersecurity events by using threat intelligence feeds.
 ID: aws_guardduty_enabled
-Title: "GuardDuty should be enabled"
-Description: "AWS GuardDuty can help to monitor and detect potential cybersecurity events by using threat intelligence feeds."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || r.partition || '::' || r.region || ':' || r.account_id as resource,
-      r.og_account_id as og_account_id,
-      r.og_resource_id as og_resource_id,
-      case
-        when r.region = any(array['af-south-1', 'ap-northeast-3', 'ap-southeast-3', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'me-south-1', 'us-gov-east-1']) then 'skip'
-        -- Skip any regions that are disabled in the account.
-        when r.opt_in_status = 'not-opted-in' then 'skip'
-        when status = 'ENABLED' and master_account ->> 'AccountId' is null then 'ok'
-        when status = 'ENABLED' and master_account ->> 'AccountId' is not null then 'info'
-        else 'alarm'
-      end as status,
-      case
-        when r.region = any(array['af-south-1', 'ap-northeast-3', 'ap-southeast-3', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'me-south-1', 'us-gov-east-1']) then r.region || ' region not supported.'
-        when r.opt_in_status = 'not-opted-in' then r.region || ' region is disabled.'
-        when status is null then 'No GuardDuty detector found in ' || r.region || '.'
-        when status = 'ENABLED' and master_account ->> 'AccountId' is null then r.region || ' detector ' || d.title || ' enabled.'
-        when status = 'ENABLED' and master_account ->> 'AccountId' is not null then r.region || ' detector ' || d.title || ' is managed by account ' || (master_account ->> 'AccountId') ||  ' via delegated admin.'
-        else r.region || ' detector ' || d.title || ' disabled.'
-      end as reason
-      , r.region, r.account_id
-    from
-      aws_region as r
-      left join aws_guardduty_detector d on r.account_id = d.account_id and r.name = d.region;
-  PrimaryTable: aws_region
   ListOfTables:
     - aws_guardduty_detector
     - aws_region
   Parameters: []
+  PrimaryTable: aws_region
+  QueryToExecute: |
+    SELECT
+      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+      r.og_account_id AS og_account_id,
+      r.og_resource_id AS og_resource_id,
+      CASE
+        WHEN r.region = ANY(ARRAY['af-south-1', 'ap-northeast-3', 'ap-southeast-3', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'me-south-1', 'us-gov-east-1']) THEN 'skip'
+        WHEN r.opt_in_status = 'not-opted-in' THEN 'skip'
+        WHEN status = 'ENABLED' AND master_account ->> 'AccountId' IS NULL THEN 'ok'
+        WHEN status = 'ENABLED' AND master_account ->> 'AccountId' IS NOT NULL THEN 'info'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN r.region = ANY(ARRAY['af-south-1', 'ap-northeast-3', 'ap-southeast-3', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'me-south-1', 'us-gov-east-1']) THEN r.region || ' region not supported.'
+        WHEN r.opt_in_status = 'not-opted-in' THEN r.region || ' region is disabled.'
+        WHEN status IS NULL THEN 'No GuardDuty detector found in ' || r.region || '.'
+        WHEN status = 'ENABLED' AND master_account ->> 'AccountId' IS NULL THEN r.region || ' detector ' || d.title || ' enabled.'
+        WHEN status = 'ENABLED' AND master_account ->> 'AccountId' IS NOT NULL THEN r.region || ' detector ' || d.title || ' is managed by account ' || (master_account ->> 'AccountId') || ' via delegated admin.'
+        ELSE r.region || ' detector ' || d.title || ' disabled.'
+      END AS reason,
+      r.region,
+      r.account_id
+    FROM
+      aws_region AS r
+      LEFT JOIN aws_guardduty_detector d ON r.account_id = d.account_id AND r.name = d.region;
 Severity: medium
 Tags:
   category:
@@ -55,11 +56,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -71,5 +72,4 @@ Tags:
     - AWS/GuardDuty
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: GuardDuty should be enabled

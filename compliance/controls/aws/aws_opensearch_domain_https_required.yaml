@@ -1,13 +1,36 @@
+Description: This control checks whether connections to OpenSearch domains are using HTTPS. The rule is non-compliant if the OpenSearch domain 'EnforceHTTPS' is not 'true' or is 'true' and 'TLSSecurityPolicy' is not in 'tlsPolicies'.
 ID: aws_opensearch_domain_https_required
-Title: "OpenSearch domains should use HTTPS"
-Description: "This control checks whether connections to OpenSearch domains are using HTTPS. The rule is non-compliant if the OpenSearch domain 'EnforceHTTPS' is not 'true' or is 'true' and 'TLSSecurityPolicy' is not in 'tlsPolicies'."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') or (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' and domain_endpoint_options ->> 'TLSSecurityPolicy' not in ('tlsPolicies')) then 'alarm'\n    else 'ok'\n  end status,\n  case\n    when (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') or (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' and domain_endpoint_options ->> 'TLSSecurityPolicy' not in ('tlsPolicies')) then title || ' does not use HTTPS.'\n    else title || ' uses HTTPS.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_opensearch_domain;\n"
-  PrimaryTable: aws_opensearch_domain
   ListOfTables:
     - aws_opensearch_domain
   Parameters: []
+  PrimaryTable: aws_opensearch_domain
+  QueryToExecute: |
+    SELECT 
+      arn AS resource, 
+      og_account_id AS og_account_id, 
+      og_resource_id AS og_resource_id, 
+      CASE 
+        WHEN (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') 
+          OR (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' 
+          AND domain_endpoint_options ->> 'TLSSecurityPolicy' NOT IN ('tlsPolicies')) 
+        THEN 'alarm' 
+        ELSE 'ok' 
+      END status, 
+      CASE 
+        WHEN (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') 
+          OR (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' 
+          AND domain_endpoint_options ->> 'TLSSecurityPolicy' NOT IN ('tlsPolicies')) 
+        THEN title || ' does not use HTTPS.'
+        ELSE title || ' uses HTTPS.' 
+      END AS reason, 
+      region, 
+      account_id 
+    FROM 
+      aws_opensearch_domain;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +45,4 @@ Tags:
     - aws
   service:
     - AWS/OpenSearch
-IntegrationType:
-  - aws_cloud_account
+Title: OpenSearch domains should use HTTPS

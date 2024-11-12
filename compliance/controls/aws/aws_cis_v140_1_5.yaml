@@ -1,14 +1,28 @@
+Description: The 'root' user account is the most privileged user in an AWS account. Multi-factor Authentication (MFA) adds an extra layer of protection on top of a username and password. With MFA enabled, when a user signs in to an AWS website, they will be prompted for their username and password as well as for an authentication code from their AWS MFA device.
 ID: aws_cis_v140_1_5
-Title: "1.5 Ensure MFA is enabled for the 'root' user account"
-Description: "The 'root' user account is the most privileged user in an AWS account. Multi-factor Authentication (MFA) adds an extra layer of protection on top of a username and password. With MFA enabled, when a user signs in to an AWS website, they will be prompted for their username and password as well as for an authentication code from their AWS MFA device."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  'arn:' || partition || ':::' || account_id as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when account_mfa_enabled then 'ok'\n    else 'alarm'\n  end status,\n  case\n    when account_mfa_enabled then 'MFA enabled for root account.'\n    else 'MFA not enabled for root account.'\n  end reason\n  \nfrom\n  aws_iam_account_summary;"
-  PrimaryTable: aws_iam_account_summary
   ListOfTables:
     - aws_iam_account_summary
   Parameters: []
+  PrimaryTable: aws_iam_account_summary
+  QueryToExecute: |
+    SELECT 
+      'arn:' || partition || ':::' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN account_mfa_enabled THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN account_mfa_enabled THEN 'MFA enabled for root account.'
+        ELSE 'MFA not enabled for root account.'
+      END AS reason
+    FROM 
+      aws_iam_account_summary;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.5 Ensure MFA is enabled for the 'root' user account

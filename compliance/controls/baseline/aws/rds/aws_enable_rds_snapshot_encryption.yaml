@@ -1,40 +1,46 @@
+Description: Ensure that AWS RDS snapshots are encrypted to meet security and compliance requirements.
 ID: aws_enable_rds_snapshot_encryption
-Title: "Enable RDS Snapshot Encryption"
-Description: "Ensure that AWS RDS snapshots are encrypted to meet security and compliance requirements."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |-
-    with snapshots as (
-          select distinct
-            db_instance_identifier, encrypted
-          from
-            aws_rds_db_snapshot
-          where type = 'awsbackup'
-        )
-        select
-          r.db_instance_identifier as resource,
-          og_account_id as og_account_id,
-          og_resource_id as og_resource_id,
-          case
-            when b.db_instance_identifier is null then 'skip'
-            when not b.encrypted then 'alarm'
-            else 'ok'
-          end as status,
-          case
-            when b.db_instance_identifier is null then r.title || ' has no RDS database instance snapshots.'
-            when not b.encrypted then r.title || ' snapshots not encrypted.'
-            else r.title || ' snapshots encrypted.'
-          end as reason,
-          r.region,
-          r.account_id
-        from
-          aws_rds_db_instance as r
-          left join snapshots as b on r.db_instance_identifier = b.db_instance_identifier;
-  PrimaryTable: aws_rds_db_instance
   ListOfTables:
     - aws_rds_db_instance
     - aws_rds_db_snapshot
   Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    WITH snapshots AS (
+      SELECT DISTINCT
+        db_instance_identifier,
+        encrypted
+      FROM
+        aws_rds_db_snapshot
+      WHERE
+        type = 'awsbackup'
+    )
+    SELECT
+      r.db_instance_identifier AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.db_instance_identifier IS NULL THEN 'skip'
+        WHEN NOT b.encrypted THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.db_instance_identifier IS NULL THEN r.title || ' has no RDS database instance snapshots.'
+        WHEN NOT b.encrypted THEN r.title || ' snapshots not encrypted.'
+        ELSE r.title || ' snapshots encrypted.'
+      END AS reason,
+      r.region,
+      r.account_id
+    FROM
+      aws_rds_db_instance AS r
+    LEFT JOIN
+      snapshots AS b
+    ON
+      r.db_instance_identifier = b.db_instance_identifier;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -45,5 +51,4 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Unencrypted Storage
-IntegrationType:
-  - aws_cloud_account
+Title: Enable RDS Snapshot Encryption

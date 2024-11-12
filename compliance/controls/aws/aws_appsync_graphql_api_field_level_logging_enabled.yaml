@@ -1,28 +1,28 @@
+Description: This control checks whether an AWS AppSync API has field-level logging turned on. The control fails if the field resolver log level is set to None. Unless you provide custom parameter values to indicate that a specific log type should be enabled, Security Hub produces a passed finding if the field resolver log level is either ERROR or ALL.
 ID: aws_appsync_graphql_api_field_level_logging_enabled
-Title: "AppSync graphql API logging should be enabled"
-Description: "This control checks whether an AWS AppSync API has field-level logging turned on. The control fails if the field resolver log level is set to None. Unless you provide custom parameter values to indicate that a specific log type should be enabled, Security Hub produces a passed finding if the field resolver log level is either ERROR or ALL."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when log_config ->>  'FieldLogLevel' in ('ERROR', 'ALL') then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when log_config ->>  'FieldLogLevel' in ('ERROR', 'ALL') then title || ' field level logging enabled.'
-        else name || ' field level logging disabled.'
-      end as reason
-    from
-      aws_appsync_graphql_api;
-  PrimaryTable: aws_appsync_graphql_api
   ListOfTables:
     - aws_appsync_graphql_api
   Parameters: []
+  PrimaryTable: aws_appsync_graphql_api
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN log_config ->> 'FieldLogLevel' IN ('ERROR', 'ALL') THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN log_config ->> 'FieldLogLevel' IN ('ERROR', 'ALL') THEN title || ' field level logging enabled.'
+        ELSE name || ' field level logging disabled.'
+      END AS reason
+    FROM
+      aws_appsync_graphql_api;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: AppSync graphql API logging should be enabled

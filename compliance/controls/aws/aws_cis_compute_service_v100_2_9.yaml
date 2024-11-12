@@ -1,32 +1,33 @@
+Description: An inventory and management of Amazon Elastic Compute Cloud (Amazon EC2) instances is made possible with AWS Systems Manager.
 ID: aws_cis_compute_service_v100_2_9
-Title: "2.9 Ensure use of AWS Systems Manager to manage EC2 instances"
-Description: "An inventory and management of Amazon Elastic Compute Cloud (Amazon EC2) instances is made possible with AWS Systems Manager."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when i.instance_state = 'stopped' then 'info'
-        when m.instance_id is null then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when i.instance_state = 'stopped' then i.title || ' is in stopped state.'
-        when m.instance_id is null then i.title || ' not managed by AWS SSM.'
-        else i.title || ' managed by AWS SSM.'
-      end as reason
-    from
-      aws_ec2_instance i
-      left join aws_ssm_managed_instance m on m.instance_id = i.instance_id;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
     - aws_ssm_managed_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN i.instance_state = 'stopped' THEN 'info'
+        WHEN m.instance_id IS NULL THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN i.instance_state = 'stopped' THEN i.title || ' is in stopped state.'
+        WHEN m.instance_id IS NULL THEN i.title || ' not managed by AWS SSM.'
+        ELSE i.title || ' managed by AWS SSM.'
+      END AS reason
+    FROM
+      aws_ec2_instance i
+    LEFT JOIN
+      aws_ssm_managed_instance m ON m.instance_id = i.instance_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 2.9 Ensure use of AWS Systems Manager to manage EC2 instances

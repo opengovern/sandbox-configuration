@@ -1,14 +1,28 @@
+Description: This control checks whether an Amazon ECR repository has at least one lifecycle policy configured. This control fails if an ECR repository does not have any lifecycle policies configured.
 ID: aws_foundational_security_ecr_3
-Title: "3 ECR repositories should have at least one lifecycle policy configured"
-Description: "This control checks whether an Amazon ECR repository has at least one lifecycle policy configured. This control fails if an ECR repository does not have any lifecycle policies configured."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when lifecycle_policy -> 'rules' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when lifecycle_policy -> 'rules' is not null then title || ' lifecycle policy configured.'\n    else title || ' lifecycle policy not configured.'\n  end as reason\n  \n  \nfrom\n  aws_ecr_repository;"
-  PrimaryTable: aws_ecr_repository
   ListOfTables:
     - aws_ecr_repository
   Parameters: []
+  PrimaryTable: aws_ecr_repository
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN lifecycle_policy -> 'rules' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN lifecycle_policy -> 'rules' IS NOT NULL THEN title || ' lifecycle policy configured.'
+        ELSE title || ' lifecycle policy not configured.'
+      END AS reason
+    FROM
+      aws_ecr_repository;
 Severity: medium
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 3 ECR repositories should have at least one lifecycle policy configured

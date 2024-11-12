@@ -1,15 +1,54 @@
+Description: AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services. Create an IAM Role to allow authorized users to manage incidents with AWS Support.
 ID: aws_cis_v150_1_17
-Title: "1.17 Ensure a support role has been created to manage incidents with AWS Support"
-Description: "AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services. Create an IAM Role to allow authorized users to manage incidents with AWS Support."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "-- pgFormatter-ignore\nwith support_role_count as\n(\n  select\n    'arn:' || a.partition || ':::' || a.account_id as resource,\n    count(policy_arn),\n    a.account_id,\n    a._ctx,\n    a.og_account_id,\n    a.og_resource_id\n  from\n    aws_account as a\n    left join aws_iam_role as r on r.account_id = a.account_id\n    left join jsonb_array_elements_text(attached_policy_arns) as policy_arn  on true\n  where\n    split_part(policy_arn, '/', 2) = 'AWSSupportAccess'\n    or policy_arn is null\n  group by\n    a.account_id,\n    a.partition,\n    a._ctx,\n    a.og_account_id,\n    a.og_resource_id\n)\nselect\n  resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when count > 0 then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when count = 1 then 'AWSSupportAccess policy attached to 1 role.'\n    when count > 1 then 'AWSSupportAccess policy attached to ' || count || ' roles.'\n    else 'AWSSupportAccess policy not attached to any role.'\n  end as reason\n  \nfrom\n  support_role_count;"
-  PrimaryTable: aws_iam_role
   ListOfTables:
     - aws_account
     - aws_iam_role
   Parameters: []
+  PrimaryTable: aws_iam_role
+  QueryToExecute: |
+    WITH support_role_count AS (
+      SELECT
+        'arn:' || a.partition || ':::' || a.account_id AS resource,
+        COUNT(policy_arn),
+        a.account_id,
+        a._ctx,
+        a.og_account_id,
+        a.og_resource_id
+      FROM
+        aws_account AS a
+      LEFT JOIN
+        aws_iam_role AS r ON r.account_id = a.account_id
+      LEFT JOIN
+        jsonb_array_elements_text(attached_policy_arns) AS policy_arn ON true
+      WHERE
+        split_part(policy_arn, '/', 2) = 'AWSSupportAccess'
+        OR policy_arn IS NULL
+      GROUP BY
+        a.account_id,
+        a.partition,
+        a._ctx,
+        a.og_account_id,
+        a.og_resource_id
+    )
+    SELECT
+      resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT > 0 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN COUNT = 1 THEN 'AWSSupportAccess policy attached to 1 role.'
+        WHEN COUNT > 1 THEN 'AWSSupportAccess policy attached to ' || COUNT || ' roles.'
+        ELSE 'AWSSupportAccess policy not attached to any role.'
+      END AS reason
+    FROM
+      support_role_count;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 1.17 Ensure a support role has been created to manage incidents with AWS Support

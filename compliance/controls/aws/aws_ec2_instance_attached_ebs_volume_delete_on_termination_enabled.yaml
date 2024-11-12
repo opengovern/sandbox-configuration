@@ -1,41 +1,42 @@
+Description: This rule ensures that Amazon Elastic Block Store volumes that are attached to Amazon Elastic Compute Cloud (Amazon EC2) instances are marked for deletion when an instance is terminated. If an Amazon EBS volume isn't deleted when the instance that it's attached to is terminated, it may violate the concept of least functionality.
 ID: aws_ec2_instance_attached_ebs_volume_delete_on_termination_enabled
-Title: "Ensure EBS volumes attached to an EC2 instance is marked for deletion upon instance termination"
-Description: "This rule ensures that Amazon Elastic Block Store volumes that are attached to Amazon Elastic Compute Cloud (Amazon EC2) instances are marked for deletion when an instance is terminated. If an Amazon EBS volume isn't deleted when the instance that it's attached to is terminated, it may violate the concept of least functionality."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with ebs_volume_with_delete_on_termination_enabled as (
-      select
-        count(*) as count,
-        arn
-      from
-        aws_ec2_instance,
-        jsonb_array_elements(block_device_mappings) as p
-      where
-        p -> 'Ebs' ->> 'DeleteOnTermination' = 'false'
-      group by
-        arn
-    )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
-      case
-        when e.count > 0 then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when e.count > 0 then ' EBS volume(s) attached to ' || title || ' has delete on termination disabled.'
-        else ' EBS volume(s) attached to ' || title || ' has delete on termination enabled.'
-      end as reason
-    from
-      aws_ec2_instance as i
-      left join ebs_volume_with_delete_on_termination_enabled as e on e.arn = i.arn;
-  PrimaryTable: aws_ec2_instance
   ListOfTables:
     - aws_ec2_instance
   Parameters: []
+  PrimaryTable: aws_ec2_instance
+  QueryToExecute: |
+    WITH ebs_volume_with_delete_on_termination_enabled AS (
+      SELECT
+        COUNT(*) AS count,
+        arn
+      FROM
+        aws_ec2_instance,
+        jsonb_array_elements(block_device_mappings) AS p
+      WHERE
+        p -> 'Ebs' ->> 'DeleteOnTermination' = 'false'
+      GROUP BY
+        arn
+    )
+    
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
+      CASE
+        WHEN e.count > 0 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN e.count > 0 THEN ' EBS volume(s) attached to ' || title || ' has delete on termination disabled.'
+        ELSE ' EBS volume(s) attached to ' || title || ' has delete on termination enabled.'
+      END AS reason
+    FROM
+      aws_ec2_instance AS i
+      LEFT JOIN ebs_volume_with_delete_on_termination_enabled AS e ON e.arn = i.arn;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure EBS volumes attached to an EC2 instance is marked for deletion upon instance termination

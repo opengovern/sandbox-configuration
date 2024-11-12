@@ -1,44 +1,44 @@
+Description: Ensure that Azure virtual machine disk volumes created for the web tier are encrypted.
 ID: azure_check_for_encryption_for_web_tier_disk_volumes
-Title: "Check for Encryption for Web-Tier Disk Volumes"
-Description: "Ensure that Azure virtual machine disk volumes created for the web tier are encrypted."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      vm.id as resource,
-      vm.og_account_id,
-      vm.og_resource_id,
-      case
-        when (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool then 'OS disk encrypted'
-        else 'OS disk not encrypted'
-      end as reason,
-      vm.resource_group,
-      display_name as subscription
-    from
-      azure_compute_virtual_machine as vm,
-      azure_subscription as sub
-    where
-      sub.subscription_id = vm.subscription_id and
-      vm.tags::text like '%' || REPLACE(REPLACE((
-          SELECT jsonb_object_agg(key, value)::text
-          FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
-        ), '{', ''), '}', '') || '%'
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters:
     - Key: azureAppTierTags
       Required: true
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.id AS resource,
+      vm.og_account_id,
+      vm.og_resource_id,
+      CASE
+        WHEN (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'OS disk encrypted'
+        ELSE 'OS disk not encrypted'
+      END AS reason,
+      vm.resource_group,
+      display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id
+      AND vm.tags::text LIKE '%' || REPLACE(REPLACE((
+          SELECT jsonb_object_agg(key, value)::text
+          FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
+        ), '{', ''), '}', '') || '%'
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
     - Azure Virtual Machines
   score_service_name:
     - Azure Virtual Machines
-IntegrationType:
-  - azure_subscription
+Title: Check for Encryption for Web-Tier Disk Volumes

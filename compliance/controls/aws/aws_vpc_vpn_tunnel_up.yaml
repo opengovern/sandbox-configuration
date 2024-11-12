@@ -1,13 +1,45 @@
+Description: Redundant Site-to-Site VPN tunnels can be implemented to achieve resilience requirements.
 ID: aws_vpc_vpn_tunnel_up
-Title: "Both VPN tunnels provided by AWS Site-to-Site VPN should be in UP status"
-Description: "Redundant Site-to-Site VPN tunnels can be implemented to achieve resilience requirements."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with filter_data as (\n  select\n    arn,\n    count(t ->> 'Status')\n  from\n    aws_vpc_vpn_connection,\n    jsonb_array_elements(vgw_telemetry) as t\n  where t ->> 'Status' = 'UP'\n  group by arn\n)\nselect\n  a.arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when b.count is null or b.count < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when b.count is null then a.title || ' has both tunnels offline.'\n    when b.count = 1 then a.title || ' has one tunnel offline.'\n    else a.title || ' has both tunnels online.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_vpc_vpn_connection as a\n  left join filter_data as b on a.arn = b.arn;\n"
-  PrimaryTable: aws_vpc_vpn_connection
   ListOfTables:
     - aws_vpc_vpn_connection
   Parameters: []
+  PrimaryTable: aws_vpc_vpn_connection
+  QueryToExecute: |
+    WITH filter_data AS (
+      SELECT
+        arn,
+        COUNT(t ->> 'Status')
+      FROM
+        aws_vpc_vpn_connection,
+        jsonb_array_elements(vgw_telemetry) AS t
+      WHERE
+        t ->> 'Status' = 'UP'
+      GROUP BY
+        arn
+    )
+    SELECT
+      a.arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE 
+        WHEN b.count IS NULL OR b.count < 2 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN b.count IS NULL THEN a.title || ' has both tunnels offline.'
+        WHEN b.count = 1 THEN a.title || ' has one tunnel offline.'
+        ELSE a.title || ' has both tunnels online.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_vpc_vpn_connection AS a
+    LEFT JOIN
+      filter_data AS b ON a.arn = b.arn;
 Severity: medium
 Tags:
   category:
@@ -34,5 +66,4 @@ Tags:
     - aws
   service:
     - AWS/VPC
-IntegrationType:
-  - aws_cloud_account
+Title: Both VPN tunnels provided by AWS Site-to-Site VPN should be in UP status

@@ -1,14 +1,30 @@
+Description: Enable this rule to ensure that the CORS configuration for your Lambda functions does not allow all origins.
 ID: aws_lambda_function_cors_configuration
-Title: "Lambda functions CORS configuration should not allow all origins"
-Description: "Enable this rule to ensure that the CORS configuration for your Lambda functions does not allow all origins."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when url_config is null then 'info'\n    when url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when url_config is null then title || ' does not has a URL config.'\n    when url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' then title || ' CORS configuration allows all origins.'\n    else title || ' CORS configuration does not allow all origins.'\n  end as reason\n  \n  \nfrom\n  aws_lambda_function;"
-  PrimaryTable: aws_lambda_function
   ListOfTables:
     - aws_lambda_function
   Parameters: []
+  PrimaryTable: aws_lambda_function
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN url_config IS NULL THEN 'info'
+        WHEN url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN url_config IS NULL THEN title || ' does not have a URL config.'
+        WHEN url_config -> 'Cors' ->> 'AllowOrigins' = '[\"*\"]' THEN title || ' CORS configuration allows all origins.'
+        ELSE title || ' CORS configuration does not allow all origins.'
+      END AS reason
+    FROM
+      aws_lambda_function;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Lambda functions CORS configuration should not allow all origins

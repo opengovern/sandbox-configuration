@@ -1,43 +1,47 @@
+Description: Ensure that Azure Storage account access is limited only to specific IP address(es).
 ID: azure_limit_storage_account_access_by_ip_address
-Title: "Limit Storage Account Access by IP Address"
-Description: "Ensure that Azure Storage account access is limited only to specific IP address(es)."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      s.og_resource_id,
-      s.og_account_id,
-      case
-        when network_ip_rules is null then 'skip'
-        when exists (
-          select 1
-          from jsonb_array_elements(network_ip_rules) as r
-          where (r ->> 'action') = 'Allow' and '{{.azureStorageAccountAllowedIPAddresses}}' not LIKE '%' || (r ->> 'value') || '%'
-        ) then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when network_ip_rules is null then 'storage account does not have network ip rule'
-        when exists (
-          select 1
-          from jsonb_array_elements(network_ip_rules) as r
-          where (r ->> 'action') = 'Allow' and '{{.azureStorageAccountAllowedIPAddresses}}' not LIKE '%' || (r ->> 'value') || '%'
-        ) then 'is not restricted to trusted IP addresses/IP ranges only.'
-        else 'is restricted to trusted IP addresses/IP ranges only.'
-      end as reason,
-      resource_group as resource_group,
-      sub.display_name as subscription
-    from
-      azure_storage_account as s
-      left join azure_subscription as sub on s.subscription_id = sub.subscription_id
-  PrimaryTable: azure_storage_account
   ListOfTables:
     - azure_storage_account
     - azure_subscription
   Parameters:
     - Key: azureStorageAccountAllowedIPAddresses
       Required: true
+  PrimaryTable: azure_storage_account
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      s.og_resource_id,
+      s.og_account_id,
+      CASE
+        WHEN network_ip_rules IS NULL THEN 'skip'
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(network_ip_rules) AS r
+          WHERE (r ->> 'action') = 'Allow' 
+          AND '{{.azureStorageAccountAllowedIPAddresses}}' NOT LIKE '%' || (r ->> 'value') || '%'
+        ) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN network_ip_rules IS NULL THEN 'storage account does not have network ip rule'
+        WHEN EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(network_ip_rules) AS r
+          WHERE (r ->> 'action') = 'Allow' 
+          AND '{{.azureStorageAccountAllowedIPAddresses}}' NOT LIKE '%' || (r ->> 'value') || '%'
+        ) THEN 'is not restricted to trusted IP addresses/IP ranges only.'
+        ELSE 'is restricted to trusted IP addresses/IP ranges only.'
+      END AS reason,
+      resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_storage_account AS s
+    LEFT JOIN azure_subscription AS sub 
+      ON s.subscription_id = sub.subscription_id
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -48,5 +52,4 @@ Tags:
     - Azure Storage Accounts
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - azure_subscription
+Title: Limit Storage Account Access by IP Address

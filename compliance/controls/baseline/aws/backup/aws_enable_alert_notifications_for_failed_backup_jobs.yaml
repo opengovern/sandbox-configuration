@@ -1,29 +1,30 @@
+Description: Ensure that email notifications for unsuccessful backup jobs are enabled.
 ID: aws_enable_alert_notifications_for_failed_backup_jobs
-Title: "Enable Alert Notifications for Failed Backup Jobs"
-Description: "Ensure that email notifications for unsuccessful backup jobs are enabled."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      name as resource,
-      og_resource_id,
-      og_account_id,
-      case
-        when backup_vault_events::text like '%BACKUP_JOB_FAILED%' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when backup_vault_events::text like '%BACKUP_JOB_FAILED%' then 'Backup vault is configured to send alert notifications for failed Amazon Backup jobs.'
-        else 'Backup vault is not configured to send alert notifications for failed Amazon Backup jobs.'
-      end as reason,
-      region,
-      account_id
-    from
-      aws_backup_vault
-  PrimaryTable: aws_backup_vault
   ListOfTables:
     - aws_backup_vault
   Parameters: []
+  PrimaryTable: aws_backup_vault
+  QueryToExecute: |
+    SELECT
+      name AS resource,
+      og_resource_id,
+      og_account_id,
+      CASE
+        WHEN backup_vault_events::TEXT LIKE '%BACKUP_JOB_FAILED%' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN backup_vault_events::TEXT LIKE '%BACKUP_JOB_FAILED%' THEN 'Backup vault is configured to send alert notifications for failed Amazon Backup jobs.'
+        ELSE 'Backup vault is not configured to send alert notifications for failed Amazon Backup jobs.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_backup_vault
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -34,5 +35,4 @@ Tags:
     - AWS Backup
   score_tags:
     - Exposed Endpoints
-IntegrationType:
-  - aws_cloud_account
+Title: Enable Alert Notifications for Failed Backup Jobs

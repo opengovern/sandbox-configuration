@@ -1,33 +1,37 @@
+Description: Ensure VPC flow logging is enabled in all VPCs.
 ID: aws_vpc_flow_logs_enabled
-Title: "VPC Flow Logs Enabled"
-Description: "Ensure VPC flow logging is enabled in all VPCs."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    select
-      distinct arn as resource,
-      v.og_resource_id,
-      v.og_account_id,
-      case
-        when v.account_id <> v.owner_id then 'skip'
-        when f.resource_id is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when v.account_id <> v.owner_id then vpc_id || ' is a shared VPC.'
-        when f.resource_id is not null then vpc_id || ' flow logging enabled.'
-        else vpc_id || ' flow logging disabled.'
-      end as reason,
-      v.region,
-      v.account_id
-    from
-      aws_vpc as v
-      left join aws_vpc_flow_log as f on v.vpc_id = f.resource_id;
-  PrimaryTable: aws_vpc
   ListOfTables:
     - aws_vpc
     - aws_vpc_flow_log
   Parameters: []
+  PrimaryTable: aws_vpc
+  QueryToExecute: |
+    SELECT
+      DISTINCT arn AS resource,
+      v.og_resource_id,
+      v.og_account_id,
+      CASE
+        WHEN v.account_id <> v.owner_id THEN 'skip'
+        WHEN f.resource_id IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN v.account_id <> v.owner_id THEN vpc_id || ' is a shared VPC.'
+        WHEN f.resource_id IS NOT NULL THEN vpc_id || ' flow logging enabled.'
+        ELSE vpc_id || ' flow logging disabled.'
+      END AS reason,
+      v.region,
+      v.account_id
+    FROM
+      aws_vpc AS v
+    LEFT JOIN
+      aws_vpc_flow_log AS f
+    ON
+      v.vpc_id = f.resource_id;
 Severity: low
 Tags:
   platform_score_cloud_service_name:
@@ -38,5 +42,4 @@ Tags:
     - AWS Virtual Private Cloud (VPC)
   score_tags:
     - Unencrypted Traffic
-IntegrationType:
-  - aws_cloud_account
+Title: VPC Flow Logs Enabled

@@ -1,24 +1,30 @@
+Description: Ensure CodeBuild projects are currently in use. It is recommended to remove the stale ones.
 ID: aws_codebuild_project_build_greater_then_90_days
-Title: "CodeBuild projects should not be unused for 90 days or greater"
-Description: "Ensure CodeBuild projects are curently in use. It is recommended to remove the stale ones."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with latest_codebuild_build as (
-      select
+  ListOfTables:
+    - aws_codebuild_build
+    - aws_codebuild_project
+  Parameters: []
+  PrimaryTable: aws_codebuild_project
+  QueryToExecute: |
+    WITH latest_codebuild_build AS (
+      SELECT
         project_name,
         region,
         account_id,
-        min(date_part('day', now() - end_time)) as build_time
-      from
+        MIN(DATE_PART('day', NOW() - end_time)) AS build_time
+      FROM
         aws_codebuild_build
-      group by
+      GROUP BY
         project_name,
         region,
         account_id
     ),
-    codebuild_projects as (
-      select
+    codebuild_projects AS (
+      SELECT
         arn,
         name,
         region,
@@ -28,9 +34,9 @@ Query:
         _ctx,
         og_account_id,
         og_resource_id
-      from
+      FROM
         aws_codebuild_project
-      group by
+      GROUP BY
         name,
         tags,
         arn,
@@ -41,28 +47,25 @@ Query:
         og_account_id,
         og_resource_id
     )
-    select
-      p.arn as resource,
-      p.og_account_id as og_account_id,
-      p.og_resource_id as og_resource_id,
-      case
-        when b.build_time is null then 'alarm'
-        when b.build_time < 90 then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when b.build_time is null then p.title || ' has no builds.'
-        else p.title || ' was build ' || build_time || ' day(s) before.'
-      end as reason
-    from
-      codebuild_projects as p
-      left join latest_codebuild_build as b on p.name = b.project_name and p.region = b.region and p.account_id = b.account_id;
-  PrimaryTable: aws_codebuild_project
-  ListOfTables:
-    - aws_codebuild_build
-    - aws_codebuild_project
-  Parameters: []
+    SELECT
+      p.arn AS resource,
+      p.og_account_id AS og_account_id,
+      p.og_resource_id AS og_resource_id,
+      CASE
+        WHEN b.build_time IS NULL THEN 'alarm'
+        WHEN b.build_time < 90 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN b.build_time IS NULL THEN p.title || ' has no builds.'
+        ELSE p.title || ' was built ' || build_time || ' day(s) before.'
+      END AS reason
+    FROM
+      codebuild_projects AS p
+      LEFT JOIN latest_codebuild_build AS b 
+      ON p.name = b.project_name 
+      AND p.region = b.region 
+      AND p.account_id = b.account_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: CodeBuild projects should not be unused for 90 days or greater

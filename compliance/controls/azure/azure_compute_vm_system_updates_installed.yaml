@@ -1,14 +1,34 @@
+Description: Missing security system updates on your servers will be monitored by Azure Security Center as recommendations.
 ID: azure_compute_vm_system_updates_installed
-Title: "System updates should be installed on your machines"
-Description: "Missing security system updates on your servers will be monitored by Azure Security Center as recommendations."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  vm.vm_id as resource,\n  vm.og_account_id as og_account_id,\n  vm.og_resource_id as og_resource_id,\n  case\n    when enable_automatic_updates then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when enable_automatic_updates then vm.title || ' automatic system updates enabled.'\n    else vm.title || ' automatic system updates disabled.'\n  end as reason\n  \n  , vm.resource_group as resource_group\n  , sub.display_name as subscription\nfrom\n  azure_compute_virtual_machine as vm,\n  azure_subscription as sub\nwhere\n  sub.subscription_id = vm.subscription_id;\n"
-  PrimaryTable: azure_compute_virtual_machine
   ListOfTables:
     - azure_compute_virtual_machine
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_compute_virtual_machine
+  QueryToExecute: |
+    SELECT
+      vm.vm_id AS resource,
+      vm.og_account_id AS og_account_id,
+      vm.og_resource_id AS og_resource_id,
+      CASE
+        WHEN enable_automatic_updates THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN enable_automatic_updates THEN vm.title || ' automatic system updates enabled.'
+        ELSE vm.title || ' automatic system updates disabled.'
+      END AS reason,
+      vm.resource_group AS resource_group,
+      sub.display_name AS subscription
+    FROM
+      azure_compute_virtual_machine AS vm,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = vm.subscription_id;
 Severity: high
 Tags:
   hipaa_hitrust_v92:
@@ -17,5 +37,4 @@ Tags:
     - "true"
   service:
     - Azure/Compute
-IntegrationType:
-  - azure_subscription
+Title: System updates should be installed on your machines

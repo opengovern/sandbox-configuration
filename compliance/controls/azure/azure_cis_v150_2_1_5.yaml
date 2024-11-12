@@ -1,32 +1,33 @@
+Description: Turning on Microsoft Defender for SQL servers on machines enables threat detection for SQL servers on machines, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud.
 ID: azure_cis_v150_2_1_5
-Title: "2.1.5 Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'"
-Description: "Turning on Microsoft Defender for SQL servers on machines enables threat detection for SQL servers on machines, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      sub_pricing.id as resource,
-      sub_pricing.og_account_id as og_account_id,
-      sub_pricing.og_resource_id as og_resource_id,
-      case
-        when pricing_tier = 'Standard' then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when pricing_tier = 'Standard' then 'Azure Defender on for SQL servers on machines.'
-        else 'Azure Defender off for SQL servers on machines.'
-      end as reason
-    from
-      azure_security_center_subscription_pricing sub_pricing
-      right join azure_subscription sub on sub_pricing.subscription_id = sub.subscription_id
-    where
-      name = 'SqlServerVirtualMachines';
-  PrimaryTable: azure_security_center_subscription_pricing
   ListOfTables:
     - azure_security_center_subscription_pricing
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_security_center_subscription_pricing
+  QueryToExecute: |
+    SELECT
+      sub_pricing.id AS resource,
+      sub_pricing.og_account_id AS og_account_id,
+      sub_pricing.og_resource_id AS og_resource_id,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for SQL servers on machines.'
+        ELSE 'Azure Defender off for SQL servers on machines.'
+      END AS reason
+    FROM
+      azure_security_center_subscription_pricing sub_pricing
+    RIGHT JOIN 
+      azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+    WHERE
+      name = 'SqlServerVirtualMachines';
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: 2.1.5 Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'

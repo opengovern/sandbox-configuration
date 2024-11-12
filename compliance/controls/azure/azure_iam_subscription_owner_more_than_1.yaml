@@ -1,15 +1,53 @@
+Description: It is recommended to designate more than one subscription owner in order to have administrator access redundancy.
 ID: azure_iam_subscription_owner_more_than_1
-Title: "There should be more than one owner assigned to your subscription"
-Description: "It is recommended to designate more than one subscription owner in order to have administrator access redundancy."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with owner_roles as (\n  select\n    d.role_name,\n    d.role_type,\n    d.name,\n    d.title,\n    d.og_account_id as og_account_id,\n    d.og_resource_id as og_resource_id,\n    d._ctx,\n    d.subscription_id\n  from\n    azure_role_definition as d\n    left join azure_role_assignment as a on d.id = a.role_definition_id\n  where\n    d.role_name = 'Owner'\n)\nselect\n  owner.subscription_id as resource,\n  owner.og_account_id as og_account_id,\n  owner.og_resource_id as og_resource_id,\n  case\n    when count(*) > 1 then 'ok'\n    else 'alarm'\n  end as status,\n  count(*) || ' owner(s) associated.' as reason\n  \n  , sub.display_name as subscription\nfrom\n  owner_roles as owner,\n  azure_subscription as sub\nwhere\n  sub.subscription_id =owner.subscription_id\ngroup by\n  owner.subscription_id,\n  owner.og_account_id,\n  owner.og_resource_id,\n  owner._ctx,\n  sub.display_name;\n"
-  PrimaryTable: azure_subscription
   ListOfTables:
     - azure_role_assignment
     - azure_role_definition
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_subscription
+  QueryToExecute: |
+    WITH owner_roles AS (
+      SELECT
+        d.role_name,
+        d.role_type,
+        d.name,
+        d.title,
+        d.og_account_id AS og_account_id,
+        d.og_resource_id AS og_resource_id,
+        d._ctx,
+        d.subscription_id
+      FROM
+        azure_role_definition AS d
+        LEFT JOIN azure_role_assignment AS a ON d.id = a.role_definition_id
+      WHERE
+        d.role_name = 'Owner'
+    )
+    SELECT
+      owner.subscription_id AS resource,
+      owner.og_account_id AS og_account_id,
+      owner.og_resource_id AS og_resource_id,
+      CASE
+        WHEN COUNT(*) > 1 THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      COUNT(*) || ' owner(s) associated.' AS reason,
+      sub.display_name AS subscription
+    FROM
+      owner_roles AS owner,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = owner.subscription_id
+    GROUP BY
+      owner.subscription_id,
+      owner.og_account_id,
+      owner.og_resource_id,
+      owner._ctx,
+      sub.display_name
 Severity: medium
 Tags:
   hipaa_hitrust_v92:
@@ -18,5 +56,4 @@ Tags:
     - "true"
   service:
     - Azure/ActiveDirectory
-IntegrationType:
-  - azure_subscription
+Title: There should be more than one owner assigned to your subscription

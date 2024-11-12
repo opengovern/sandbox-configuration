@@ -1,13 +1,49 @@
+Description: Check if AWS Elastic Container Service (AWS ECS) task definition with host networking mode has 'privileged' or 'user' container definitions. The rule is non-compliant for task definitions with host network mode and container definitions of privileged.
 ID: aws_ecs_task_definition_user_for_host_mode_check
-Title: "ECS task definition container definitions should be checked for host mode"
-Description: "Check if AWS Elastic Container Service (AWS ECS) task definition with host networking mode has 'privileged' or 'user' container definitions.The rule is non-compliant for task definitions with host network mode and container definitions of privileged"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "with host_network_task_definition as (\n  select\n    distinct task_definition_arn as arn\n  from\n    aws_ecs_task_definition,\n    jsonb_array_elements(container_definitions) as c\n  where\n    network_mode = 'host'\n    and\n      (c ->> 'Privileged' is not null\n        and c ->> 'Privileged' <> 'false'\n      )\n    and\n      ( c ->> 'User' is not null\n      and c ->> 'User' <> 'root'\n      )\n)\nselect\n  a.task_definition_arn as resource,\n  a.og_account_id as og_account_id,\n  a.og_resource_id as og_resource_id,\n  case\n    when a.network_mode is null or a.network_mode <> 'host' then 'skip'\n    when b.arn is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when a.network_mode is null or a.network_mode <> 'host' then a.title || ' not host network mode.'\n    when b.arn is not null then a.title || ' have secure host network mode.'\n    else a.title || ' not have secure host network mode.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_ecs_task_definition as a\n  left join host_network_task_definition as b on a.task_definition_arn = b.arn;\n"
-  PrimaryTable: aws_ecs_task_definition
   ListOfTables:
     - aws_ecs_task_definition
   Parameters: []
+  PrimaryTable: aws_ecs_task_definition
+  QueryToExecute: |
+    WITH host_network_task_definition AS (
+      SELECT
+        DISTINCT task_definition_arn AS arn
+      FROM
+        aws_ecs_task_definition,
+        jsonb_array_elements(container_definitions) AS c
+      WHERE
+        network_mode = 'host'
+        AND (c ->> 'Privileged' IS NOT NULL
+          AND c ->> 'Privileged' <> 'false'
+        )
+        AND (c ->> 'User' IS NOT NULL
+          AND c ->> 'User' <> 'root'
+        )
+    )
+    SELECT
+      a.task_definition_arn AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN a.network_mode IS NULL OR a.network_mode <> 'host' THEN 'skip'
+        WHEN b.arn IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN a.network_mode IS NULL OR a.network_mode <> 'host' THEN a.title || ' not host network mode.'
+        WHEN b.arn IS NOT NULL THEN a.title || ' have secure host network mode.'
+        ELSE a.title || ' not have secure host network mode.'
+      END AS reason,
+      region,
+      account_id
+    FROM 
+      aws_ecs_task_definition AS a
+    LEFT JOIN host_network_task_definition AS b 
+      ON a.task_definition_arn = b.arn;
 Severity: high
 Tags:
   category:
@@ -26,9 +62,9 @@ Tags:
     - "true"
   hipaa_final_omnibus_security_rule_2013:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -36,5 +72,4 @@ Tags:
     - aws
   service:
     - AWS/ECS
-IntegrationType:
-  - aws_cloud_account
+Title: ECS task definition container definitions should be checked for host mode

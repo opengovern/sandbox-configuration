@@ -1,14 +1,25 @@
+Description: This controls ensures that EKS clusters is not using multiple security groups.
 ID: aws_eks_cluster_no_multiple_security_groups
-Title: "EKS clusters should not use multiple security groups"
-Description: "This controls ensures that EKS clusters is not using multiple security groups."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') > 1 then 'alarm'\n    else 'ok'\n  end as status,\n    title || ' has '|| jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') || ' security group(s).' as reason\n  \n  \nfrom\n  aws_eks_cluster;"
-  PrimaryTable: aws_eks_cluster
   ListOfTables:
     - aws_eks_cluster
   Parameters: []
+  PrimaryTable: aws_eks_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') > 1 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      title || ' has ' || jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') || ' security group(s).' AS reason
+    FROM
+      aws_eks_cluster;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: EKS clusters should not use multiple security groups

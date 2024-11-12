@@ -1,35 +1,36 @@
+Description: AWS Root Account cannot have API Keys
 ID: aws_root_accounts_needs_to_have_mfa
-Title: "AWS Root Accounts needs to have MFA"
-Description: "AWS Root Account cannot have API Keys"
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      user_name as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not mfa_active then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not mfa_active then 'root account MFA is not activated'
-        else 'root account MFA is activated'
-      end as reason
-      , region, account_id
-    from
-      aws_iam_credential_report
-    where
-      user_name = '<root_account>';
-  PrimaryTable: aws_iam_credential_report
   ListOfTables:
     - aws_iam_credential_report
   Parameters: []
+  PrimaryTable: aws_iam_credential_report
+  QueryToExecute: |
+    SELECT
+      user_name AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT mfa_active THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT mfa_active THEN 'root account MFA is not activated'
+        ELSE 'root account MFA is activated'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_iam_credential_report
+    WHERE
+      user_name = '<root_account>';
 Severity: medium
 Tags:
   category:
     - Compliance
   score_service_name:
     - AWS Identity and Access Management (IAM)
-IntegrationType:
-  - aws_cloud_account
+Title: AWS Root Accounts needs to have MFA

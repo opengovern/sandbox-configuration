@@ -1,14 +1,37 @@
+Description: Manage access to the AWS Cloud by ensuring AWS EMR cluster master nodes cannot be publicly accessed.
 ID: aws_emr_cluster_master_nodes_no_public_ip
-Title: "EMR cluster master nodes should not have public IP addresses"
-Description: "Manage access to the AWS Cloud by ensuring AWS EMR cluster master nodes cannot be publicly accessed."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  c.cluster_arn as resource,\n  c.og_account_id as og_account_id,\n  c.og_resource_id as og_resource_id,\n  case\n    when c.status ->> 'State' not in ('RUNNING', 'WAITING') then 'skip'\n    when s.map_public_ip_on_launch then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when c.status ->> 'State' not in ('RUNNING', 'WAITING') then c.title || ' is in ' || (c.status ->> 'State') || ' state.'\n    when s.map_public_ip_on_launch then c.title || ' master nodes assigned with public IP.'\n    else c.title || ' master nodes not assigned with public IP.'\n  end as reason\n  \n  , c.region, c.account_id\nfrom\n  aws_emr_cluster as c\n  left join aws_vpc_subnet as s on c.ec2_instance_attributes ->> 'Ec2SubnetId' = s.subnet_id;\n"
-  PrimaryTable: aws_emr_cluster
   ListOfTables:
     - aws_emr_cluster
     - aws_vpc_subnet
   Parameters: []
+  PrimaryTable: aws_emr_cluster
+  QueryToExecute: |
+    SELECT
+      c.cluster_arn AS resource,
+      c.og_account_id AS og_account_id,
+      c.og_resource_id AS og_resource_id,
+      CASE
+        WHEN c.status ->> 'State' NOT IN ('RUNNING', 'WAITING') THEN 'skip'
+        WHEN s.map_public_ip_on_launch THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN c.status ->> 'State' NOT IN ('RUNNING', 'WAITING') THEN c.title || ' is in ' || (c.status ->> 'State') || ' state.'
+        WHEN s.map_public_ip_on_launch THEN c.title || ' master nodes assigned with public IP.'
+        ELSE c.title || ' master nodes not assigned with public IP.'
+      END AS reason,
+      c.region,
+      c.account_id
+    FROM
+      aws_emr_cluster AS c
+    LEFT JOIN
+      aws_vpc_subnet AS s
+    ON
+      c.ec2_instance_attributes ->> 'Ec2SubnetId' = s.subnet_id;
 Severity: high
 Tags:
   category:
@@ -29,11 +52,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -47,5 +70,4 @@ Tags:
     - AWS/EMR
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EMR cluster master nodes should not have public IP addresses

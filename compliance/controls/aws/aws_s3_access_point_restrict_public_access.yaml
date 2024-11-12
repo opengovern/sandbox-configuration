@@ -1,42 +1,42 @@
+Description: This control checks whether an Amazon S3 access point has block public access settings enabled. The control fails if block public access settings aren't enabled for the access point.
 ID: aws_s3_access_point_restrict_public_access
-Title: "S3 access points should have block public access settings enabled"
-Description: "This control checks whether an Amazon S3 access point has block public access settings enabled. The control fails if block public access settings aren't enabled for the access point."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      access_point_arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when block_public_acls
-          and block_public_policy
-          and ignore_public_acls
-          and restrict_public_buckets
-          then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when block_public_acls
-          and block_public_policy
-          and ignore_public_acls
-          and restrict_public_buckets
-          then name || ' all public access blocks enabled.'
-        else name || ' not enabled for: ' ||
-          concat_ws(', ',
-            case when not block_public_acls then 'block_public_acls' end,
-            case when not block_public_policy then 'block_public_policy' end,
-            case when not ignore_public_acls then 'ignore_public_acls' end,
-            case when not restrict_public_buckets then 'restrict_public_buckets' end
-          ) || '.'
-      end as reason
-    from
-      aws_s3_access_point;
-  PrimaryTable: aws_s3_access_point
   ListOfTables:
     - aws_s3_access_point
   Parameters: []
+  PrimaryTable: aws_s3_access_point
+  QueryToExecute: |
+    SELECT
+      access_point_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN block_public_acls
+          AND block_public_policy
+          AND ignore_public_acls
+          AND restrict_public_buckets
+          THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN block_public_acls
+          AND block_public_policy
+          AND ignore_public_acls
+          AND restrict_public_buckets
+          THEN name || ' all public access blocks enabled.'
+        ELSE name || ' not enabled for: ' ||
+          CONCAT_WS(', ',
+            CASE WHEN NOT block_public_acls THEN 'block_public_acls' END,
+            CASE WHEN NOT block_public_policy THEN 'block_public_policy' END,
+            CASE WHEN NOT ignore_public_acls THEN 'ignore_public_acls' END,
+            CASE WHEN NOT restrict_public_buckets THEN 'restrict_public_buckets' END
+          ) || '.'
+      END AS reason
+    FROM
+      aws_s3_access_point;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: S3 access points should have block public access settings enabled

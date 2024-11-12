@@ -1,14 +1,28 @@
+Description: This control checks whether an Amazon CloudFront distribution is configured with an origin group that has two or more origins. CloudFront origin failover can increase availability. Origin failover automatically redirects traffic to a secondary origin if the primary origin is unavailable or if it returns specific HTTP response status codes.
 ID: aws_foundational_security_cloudfront_4
-Title: "4 CloudFront distributions should have origin failover configured"
-Description: "This control checks whether an Amazon CloudFront distribution is configured with an origin group that has two or more origins. CloudFront origin failover can increase availability. Origin failover automatically redirects traffic to a secondary origin if the primary origin is unavailable or if it returns specific HTTP response status codes."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when origin_groups ->> 'Items' is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when origin_groups ->> 'Items' is not null then title || ' origin group is configured.'\n    else title || ' origin group not configured.'\n  end as reason\n  \n  \nfrom\n  aws_cloudfront_distribution;"
-  PrimaryTable: aws_cloudfront_distribution
   ListOfTables:
     - aws_cloudfront_distribution
   Parameters: []
+  PrimaryTable: aws_cloudfront_distribution
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN origin_groups ->> 'Items' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN origin_groups ->> 'Items' IS NOT NULL THEN title || ' origin group is configured.'
+        ELSE title || ' origin group not configured.'
+      END AS reason
+    FROM
+      aws_cloudfront_distribution;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: 4 CloudFront distributions should have origin failover configured

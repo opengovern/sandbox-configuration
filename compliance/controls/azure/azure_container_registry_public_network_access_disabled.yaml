@@ -1,32 +1,32 @@
+Description: Ensure that container registries public network access is disabled.
 ID: azure_container_registry_public_network_access_disabled
-Title: "Container registries public network access should be disabled"
-Description: "Ensure that container registries public network access is disabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      distinct a.name as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when public_network_access = 'Enabled' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when public_network_access = 'Enabled' then a.name || ' public network access enabled.'
-        else a.name || ' public network access disabled.'
-      end as reason
-    from
-      azure_container_registry as a,
-      azure_subscription as sub
-    where
-      sub.subscription_id = a.subscription_id;
-  PrimaryTable: azure_container_registry
   ListOfTables:
     - azure_container_registry
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_container_registry
+  QueryToExecute: |
+    SELECT
+      DISTINCT a.name AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN public_network_access = 'Enabled' THEN a.name || ' public network access enabled.'
+        ELSE a.name || ' public network access disabled.'
+      END AS reason
+    FROM
+      azure_container_registry AS a,
+      azure_subscription AS sub
+    WHERE
+      sub.subscription_id = a.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Container registries public network access should be disabled

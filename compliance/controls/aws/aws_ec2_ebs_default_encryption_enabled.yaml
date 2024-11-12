@@ -1,28 +1,30 @@
+Description: To help protect data at rest, ensure that encryption is enabled for your AWS Elastic Block Store (AWS EBS) volumes.
 ID: aws_ec2_ebs_default_encryption_enabled
-Title: "EBS default encryption should be enabled"
-Description: "To help protect data at rest, ensure that encryption is enabled for your AWS Elastic Block Store (AWS EBS) volumes."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    select
-      'arn:' || partition || '::' || region || ':' || account_id as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when not default_ebs_encryption_enabled then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when not default_ebs_encryption_enabled then region || ' default EBS encryption disabled.'
-        else region || ' default EBS encryption enabled.'
-      end as reason
-      , region, account_id
-    from
-      aws_ec2_regional_settings;
-  PrimaryTable: aws_ec2_regional_settings
   ListOfTables:
     - aws_ec2_regional_settings
   Parameters: []
+  PrimaryTable: aws_ec2_regional_settings
+  QueryToExecute: |
+    SELECT
+      'arn:' || partition || '::' || region || ':' || account_id AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT default_ebs_encryption_enabled THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT default_ebs_encryption_enabled THEN region || ' default EBS encryption disabled.'
+        ELSE region || ' default EBS encryption enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_regional_settings;
 Severity: high
 Tags:
   category:
@@ -41,11 +43,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -57,5 +59,4 @@ Tags:
     - AWS/EC2
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: EBS default encryption should be enabled

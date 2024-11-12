@@ -1,28 +1,28 @@
+Description: Ensure Route 53 registered domains are locked to prevent any unauthorized transfers to another domain name registrar.
 ID: aws_route53_domain_transfer_lock_enabled
-Title: "Route 53 domains should have transfer lock enabled"
-Description: "Ensure Route 53 registered domains are locked to prevent any unauthorized transfers to another domain name registrar."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      arn as resource,
-      og_account_id as og_account_id,
-      og_resource_id as og_resource_id,
-      case
-        when transfer_lock then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when transfer_lock then title || ' transfer lock enabled.'
-        else title || ' transfer lock disabled.'
-      end reason
-    from
-      aws_route53_domain;
-  PrimaryTable: aws_route53_domain
   ListOfTables:
     - aws_route53_domain
   Parameters: []
+  PrimaryTable: aws_route53_domain
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN transfer_lock THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN transfer_lock THEN title || ' transfer lock enabled.'
+        ELSE title || ' transfer lock disabled.'
+      END AS reason
+    FROM
+      aws_route53_domain;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Route 53 domains should have transfer lock enabled

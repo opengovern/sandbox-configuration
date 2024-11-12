@@ -1,14 +1,35 @@
+Description: Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Guest users should be review on a monthly basis to ensure that inactive and unneeded accounts are removed.
 ID: azure_ad_guest_user_reviewed_monthly
-Title: "Ensure guest users are reviewed on a monthly basis"
-Description: "Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Guest users should be review on a monthly basis to ensure that inactive and unneeded accounts are removed."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  u.display_name as resource,\n  u.og_account_id as og_account_id,\n  u.og_resource_id as og_resource_id,\n  case\n    when not account_enabled then 'alarm'\n    when u.created_date_time::timestamp <= (current_date - interval '30' day) then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not account_enabled then 'Guest user ''' || u.display_name || ''' inactive.'\n    else 'Guest user ''' || u.display_name || ''' was created ' || extract(day from current_timestamp - u.created_date_time::timestamp) || ' days ago.'\n  end as reason,\n  t.tenant_id\n  \nfrom\n  azuread_user as u\n  left join azure_tenant as t on t.tenant_id = u.tenant_id\nwhere\n  u.user_type = 'Guest';\n"
-  PrimaryTable: azuread_user
   ListOfTables:
     - azure_tenant
     - azuread_user
   Parameters: []
+  PrimaryTable: azuread_user
+  QueryToExecute: |
+    SELECT
+      u.display_name AS resource,
+      u.og_account_id AS og_account_id,
+      u.og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT account_enabled THEN 'alarm'
+        WHEN u.created_date_time::timestamp <= (current_date - interval '30' day) THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT account_enabled THEN 'Guest user ''' || u.display_name || ''' inactive.'
+        ELSE 'Guest user ''' || u.display_name || ''' was created ' || EXTRACT(day FROM current_timestamp - u.created_date_time::timestamp) || ' days ago.'
+      END AS reason,
+      t.tenant_id
+    FROM
+      azuread_user AS u
+    LEFT JOIN
+      azure_tenant AS t ON t.tenant_id = u.tenant_id
+    WHERE
+      u.user_type = 'Guest';
 Severity: medium
 Tags:
   category:
@@ -29,5 +50,4 @@ Tags:
     - azure
   service:
     - Azure/ActiveDirectory
-IntegrationType:
-  - azure_subscription
+Title: Ensure guest users are reviewed on a monthly basis

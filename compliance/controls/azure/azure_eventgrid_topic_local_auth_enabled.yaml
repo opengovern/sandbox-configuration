@@ -1,30 +1,30 @@
+Description: This control checks if Event Grid topics have local authentication enabled.
 ID: azure_eventgrid_topic_local_auth_enabled
-Title: "Event Grid topics should have local authentication enabled"
-Description: "This control checks if Event Grid topics have local authentication enabled."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      a.id as resource,
-      a.og_account_id as og_account_id,
-      a.og_resource_id as og_resource_id,
-      case
-        when disable_local_auth then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when disable_local_auth then a.name || ' local authentication disabled.'
-        else a.name || ' local authentication enabled.'
-      end as reason
-    from
-      azure_eventgrid_domain a,
-      azure_subscription sub;
-  PrimaryTable: azure_eventgrid_domain
   ListOfTables:
     - azure_eventgrid_domain
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_eventgrid_domain
+  QueryToExecute: |
+    SELECT
+      a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
+      CASE
+        WHEN disable_local_auth THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN disable_local_auth THEN a.name || ' local authentication disabled.'
+        ELSE a.name || ' local authentication enabled.'
+      END AS reason
+    FROM
+      azure_eventgrid_domain a,
+      azure_subscription sub;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Event Grid topics should have local authentication enabled

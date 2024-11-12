@@ -1,13 +1,27 @@
+Description: This control checks whether a Classic Load Balancer has been configured to span multiple Availability Zones. The control fails if the Classic Load Balancer does not span multiple Availability Zones.
 ID: aws_elb_classic_lb_multiple_az_configured
-Title: "ELB classic load balancers should span multiple availability zones"
-Description: "This control checks whether a Classic Load Balancer has been configured to span multiple Availability Zones. The control fails if the Classic Load Balancer does not span multiple Availability Zones."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when jsonb_array_length(availability_zones) < 2 then 'alarm'\n    else 'ok'\n  end as status,\n  title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' as reason\n  \n  , region, account_id\nfrom\n  aws_ec2_classic_load_balancer;\n"
-  PrimaryTable: aws_ec2_classic_load_balancer
   ListOfTables:
     - aws_ec2_classic_load_balancer
   Parameters: []
+  PrimaryTable: aws_ec2_classic_load_balancer
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN jsonb_array_length(availability_zones) < 2 THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason,
+      region,
+      account_id
+    FROM
+      aws_ec2_classic_load_balancer;
 Severity: medium
 Tags:
   aws_foundational_security:
@@ -22,5 +36,4 @@ Tags:
     - aws
   service:
     - AWS/ELB
-IntegrationType:
-  - aws_cloud_account
+Title: ELB classic load balancers should span multiple availability zones

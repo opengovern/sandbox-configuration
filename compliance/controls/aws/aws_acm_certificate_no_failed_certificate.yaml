@@ -1,14 +1,25 @@
+Description: This control ensures that ACM certificates are not in failed state.
 ID: aws_acm_certificate_no_failed_certificate
-Title: "Ensure that ACM certificates are not in failed state"
-Description: "This control ensures that ACM certificates are not in failed state."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  certificate_arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when status in ('VALIDATION_TIMED_OUT', 'FAILED') then 'alarm'\n    else 'ok'\n  end as status,\n  title || ' status is ' || status || '.'  as reason\n  \n  \nfrom\n  aws_acm_certificate;"
-  PrimaryTable: aws_acm_certificate
   ListOfTables:
     - aws_acm_certificate
   Parameters: []
+  PrimaryTable: aws_acm_certificate
+  QueryToExecute: |
+    SELECT
+      certificate_arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN status IN ('VALIDATION_TIMED_OUT', 'FAILED') THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      title || ' status is ' || status || '.' AS reason
+    FROM
+      aws_acm_certificate;
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: Ensure that ACM certificates are not in failed state

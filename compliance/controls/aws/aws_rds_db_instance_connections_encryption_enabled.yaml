@@ -1,12 +1,18 @@
+Description: This control checks if RDS DB instance connections are encrypted. Secure Sockets Layer (SSL) is used to encrypt between client applications and AWS RDS DB instances running Microsoft SQL Server or PostgreSQL.
 ID: aws_rds_db_instance_connections_encryption_enabled
-Title: "RDS DB instances connections should be encrypted"
-Description: "This control checks if RDS DB instance connections are encrypted. Secure Sockets Layer (SSL) is used to encrypt between client applications and AWS RDS DB instances running Microsoft SQL Server or PostgreSQL."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    with instance_pg as (
-      select
-        g ->> 'DBParameterGroupName' as pg_name,
+  ListOfTables:
+    - aws_rds_db_instance
+    - aws_rds_db_parameter_group
+  Parameters: []
+  PrimaryTable: aws_rds_db_instance
+  QueryToExecute: |
+    WITH instance_pg AS (
+      SELECT
+        g ->> 'DBParameterGroupName' AS pg_name,
         i.engine,
         i.title,
         i.arn,
@@ -14,49 +20,43 @@ Query:
         i.region,
         i.account_id,
         i._ctx,
-        i.og_account_id as og_account_id,
-        i.og_resource_id as og_resource_id
-      from
-        aws_rds_db_instance as i,
-        jsonb_array_elements(db_parameter_groups) as g
-    ), pg_with_ssl_enabled as (
-      select
+        i.og_account_id AS og_account_id,
+        i.og_resource_id AS og_resource_id
+      FROM
+        aws_rds_db_instance AS i,
+        jsonb_array_elements(db_parameter_groups) AS g
+    ), pg_with_ssl_enabled AS (
+      SELECT
         g.name
-      from
-        instance_pg as i,
-        aws_rds_db_parameter_group as g,
-        jsonb_array_elements(parameters) as p
-      where
+      FROM
+        instance_pg AS i,
+        aws_rds_db_parameter_group AS g,
+        jsonb_array_elements(parameters) AS p
+      WHERE
         i.pg_name = g.name
-        and g.account_id = i.account_id
-        and g.region = i.region
-        and p ->> 'ParameterName' = 'rds.force_ssl'
-        and p ->> 'ParameterValue' = '1'
+        AND g.account_id = i.account_id
+        AND g.region = i.region
+        AND p ->> 'ParameterName' = 'rds.force_ssl'
+        AND p ->> 'ParameterValue' = '1'
     )
-    select
-      i.arn as resource,
-      i.og_account_id as og_account_id,
-      i.og_resource_id as og_resource_id,
+    SELECT
+      i.arn AS resource,
+      i.og_account_id AS og_account_id,
+      i.og_resource_id AS og_resource_id,
       i.engine,
-      case
-        when i.engine not in ('sqlserver', 'postgres') then 'skip'
-        when p.name is not null then 'ok'
-        else 'alarm'
-      end as status,
-      case
-        when i.engine not in ('sqlserver', 'postgres') then title || ' has ' || engine || ' engine type.'
-        when p.name is not null then title || ' connections are SSL encrypted.'
-        else title || ' connections are not SSL encrypted.'
-      end as reason
-    from
-      instance_pg as i
-      left join pg_with_ssl_enabled as p on p.name = i.pg_name
-  PrimaryTable: aws_rds_db_instance
-  ListOfTables:
-    - aws_rds_db_instance
-    - aws_rds_db_parameter_group
-  Parameters: []
+      CASE
+        WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN 'skip'
+        WHEN p.name IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN title || ' has ' || engine || ' engine type.'
+        WHEN p.name IS NOT NULL THEN title || ' connections are SSL encrypted.'
+        ELSE title || ' connections are not SSL encrypted.'
+      END AS reason
+    FROM
+      instance_pg AS i
+      LEFT JOIN pg_with_ssl_enabled AS p ON p.name = i.pg_name
 Severity: low
 Tags: {}
-IntegrationType:
-  - aws_cloud_account
+Title: RDS DB instances connections should be encrypted

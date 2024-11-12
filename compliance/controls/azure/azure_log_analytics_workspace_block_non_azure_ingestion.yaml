@@ -1,30 +1,33 @@
+Description: Enforcing log ingestion to require Azure Active Directory authentication prevents unauthenticated logs from an attacker which could lead to incorrect status, false alerts, and incorrect logs stored in the system.
 ID: azure_log_analytics_workspace_block_non_azure_ingestion
-Title: "Log Analytics Workspaces should block non-Azure Active Directory based ingestion"
-Description: "Enforcing log ingestion to require Azure Active Directory authentication prevents unauthenticated logs from an attacker which could lead to incorrect status, false alerts, and incorrect logs stored in the system."
+IntegrationType:
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: |-
-    select
-      w.id as resource,
-      w.og_account_id as og_account_id,
-      w.og_resource_id as og_resource_id,
-      case
-        when type = 'Microsoft.OperationalInsights/workspaces' and disable_local_auth = 'true' then 'alarm'
-        else 'ok'
-      end as status,
-      case
-        when type = 'Microsoft.OperationalInsights/workspaces' and disable_local_auth = 'true' then w.name || ' workspace allows non-Azure log ingestion.'
-        else w.name || ' workspace does not allow non-Azure log ingestion.'
-      end as reason
-    from
-      azure_log_analytics_workspace as w
-      left join azure_subscription sub on sub.subscription_id = w.subscription_id;
-  PrimaryTable: azure_log_analytics_workspace
   ListOfTables:
     - azure_log_analytics_workspace
     - azure_subscription
   Parameters: []
+  PrimaryTable: azure_log_analytics_workspace
+  QueryToExecute: |
+    SELECT
+      w.id AS resource,
+      w.og_account_id AS og_account_id,
+      w.og_resource_id AS og_resource_id,
+      CASE
+        WHEN type = 'Microsoft.OperationalInsights/workspaces' AND disable_local_auth = 'true' THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN type = 'Microsoft.OperationalInsights/workspaces' AND disable_local_auth = 'true' THEN w.name || ' workspace allows non-Azure log ingestion.'
+        ELSE w.name || ' workspace does not allow non-Azure log ingestion.'
+      END AS reason
+    FROM
+      azure_log_analytics_workspace AS w
+    LEFT JOIN
+      azure_subscription sub
+    ON
+      sub.subscription_id = w.subscription_id;
 Severity: low
 Tags: {}
-IntegrationType:
-  - azure_subscription
+Title: Log Analytics Workspaces should block non-Azure Active Directory based ingestion

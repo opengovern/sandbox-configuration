@@ -1,13 +1,32 @@
+Description: To protect data at rest, ensure that encryption is enabled for your AWS Redshift clusters. You must also ensure that required configurations are deployed on AWS Redshift clusters. The audit logging should be enabled to provide information about connections and user activities in the database.
 ID: aws_redshift_cluster_encryption_logging_enabled
-Title: "Redshift cluster audit logging and encryption should be enabled"
-Description: "To protect data at rest, ensure that encryption is enabled for your AWS Redshift clusters. You must also ensure that required configurations are deployed on AWS Redshift clusters. The audit logging should be enabled to provide information about connections and user activities in the database."
+IntegrationType:
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
-  QueryToExecute: "select\n  arn as resource,\n  og_account_id as og_account_id,\n  og_resource_id as og_resource_id,\n  case\n    when not encrypted then 'alarm'\n    when not (logging_status ->> 'LoggingEnabled') :: boolean then 'alarm'\n    else 'ok'\n  end as status,\n  case\n    when not encrypted then title || ' not encrypted.'\n    when not (logging_status ->> 'LoggingEnabled')::boolean then title || ' audit logging not enabled.'\n    else title || ' audit logging and encryption enabled.'\n  end as reason\n  \n  , region, account_id\nfrom\n  aws_redshift_cluster;\n"
-  PrimaryTable: aws_redshift_cluster
   ListOfTables:
     - aws_redshift_cluster
   Parameters: []
+  PrimaryTable: aws_redshift_cluster
+  QueryToExecute: |
+    SELECT
+      arn AS resource,
+      og_account_id AS og_account_id,
+      og_resource_id AS og_resource_id,
+      CASE
+        WHEN NOT encrypted THEN 'alarm'
+        WHEN NOT (logging_status ->> 'LoggingEnabled')::BOOLEAN THEN 'alarm'
+        ELSE 'ok'
+      END AS status,
+      CASE
+        WHEN NOT encrypted THEN title || ' not encrypted.'
+        WHEN NOT (logging_status ->> 'LoggingEnabled')::BOOLEAN THEN title || ' audit logging not enabled.'
+        ELSE title || ' audit logging and encryption enabled.'
+      END AS reason,
+      region,
+      account_id
+    FROM
+      aws_redshift_cluster;
 Severity: high
 Tags:
   category:
@@ -32,11 +51,11 @@ Tags:
     - "true"
   hipaa_security_rule_2003:
     - "true"
-  nist_800_171_rev_2:
-    - "true"
   nist_800_53_rev_4:
     - "true"
   nist_800_53_rev_5:
+    - "true"
+  nist_800_171_rev_2:
     - "true"
   nist_csf:
     - "true"
@@ -50,5 +69,4 @@ Tags:
     - AWS/Redshift
   soc_2:
     - "true"
-IntegrationType:
-  - aws_cloud_account
+Title: Redshift cluster audit logging and encryption should be enabled
