@@ -1,25 +1,36 @@
-Description: Allows users to query AWS Glue Development Endpoints to retrieve detailed
-  information about individual endpoints, their configurations, and related metadata.
+Description: Allows users to query AWS Glue Development Endpoints to retrieve detailed information about individual endpoints, their configurations, and related metadata.
 ID: aws_glue_dev_endpoint_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  e.endpoint_name,\n  s.availability_zone,\n  s.available_ip_address_count,\n\
-    \  s.cidr_block,\n  s.default_for_az,\n  s.map_customer_owned_ip_on_launch,\n\
-    \  s.map_public_ip_on_launch,\n  s.state\nfrom\n  aws_glue_dev_endpoint as e,\n\
-    \  aws_vpc_subnet as s\nwhere\n  e.endpoint_name = 'test5'\nand\n  e.subnet_id\
-    \ = s.subnet_id;"
+  QueryToExecute: |
+    SELECT
+      e.endpoint_name,
+      s.availability_zone,
+      s.available_ip_address_count,
+      s.cidr_block,
+      s.default_for_az,
+      s.map_customer_owned_ip_on_launch,
+      s.map_public_ip_on_launch,
+      s.state
+    FROM
+      aws_glue_dev_endpoint AS e,
+      aws_vpc_subnet AS s
+    WHERE
+      e.endpoint_name = 'test5'
+    AND
+      e.subnet_id = s.subnet_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue
+    - Glue
 Title: Find AWS Glue Development Endpoints and Subnet Details

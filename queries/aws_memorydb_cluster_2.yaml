@@ -1,22 +1,28 @@
-Description: Allows users to query AWS MemoryDB clusters, providing detailed information
-  on cluster configurations and statuses.
+Description: Allows users to query AWS MemoryDB clusters, providing detailed information on cluster configurations and statuses.
 ID: aws_memorydb_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  auto_minor_version_upgrade\nfrom\n \
-    \ aws_memorydb_cluster\nwhere\n  auto_minor_version_upgrade = true;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      auto_minor_version_upgrade
+    FROM
+      aws_memorydb_cluster
+    WHERE
+      auto_minor_version_upgrade = TRUE;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - MemoryDB
+    - MemoryDB
 Title: List all AWS MemoryDB Clusters with SQL

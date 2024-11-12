@@ -1,26 +1,39 @@
-Description: Allows users to query AWS Systems Manager Inventory, providing information
-  about managed instances in AWS Systems Manager.
+Description: Allows users to query AWS Systems Manager Inventory, providing information about managed instances in AWS Systems Manager.
 ID: aws_ssm_inventory_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  v.id,\n  i.instance_state,\n  i.instance_type,\n  c ->>\
-    \ 'AgentType' as agent_type,\n  c ->> 'IpAddress' as ip_address,\n  c ->> 'AgentVersion'\
-    \ as agent_version,\n  c ->> 'ComputerName' as computer_name,\n  c ->> 'PlatformName'\
-    \ as platform_name,\n  c ->> 'PlatformType' as platform_type,\n  c ->> 'ResourceType'\
-    \ as resource_type,\n  c ->> 'InstanceStatus' as instance_status,\n  c ->> 'PlatformVersion'\
-    \ as platform_version\nfrom\n  aws_ssm_inventory as v,\n  aws_ec2_instance as\
-    \ i,\n  jsonb_array_elements(content) as c\nwhere\n  v.id = i.instance_id\nand\n\
-    \  i.instance_state = 'running';"
+  QueryToExecute: |
+    SELECT
+      v.id,
+      i.instance_state,
+      i.instance_type,
+      c ->> 'AgentType' AS agent_type,
+      c ->> 'IpAddress' AS ip_address,
+      c ->> 'AgentVersion' AS agent_version,
+      c ->> 'ComputerName' AS computer_name,
+      c ->> 'PlatformName' AS platform_name,
+      c ->> 'PlatformType' AS platform_type,
+      c ->> 'ResourceType' AS resource_type,
+      c ->> 'InstanceStatus' AS instance_status,
+      c ->> 'PlatformVersion' AS platform_version
+    FROM
+      aws_ssm_inventory AS v,
+      aws_ec2_instance AS i,
+      jsonb_array_elements(content) AS c
+    WHERE
+      v.id = i.instance_id
+    AND
+      i.instance_state = 'running';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager
+    - Systems Manager
 Title: List AWS Systems Manager Inventory Managed Instances

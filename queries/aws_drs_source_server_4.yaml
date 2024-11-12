@@ -1,27 +1,30 @@
-Description: Allows users to query AWS Database Migration Service Source Servers for
-  detailed information about the replication servers used in database migrations.
+Description: Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations.
 ID: aws_drs_source_server_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  title,\n  data_replication_info -> 'DataReplicationInitiation'\
-    \ ->> 'StartDateTime' as data_replication_start_date_time,\n  data_replication_info\
-    \ -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' as data_replication_next_attempt_date_time,\n\
-    \  data_replication_info ->> 'DataReplicationError' as data_replication_error,\n\
-    \  data_replication_info ->> 'DataReplicationState' as data_replication_state,\n\
-    \  data_replication_info ->> 'ReplicatedDisks' as data_replication_replicated_disks\n\
-    from\n  aws_drs_source_server;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      title,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'StartDateTime' AS data_replication_start_date_time,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' AS data_replication_next_attempt_date_time,
+      data_replication_info ->> 'DataReplicationError' AS data_replication_error,
+      data_replication_info ->> 'DataReplicationState' AS data_replication_state,
+      data_replication_info ->> 'ReplicatedDisks' AS data_replication_replicated_disks
+    FROM
+      aws_drs_source_server;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Database Migration Service
+    - Database Migration Service
 Title: List all AWS DMS Source Servers with Replication Info

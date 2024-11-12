@@ -1,23 +1,31 @@
-Description: Allows users to query AWS VPC VPN Gateway data, providing details about
-  Virtual Private Cloud (VPC) VPN gateways in an AWS account.
+Description: Allows users to query AWS VPC VPN Gateway data, providing details about Virtual Private Cloud (VPC) VPN gateways in an AWS account.
 ID: aws_vpc_vpn_gateway_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpn_gateway_id,\n  vpc.is_default\nfrom\n  aws_vpc_vpn_gateway\n\
-    \  cross join jsonb_array_elements(vpc_attachments) as i\n  join aws_vpc vpc on\
-    \ i ->> 'VpcId' = vpc.vpc_id\nwhere\n  vpc.is_default = true;"
+  QueryToExecute: |
+    SELECT
+      vpn_gateway_id,
+      vpc.is_default
+    FROM
+      aws_vpc_vpn_gateway
+    CROSS JOIN
+      jsonb_array_elements(vpc_attachments) AS i
+    JOIN
+      aws_vpc vpc ON i ->> 'VpcId' = vpc.vpc_id
+    WHERE
+      vpc.is_default = TRUE;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC VPN Gateway
+    - VPC VPN Gateway
 Title: List all AWS VPC VPN Gateway Details for Default VPCs

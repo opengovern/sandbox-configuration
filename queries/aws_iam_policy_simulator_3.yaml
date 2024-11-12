@@ -1,22 +1,28 @@
-Description: Allows users to query IAM Policy Simulator for evaluating the effects
-  of IAM access control policies. It provides information such as evaluation results,
-  matching resources, and involved actions.
+Description: Allows users to query IAM Policy Simulator for evaluating the effects of IAM access control policies. It provides information such as evaluation results, matching resources, and involved actions.
 ID: aws_iam_policy_simulator_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  u.name,\n  decision\nfrom\n  aws_iam_policy_simulator\
-    \ p,\n  aws_iam_user u\nwhere\n  action = 'sts:AssumeRole'\n  and resource_arn\
-    \ = '*'\n  and p.principal_arn = u.arn;"
+  QueryToExecute: |
+    SELECT
+      u.name,
+      decision
+    FROM
+      aws_iam_policy_simulator p,
+      aws_iam_user u
+    WHERE
+      action = 'sts:AssumeRole'
+      AND resource_arn = '*'
+      AND p.principal_arn = u.arn;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Policy Simulator
+    - IAM Policy Simulator
 Title: List all AWS IAM Policy Simulator evaluation results

@@ -1,28 +1,33 @@
-Description: Allows users to query AWS EC2 Auto Scaling Groups and access detailed
-  information about each group''s configuration, instances, policies, and more.
+Description: Allows users to query AWS EC2 Auto Scaling Groups and access detailed information about each group's configuration, instances, policies, and more.
 ID: aws_ec2_autoscaling_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as autoscaling_group_name,\n  ins_detail ->> 'InstanceId'\
-    \ as instance_id,\n  ins_detail ->> 'InstanceType' as instance_type,\n  ins_detail\
-    \ ->> 'AvailabilityZone' as az,\n  ins_detail ->> 'HealthStatus' as health_status,\n\
-    \  ins_detail ->> 'LaunchConfigurationName' as launch_configuration_name,\n  ins_detail\
-    \ -> 'LaunchTemplate' ->> 'LaunchTemplateName' as launch_template_name,\n  ins_detail\
-    \ -> 'LaunchTemplate' ->> 'Version' as launch_template_version,\n  ins_detail\
-    \ ->> 'ProtectedFromScaleIn' as protected_from_scale_in\nfrom\n  aws_ec2_autoscaling_group,\n\
-    \  jsonb_array_elements(instances) as ins_detail;"
+  QueryToExecute: |
+    SELECT
+      name AS autoscaling_group_name,
+      ins_detail ->> 'InstanceId' AS instance_id,
+      ins_detail ->> 'InstanceType' AS instance_type,
+      ins_detail ->> 'AvailabilityZone' AS az,
+      ins_detail ->> 'HealthStatus' AS health_status,
+      ins_detail ->> 'LaunchConfigurationName' AS launch_configuration_name,
+      ins_detail -> 'LaunchTemplate' ->> 'LaunchTemplateName' AS launch_template_name,
+      ins_detail -> 'LaunchTemplate' ->> 'Version' AS launch_template_version,
+      ins_detail ->> 'ProtectedFromScaleIn' AS protected_from_scale_in
+    FROM
+      aws_ec2_autoscaling_group,
+      jsonb_array_elements(instances) AS ins_detail;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Auto Scaling
+    - EC2 Auto Scaling
 Title: List all AWS EC2 Auto Scaling Groups and Details

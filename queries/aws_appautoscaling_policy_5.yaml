@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Application Auto Scaling Policies to obtain
-  information about their configuration, attached resources, and other metadata.
+Description: Allows users to query AWS Application Auto Scaling Policies to obtain information about their configuration, attached resources, and other metadata.
 ID: aws_appautoscaling_policy_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  resource_id,\n  policy_type,\n  step_scaling_policy_configuration\n\
-    from\n  aws_appautoscaling_policy\nwhere\n  service_namespace = 'ecs'\n  and policy_type\
-    \ = 'StepScaling';"
+  QueryToExecute: |
+    SELECT
+      resource_id,
+      policy_type,
+      step_scaling_policy_configuration
+    FROM
+      aws_appautoscaling_policy
+    WHERE
+      service_namespace = 'ecs'
+      AND policy_type = 'StepScaling';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Application Auto Scaling
+    - Application Auto Scaling
 Title: List AWS App Auto Scaling Policies and Configurations

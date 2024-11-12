@@ -1,22 +1,30 @@
-Description: Query AWS DMS Endpoints to retrieve connection information for source
-  or target databases in database migration activities.
+Description: Query AWS DMS Endpoints to retrieve connection information for source or target databases in database migration activities.
 ID: aws_dms_endpoint_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  endpoint_identifier,\n  arn,\n  engine_name,\n  instance_create_time,\n\
-    \  my_sql_settings\nfrom\n  aws_dms_endpoint\nwhere\n  engine_name = 'mysql';"
+  QueryToExecute: |
+    SELECT
+      endpoint_identifier,
+      arn,
+      engine_name,
+      instance_create_time,
+      my_sql_settings
+    FROM
+      aws_dms_endpoint
+    WHERE
+      engine_name = 'mysql';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DMS
+    - DMS
 Title: List all AWS DMS Endpoints for connection details

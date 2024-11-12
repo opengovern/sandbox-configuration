@@ -1,22 +1,28 @@
-Description: Allows users to query Amazon ElastiCache Cluster data, providing information
-  about each ElastiCache Cluster within the AWS account.
+Description: Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account.
 ID: aws_elasticache_cluster_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  cache_node_type,\n  transit_encryption_enabled\n\
-    from\n  aws_elasticache_cluster\nwhere\n  not transit_encryption_enabled;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      cache_node_type,
+      transit_encryption_enabled
+    FROM
+      aws_elasticache_cluster
+    WHERE
+      NOT transit_encryption_enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon ElastiCache
+    - Amazon ElastiCache
 Title: Query Amazon ElastiCache Cluster Data with SQL

@@ -1,20 +1,25 @@
-Description: Allows users to query AWS Backup Jobs, providing detailed information
-  about the status of backups jobs.
+Description: Allows users to query AWS Backup Jobs, providing detailed information about the status of backup jobs.
 ID: aws_backup_job_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  resource_type,\n  count(*)\nfrom\n  aws_backup_job\n\
-    group by\n  resource_type"
+  QueryToExecute: |
+    SELECT
+      resource_type,
+      COUNT(*)
+    FROM
+      aws_backup_job
+    GROUP BY
+      resource_type
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Backup
+    - Backup
 Title: List all AWS Backup Jobs with Status Details

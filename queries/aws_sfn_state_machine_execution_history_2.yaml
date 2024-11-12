@@ -1,25 +1,30 @@
-Description: Allows users to query AWS Step Functions State Machine Execution History
-  to fetch information about the execution history of a state machine.
+Description: Allows users to query AWS Step Functions State Machine Execution History to fetch information about the execution history of a state machine.
 ID: aws_sfn_state_machine_execution_history_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  execution_arn,\n  execution_started_event_details\
-    \ -> 'Input' as event_input,\n  execution_started_event_details -> 'InputDetails'\
-    \ as event_input_details,\n  execution_started_event_details ->> 'RoleArn' as\
-    \ event_role_arn\nfrom\n  aws_sfn_state_machine_execution_history\nwhere\n  type\
-    \ = 'ExecutionStarted';"
+  QueryToExecute: |
+    SELECT
+      id,
+      execution_arn,
+      execution_started_event_details -> 'Input' AS event_input,
+      execution_started_event_details -> 'InputDetails' AS event_input_details,
+      execution_started_event_details ->> 'RoleArn' AS event_role_arn
+    FROM
+      aws_sfn_state_machine_execution_history
+    WHERE
+      type = 'ExecutionStarted';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Step Functions
+    - Step Functions
 Title: Find AWS Step Functions State Machine Execution Details

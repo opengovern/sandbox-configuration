@@ -1,21 +1,27 @@
-Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
-  and retrieve detailed information about each repository.
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository.
 ID: aws_ecr_repository_10
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  r ->> 'RepositoryArn' as repository_arn,\n\
-    \  r ->> 'ScanFrequency' as scan_frequency\nfrom\n  aws_ecr_repository,\n  jsonb_array_elements(repository_scanning_configuration\
-    \ -> 'ScanningConfigurations') as r\nwhere\n  r ->> 'ScanFrequency' = 'MANUAL';"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      r ->> 'RepositoryArn' AS repository_arn,
+      r ->> 'ScanFrequency' AS scan_frequency
+    FROM
+      aws_ecr_repository,
+      JSONB_ARRAY_ELEMENTS(repository_scanning_configuration -> 'ScanningConfigurations') AS r
+    WHERE
+      r ->> 'ScanFrequency' = 'MANUAL';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry (ECR)
+    - Elastic Container Registry (ECR)
 Title: List all AWS ECR Repositories with Detailed Information

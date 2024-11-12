@@ -1,23 +1,27 @@
-Description: Allows users to query AWS SNS Topic Subscriptions to obtain detailed
-  information about each subscription, including subscription ARN, owner, protocol,
-  endpoint, and more.
+Description: Allows users to query AWS SNS Topic Subscriptions to obtain detailed information about each subscription, including subscription ARN, owner, protocol, endpoint, and more.
 ID: aws_sns_topic_subscription_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  count(subscription_arn) as subscription_count\n\
-    from\n  aws_sns_topic_subscription\ngroup by\n  title;"
+  QueryToExecute: |
+    SELECT
+      title,
+      COUNT(subscription_arn) AS subscription_count
+    FROM
+      aws_sns_topic_subscription
+    GROUP BY
+      title;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Simple Notification Service
+    - Simple Notification Service
 Title: Find AWS SNS Topic Subscriptions Detailed Information

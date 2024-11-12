@@ -1,23 +1,31 @@
-Description: Allows users to query AWS IoT Thing Type to gain insights into each thing
-  type''s configuration, including ARN, name, creation date, and deprecation status.
+Description: Allows users to query AWS IoT Thing Type to gain insights into each thing type's configuration, including ARN, name, creation date, and deprecation status.
 ID: aws_iot_thing_type_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  thing_type_name,\n  arn,\n  thing_type_id,\n  creation_date,\n\
-    \  tags,\n  deprecation_date\nfrom\n  aws_iot_thing_type\nwhere\n  deprecation_date\
-    \ <= now() - interval '30 days';"
+  QueryToExecute: |
+    SELECT
+      thing_type_name,
+      arn,
+      thing_type_id,
+      creation_date,
+      tags,
+      deprecation_date
+    FROM
+      aws_iot_thing_type
+    WHERE
+      deprecation_date <= NOW() - INTERVAL '30 days';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IoT
+    - IoT
 Title: Find All AWS IoT Thing Types with Configuration Insights

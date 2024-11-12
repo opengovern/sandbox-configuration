@@ -1,22 +1,27 @@
-Description: Allows users to query Lens Review Improvements in the AWS Well-Architected
-  Framework.
+Description: Allows users to query Lens Review Improvements in the AWS Well-Architected Framework.
 ID: aws_wellarchitected_lens_review_improvement_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  lens_alias,\n  workload_id,\n  p ->> 'ChoiceId' as choice_id,\n\
-    \  p ->> 'DisplayText' as display_text,\n  p ->> 'ImprovementPlanUrl' as improvement_plan_url\n\
-    from\n  aws_wellarchitected_lens_review_improvement,\n  jsonb_array_elements(improvement_plans)\
-    \ as p;"
+  QueryToExecute: |
+    SELECT
+      lens_alias,
+      workload_id,
+      p ->> 'ChoiceId' AS choice_id,
+      p ->> 'DisplayText' AS display_text,
+      p ->> 'ImprovementPlanUrl' AS improvement_plan_url
+    FROM
+      aws_wellarchitected_lens_review_improvement,
+      JSONB_ARRAY_ELEMENTS(improvement_plans) AS p;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Framework
+    - Well-Architected Framework
 Title: List AWS Well-Architected Framework Lens Review Improvements

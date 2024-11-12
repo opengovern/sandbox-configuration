@@ -1,23 +1,28 @@
-Description: Allows users to query AWS DAX Clusters to fetch details about their configurations,
-  status, nodes, and other associated metadata.
+Description: Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata.
 ID: aws_dax_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  description,\n  sse_description ->>\
-    \ 'Status' as sse_status\nfrom\n  aws_dax_cluster\nwhere\n  sse_description ->>\
-    \ 'Status' = 'DISABLED';"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      description,
+      sse_description ->> 'Status' AS sse_status
+    FROM
+      aws_dax_cluster
+    WHERE
+      sse_description ->> 'Status' = 'DISABLED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DAX
+    - DAX
 Title: List all AWS DAX Clusters and Their Configurations

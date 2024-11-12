@@ -1,26 +1,46 @@
-Description: Allows users to query AWS VPC Security Group Rule, providing detailed
-  information about security group rules within Amazon Virtual Private Cloud (VPC).
+Description: Allows users to query AWS VPC Security Group Rule, providing detailed information about security group rules within Amazon Virtual Private Cloud (VPC).
 ID: aws_vpc_security_group_rule_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  security_group_rule_id,\n  group_id,\n  ip_protocol,\n\
-    \  from_port,\n  to_port,\n  cidr_ipv4\nfrom\n  aws_vpc_security_group_rule\n\
-    where\n  not is_egress\n  and cidr_ipv4 = '0.0.0.0/0'\n  and (\n    (\n      ip_protocol\
-    \ = '-1' -- all traffic\n      and from_port is null\n    )\n    or (\n      from_port\
-    \ <= 22\n      and to_port >= 22\n    )\n    or (\n      from_port <= 3389\n \
-    \     and to_port >= 3389\n    )\n  );"
+  QueryToExecute: |
+    SELECT
+      security_group_rule_id,
+      group_id,
+      ip_protocol,
+      from_port,
+      to_port,
+      cidr_ipv4
+    FROM
+      aws_vpc_security_group_rule
+    WHERE
+      NOT is_egress
+      AND cidr_ipv4 = '0.0.0.0/0'
+      AND (
+        (
+          ip_protocol = '-1'
+          AND from_port IS NULL
+        )
+        OR (
+          from_port <= 22
+          AND to_port >= 22
+        )
+        OR (
+          from_port <= 3389
+          AND to_port >= 3389
+        )
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Virtual Private Cloud (VPC)
+    - Amazon Virtual Private Cloud (VPC)
 Title: Find AWS VPC Security Group Rule - Query with Details

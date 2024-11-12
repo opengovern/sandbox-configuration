@@ -1,21 +1,26 @@
-Description: Allows users to query AWS CloudWatch log metric filters to obtain detailed
-  information about each filter, including its name, creation date, associated log
-  group, filter pattern, metric transformations and more.
+Description: Allows users to query AWS CloudWatch log metric filters to obtain detailed information about each filter, including its name, creation date, associated log group, filter pattern, metric transformations and more.
 ID: aws_cloudwatch_log_metric_filter_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  log_group_name,\n  filter_pattern\nfrom\n  aws_cloudwatch_log_metric_filter\n\
-    where\n  filter_pattern ilike '%error%';"
+  QueryToExecute: |
+    SELECT
+      name,
+      log_group_name,
+      filter_pattern
+    FROM
+      aws_cloudwatch_log_metric_filter
+    WHERE
+      filter_pattern ILIKE '%error%';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List all AWS CloudWatch log metric filters and details

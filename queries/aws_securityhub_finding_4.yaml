@@ -1,27 +1,32 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  product_arn,\n  product_name,\n  compliance\
-    \ ->> 'Status' as compliance_status,\n  compliance ->> 'StatusReasons' as compliance_status_reasons\n\
-    from\n  aws_securityhub_finding\nwhere\n  compliance ->> 'Status' = 'FAILED';"
+  QueryToExecute: |
+    SELECT
+      title,
+      product_arn,
+      product_name,
+      compliance ->> 'Status' AS compliance_status,
+      compliance ->> 'StatusReasons' AS compliance_status_reasons
+    FROM
+      aws_securityhub_finding
+    WHERE
+      compliance ->> 'Status' = 'FAILED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find AWS Security Hub Findings with Failed Status

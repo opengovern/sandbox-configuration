@@ -1,24 +1,32 @@
-Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
-  and retrieve detailed information about each repository.
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository.
 ID: aws_ecr_repository_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.repository_name as repository_name,\n  i.image_digest\
-    \ as image_digest,\n  i.image_tags as image_tags,\n  i.image_pushed_at as image_pushed_at,\n\
-    \  i.image_size_in_bytes as image_size_in_bytes,\n  i.last_recorded_pull_time\
-    \ as last_recorded_pull_time,\n  i.registry_id as registry_id,\n  i.image_scan_status\
-    \ as image_scan_status\nfrom\n  aws_ecr_repository as r,\n  aws_ecr_image as i\n\
-    where\n  r.repository_name = i.repository_name;"
+  QueryToExecute: |
+    SELECT
+      r.repository_name AS repository_name,
+      i.image_digest AS image_digest,
+      i.image_tags AS image_tags,
+      i.image_pushed_at AS image_pushed_at,
+      i.image_size_in_bytes AS image_size_in_bytes,
+      i.last_recorded_pull_time AS last_recorded_pull_time,
+      i.registry_id AS registry_id,
+      i.image_scan_status AS image_scan_status
+    FROM
+      aws_ecr_repository AS r,
+      aws_ecr_image AS i
+    WHERE
+      r.repository_name = i.repository_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry
+    - Elastic Container Registry
 Title: List All AWS ECR Repositories and Retrieve Details

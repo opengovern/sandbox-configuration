@@ -1,21 +1,25 @@
-Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information
-  about their configuration, status, and associated attributes.
+Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information about their configuration, status, and associated attributes.
 ID: aws_dynamodb_table_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  d ->> 'StreamArn' as kinesis_stream_arn,\n \
-    \ d ->> 'DestinationStatus' as stream_status\nfrom\n  aws_dynamodb_table,\n  jsonb_array_elements(streaming_destination\
-    \ -> 'KinesisDataStreamDestinations') as d"
+  QueryToExecute: |
+    SELECT
+      name,
+      d ->> 'StreamArn' AS kinesis_stream_arn,
+      d ->> 'DestinationStatus' AS stream_status
+    FROM
+      aws_dynamodb_table,
+      jsonb_array_elements(streaming_destination -> 'KinesisDataStreamDestinations') AS d
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DynamoDB
+    - DynamoDB
 Title: List all AWS DynamoDB table configurations and status

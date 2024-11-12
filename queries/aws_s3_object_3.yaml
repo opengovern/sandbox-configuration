@@ -1,21 +1,30 @@
-Description: Allows users to query AWS S3 Objects and retrieve metadata and details
-  about each object stored in S3 buckets.
+Description: Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets.
 ID: aws_s3_object_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  key,\n  arn,\n  bucket_name,\n  last_modified,\n  storage_class,\n\
-    \  version_id\nfrom\n  aws_s3_object\nwhere\n  bucket_name = 'steampipe-test'\n\
-    \  and prefix = 'test/logs/2021/03/01/12/abc.txt';"
+  QueryToExecute: |
+    SELECT
+      key,
+      arn,
+      bucket_name,
+      last_modified,
+      storage_class,
+      version_id
+    FROM
+      aws_s3_object
+    WHERE
+      bucket_name = 'steampipe-test'
+      AND prefix = 'test/logs/2021/03/01/12/abc.txt';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find AWS S3 Object Metadata and Details with SQL

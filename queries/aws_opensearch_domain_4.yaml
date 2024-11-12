@@ -1,27 +1,32 @@
-Description: Allows users to query AWS OpenSearch Service Domains for detailed information
-  on their configuration, status, and associated resources.
+Description: Allows users to query AWS OpenSearch Service Domains for detailed information on their configuration, status, and associated resources.
 ID: aws_opensearch_domain_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  vpc_options ->> 'AvailabilityZones' as\
-    \ availability_zones,\n  vpc_options ->> 'SecurityGroupIds' as security_group_ids,\n\
-    \  vpc_options ->> 'SubnetIds' as subnet_ids,\n  vpc_options ->> 'VPCId' as vpc_id\n\
-    from\n  aws_opensearch_domain\nwhere\n  vpc_options ->> 'AvailabilityZones' is\
-    \ not null;"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      vpc_options ->> 'AvailabilityZones' AS availability_zones,
+      vpc_options ->> 'SecurityGroupIds' AS security_group_ids,
+      vpc_options ->> 'SubnetIds' AS subnet_ids,
+      vpc_options ->> 'VPCId' AS vpc_id
+    FROM
+      aws_opensearch_domain
+    WHERE
+      vpc_options ->> 'AvailabilityZones' IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - OpenSearch Service
+    - OpenSearch Service
 Title: List AWS OpenSearch Service Domains and Configurations

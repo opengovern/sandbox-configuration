@@ -1,22 +1,29 @@
-Description: Allows users to query AWS SageMaker Training Jobs to retrieve information
-  about individual training jobs.
+Description: Allows users to query AWS SageMaker Training Jobs to retrieve information about individual training jobs.
 ID: aws_sagemaker_training_job_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  training_job_status,\n  failure_reason\n\
-    from\n  aws_sagemaker_training_job\nwhere\n  training_job_status = 'Failed';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      training_job_status,
+      failure_reason
+    FROM
+      aws_sagemaker_training_job
+    WHERE
+      training_job_status = 'Failed';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SageMaker
+    - SageMaker
 Title: Find AWS SageMaker Training Jobs with Status Failed

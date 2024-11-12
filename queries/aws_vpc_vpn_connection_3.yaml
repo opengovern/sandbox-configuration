@@ -1,22 +1,29 @@
 Description: Allows users to query VPN connections in an AWS VPC.
 ID: aws_vpc_vpn_connection_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpn_connection_id,\n  arn,\n  t ->> 'Status' as status\n\
-    from\n  aws_vpc_vpn_connection,\n  jsonb_array_elements(vgw_telemetry) as t\n\
-    where  t ->> 'Status' = 'UP';"
+  QueryToExecute: |
+    SELECT
+      vpn_connection_id,
+      arn,
+      t ->> 'Status' AS status
+    FROM
+      aws_vpc_vpn_connection,
+      JSONB_ARRAY_ELEMENTS(vgw_telemetry) AS t
+    WHERE
+      t ->> 'Status' = 'UP';
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC VPN Connection Using SQL

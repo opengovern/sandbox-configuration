@@ -1,21 +1,25 @@
-Description: Allows users to query AWS CloudTrail Channel data, including trail configurations,
-  status, and associated metadata.
+Description: Allows users to query AWS CloudTrail Channel data, including trail configurations, status, and associated metadata.
 ID: aws_cloudtrail_channel_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  a ->> 'Name' as advanced_event_selector_name,\n\
-    \  a ->> 'FieldSelectors' as field_selectors\nfrom\n  aws_cloudtrail_channel,\n\
-    \  jsonb_array_elements(advanced_event_selectors) as a;"
+  QueryToExecute: |
+    SELECT 
+      name,
+      a ->> 'Name' AS advanced_event_selector_name,
+      a ->> 'FieldSelectors' AS field_selectors
+    FROM 
+      aws_cloudtrail_channel,
+      jsonb_array_elements(advanced_event_selectors) AS a;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudTrail
+    - CloudTrail
 Title: List all AWS CloudTrail Channel Data and Metadata

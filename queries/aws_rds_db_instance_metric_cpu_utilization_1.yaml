@@ -1,21 +1,30 @@
-Description: Allows users to query Amazon RDS DBInstanceCPUUtilization to fetch data
-  about CPU utilization metrics for RDS DB instances.
+Description: Allows users to query Amazon RDS DBInstanceCPUUtilization to fetch data about CPU utilization metrics for RDS DB instances.
 ID: aws_rds_db_instance_metric_cpu_utilization_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  timestamp,\n  minimum,\n \
-    \ maximum,\n  average,\n  sample_count\nfrom\n  aws_rds_db_instance_metric_cpu_utilization\n\
-    order by\n  db_instance_identifier,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    FROM
+      aws_rds_db_instance_metric_cpu_utilization
+    ORDER BY
+      db_instance_identifier,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon RDS
+    - Amazon RDS
 Title: List all CPU utilization metrics for RDS DB instances

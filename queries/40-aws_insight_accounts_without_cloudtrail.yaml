@@ -1,23 +1,33 @@
 Description: AWS Accounts with CloudTrail disabled
 ID: aws_insight_accounts_without_cloudtrail
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - og_connections
-  - aws_cloudtrail_trail
+    - og_connections
+    - aws_cloudtrail_trail
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: select id AS account_id, og_id AS og_account_id from og_connections
-    where (connector = 'AWS' AND lifecycle_state = 'onboard' AND id NOT IN (select
-    distinct account_id from aws_cloudtrail_trail))
+  QueryToExecute: |
+    SELECT 
+      id AS account_id, 
+      og_id AS og_account_id 
+    FROM 
+      og_connections 
+    WHERE 
+      connector = 'AWS' 
+      AND lifecycle_state = 'onboard' 
+      AND id NOT IN (
+        SELECT DISTINCT account_id 
+        FROM aws_cloudtrail_trail
+      )
 Tags:
   category:
-  - Security
+    - Security
   persona:
-  - DevOps
-  - Security
-  - Executive
-  - Product
+    - DevOps
+    - Security
+    - Executive
+    - Product
 Title: AWS Accounts without CloudTrail

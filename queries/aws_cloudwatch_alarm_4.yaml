@@ -1,20 +1,29 @@
-Description: Allows users to query AWS CloudWatch Alarms, providing detailed information
-  about each alarm, including its configuration, state, and associated actions.
+Description: Allows users to query AWS CloudWatch Alarms, providing detailed information about each alarm, including its configuration, state, and associated actions.
 ID: aws_cloudwatch_alarm_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  metric_name,\n  namespace,\n  period,\n  statistic,\n\
-    \  dimensions\nfrom\n  aws_cloudwatch_alarm\nwhere\n  metric_name is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      metric_name,
+      namespace,
+      period,
+      statistic,
+      dimensions
+    FROM
+      aws_cloudwatch_alarm
+    WHERE
+      metric_name IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List AWS CloudWatch Alarms with Metric Names

@@ -1,22 +1,26 @@
-Description: Allows users to query AWS CloudSearch Domain to retrieve detailed information
-  about each search domain configured within an AWS account.
+Description: Allows users to query AWS CloudSearch Domain to retrieve detailed information about each search domain configured within an AWS account.
 ID: aws_cloudsearch_domain_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  domain_id,\n  search_service ->> 'Endpoint'\
-    \ as search_service_endpoint,\n  limits ->> 'MaximumPartitionCount' as maximum_partition_count,\n\
-    \  limits ->> 'MaximumReplicationCount' as maximum_replication_count\nfrom\n \
-    \ aws_cloudsearch_domain;"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      domain_id,
+      search_service ->> 'Endpoint' AS search_service_endpoint,
+      limits ->> 'MaximumPartitionCount' AS maximum_partition_count,
+      limits ->> 'MaximumReplicationCount' AS maximum_replication_count
+    FROM
+      aws_cloudsearch_domain;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudSearch
+    - CloudSearch
 Title: List All AWS CloudSearch Domains with Detailed Info

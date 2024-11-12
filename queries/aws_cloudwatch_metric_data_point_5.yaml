@@ -1,25 +1,44 @@
-Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed
-  information about the data points for a defined metric.
+Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for 
+  a defined metric.
 ID: aws_cloudwatch_metric_data_point_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  label,\n  timestamp,\n  value,\n  metric_stat\n\
-    from\n  aws_cloudwatch_metric_data_point\nwhere\n  id = 'e1'\n  and value < 10\n\
-    \  and timestamp >= now() - interval '7 day'\n  and metric_stat = '{\n    \"Metric\"\
-    : {\n    \"Namespace\": \"AWS/ElastiCache\",\n    \"MetricName\": \"CacheHits\"\
-    ,\n    \"Dimensions\": [\n      {\n        \"Name\": \"CacheClusterId\",\n   \
-    \     \"Value\": \"cluster-delete-001\"\n      }\n    ]},\n    \"Stat\": \"Sum\"\
-    }'\norder by\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      id,
+      label,
+      timestamp,
+      value,
+      metric_stat
+    FROM
+      aws_cloudwatch_metric_data_point
+    WHERE
+      id = 'e1'
+      AND value < 10
+      AND timestamp >= NOW() - INTERVAL '7 DAY'
+      AND metric_stat = '{
+        "Metric": {
+          "Namespace": "AWS/ElastiCache",
+          "MetricName": "CacheHits",
+          "Dimensions": [
+            {
+              "Name": "CacheClusterId",
+              "Value": "cluster-delete-001"
+            }
+          ]},
+        "Stat": "Sum"}'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List all AWS CloudWatch Metric Data Points

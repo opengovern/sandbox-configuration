@@ -1,21 +1,28 @@
-Description: Allows users to query AWS Macie2 Classification Jobs and retrieve detailed
-  information about each job''s settings, status, and results.
+Description: Allows users to query AWS Macie2 Classification Jobs and retrieve detailed information about each job's settings, status, and results.
 ID: aws_macie2_classification_job_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  job_id,\n  arn,\n  name,\n  job_status as status\nfrom\n\
-    \  aws_macie2_classification_job\nwhere\n  job_status = 'CANCELLED'\n  or job_status\
-    \ = 'PAUSED';"
+  QueryToExecute: |
+    SELECT
+      job_id,
+      arn,
+      name,
+      job_status AS status
+    FROM
+      aws_macie2_classification_job
+    WHERE
+      job_status = 'CANCELLED'
+      OR job_status = 'PAUSED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Macie2
+    - Macie2
 Title: Find AWS Macie2 Classification Jobs with Cancelled or Paused Status

@@ -1,24 +1,32 @@
-Description: Allows users to query AWS Lake Formation Data Lakes for information such
-  as the Data Lake name, creation time, last modified time, and more.
+Description: Allows users to query AWS Lake Formation Data Lakes for information such as the Data Lake name, creation time, last modified time, and more.
 ID: aws_securitylake_data_lake_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  distinct b.name as bucket_name,\n  l.s3_bucket_arn,\n\
-    \  b.creation_date,\n  b.bucket_policy_is_public,\n  b.versioning_enabled,\n \
-    \ b.block_public_acls\nfrom\n  aws_securitylake_data_lake as l,\n  aws_s3_bucket\
-    \ as b\nwhere\n  l.s3_bucket_arn = b.arn;"
+  QueryToExecute: |
+    SELECT
+      DISTINCT b.name AS bucket_name,
+      l.s3_bucket_arn,
+      b.creation_date,
+      b.bucket_policy_is_public,
+      b.versioning_enabled,
+      b.block_public_acls
+    FROM
+      aws_securitylake_data_lake AS l,
+      aws_s3_bucket AS b
+    WHERE
+      l.s3_bucket_arn = b.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lake Formation
+    - Lake Formation
 Title: Find all AWS Lake Formation Data Lakes with Details

@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Config Conformance Packs to fetch information
-  about the AWS Config conformance packs deployed on an AWS account.
+Description: Allows users to query AWS Config Conformance Packs to fetch information about the AWS Config conformance packs deployed on an AWS account.
 ID: aws_config_conformance_pack_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  inp ->> 'ParameterName' as parameter_name,\n\
-    \  inp ->> 'ParameterValue' as parameter_value,\n  title,\n  akas\nfrom\n  aws_config_conformance_pack,\n\
-    \  jsonb_array_elements(input_parameters) as inp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      inp ->> 'ParameterName' AS parameter_name,
+      inp ->> 'ParameterValue' AS parameter_value,
+      title,
+      akas
+    FROM
+      aws_config_conformance_pack,
+      JSONB_ARRAY_ELEMENTS(input_parameters) AS inp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Config
+    - AWS Config
 Title: Find all AWS Config Conformance Packs and Parameters

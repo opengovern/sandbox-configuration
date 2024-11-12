@@ -1,25 +1,30 @@
-Description: Allows users to query AWS Elasticsearch Service Domains for detailed
-  information related to the configuration, status, and access policies of the Elasticsearch
-  domains.
+Description: Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains.
 ID: aws_elasticsearch_domain_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  domain_id,\n  ebs_options ->> 'VolumeSize'\
-    \ as volume_size,\n  ebs_options ->> 'VolumeType' as volume_type,\n  ebs_options\
-    \ ->> 'EBSEnabled' as ebs_enabled\nfrom\n  aws_elasticsearch_domain\nwhere\n \
-    \ ebs_options ->> 'EBSEnabled' = 'true';"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      domain_id,
+      ebs_options ->> 'VolumeSize' AS volume_size,
+      ebs_options ->> 'VolumeType' AS volume_type,
+      ebs_options ->> 'EBSEnabled' AS ebs_enabled
+    FROM
+      aws_elasticsearch_domain
+    WHERE
+      ebs_options ->> 'EBSEnabled' = 'true';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elasticsearch Service
+    - Elasticsearch Service
 Title: List all AWS Elasticsearch Service Domains with Configuration

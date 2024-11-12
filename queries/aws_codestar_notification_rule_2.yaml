@@ -1,22 +1,28 @@
-Description: Allows users to query CodeStar notification rules in the AWS Developer
-  Tools to retrieve information about notification rules.
+Description: Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules.
 ID: aws_codestar_notification_rule_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  pipeline.name as pipeline,\n  notification_rule.name\
-    \ notification_rule,\n  notification_rule.status\nfrom\n  aws_codepipeline_pipeline\
-    \ as pipeline\n  left join aws_codestar_notification_rule as notification_rule\
-    \ on pipeline.arn = notification_rule.resource;"
+  QueryToExecute: |
+    SELECT
+      pipeline.name AS pipeline,
+      notification_rule.name AS notification_rule,
+      notification_rule.status
+    FROM
+      aws_codepipeline_pipeline AS pipeline
+    LEFT JOIN
+      aws_codestar_notification_rule AS notification_rule
+    ON
+      pipeline.arn = notification_rule.resource;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeStar
+    - CodeStar
 Title: Find AWS CodeStar notification rules using SQL

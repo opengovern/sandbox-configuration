@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Config Retention Configuration for information
-  about the retention period that AWS Config uses to retain your configuration items.
+Description: Allows users to query AWS Config Retention Configuration for information about the retention period that AWS Config uses to retain your configuration items.
 ID: aws_config_retention_configuration_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  retention_period_in_days,\n  title\nfrom\n \
-    \ aws_config_retention_configuration\nwhere\n  retention_period_in_days < 356;"
+  QueryToExecute: |
+    SELECT
+      name,
+      retention_period_in_days,
+      title
+    FROM
+      aws_config_retention_configuration
+    WHERE
+      retention_period_in_days < 356;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Config
+    - AWS Config
 Title: Find AWS Config Retention Configuration Details

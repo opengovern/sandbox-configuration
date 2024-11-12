@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Directory Service Certificates to gather information
-  about the certificates associated with AWS Managed Microsoft AD and Simple AD directories.
+Description: Allows users to query AWS Directory Service Certificates to gather information about the certificates associated with AWS Managed Microsoft AD and Simple AD directories.
 ID: aws_directory_service_certificate_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  distinct partition,\n  registered_date_time\nfrom\n \
-    \ aws_directory_service_certificate\norder by\n  partition,\n  registered_date_time\
-    \ desc;"
+  QueryToExecute: |
+    SELECT
+      DISTINCT partition,
+      registered_date_time
+    FROM
+      aws_directory_service_certificate
+    ORDER BY
+      partition,
+      registered_date_time DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Directory Service
+    - Directory Service
 Title: Find AWS Directory Service Certificates Details

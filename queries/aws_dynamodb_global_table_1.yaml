@@ -1,22 +1,25 @@
-Description: Allows users to query AWS DynamoDB Global Tables to gather information
-  about the global tables, including the table name, creation time, status, and other
-  related details.
+Description: Allows users to query AWS DynamoDB Global Tables to gather information about the global tables, including the table name, creation time, status, and other related details.
 ID: aws_dynamodb_global_table_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  global_table_name,\n  rg -> 'RegionName' as region_name\n\
-    from\n  aws_dynamodb_global_table\n  cross join jsonb_array_elements(replication_group)\
-    \ as rg;"
+  QueryToExecute: |
+    SELECT
+      global_table_name,
+      rg -> 'RegionName' AS region_name
+    FROM
+      aws_dynamodb_global_table
+    CROSS JOIN
+      jsonb_array_elements(replication_group) AS rg;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DynamoDB Global Table
+    - DynamoDB Global Table
 Title: List all AWS DynamoDB Global Tables and their Regions

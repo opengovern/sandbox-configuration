@@ -1,23 +1,37 @@
-Description: Allows users to query AWS Route 53 Traffic Policies to retrieve information
-  about each policy''s versions, including the policy identifier, name, type, and
-  document. This table also provides data related to the policy''s associated metadata.
+Description: Allows users to query AWS Route 53 Traffic Policies to retrieve information about each policy's versions, including the policy identifier, name, type, and document. This table also provides data related to the policy's associated metadata.
 ID: aws_route53_traffic_policy_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  name,\n  policy.id,\n  policy.version, \n  comment \n\
-    from \n  aws_route53_traffic_policy policy,\n  (select\n    id,\n    max(version)\
-    \ as version\n  from \n    aws_route53_traffic_policy \n  group by \n    id) as\
-    \ latest\nwhere \n  latest.id = policy.id \n  and latest.version = policy.version;"
+  QueryToExecute: |
+    SELECT
+      name,
+      policy.id,
+      policy.version,
+      comment
+    FROM
+      aws_route53_traffic_policy policy,
+      (
+        SELECT
+          id,
+          MAX(version) AS version
+        FROM
+          aws_route53_traffic_policy
+        GROUP BY
+          id
+      ) AS latest
+    WHERE
+      latest.id = policy.id
+      AND latest.version = policy.version;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: Find All AWS Route 53 Traffic Policy Versions and Metadata

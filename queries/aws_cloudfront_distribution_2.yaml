@@ -1,23 +1,29 @@
-Description: Allows users to query AWS CloudFront Distributions to gain insights into
-  their configuration, status, and associated metadata.
+Description: Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata.
 ID: aws_cloudfront_distribution_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  logging ->> 'Bucket' as bucket,\n  logging ->>\
-    \ 'Enabled' as logging_enabled,\n  logging ->> 'IncludeCookies' as include_cookies\n\
-    from\n  aws_cloudfront_distribution\nwhere\n  logging ->> 'Enabled' = 'false';"
+  QueryToExecute: |
+    SELECT
+      id,
+      logging ->> 'Bucket' AS bucket,
+      logging ->> 'Enabled' AS logging_enabled,
+      logging ->> 'IncludeCookies' AS include_cookies
+    FROM
+      aws_cloudfront_distribution
+    WHERE
+      logging ->> 'Enabled' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: Find Disabled AWS CloudFront Distribution Logging

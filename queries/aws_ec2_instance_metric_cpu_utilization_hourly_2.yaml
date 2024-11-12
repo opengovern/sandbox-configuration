@@ -1,22 +1,32 @@
-Description: Allows users to query AWS EC2 Instance CPU Utilization metrics on an
-  hourly basis.
+Description: Allows users to query AWS EC2 Instance CPU Utilization metrics on an hourly basis.
 ID: aws_ec2_instance_metric_cpu_utilization_hourly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  instance_id,\n  timestamp,\n  round(minimum::numeric,2)\
-    \ as min_cpu,\n  round(maximum::numeric,2) as max_cpu,\n  round(average::numeric,2)\
-    \ as avg_cpu,\n  sample_count\nfrom\n  aws_ec2_instance_metric_cpu_utilization_hourly\n\
-    where average > 80\norder by\n  instance_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      instance_id,
+      timestamp,
+      ROUND(minimum::NUMERIC, 2) AS min_cpu,
+      ROUND(maximum::NUMERIC, 2) AS max_cpu,
+      ROUND(average::NUMERIC, 2) AS avg_cpu,
+      sample_count
+    FROM
+      aws_ec2_instance_metric_cpu_utilization_hourly
+    WHERE
+      average > 80
+    ORDER BY
+      instance_id,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find all AWS EC2 Instance CPU Utilization hourly metrics

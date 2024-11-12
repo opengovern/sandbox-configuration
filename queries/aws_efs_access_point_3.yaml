@@ -1,22 +1,29 @@
-Description: Allows users to query Amazon EFS Access Points, providing detailed information
-  about each access point''s configuration, including the file system it is associated
-  with, its access point ID, and other related metadata.
+Description: Allows users to query Amazon EFS Access Points, providing detailed information about each access point's configuration, including the file system it is associated with, its access point ID, and other related metadata.
 ID: aws_efs_access_point_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  access_point_id,\n  life_cycle_state,\n  file_system_id,\n\
-    \  owner_id,\n  root_directory\nfrom\n  aws_efs_access_point\nwhere\n  life_cycle_state\
-    \ = 'error';"
+  QueryToExecute: |
+    SELECT
+      name,
+      access_point_id,
+      life_cycle_state,
+      file_system_id,
+      owner_id,
+      root_directory
+    FROM
+      aws_efs_access_point
+    WHERE
+      life_cycle_state = 'error';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon EFS
+    - Amazon EFS
 Title: List all Amazon EFS Access Points with State 'Error'

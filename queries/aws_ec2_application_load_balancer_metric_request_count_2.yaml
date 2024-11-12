@@ -1,23 +1,36 @@
-Description: Allows users to query AWS EC2 Application Load Balancer Metrics, specifically
-  the request count.
+Description: Allows users to query AWS EC2 Application Load Balancer Metrics, specifically the request count.
 ID: aws_ec2_application_load_balancer_metric_request_count_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  metric_name,\n  namespace,\n  maximum,\n  minimum,\n\
-    \  average\n  sample_count,\n  timestamp\nfrom\n  aws_ec2_application_load_balancer_metric_request_count\n\
-    where\n  average < 100\norder by\n  name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      metric_name,
+      namespace,
+      maximum,
+      minimum,
+      average,
+      sample_count,
+      timestamp
+    FROM
+      aws_ec2_application_load_balancer_metric_request_count
+    WHERE
+      average < 100
+    ORDER BY
+      name,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Application Load Balancer
+    - EC2 Application Load Balancer
 Title: List AWS EC2 Application Load Balancer Request Counts

@@ -1,23 +1,29 @@
-Description: Allows users to query AWS AppStream Images to gain insights into their
-  properties, states, and associated metadata.
+Description: Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata.
 ID: aws_appstream_image_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  e ->> 'ErrorCode' as error_code,\n \
-    \ e ->> 'ErrorMessage' as error_message,\n  e ->> 'ErrorTimestamp' as error_timestamp\n\
-    from\n  aws_appstream_image,\n  jsonb_array_elements(image_errors) as e;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      e ->> 'ErrorCode' AS error_code,
+      e ->> 'ErrorMessage' AS error_message,
+      e ->> 'ErrorTimestamp' AS error_timestamp
+    FROM
+      aws_appstream_image,
+      jsonb_array_elements(image_errors) AS e;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AppStream
+    - AppStream
 Title: List AWS AppStream Images and Their Error Details

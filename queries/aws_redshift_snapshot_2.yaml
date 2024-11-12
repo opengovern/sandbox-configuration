@@ -1,20 +1,25 @@
-Description: Allows users to query Redshift Snapshots, providing details about each
-  snapshot''s configuration, status, and associated metadata.
+Description: Allows users to query Redshift Snapshots, providing details about each snapshot's configuration, status, and associated metadata.
 ID: aws_redshift_snapshot_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  snapshot_identifier,\n  snapshot_type\nfrom\n  aws_redshift_snapshot\n\
-    where\n  snapshot_type = 'manual';"
+  QueryToExecute: |
+    SELECT
+      snapshot_identifier,
+      snapshot_type
+    FROM
+      aws_redshift_snapshot
+    WHERE
+      snapshot_type = 'manual';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift
+    - Redshift
 Title: List all AWS Redshift Snapshots with Configuration Details

@@ -1,22 +1,32 @@
-Description: Allows users to query AWS ECS Cluster CPU Utilization Metrics on an hourly
-  basis.
+Description: Allows users to query AWS ECS Cluster CPU Utilization Metrics on an hourly basis.
 ID: aws_ecs_cluster_metric_cpu_utilization_hourly_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  timestamp,\n  round(minimum::numeric,2)\
-    \ as min_cpu,\n  round(maximum::numeric,2) as max_cpu,\n  round(average::numeric,2)\
-    \ as avg_cpu,\n  sample_count\nfrom\n  aws_ecs_cluster_metric_cpu_utilization_hourly\n\
-    where\n  average < 1\norder by\n  cluster_name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      timestamp,
+      ROUND(MINIMUM::numeric, 2) AS min_cpu,
+      ROUND(MAXIMUM::numeric, 2) AS max_cpu,
+      ROUND(AVERAGE::numeric, 2) AS avg_cpu,
+      sample_count
+    FROM
+      aws_ecs_cluster_metric_cpu_utilization_hourly
+    WHERE
+      AVERAGE < 1
+    ORDER BY
+      cluster_name,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: Find AWS ECS Cluster CPU Utilization Metrics Hourly

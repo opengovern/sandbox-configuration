@@ -1,20 +1,26 @@
-Description: Allows users to query AWS MemoryDB clusters, providing detailed information
-  on cluster configurations and statuses.
+Description: Allows users to query AWS MemoryDB clusters, providing detailed information on cluster configurations and statuses.
 ID: aws_memorydb_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  tls_enabled\nfrom\n  aws_memorydb_cluster\n\
-    where\n  tls_enabled = false;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      tls_enabled
+    FROM
+      aws_memorydb_cluster
+    WHERE
+      tls_enabled = FALSE;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - MemoryDB
+    - MemoryDB
 Title: Find All AWS MemoryDB Clusters Without TLS Encryption

@@ -1,25 +1,29 @@
-Description: Allows users to query AWS RDS DB Instances for detailed information about
-  the configuration, status, and other metadata associated with each database instance.
+Description: Allows users to query AWS RDS DB Instances for detailed information about the configuration, status, and other metadata associated with each database instance.
 ID: aws_rds_db_instance_9
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  actions ->> 'ResourceIdentifier' as db_instance_identifier,\n\
-    \  details ->> 'Action' as action,\n  details ->> 'OptInStatus' as opt_in_status,\n\
-    \  details ->> 'ForcedApplyDate' as forced_apply_date,\n  details ->> 'CurrentApplyDate'\
-    \ as current_apply_date,\n  details ->> 'AutoAppliedAfterDate' as auto_applied_after_date\n\
-    from\n  aws_rds_db_instance,\n  jsonb_array_elements(pending_maintenance_actions)\
-    \ as actions,\n  jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails')\
-    \ as details;"
+  QueryToExecute: |
+    SELECT
+      actions ->> 'ResourceIdentifier' AS db_instance_identifier,
+      details ->> 'Action' AS action,
+      details ->> 'OptInStatus' AS opt_in_status,
+      details ->> 'ForcedApplyDate' AS forced_apply_date,
+      details ->> 'CurrentApplyDate' AS current_apply_date,
+      details ->> 'AutoAppliedAfterDate' AS auto_applied_after_date
+    FROM
+      aws_rds_db_instance,
+      jsonb_array_elements(pending_maintenance_actions) AS actions,
+      jsonb_array_elements(actions -> 'PendingMaintenanceActionDetails') AS details;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List all AWS RDS DB Instances with Detailed Information

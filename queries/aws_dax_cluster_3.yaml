@@ -1,23 +1,31 @@
-Description: Allows users to query AWS DAX Clusters to fetch details about their configurations,
-  status, nodes, and other associated metadata.
+Description: Allows users to query AWS DAX Clusters to fetch details about their configurations, status, nodes, and other associated metadata.
 ID: aws_dax_cluster_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  node_type,\n  count(*) as count\nfrom\n\
-    \  aws_dax_cluster\nwhere\n  node_type not in ('cache.m5.large', 'cache.m4.4xlarge')\n\
-    group by\n  cluster_name, node_type;"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      node_type,
+      COUNT(*) AS count
+    FROM
+      aws_dax_cluster
+    WHERE
+      node_type NOT IN ('cache.m5.large', 'cache.m4.4xlarge')
+    GROUP BY
+      cluster_name,
+      node_type;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DAX
+    - DAX
 Title: List all AWS DAX Clusters with Configuration and Status

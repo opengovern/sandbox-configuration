@@ -1,22 +1,30 @@
-Description: Allows users to query AWS Identity Store Group Memberships, providing
-  information about AWS users'' membership status within various identity groups.
+Description: Allows users to query AWS Identity Store Group Memberships, providing information about AWS users' membership status within various identity groups.
 ID: aws_identitystore_group_membership_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  m.membership_id,\n  m.group_id,\n  m.identity_store_id,\n\
-    \  u.name as user_name \nfrom\n  aws_identitystore_group_membership as m,\n  aws_identitystore_user\
-    \ as u \nwhere\n  m.identity_store_id = 'd-1234567890' \n  and u.identity_store_id\
-    \ = m.identity_store_id \n  and u.id = m.member_id;"
+  QueryToExecute: |
+    SELECT
+      m.membership_id,
+      m.group_id,
+      m.identity_store_id,
+      u.name AS user_name
+    FROM
+      aws_identitystore_group_membership AS m,
+      aws_identitystore_user AS u
+    WHERE
+      m.identity_store_id = 'd-1234567890'
+      AND u.identity_store_id = m.identity_store_id
+      AND u.id = m.member_id;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Identity Store
+    - Identity Store
 Title: Find AWS Identity Store Group Memberships

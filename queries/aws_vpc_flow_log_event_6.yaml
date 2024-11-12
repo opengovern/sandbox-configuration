@@ -1,24 +1,38 @@
-Description: Allows users to query AWS VPC Flow Logs and retrieve information about
-  the IP traffic going to and from network interfaces in their VPC.
+Description: Allows users to query AWS VPC Flow Logs and retrieve information about the IP traffic going to and from network interfaces in their VPC.
 ID: aws_vpc_flow_log_event_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  log_group_name,\n  log_stream_name,\n  log_status,\n\
-    \  action,\n  ingestion_time,\n  timestamp,\n  interface_id,\n  interface_account_id,\n\
-    \  src_addr,\n  region\nfrom\n  aws_vpc_flow_log_event\nwhere\n  log_group_name\
-    \ = 'vpc-log-group-name'\n  and log_stream_name = 'eni-1d47d21d-all'\n  and src_addr\
-    \ << '10.0.0.0/8'::inet\n  and timestamp >= now() - interval '1 hour'\norder by\n\
-    \  timestamp;"
+  QueryToExecute: |
+    SELECT
+      log_group_name,
+      log_stream_name,
+      log_status,
+      action,
+      ingestion_time,
+      timestamp,
+      interface_id,
+      interface_account_id,
+      src_addr,
+      region
+    FROM
+      aws_vpc_flow_log_event
+    WHERE
+      log_group_name = 'vpc-log-group-name'
+      AND log_stream_name = 'eni-1d47d21d-all'
+      AND src_addr << '10.0.0.0/8'::inet
+      AND timestamp >= NOW() - INTERVAL '1 hour'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC Flow Logs
+    - VPC Flow Logs
 Title: Find all AWS VPC Flow Logs and IP Traffic Information

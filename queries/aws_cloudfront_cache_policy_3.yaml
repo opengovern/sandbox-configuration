@@ -1,22 +1,26 @@
-Description: Allows users to query AWS CloudFront Cache Policies for details about
-  their configuration, status, and associated metadata.
+Description: Allows users to query AWS CloudFront Cache Policies for details about their configuration, status, and associated metadata.
 ID: aws_cloudfront_cache_policy_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  parameters_in_cache_key_and_forwarded_to_origin\
-    \ ->> 'EnableAcceptEncodingBrotli' as enable_brotli\nfrom\n  aws_cloudfront_cache_policy\n\
-    where\n  parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli'\
-    \ <> 'true';"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' AS enable_brotli
+    FROM
+      aws_cloudfront_cache_policy
+    WHERE
+      parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingBrotli' <> 'true';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: List AWS CloudFront Cache Policies and Their States

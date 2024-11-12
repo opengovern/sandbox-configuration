@@ -1,23 +1,27 @@
-Description: Allows users to query AWS VPC Subnets and obtain detailed information
-  about each subnet, including its configuration, associated VPC, availability zone,
-  and CIDR block.
+Description: Allows users to query AWS VPC Subnets and obtain detailed information about each subnet, including its configuration, associated VPC, availability zone, and CIDR block.
 ID: aws_vpc_subnet_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpc_id,\n  count(subnet_id) as subnet_count\nfrom\n \
-    \ aws_vpc_subnet\ngroup by\n  vpc_id;"
+  QueryToExecute: |
+    SELECT
+      vpc_id,
+      COUNT(subnet_id) AS subnet_count
+    FROM
+      aws_vpc_subnet
+    GROUP BY
+      vpc_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Subnets and Obtain Detailed Information

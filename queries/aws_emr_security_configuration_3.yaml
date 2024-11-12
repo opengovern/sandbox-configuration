@@ -1,34 +1,32 @@
-Description: Allows users to query AWS EMR (Amazon Elastic MapReduce) Security Configurations.
-  This table provides information about security settings and configurations that
-  can be applied to EMR clusters, managing encryption, authentication, and authorization.
-  These configurations are crucial for ensuring the secure handling of data, protecting
-  sensitive information, and complying with various data security standards and regulations.
+Description: Allows users to query AWS EMR (Amazon Elastic MapReduce) Security Configurations. This table provides information about security settings and configurations that can be applied to EMR clusters, managing encryption, authentication, and authorization. These configurations are crucial for ensuring the secure handling of data, protecting sensitive information, and complying with various data security standards and regulations.
 ID: aws_emr_security_configuration_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  creation_date_time,\n  encryption_configuration\
-    \ -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->>\
-    \ 'AwsKmsKey' as aws_kms_key,\n  encryption_configuration -> 'AtRestEncryptionConfiguration'\
-    \ -> 'LocalDiskEncryptionConfiguration' ->> 'EnableEbsEncryption' as enable_ebs_encryption,\n\
-    \  encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration'\
-    \ ->> 'EncryptionKeyProviderType' as encryption_key_provider_type,\n  encryption_configuration\
-    \ -> 'S3EncryptionConfiguration' as s3_encryption_configuration,\n  encryption_configuration\
-    \ ->> 'EnableAtRestEncryption' as enable_at_rest_encryption,\n  encryption_configuration\
-    \ ->> 'EnableInTransitEncryption' as enable_in_transit_encryption,\n  encryption_configuration\
-    \ -> 'InTransitEncryptionConfiguration' as in_transit_encryption_configuration\n\
-    from\n  aws_emr_security_configuration;"
+  QueryToExecute: |
+    SELECT
+      name,
+      creation_date_time,
+      encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'AwsKmsKey' AS aws_kms_key,
+      encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EnableEbsEncryption' AS enable_ebs_encryption,
+      encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EncryptionKeyProviderType' AS encryption_key_provider_type,
+      encryption_configuration -> 'S3EncryptionConfiguration' AS s3_encryption_configuration,
+      encryption_configuration ->> 'EnableAtRestEncryption' AS enable_at_rest_encryption,
+      encryption_configuration ->> 'EnableInTransitEncryption' AS enable_in_transit_encryption,
+      encryption_configuration -> 'InTransitEncryptionConfiguration' AS in_transit_encryption_configuration
+    FROM
+      aws_emr_security_configuration;
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EMR
+    - EMR
 Title: List all AWS EMR Security Configurations using SQL

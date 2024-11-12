@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Well-Architected Workload Share, providing
-  information about shared workloads within AWS Well-Architected Tool.
+Description: Allows users to query AWS Well-Architected Workload Share, providing information about shared workloads within AWS Well-Architected Tool.
 ID: aws_wellarchitected_workload_share_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workload_id,\n  share_id,\n  shared_with\n  permission_type,\n\
-    \  status,\n  region\nfrom\n  aws_wellarchitected_workload_share\nwhere\n  status\
-    \ = 'PENDING';"
+  QueryToExecute: |
+    SELECT
+        workload_id,
+        share_id,
+        shared_with,
+        permission_type,
+        status,
+        region
+    FROM
+        aws_wellarchitected_workload_share
+    WHERE
+        status = 'PENDING';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Workload Shares

@@ -1,22 +1,27 @@
-Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information
-  such as bucket configuration, access rules, tags, and more.
+Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information such as bucket configuration, access rules, tags, and more.
 ID: aws_lightsail_bucket_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  region,\n  count(*) as bucket_count\nfrom\n  aws_lightsail_bucket\n\
-    group by\n  region;"
+  QueryToExecute: |
+    SELECT
+      region,
+      COUNT(*) AS bucket_count
+    FROM
+      aws_lightsail_bucket
+    GROUP BY
+      region;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: List all AWS Lightsail Buckets and Configurations

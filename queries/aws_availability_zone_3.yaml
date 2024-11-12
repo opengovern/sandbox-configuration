@@ -1,20 +1,27 @@
-Description: Allows users to query EC2 Availability Zones in AWS, providing details
-  such as zone ID, name, region, and state.
+Description: Allows users to query EC2 Availability Zones in AWS, providing details such as zone ID, name, region, and state.
 ID: aws_availability_zone_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  zone_id,\n  region_name,\n  opt_in_status\n\
-    from\n  aws_availability_zone\nwhere\n  opt_in_status = 'not-opted-in';"
+  QueryToExecute: |
+    SELECT
+      name,
+      zone_id,
+      region_name,
+      opt_in_status
+    FROM
+      aws_availability_zone
+    WHERE
+      opt_in_status = 'not-opted-in';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all EC2 Availability Zones with details in AWS

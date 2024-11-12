@@ -1,24 +1,30 @@
-Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information
-  about the status, configuration, and security settings of each DB cluster.
+Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster.
 ID: aws_rds_db_cluster_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  allocated_storage,\n  kms_key_id\n\
-    from\n  aws_rds_db_cluster\nwhere\n  kms_key_id is null;"
+  QueryToExecute: |
+    SELECT 
+      db_cluster_identifier, 
+      allocated_storage, 
+      kms_key_id 
+    FROM 
+      aws_rds_db_cluster 
+    WHERE 
+      kms_key_id IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS DB Cluster
+    - RDS DB Cluster
 Title: 'Find all AWS RDS DB Clusters: Status & Security Details'

@@ -1,23 +1,26 @@
-Description: Allows users to query AWS Security Hub Insights to retrieve information
-  about the insights in AWS Security Hub. This includes details such as insight ARN,
-  name, filters, group by attributes, and more.
+Description: Allows users to query AWS Security Hub Insights to retrieve information about the insights in AWS Security Hub. This includes details such as insight ARN, name, filters, group by attributes, and more.
 ID: aws_securityhub_insight_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  filters ->> 'WorkflowStatus' as workflow_status\n\
-    from\n  aws_securityhub_insight;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      filters ->> 'WorkflowStatus' AS workflow_status
+    FROM
+      aws_securityhub_insight;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find AWS Security Hub Insights Details using SQL

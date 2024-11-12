@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Security Hub Standards Subscriptions, providing
-  detailed information about each standard subscription in AWS Security Hub.
+Description: Allows users to query AWS Security Hub Standards Subscriptions, providing detailed information about each standard subscription in AWS Security Hub.
 ID: aws_securityhub_standards_subscription_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  standards_arn,\n  standards_subscription_arn,\n\
-    \  standards_status,\n  standards_status_reason_code\nfrom\n  aws_securityhub_standards_subscription\n\
-    where\n  standards_status <> 'READY';"
+  QueryToExecute: |
+    SELECT
+      name,
+      standards_arn,
+      standards_subscription_arn,
+      standards_status,
+      standards_status_reason_code
+    FROM
+      aws_securityhub_standards_subscription
+    WHERE
+      standards_status <> 'READY';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find AWS Security Hub Standard Subscriptions Details

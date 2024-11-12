@@ -1,26 +1,33 @@
-Description: Allows users to query AWS Elastic File System (EFS) file systems, providing
-  detailed information about each file system such as its ID, ARN, creation token,
-  performance mode, and lifecycle state.
+Description: Allows users to query AWS Elastic File System (EFS) file systems, providing detailed information about each file system such as its ID, ARN, creation token, performance mode, and lifecycle state.
 ID: aws_efs_file_system_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  p as principal,\n  a as action,\n  s ->> 'Effect'\
-    \ as effect,\n  s -> 'Condition' as conditions\nfrom\n  aws_efs_file_system,\n\
-    \  jsonb_array_elements(policy_std -> 'Statement') as s,\n  jsonb_array_elements_text(s\
-    \ -> 'Principal' -> 'AWS') as p,\n  jsonb_array_elements_text(s -> 'Action') as\
-    \ a\nwhere\n  a in ('elasticfilesystem:clientrootaccess');"
+  QueryToExecute: |
+    SELECT
+      title,
+      p AS principal,
+      a AS action,
+      s ->> 'Effect' AS effect,
+      s -> 'Condition' AS conditions
+    FROM
+      aws_efs_file_system,
+      jsonb_array_elements(policy_std -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+      jsonb_array_elements_text(s -> 'Action') AS a
+    WHERE
+      a IN ('elasticfilesystem:clientrootaccess');
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic File System
+    - Elastic File System
 Title: Find AWS EFS File System with Specific Client Root Access

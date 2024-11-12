@@ -1,22 +1,28 @@
-Description: Allows users to query AWS Timestream databases, providing detailed information
-  on database configurations, statuses, and associated tables.
+Description: Allows users to query AWS Timestream databases, providing detailed information on database configurations, statuses, and associated tables.
 ID: aws_timestreamwrite_database_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  database_name,\n  arn,\n  table_count\nfrom\n  aws_timestreamwrite_database\n\
-    order by\n  table_count desc;"
+  QueryToExecute: |
+    SELECT
+      database_name,
+      arn,
+      table_count
+    FROM
+      aws_timestreamwrite_database
+    ORDER BY
+      table_count DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Timestream
+    - Timestream
 Title: List all AWS Timestream Databases and Table Counts

@@ -1,28 +1,48 @@
-Description: Allows users to query Intelligent Tiering configurations for S3 buckets.
-  It provides information about each configuration, including the bucket name, the
-  ID of the configuration, and the status of the configuration.
+Description: Allows users to query Intelligent Tiering configurations for S3 buckets. It provides information about each configuration, including the bucket name, the ID of the configuration, and the status of the configuration.
 ID: aws_s3_bucket_intelligent_tiering_configuration_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with intelligent_tiering_configuration as MATERIALIZED (\nselect\n\
-    \  bucket_name, id, status\nfrom\n  aws_s3_bucket_intelligent_tiering_configuration\
-    \ ),\n  bucket as MATERIALIZED (\n  select\n    name, region\n  from\n    aws_s3_bucket\
-    \ )\n    select distinct\n      b.name,\n      b.region,\n      case\n       \
-    \ when\n          i.id is null\n        then\n          'Bucket does not have\
-    \ intelligent tiering configured'\n        else\n          'Bucket has intelligent\
-    \ tiering configured'\n      end\n      as intelligent_tiering_configuration_status\n\
-    \    from\n      bucket as b\n      left join\n        intelligent_tiering_configuration\
-    \ as i\n        on b.name = i.bucket_name;"
+  QueryToExecute: |
+    WITH intelligent_tiering_configuration AS MATERIALIZED (
+      SELECT
+        bucket_name,
+        id,
+        status
+      FROM
+        aws_s3_bucket_intelligent_tiering_configuration
+    ),
+    bucket AS MATERIALIZED (
+      SELECT
+        name,
+        region
+      FROM
+        aws_s3_bucket
+    )
+    SELECT DISTINCT
+      b.name,
+      b.region,
+      CASE
+        WHEN i.id IS NULL THEN
+          'Bucket does not have intelligent tiering configured'
+        ELSE
+          'Bucket has intelligent tiering configured'
+      END AS intelligent_tiering_configuration_status
+    FROM
+      bucket AS b
+    LEFT JOIN
+      intelligent_tiering_configuration AS i
+    ON
+      b.name = i.bucket_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: List all AWS S3 Buckets with Intelligent Tiering Configuration

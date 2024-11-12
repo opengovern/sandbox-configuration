@@ -1,25 +1,30 @@
-Description: Allows users to query VPC Verified Access Groups within AWS Virtual Private
-  Cloud (VPC). This table provides information about each verified access group within
-  a VPC, including details such as group ID, group name, and the VPC ID it is associated
-  with.
+Description: Allows users to query VPC Verified Access Groups within AWS Virtual Private Cloud (VPC). This table provides information about each verified access group within a VPC, including details such as group ID, group name, and the VPC ID it is associated with.
 ID: aws_vpc_verified_access_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  verified_access_group_id,\n  creation_time,\n  deletion_time,\n\
-    \  description,\n  last_updated_time\nfrom\n  aws_vpc_verified_access_group\n\
-    where\n  deletion_time is null;"
+  QueryToExecute: |
+    SELECT
+      verified_access_group_id,
+      creation_time,
+      deletion_time,
+      description,
+      last_updated_time
+    FROM
+      aws_vpc_verified_access_group
+    WHERE
+      deletion_time IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Virtual Private Cloud
+    - Virtual Private Cloud
 Title: List all AWS VPC Verified Access Groups Information

@@ -1,24 +1,33 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  r.name as role_name,\n  p.name as policy_name\nfrom\n\
-    \  aws_iam_role as r,\n  jsonb_array_elements_text(r.attached_policy_arns) as\
-    \ policy_arn,\n  aws_iam_policy as p,\n  jsonb_array_elements(p.policy_std ->\
-    \ 'Statement') as stmt,\n  jsonb_array_elements_text(stmt -> 'Action') as action\n\
-    where\n  policy_arn = p.arn\n  and stmt ->> 'Effect' = 'Allow'\n  and action =\
-    \ '*'\norder by\n  r.name;"
+  QueryToExecute: |
+    SELECT
+      r.name AS role_name,
+      p.name AS policy_name
+    FROM
+      aws_iam_role AS r,
+      jsonb_array_elements_text(r.attached_policy_arns) AS policy_arn,
+      aws_iam_policy AS p,
+      jsonb_array_elements(p.policy_std -> 'Statement') AS stmt,
+      jsonb_array_elements_text(stmt -> 'Action') AS action
+    WHERE
+      policy_arn = p.arn
+      AND stmt ->> 'Effect' = 'Allow'
+      AND action = '*'
+    ORDER BY
+      r.name;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find all AWS IAM Role Permissions and Trust Policies

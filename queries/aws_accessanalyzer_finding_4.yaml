@@ -1,20 +1,27 @@
-Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve
-  detailed information about potential security risks.
+Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve detailed information about potential security risks.
 ID: aws_accessanalyzer_finding_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  resource,\n  status,\n  analyzed_at\nfrom\n  aws_accessanalyzer_finding\n\
-    where\n  analyzed_at > current_date - interval '30 days';"
+  QueryToExecute: |
+    SELECT
+      id,
+      resource,
+      status,
+      analyzed_at
+    FROM
+      aws_accessanalyzer_finding
+    WHERE
+      analyzed_at > CURRENT_DATE - INTERVAL '30 days';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Access Analyzer
+    - Access Analyzer
 Title: Find AWS Access Analyzer Findings in Last 30 Days

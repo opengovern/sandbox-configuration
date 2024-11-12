@@ -1,21 +1,26 @@
-Description: Allows users to query AWS CloudTrail Trails for information about the
-  AWS CloudTrail service''s trail records. This includes trail configuration details,
-  status, and associated metadata.
+Description: Allows users to query AWS CloudTrail Trails for information about the AWS CloudTrail service''s trail records. This includes trail configuration details, status, and associated metadata.
 ID: aws_cloudtrail_trail_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  log_file_validation_enabled\nfrom\n\
-    \  aws_cloudtrail_trail\nwhere\n  not log_file_validation_enabled;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      log_file_validation_enabled
+    FROM
+      aws_cloudtrail_trail
+    WHERE
+      NOT log_file_validation_enabled;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudTrail
+    - CloudTrail
 Title: List all AWS CloudTrail Trails and their Status

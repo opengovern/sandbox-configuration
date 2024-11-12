@@ -1,22 +1,35 @@
 Description: Allows users to query AWS EBS Volume Metrics for daily write operations.
 ID: aws_ebs_volume_metric_write_ops_daily_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  volume_id,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n\
-    \  sum,\n  sample_count\nfrom\n  aws_ebs_volume_metric_write_ops_daily\nwhere\n\
-    \  maximum > 8000\norder by\n  volume_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      volume_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    FROM
+      aws_ebs_volume_metric_write_ops_daily
+    WHERE
+      maximum > 8000
+    ORDER BY
+      volume_id,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EBS
+    - EBS
 Title: Find AWS EBS Volume Write Ops Metrics Daily

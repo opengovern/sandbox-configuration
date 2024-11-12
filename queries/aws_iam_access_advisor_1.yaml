@@ -1,24 +1,32 @@
-Description: Allows users to query AWS IAM Access Advisor to retrieve information
-  about the service last accessed data for IAM entities (users, groups, and roles).
+Description: Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles).
 ID: aws_iam_access_advisor_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  principal_arn,\n  service_name,\n  last_authenticated,\n\
-    \  age(last_authenticated::date) \nfrom \n  aws_iam_access_advisor\nwhere\n  principal_arn\
-    \ = 'arn:aws:iam::123456789123:user/john'\n  and last_authenticated is not null\n\
-    order by \n  age asc;"
+  QueryToExecute: |
+    SELECT
+      principal_arn,
+      service_name,
+      last_authenticated,
+      AGE(last_authenticated::date)
+    FROM
+      aws_iam_access_advisor
+    WHERE
+      principal_arn = 'arn:aws:iam::123456789123:user/john'
+      AND last_authenticated IS NOT NULL
+    ORDER BY
+      AGE ASC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Access Advisor
+    - IAM Access Advisor
 Title: Find AWS IAM Access Info via SQL Query

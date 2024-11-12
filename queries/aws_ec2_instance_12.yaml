@@ -1,24 +1,30 @@
-Description: Allows users to query AWS EC2 Instances for comprehensive data on each
-  instance, including instance type, state, tags, and more.
+Description: Allows users to query AWS EC2 Instances for comprehensive data on each instance, including instance type, state, tags, and more.
 ID: aws_ec2_instance_12
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i.instance_id,\n  vols -> 'Ebs' ->> 'VolumeId' as vol_id,\n\
-    \  vol.encrypted\nfrom\n  aws_ec2_instance as i\n  cross join jsonb_array_elements(block_device_mappings)\
-    \ as vols\n  join aws_ebs_volume as vol on vol.volume_id = vols -> 'Ebs' ->> 'VolumeId'\n\
-    where\n  not vol.encrypted;"
+  QueryToExecute: |
+    SELECT
+      i.instance_id,
+      vols -> 'Ebs' ->> 'VolumeId' AS vol_id,
+      vol.encrypted
+    FROM
+      aws_ec2_instance AS i
+      CROSS JOIN jsonb_array_elements(block_device_mappings) AS vols
+      JOIN aws_ebs_volume AS vol ON vol.volume_id = vols -> 'Ebs' ->> 'VolumeId'
+    WHERE
+      NOT vol.encrypted;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 Instances and Volume Encryption Status

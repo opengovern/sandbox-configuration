@@ -1,25 +1,30 @@
-Description: Allows users to query AWS App Runner services, providing detailed information
-  on service configurations, scaling, and network settings.
+Description: Allows users to query AWS App Runner services, providing detailed information on service configurations, scaling, and network settings.
 ID: aws_app_runner_service_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  arn,\n  observability_configuration\n\
-    from\n  aws_app_runner_service\nwhere\n  (observability_configuration ->> 'ObservabilityConfigurationArn')\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      arn,
+      observability_configuration
+    FROM
+      aws_app_runner_service
+    WHERE
+      (observability_configuration ->> 'ObservabilityConfigurationArn') IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - App Runner
+    - App Runner
 Title: Find all AWS App Runner services and configurations

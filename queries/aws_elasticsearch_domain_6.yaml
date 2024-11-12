@@ -1,26 +1,33 @@
-Description: Allows users to query AWS Elasticsearch Service Domains for detailed
-  information related to the configuration, status, and access policies of the Elasticsearch
-  domains.
+Description: Allows users to query AWS Elasticsearch Service Domains for detailed information related to the configuration, status, and access policies of the Elasticsearch domains.
 ID: aws_elasticsearch_domain_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  p as principal,\n  a as action,\n  s\
-    \ ->> 'Effect' as effect\nfrom\n  aws_elasticsearch_domain,\n  jsonb_array_elements(policy_std\
-    \ -> 'Statement') as s,\n  jsonb_array_elements_text(s -> 'Principal' -> 'AWS')\
-    \ as p,\n  jsonb_array_elements_text(s -> 'Action') as a\nwhere\n  p = '*'\n \
-    \ and s ->> 'Effect' = 'Allow';"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      p AS principal,
+      a AS action,
+      s ->> 'Effect' AS effect
+    FROM
+      aws_elasticsearch_domain,
+      jsonb_array_elements(policy_std -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+      jsonb_array_elements_text(s -> 'Action') AS a
+    WHERE
+      p = '*'
+      AND s ->> 'Effect' = 'Allow';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elasticsearch Service
+    - Elasticsearch Service
 Title: Find AWS Elasticsearch Service Domain Config and Status

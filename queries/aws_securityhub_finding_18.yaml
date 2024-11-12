@@ -1,29 +1,35 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_18
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  distinct r ->> 'Id' as resource_arn,\n  r ->> 'Type'\
-    \ as resource_type,\n  f.title,\n  f.compliance_status,\n  f.severity ->> 'Original'\
-    \ as severity_original\nfrom\n  aws_securityhub_finding as f,\n  jsonb_array_elements(resources)\
-    \ as r\nwhere\n  f.compliance_status = 'FAILED'\nand\n  standards_control_arn\
-    \ like '%cis-aws-foundations-benchmark%';"
+  QueryToExecute: |
+    SELECT
+      DISTINCT r ->> 'Id' AS resource_arn,
+              r ->> 'Type' AS resource_type,
+              f.title,
+              f.compliance_status,
+              f.severity ->> 'Original' AS severity_original
+    FROM
+      aws_securityhub_finding AS f,
+      jsonb_array_elements(resources) AS r
+    WHERE
+      f.compliance_status = 'FAILED'
+    AND
+      standards_control_arn LIKE '%cis-aws-foundations-benchmark%';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: List all AWS Security Hub Findings for Compliance Failures

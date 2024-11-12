@@ -1,21 +1,27 @@
-Description: Allows users to query DHCP Options associated with Virtual Private Cloud
-  (VPC) in AWS.
+Description: Allows users to query DHCP Options associated with Virtual Private Cloud (VPC) in AWS.
 ID: aws_vpc_dhcp_options_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  dhcp_options_id,\n  netbios_node_type\nfrom\n  aws_vpc_dhcp_options\n\
-    \  cross join jsonb_array_elements_text(netbios_node_type) as i\nwhere\n  not\
-    \ i.value :: int in (2);"
+  QueryToExecute: |
+    SELECT
+      dhcp_options_id,
+      netbios_node_type
+    FROM
+      aws_vpc_dhcp_options
+    CROSS JOIN
+      jsonb_array_elements_text(netbios_node_type) AS i
+    WHERE
+      NOT i.value::INT IN (2);
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC DHCP Options
+    - VPC DHCP Options
 Title: Find AWS VPC DHCP Options with Specific NetBIOS Types

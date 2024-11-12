@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Cloud Control API Resource data, providing
-  detailed insights into resource properties, types, and statuses.
+Description: Allows users to query AWS Cloud Control API Resource data, providing detailed insights into resource properties, types, and statuses.
 ID: aws_cloudcontrol_resource_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  identifier,\n  properties ->> 'Arn' as arn,\n  properties\
-    \ ->> 'MemorySize' as memory_size,\n  properties ->> 'Runtime' as runtime,\n \
-    \ region\nfrom\n  aws_cloudcontrol_resource\nwhere\n  type_name = 'AWS::Lambda::Function';"
+  QueryToExecute: |
+    SELECT
+      identifier,
+      properties ->> 'Arn' AS arn,
+      properties ->> 'MemorySize' AS memory_size,
+      properties ->> 'Runtime' AS runtime,
+      region
+    FROM
+      aws_cloudcontrol_resource
+    WHERE
+      type_name = 'AWS::Lambda::Function';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Cloud Control API
+    - AWS Cloud Control API
 Title: Find AWS Cloud Control API Resource Data for AWS Lambda

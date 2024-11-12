@@ -1,25 +1,33 @@
-Description: Allows users to query AWS Lambda Functions, providing information about
-  each function''s configuration, including runtime, code size, timeout, and associated
-  tags.
+Description: Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags.
 ID: aws_lambda_function_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  fn.name,\n  fn.region,\n  count (availability_zone) as\
-    \ zone_count\nfrom\n  aws_lambda_function as fn\n  cross join jsonb_array_elements_text(vpc_subnet_ids)\
-    \ as vpc_subnet\n  join aws_vpc_subnet as sub on sub.subnet_id = vpc_subnet\n\
-    group by\n  fn.name,\n  fn.region\norder by\n  zone_count;"
+  QueryToExecute: |
+    SELECT
+      fn.name,
+      fn.region,
+      COUNT(availability_zone) AS zone_count
+    FROM
+      aws_lambda_function AS fn
+      CROSS JOIN jsonb_array_elements_text(vpc_subnet_ids) AS vpc_subnet
+      JOIN aws_vpc_subnet AS sub ON sub.subnet_id = vpc_subnet
+    GROUP BY
+      fn.name,
+      fn.region
+    ORDER BY
+      zone_count;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda Function
+    - Lambda Function
 Title: List all AWS Lambda Functions with Configuration Details

@@ -1,21 +1,27 @@
-Description: Allows users to query AWS CloudFront Origin Access Identity to fetch
-  detailed information about each identity, including its ID, S3 canonical user ID,
-  caller reference, and associated comment.
+Description: Allows users to query AWS CloudFront Origin Access Identity to fetch detailed information about each identity, including its ID, S3 canonical user ID, caller reference, and associated comment.
 ID: aws_cloudfront_origin_access_identity_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  arn,\n  comment,\n  caller_reference\nfrom\n \
-    \ aws_cloudfront_origin_access_identity\nwhere\n  comment <> '';"
+  QueryToExecute: |
+    SELECT
+      id,
+      arn,
+      comment,
+      caller_reference
+    FROM
+      aws_cloudfront_origin_access_identity
+    WHERE
+      comment <> '';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: Find all AWS CloudFront Origin Access Identity details

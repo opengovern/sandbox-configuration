@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Lambda Versions to fetch detailed information
-  about each version of a specific AWS Lambda function.
+Description: Allows users to query AWS Lambda Versions to fetch detailed information about each version of a specific AWS Lambda function.
 ID: aws_lambda_version_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  function_name,\n  version,\n  timeout\nfrom\n  aws_lambda_version\n\
-    where\n  timeout :: int > 120;"
+  QueryToExecute: |
+    SELECT
+      function_name,
+      version,
+      timeout
+    FROM
+      aws_lambda_version
+    WHERE
+      timeout::int > 120;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda
+    - Lambda
 Title: List AWS Lambda Versions to Fetch Detailed Information

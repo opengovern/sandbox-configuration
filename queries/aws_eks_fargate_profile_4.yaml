@@ -1,26 +1,35 @@
-Description: Allows users to query AWS EKS Fargate Profiles and retrieve data such
-  as the Fargate profile name, ARN, status, and more.
+Description: Allows users to query AWS EKS Fargate Profiles and retrieve data such as the Fargate profile name, ARN, status, and more.
 ID: aws_eks_fargate_profile_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  c.name as cluster_name,\n  c.arn as cluster_arn,\n  c.version\
-    \ as cluster_version,\n  f.fargate_profile_name as fargate_profile_name,\n  f.fargate_profile_arn\
-    \ as fargate_profile_arn,\n  f.created_at as created_at,\n  f.pod_execution_role_arn\
-    \ as pod_execution_role_arn,\n  f.status as fargate_profile_status\nfrom\n  aws_eks_fargate_profile\
-    \ as f,\n  aws_eks_cluster as c\nwhere\n  c.version::float > 1.19 and f.cluster_name\
-    \ = c.name;"
+  QueryToExecute: |
+    SELECT
+      c.name AS cluster_name,
+      c.arn AS cluster_arn,
+      c.version AS cluster_version,
+      f.fargate_profile_name AS fargate_profile_name,
+      f.fargate_profile_arn AS fargate_profile_arn,
+      f.created_at AS created_at,
+      f.pod_execution_role_arn AS pod_execution_role_arn,
+      f.status AS fargate_profile_status
+    FROM
+      aws_eks_fargate_profile AS f,
+      aws_eks_cluster AS c
+    WHERE
+      c.version::FLOAT > 1.19
+      AND f.cluster_name = c.name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EKS
+    - EKS
 Title: List AWS EKS Fargate Profiles with Details

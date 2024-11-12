@@ -1,25 +1,30 @@
-Description: Allows users to query AWS CloudFront Distributions to gain insights into
-  their configuration, status, and associated metadata.
+Description: Allows users to query AWS CloudFront Distributions to gain insights into their configuration, status, and associated metadata.
 ID: aws_cloudfront_distribution_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  arn,\n  p -> 'CustomOriginConfig' -> 'OriginSslProtocols'\
-    \ -> 'Items' as items,\n  p -> 'CustomOriginConfig' -> 'OriginSslProtocols' ->\
-    \ 'Quantity' as quantity\nfrom\n  aws_cloudfront_distribution,\n  jsonb_array_elements(origins)\
-    \ as p\nwhere\n  p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Items'\
-    \ ?& array['SSLv3'];"
+  QueryToExecute: |
+    SELECT
+      id,
+      arn,
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Items' AS items,
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Quantity' AS quantity
+    FROM
+      aws_cloudfront_distribution,
+      jsonb_array_elements(origins) AS p
+    WHERE
+      p -> 'CustomOriginConfig' -> 'OriginSslProtocols' -> 'Items' ?& ARRAY['SSLv3'];
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: Find AWS CloudFront Distributions Configuration & Status

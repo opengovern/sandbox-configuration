@@ -1,23 +1,29 @@
-Description: Allows users to query DB Proxies in Amazon RDS to fetch detailed information
-  about each proxy, including its ARN, name, engine family, role ARN, status, and
-  more.
+Description: Allows users to query DB Proxies in Amazon RDS to fetch detailed information about each proxy, including its ARN, name, engine family, role ARN, status, and more.
 ID: aws_rds_db_proxy_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_proxy_name,\n  engine_family,\n  a ->> 'AuthScheme'\
-    \ as auth_scheme,\n  a ->> 'Description' as auth_description,\n  a ->> 'IAMAuth'\
-    \ as iam_auth,\n  a ->> 'SecretArn' as secret_arn,\n  a ->> 'UserName' as user_name\n\
-    from\n  aws_rds_db_proxy,\n  jsonb_array_elements(auth) as a;"
+  QueryToExecute: |
+    SELECT
+      db_proxy_name,
+      engine_family,
+      a ->> 'AuthScheme' AS auth_scheme,
+      a ->> 'Description' AS auth_description,
+      a ->> 'IAMAuth' AS iam_auth,
+      a ->> 'SecretArn' AS secret_arn,
+      a ->> 'UserName' AS user_name
+    FROM
+      aws_rds_db_proxy,
+      jsonb_array_elements(auth) AS a;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon RDS
+    - Amazon RDS
 Title: List all Detailed Information of Amazon RDS DB Proxies

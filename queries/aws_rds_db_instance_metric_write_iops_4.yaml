@@ -1,26 +1,39 @@
-Description: Allows users to query AWS RDS DBInstance Write IOPS to retrieve metrics
-  on the write input/output operations per second.
+Description: Allows users to query AWS RDS DBInstance Write IOPS to retrieve metrics on the write input/output operations per second.
 ID: aws_rds_db_instance_metric_write_iops_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  r.db_instance_identifier,\n  r.timestamp,\n  round(r.average)\
-    \ + round(w.average) as iops_avg,\n  round(r.average) as read_ops_avg,\n  round(w.average)\
-    \ as write_ops_avg,\n  round(r.maximum) + round(w.maximum) as iops_max,\n  round(r.maximum)\
-    \ as read_ops_max,\n  round(w.maximum) as write_ops_max,\n  round(r.minimum) +\
-    \ round(w.minimum) as iops_min,\n  round(r.minimum) as read_ops_min,\n  round(w.minimum)\
-    \ as write_ops_min\nfrom \n  aws_rds_db_instance_metric_read_iops as r,\n  aws_rds_db_instance_metric_write_iops\
-    \ as w\nwhere \n  r.db_instance_identifier = w.db_instance_identifier\n  and r.timestamp\
-    \ = w.timestamp\norder by\n  r.db_instance_identifier,\n  r.timestamp;"
+  QueryToExecute: |
+    SELECT 
+      r.db_instance_identifier,
+      r.timestamp,
+      ROUND(r.average) + ROUND(w.average) AS iops_avg,
+      ROUND(r.average) AS read_ops_avg,
+      ROUND(w.average) AS write_ops_avg,
+      ROUND(r.maximum) + ROUND(w.maximum) AS iops_max,
+      ROUND(r.maximum) AS read_ops_max,
+      ROUND(w.maximum) AS write_ops_max,
+      ROUND(r.minimum) + ROUND(w.minimum) AS iops_min,
+      ROUND(r.minimum) AS read_ops_min,
+      ROUND(w.minimum) AS write_ops_min
+    FROM 
+      aws_rds_db_instance_metric_read_iops AS r,
+      aws_rds_db_instance_metric_write_iops AS w
+    WHERE 
+      r.db_instance_identifier = w.db_instance_identifier
+      AND r.timestamp = w.timestamp
+    ORDER BY
+      r.db_instance_identifier,
+      r.timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS Write IOPS Metrics Using SQL

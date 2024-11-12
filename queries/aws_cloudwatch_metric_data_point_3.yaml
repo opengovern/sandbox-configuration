@@ -1,26 +1,50 @@
-Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed
-  information about the data points for a defined metric.
+Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric.
 ID: aws_cloudwatch_metric_data_point_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  label,\n  timestamp,\n  period,\n  round(value::numeric,\
-    \ 2) as avg_cpu,\n  metric_stat\nfrom\n  aws_cloudwatch_metric_data_point\nwhere\n\
-    \  id = 'm1'\n  and value > 80\n  and timestamp >= now() - interval '5 day'\n\
-    \  and metric_stat = '{\n    \"Metric\": {\n    \"Namespace\": \"AWS/EC2\",\n\
-    \    \"MetricName\": \"CPUUtilization\",\n    \"Dimensions\": [\n      {\n   \
-    \     \"Name\": \"InstanceId\",\n        \"Value\": \"i-0353536c53f7c8235\"\n\
-    \      },\n      {\n        \"Name\": \"InstanceId\",\n        \"Value\": \"i-0dd7043e0f6f0f36d\"\
-    \n      }\n    ]},\n    \"Stat\": \"Average\"}'\norder by\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      id,
+      label,
+      timestamp,
+      period,
+      ROUND(value::numeric, 2) AS avg_cpu,
+      metric_stat
+    FROM
+      aws_cloudwatch_metric_data_point
+    WHERE
+      id = 'm1'
+      AND value > 80
+      AND timestamp >= NOW() - INTERVAL '5 day'
+      AND metric_stat = '{
+        "Metric": {
+          "Namespace": "AWS/EC2",
+          "MetricName": "CPUUtilization",
+          "Dimensions": [
+            {
+              "Name": "InstanceId",
+              "Value": "i-0353536c53f7c8235"
+            },
+            {
+              "Name": "InstanceId",
+              "Value": "i-0dd7043e0f6f0f36d"
+            }
+          ]
+        },
+        "Stat": "Average"
+      }'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List All AWS CloudWatch MetricDataPoints

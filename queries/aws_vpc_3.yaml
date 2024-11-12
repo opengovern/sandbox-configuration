@@ -1,24 +1,31 @@
-Description: Allows users to query VPCs within AWS. It provides information about
-  each VPC''s configuration, including its ID, state, CIDR block, and whether it is
-  the default VPC.
+Description: Allows users to query VPCs within AWS. It provides information about each VPC's configuration, including its ID, state, CIDR block, and whether it is the default VPC.
 ID: aws_vpc_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpc_id,\n  cidr_block,\n  state,\n  region\nfrom\n  aws_vpc\n\
-    where\n  not cidr_block <<= '10.0.0.0/8'\n  and not cidr_block <<= '192.168.0.0/16'\n\
-    \  and not cidr_block <<= '172.16.0.0/12';"
+  QueryToExecute: |
+    SELECT
+      vpc_id,
+      cidr_block,
+      state,
+      region
+    FROM
+      aws_vpc
+    WHERE
+      NOT cidr_block <<= '10.0.0.0/8'
+      AND NOT cidr_block <<= '192.168.0.0/16'
+      AND NOT cidr_block <<= '172.16.0.0/12';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find all AWS VPCs and Their Configurations

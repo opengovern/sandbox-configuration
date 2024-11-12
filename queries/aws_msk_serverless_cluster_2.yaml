@@ -1,20 +1,27 @@
-Description: Allows users to query AWS MSK Serverless Clusters to retrieve detailed
-  information about each cluster.
+Description: Allows users to query AWS MSK Serverless Clusters to retrieve detailed information about each cluster.
 ID: aws_msk_serverless_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  cluster_name,\n  state,\n  creation_time\nfrom\n\
-    \  aws_msk_serverless_cluster\nwhere\n  state <> 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      cluster_name,
+      state,
+      creation_time
+    FROM
+      aws_msk_serverless_cluster
+    WHERE
+      state <> 'ACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - MSK
+    - MSK
 Title: List all AWS MSK Serverless Clusters Using SQL

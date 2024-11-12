@@ -1,24 +1,29 @@
-Description: Allows users to query AWS Timestream tables, providing detailed information
-  on table configurations, statuses, and retention properties.
+Description: Allows users to query AWS Timestream tables, providing detailed information on table configurations, statuses, and retention properties.
 ID: aws_timestreamwrite_table_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  table_name,\n  arn,\n  retention_properties\nfrom\n \
-    \ aws_timestreamwrite_table\nwhere\n  retention_properties ->> 'MemoryStoreRetentionPeriodInHours'\
-    \ = '24'\n  and retention_properties ->> 'MagneticStoreRetentionPeriodInDays'\
-    \ = '7';"
+  QueryToExecute: |
+    SELECT
+      table_name,
+      arn,
+      retention_properties
+    FROM
+      aws_timestreamwrite_table
+    WHERE
+      retention_properties ->> 'MemoryStoreRetentionPeriodInHours' = '24'
+      AND retention_properties ->> 'MagneticStoreRetentionPeriodInDays' = '7';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Timestream
+    - Timestream
 Title: Find AWS Timestream Table Configurations and Statuses

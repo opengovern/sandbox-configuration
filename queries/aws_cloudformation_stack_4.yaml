@@ -1,23 +1,26 @@
-Description: Allows users to query AWS CloudFormation Stack data, including stack
-  name, status, creation time, and associated tags.
+Description: Allows users to query AWS CloudFormation Stack data, including stack name, status, creation time, and associated tags.
 ID: aws_cloudformation_stack_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  rollback_configuration ->> 'MonitoringTimeInMinutes'\
-    \ as monitoring_time_in_min,\n  rollback_configuration ->> 'RollbackTriggers'\
-    \ as rollback_triggers\nfrom\n  aws_cloudformation_stack;"
+  QueryToExecute: |
+    SELECT
+      NAME,
+      ROLLBACK_CONFIGURATION ->> 'MonitoringTimeInMinutes' AS MONITORING_TIME_IN_MIN,
+      ROLLBACK_CONFIGURATION ->> 'RollbackTriggers' AS ROLLBACK_TRIGGERS
+    FROM
+      AWS_CLOUDFORMATION_STACK;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: Find AWS CloudFormation Stack Data, Status, and Tags

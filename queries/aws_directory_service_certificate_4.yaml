@@ -1,21 +1,29 @@
-Description: Allows users to query AWS Directory Service Certificates to gather information
-  about the certificates associated with AWS Managed Microsoft AD and Simple AD directories.
+Description: Allows users to query AWS Directory Service Certificates to gather information about the certificates associated with AWS Managed Microsoft AD and Simple AD directories.
 ID: aws_directory_service_certificate_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  directory_id,\n  certificate_id,\n  common_name,\n  type,\n\
-    \  state,\n  expiry_date_time\nfrom\n  aws_directory_service_certificate\nwhere\n\
-    \  expiry_date_time >= now() + interval '7' day;"
+  QueryToExecute: |
+    SELECT
+      directory_id,
+      certificate_id,
+      common_name,
+      type,
+      state,
+      expiry_date_time
+    FROM
+      aws_directory_service_certificate
+    WHERE
+      expiry_date_time >= NOW() + INTERVAL '7' DAY;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Directory Service
+    - Directory Service
 Title: Find AWS Directory Service Certificates with SQL Query

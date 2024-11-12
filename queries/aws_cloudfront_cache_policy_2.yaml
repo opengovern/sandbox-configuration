@@ -1,24 +1,28 @@
-Description: Allows users to query AWS CloudFront Cache Policies for details about
-  their configuration, status, and associated metadata.
+Description: Allows users to query AWS CloudFront Cache Policies for details about their configuration, status, and associated metadata.
 ID: aws_cloudfront_cache_policy_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  parameters_in_cache_key_and_forwarded_to_origin\
-    \ ->> 'EnableAcceptEncodingGzip' as enable_gzip\nfrom\n  aws_cloudfront_cache_policy\n\
-    where\n  parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingGzip'\
-    \ <> 'true';"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingGzip' AS enable_gzip
+    FROM
+      aws_cloudfront_cache_policy
+    WHERE
+      parameters_in_cache_key_and_forwarded_to_origin ->> 'EnableAcceptEncodingGzip' <> 'true';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFront
+    - CloudFront
 Title: Find AWS CloudFront Cache Policies and Details

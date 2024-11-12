@@ -1,22 +1,27 @@
-Description: Allows users to query AWS API Gateway Stages, providing detailed information
-  about each stage of the API Gateway.
+Description: Allows users to query AWS API Gateway Stages, providing detailed information about each stage of the API Gateway.
 ID: aws_api_gatewayv2_stage_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stage_name,\n  api_id,\n  default_route_data_trace_enabled,\n\
-    \  jsonb_pretty(access_log_settings) as access_log_settings\nfrom\n  aws_api_gatewayv2_stage;"
+  QueryToExecute: |
+    SELECT
+      stage_name,
+      api_id,
+      default_route_data_trace_enabled,
+      jsonb_pretty(access_log_settings) AS access_log_settings
+    FROM
+      aws_api_gatewayv2_stage;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: Find AWS API Gateway Stages and Details using SQL

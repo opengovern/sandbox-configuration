@@ -1,26 +1,36 @@
-Description: Allows users to query AWS IAM Access Advisor to retrieve information
-  about the service last accessed data for IAM entities (users, groups, and roles).
+Description: Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles).
 ID: aws_iam_access_advisor_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  principal_arn,\n  service_name,\n  last_authenticated,\n\
-    \  age(last_authenticated::date),\n  a ->> 'ActionName' as action_name,\n  a ->>\
-    \ 'LastAccessedEntity' as action_last_accessed_entity,\n  a ->> 'LastAccessedRegion'\
-    \ as action_last_accessed_region,\n  a ->> 'LastAccessedTime' as action_last_accessed_time\n\
-    from \n  aws_iam_access_advisor,\n  jsonb_array_elements(tracked_actions_last_accessed)\
-    \ as a\nwhere\n  principal_arn = 'arn:aws:iam::123456789123:user/jane'\n  and\
-    \ last_authenticated is not null\n  and service_namespace = 's3'\norder by \n\
-    \  age asc;"
+  QueryToExecute: |
+    SELECT 
+      principal_arn,
+      service_name,
+      last_authenticated,
+      AGE(last_authenticated::date) AS age,
+      a ->> 'ActionName' AS action_name,
+      a ->> 'LastAccessedEntity' AS action_last_accessed_entity,
+      a ->> 'LastAccessedRegion' AS action_last_accessed_region,
+      a ->> 'LastAccessedTime' AS action_last_accessed_time
+    FROM 
+      aws_iam_access_advisor,
+      jsonb_array_elements(tracked_actions_last_accessed) AS a
+    WHERE 
+      principal_arn = 'arn:aws:iam::123456789123:user/jane'
+      AND last_authenticated IS NOT NULL
+      AND service_namespace = 's3'
+    ORDER BY 
+      age ASC;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Access Advisor
+    - IAM Access Advisor
 Title: Find All AWS IAM Access Advisor Last Access Data

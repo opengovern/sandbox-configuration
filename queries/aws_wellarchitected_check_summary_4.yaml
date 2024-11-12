@@ -1,24 +1,31 @@
-Description: Allows users to query AWS Well-Architected Tool Check Summary for detailed
-  information about the checks for all workloads. This table provides insights into
-  the state of your workloads, highlighting potential risks and areas for improvement.
+Description: Allows users to query AWS Well-Architected Tool Check Summary for detailed information about the checks for all workloads. This table provides insights into the state of your workloads, highlighting potential risks and areas for improvement.
 ID: aws_wellarchitected_check_summary_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workload_id,\n  id,\n  name,\n  account_summary ->> 'ERROR'\
-    \ as errors,\n  account_summary ->> 'FETCH_FAILED' as fetch_failed,\n  account_summary\
-    \ ->> 'NOT_AVAILABLE' as not_available,\n  account_summary ->> 'OKAY' as okay,\n\
-    \  account_summary ->> 'WARNING' as warnings,\n  pillar_id,\n  question_id\nfrom\n\
-    \  aws_wellarchitected_check_summary;"
+  QueryToExecute: |
+    SELECT
+      workload_id,
+      id,
+      name,
+      account_summary ->> 'ERROR' AS errors,
+      account_summary ->> 'FETCH_FAILED' AS fetch_failed,
+      account_summary ->> 'NOT_AVAILABLE' AS not_available,
+      account_summary ->> 'OKAY' AS okay,
+      account_summary ->> 'WARNING' AS warnings,
+      pillar_id,
+      question_id
+    FROM
+      aws_wellarchitected_check_summary;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: Query AWS Well-Architected Tool Check Summaries

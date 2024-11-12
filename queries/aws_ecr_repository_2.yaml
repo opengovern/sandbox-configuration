@@ -1,24 +1,28 @@
-Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
-  and retrieve detailed information about each repository.
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository.
 ID: aws_ecr_repository_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  encryption_configuration ->> 'EncryptionType'\
-    \ as encryption_type,\n  encryption_configuration ->> 'KmsKey' as kms_key\nfrom\n\
-    \  aws_ecr_repository\nwhere\n  encryption_configuration ->> 'EncryptionType'\
-    \ = 'AES256';"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      encryption_configuration ->> 'EncryptionType' AS encryption_type,
+      encryption_configuration ->> 'KmsKey' AS kms_key
+    FROM
+      aws_ecr_repository
+    WHERE
+      encryption_configuration ->> 'EncryptionType' = 'AES256';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry
+    - Elastic Container Registry
 Title: Find AWS ECR Repositories with AES256 Encryption

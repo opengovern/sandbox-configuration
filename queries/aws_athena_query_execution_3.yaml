@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Athena Query Executions to retrieve detailed
-  information about each individual query execution.
+Description: Allows users to query AWS Athena Query Executions to retrieve detailed information about each individual query execution.
 ID: aws_athena_query_execution_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  query,\n  workgroup,\n  engine_execution_time_in_millis\
-    \ \nfrom\n  aws_athena_query_execution \norder by\n  engine_execution_time_in_millis\
-    \ limit 5;"
+  QueryToExecute: |
+    SELECT
+      id,
+      query,
+      workgroup,
+      engine_execution_time_in_millis
+    FROM
+      aws_athena_query_execution
+    ORDER BY
+      engine_execution_time_in_millis
+    LIMIT 5;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Athena
+    - Athena
 Title: Find AWS Athena Query Executions with Execution Time

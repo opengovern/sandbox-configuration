@@ -1,23 +1,31 @@
-Description: Allows users to query AWS AppStream Images to gain insights into their
-  properties, states, and associated metadata.
+Description: Allows users to query AWS AppStream Images to gain insights into their properties, states, and associated metadata.
 ID: aws_appstream_image_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  created_time,\n  base_image_arn,\n  display_name,\n\
-    \  image_builder_supported,\n  image_builder_name\nfrom\n  aws_appstream_image\n\
-    where\n  platform = 'WINDOWS';"
+  QueryToExecute: |
+    SELECT
+      name,
+      created_time,
+      base_image_arn,
+      display_name,
+      image_builder_supported,
+      image_builder_name
+    FROM
+      aws_appstream_image
+    WHERE
+      platform = 'WINDOWS';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AppStream
+    - AppStream
 Title: Find all AWS AppStream Image Details and Metadata

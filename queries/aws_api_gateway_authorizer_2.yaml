@@ -1,23 +1,29 @@
-Description: Allows users to query AWS API Gateway Authorizer and access data about
-  API Gateway Authorizers in an AWS account. This data includes the authorizer''s
-  ID, name, type, provider ARNs, and other configuration details.
+Description: Allows users to query AWS API Gateway Authorizer and access data about API Gateway Authorizers in an AWS account. This data includes the authorizer's ID, name, type, provider ARNs, and other configuration details.
 ID: aws_api_gateway_authorizer_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  name,\n  rest_api_id,\n  auth_type\nfrom\n  aws_api_gateway_authorizer\n\
-    where\n  auth_type = 'cognito_user_pools';"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      rest_api_id,
+      auth_type
+    FROM
+      aws_api_gateway_authorizer
+    WHERE
+      auth_type = 'cognito_user_pools';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: List all AWS API Gateway Authorizers with Cognito User Pools

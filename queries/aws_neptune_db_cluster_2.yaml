@@ -1,20 +1,25 @@
-Description: Allows users to query Amazon Neptune DB clusters for comprehensive information
-  about their configuration, status, and other relevant details.
+Description: Allows users to query Amazon Neptune DB clusters for comprehensive information about their configuration, status, and other relevant details.
 ID: aws_neptune_db_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  backup_retention_period\nfrom\n\
-    \  aws_neptune_db_cluster\nwhere\n  backup_retention_period > 7;"
+  QueryToExecute: |
+    SELECT 
+      db_cluster_identifier, 
+      backup_retention_period 
+    FROM 
+      aws_neptune_db_cluster 
+    WHERE 
+      backup_retention_period > 7;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Neptune
+    - Amazon Neptune
 Title: List all Amazon Neptune DB clusters and their configurations

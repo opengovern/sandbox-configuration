@@ -1,21 +1,29 @@
-Description: Allows users to query AWS Well-Architected Tool Answer data, including
-  information about the workloads, lens, and questions associated with each answer.
+Description: Allows users to query AWS Well-Architected Tool Answer data, including information about the workloads, lens, and questions associated with each answer.
 ID: aws_wellarchitected_answer_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  a.question_id,\n  a.lens_alias,\n  a.workload_id,\n \
-    \ a.question_title,\n  a.question_description,\n  reason\nfrom\n  aws_wellarchitected_answer\
-    \ a\nwhere\n  not is_applicable;"
+  QueryToExecute: |
+    SELECT
+      a.question_id,
+      a.lens_alias,
+      a.workload_id,
+      a.question_title,
+      a.question_description,
+      a.reason
+    FROM
+      aws_wellarchitected_answer a
+    WHERE
+      NOT a.is_applicable;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Tools Answers and Details

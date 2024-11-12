@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information
-  such as bucket configuration, access rules, tags, and more.
+Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information such as bucket configuration, access rules, tags, and more.
 ID: aws_lightsail_bucket_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  access_log_config ->> 'Enabled' as access_log_enabled,\n\
-    \  access_log_config ->> 'Destination' as access_log_destination,\n  access_log_config\
-    \ ->> 'Prefix' as access_log_prefix\nfrom\n  aws_lightsail_bucket;"
+  QueryToExecute: |
+    SELECT
+      name,
+      access_log_config ->> 'Enabled' AS access_log_enabled,
+      access_log_config ->> 'Destination' AS access_log_destination,
+      access_log_config ->> 'Prefix' AS access_log_prefix
+    FROM
+      aws_lightsail_bucket;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: Find AWS Lightsail Bucket Configuration and Access Rules

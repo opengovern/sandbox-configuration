@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Global Accelerator Listener data, including
-  details about each listener that processes inbound connections based on the port
-  or port ranges that you configure.
+Description: Allows users to query AWS Global Accelerator Listener data, including details about each listener that processes inbound connections based on the port or port ranges that you configure.
 ID: aws_globalaccelerator_listener_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  a.name as accelerator_name,\n  a.status as accelerator_status,\n\
-    \  l.title as listener_title,\n  l.client_affinity as listener_client_affinity,\n\
-    \  l.port_ranges as listener_port_ranges,\n  l.protocol as listener_protocol\n\
-    from\n  aws_globalaccelerator_accelerator a,\n  aws_globalaccelerator_listener\
-    \ l\nwhere\n  l.accelerator_arn = a.arn;"
+  QueryToExecute: |
+    SELECT
+      a.name AS accelerator_name,
+      a.status AS accelerator_status,
+      l.title AS listener_title,
+      l.client_affinity AS listener_client_affinity,
+      l.port_ranges AS listener_port_ranges,
+      l.protocol AS listener_protocol
+    FROM
+      aws_globalaccelerator_accelerator a,
+      aws_globalaccelerator_listener l
+    WHERE
+      l.accelerator_arn = a.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Global Accelerator
+    - Global Accelerator
 Title: Find AWS Global Accelerator Listener Details

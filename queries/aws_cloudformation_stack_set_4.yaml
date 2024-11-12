@@ -1,28 +1,31 @@
-Description: Allows users to query AWS CloudFormation StackSets, providing detailed
-  information about each StackSet''s configuration, status, and associated AWS resources.
+Description: Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet's configuration, status, and associated AWS resources.
 ID: aws_cloudformation_stack_set_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stack_set_name,\n  stack_set_id,\n  stack_set_drift_detection_details\
-    \ ->> 'DriftDetectionStatus' as drift_detection_status,\n  stack_set_drift_detection_details\
-    \ ->> 'DriftStatus' as drift_status,\n  stack_set_drift_detection_details ->>\
-    \ 'DriftedStackInstancesCount' as drifted_stack_instances_count,\n  stack_set_drift_detection_details\
-    \ ->> 'FailedStackInstancesCount' as failed_stack_instances_count,\n  stack_set_drift_detection_details\
-    \ ->> 'InProgressStackInstancesCount' as in_progress_stack_instances_count,\n\
-    \  stack_set_drift_detection_details ->> 'InSyncStackInstancesCount' as in_sync_stack_instances_count,\n\
-    \  stack_set_drift_detection_details ->> 'LastDriftCheckTimestamp' as last_drift_check_timestamp,\n\
-    \  stack_set_drift_detection_details ->> 'TotalStackInstancesCount' as total_stack_instances_count\n\
-    from\n  aws_cloudformation_stack_set;"
+  QueryToExecute: |
+    SELECT
+      stack_set_name,
+      stack_set_id,
+      stack_set_drift_detection_details ->> 'DriftDetectionStatus' AS drift_detection_status,
+      stack_set_drift_detection_details ->> 'DriftStatus' AS drift_status,
+      stack_set_drift_detection_details ->> 'DriftedStackInstancesCount' AS drifted_stack_instances_count,
+      stack_set_drift_detection_details ->> 'FailedStackInstancesCount' AS failed_stack_instances_count,
+      stack_set_drift_detection_details ->> 'InProgressStackInstancesCount' AS in_progress_stack_instances_count,
+      stack_set_drift_detection_details ->> 'InSyncStackInstancesCount' AS in_sync_stack_instances_count,
+      stack_set_drift_detection_details ->> 'LastDriftCheckTimestamp' AS last_drift_check_timestamp,
+      stack_set_drift_detection_details ->> 'TotalStackInstancesCount' AS total_stack_instances_count
+    FROM
+      aws_cloudformation_stack_set;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: List all detailed AWS CloudFormation StackSets status

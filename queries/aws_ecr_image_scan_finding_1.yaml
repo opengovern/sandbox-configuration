@@ -1,27 +1,38 @@
-Description: Allows users to query Amazon ECR Image Scan Findings to retrieve detailed
-  information about image scan findings, including attributes such as the severity
-  of the finding, description, and package name where the vulnerability was found.
+Description: Allows users to query Amazon ECR Image Scan Findings to retrieve detailed information about image scan findings, including attributes such as the severity of the finding, description, and package name where the vulnerability was found.
 ID: aws_ecr_image_scan_finding_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  image_tag,\n  name,\n  severity,\n\
-    \  description,\n  attributes,\n  uri,\n  image_scan_status,\n  image_scan_completed_at,\n\
-    \  vulnerability_source_updated_at\nfrom\n  aws_ecr_image_scan_finding\nwhere\n\
-    \  repository_name = 'my-repo'\n  and image_tag = 'my-image-tag';"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      image_tag,
+      name,
+      severity,
+      description,
+      attributes,
+      uri,
+      image_scan_status,
+      image_scan_completed_at,
+      vulnerability_source_updated_at
+    FROM
+      aws_ecr_image_scan_finding
+    WHERE
+      repository_name = 'my-repo'
+      AND image_tag = 'my-image-tag';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry
+    - Elastic Container Registry
 Title: Find all AWS ECR Image Scan Findings Details

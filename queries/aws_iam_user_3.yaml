@@ -1,26 +1,31 @@
-Description: Allows users to query AWS IAM User data, providing details such as user
-  ID, name, path, creation date, and more. This table is useful for security audits,
-  policy enforcement, and operational troubleshooting.
+Description: Allows users to query AWS IAM User data, providing details such as user ID, name, path, creation date, and more. This table is useful for security audits, policy enforcement, and operational troubleshooting.
 ID: aws_iam_user_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name as user_name,\n  split_part(attachments, '/', 2)\
-    \ as attached_policies\nfrom\n  aws_iam_user\n  cross join jsonb_array_elements_text(attached_policy_arns)\
-    \ as attachments\nwhere\n  split_part(attachments, '/', 2) = 'AdministratorAccess';"
+  QueryToExecute: |
+    SELECT
+      name AS user_name,
+      SPLIT_PART(attachments, '/', 2) AS attached_policies
+    FROM
+      aws_iam_user
+    CROSS JOIN
+      jsonb_array_elements_text(attached_policy_arns) AS attachments
+    WHERE
+      SPLIT_PART(attachments, '/', 2) = 'AdministratorAccess';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find all AWS IAM Users with Specific Policies

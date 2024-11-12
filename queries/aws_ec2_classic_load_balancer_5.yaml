@@ -1,20 +1,27 @@
 Description: Allows users to query Classic Load Balancers within Amazon EC2.
 ID: aws_ec2_classic_load_balancer_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  healthy_threshold,\n  health_check_interval,\n\
-    \  health_check_target,\n  health_check_timeout,\n  unhealthy_threshold\nfrom\n\
-    \  aws_ec2_classic_load_balancer;"
+  QueryToExecute: |
+    SELECT
+      name,
+      healthy_threshold,
+      health_check_interval,
+      health_check_target,
+      health_check_timeout,
+      unhealthy_threshold
+    FROM
+      aws_ec2_classic_load_balancer;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all EC2 Classic Load Balancers and Health Configs

@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Redshift Serverless Workgroup information,
-  including workgroup details, query execution settings, and enforce workgroup configuration.
+Description: Allows users to query AWS Redshift Serverless Workgroup information, including workgroup details, query execution settings, and enforce workgroup configuration.
 ID: aws_redshiftserverless_workgroup_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  workgroup_arn,\n  endpoint ->> 'Address' as endpoint_address,\n\
-    \  endpoint ->> 'Port' as endpoint_port,\n  endpoint -> 'VpcEndpoints' as endpoint_vpc_details\n\
-    from\n  aws_redshiftserverless_workgroup;"
+  QueryToExecute: |
+    SELECT
+      workgroup_arn,
+      endpoint ->> 'Address' AS endpoint_address,
+      endpoint ->> 'Port' AS endpoint_port,
+      endpoint -> 'VpcEndpoints' AS endpoint_vpc_details
+    FROM
+      aws_redshiftserverless_workgroup;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift Serverless
+    - Redshift Serverless
 Title: List all AWS Redshift Serverless Workgroup details

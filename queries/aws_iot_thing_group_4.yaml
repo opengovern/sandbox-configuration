@@ -1,23 +1,30 @@
-Description: Allows users to query AWS IoT Thing Group to gain insights into each
-  group''s configuration, including ARN, creation date, version of the group, and
-  parent of the groups.
+Description: Allows users to query AWS IoT Thing Group to gain insights into each group's configuration, including ARN, creation date, version of the group, and parent of the groups.
 ID: aws_iot_thing_group_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  group_name,\n  thing_group_id,\n  query_string,\n  query_version,\n\
-    \  status\nfrom\n  aws_iot_thing_group\nwhere\n  status = 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      group_name,
+      thing_group_id,
+      query_string,
+      query_version,
+      status
+    FROM
+      aws_iot_thing_group
+    WHERE
+      status = 'ACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS IoT Thing Group
+    - AWS IoT Thing Group
 Title: Find AWS IoT Thing Group Configurations and Details

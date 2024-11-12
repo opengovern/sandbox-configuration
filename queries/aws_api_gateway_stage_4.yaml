@@ -1,23 +1,29 @@
-Description: Allows users to query AWS API Gateway Stages for information related
-  to deployment, API, and stage details.
+Description: Allows users to query AWS API Gateway Stages for information related to deployment, API, and stage details.
 ID: aws_api_gateway_stage_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  deployment_id,\n  name,\n  tracing_enabled,\n  method_settings\
-    \ -> '*/*' ->> 'LoggingLevel' as cloudwatch_log_level\nfrom\n  aws_api_gateway_stage\n\
-    where\n  method_settings -> '*/*' ->> 'LoggingLevel' = 'OFF';"
+  QueryToExecute: |
+    SELECT
+      deployment_id,
+      name,
+      tracing_enabled,
+      method_settings -> '*/*' ->> 'LoggingLevel' AS cloudwatch_log_level
+    FROM
+      aws_api_gateway_stage
+    WHERE
+      method_settings -> '*/*' ->> 'LoggingLevel' = 'OFF';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: Find AWS API Gateway Stages for Deployment and API Details

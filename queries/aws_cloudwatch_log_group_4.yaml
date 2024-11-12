@@ -1,28 +1,32 @@
-Description: Allows users to query AWS CloudWatch Log Groups and retrieve their attributes
-  such as ARN, creation time, stored bytes, metric filter count, and more.
+Description: Allows users to query AWS CloudWatch Log Groups and retrieve their attributes such as ARN, creation time, stored bytes, metric filter count, and more.
 ID: aws_cloudwatch_log_group_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i as data_identifier,\n  s -> 'Operation' -> 'Audit'\
-    \ -> 'FindingsDestination' -> 'S3' -> 'Bucket' as  destination_bucket,\n  s ->\
-    \ 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'CloudWatchLogs' -> 'LogGroup'as\
-    \ destination_log_group,\n  s -> 'Operation' -> 'Audit' -> 'FindingsDestination'\
-    \ -> 'Firehose' -> 'DeliveryStream'as destination_delivery_stream\nfrom\n  aws_cloudwatch_log_group,\n\
-    \  jsonb_array_elements(data_protection_policy -> 'Statement') as s,\n  jsonb_array_elements_text(s\
-    \ -> 'DataIdentifier') as i\nwhere\n  s ->> 'Sid' = 'audit-policy'\n  and name\
-    \ = 'log-group-name';"
+  QueryToExecute: |
+    SELECT
+      i AS data_identifier,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'S3' -> 'Bucket' AS destination_bucket,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'CloudWatchLogs' -> 'LogGroup' AS destination_log_group,
+      s -> 'Operation' -> 'Audit' -> 'FindingsDestination' -> 'Firehose' -> 'DeliveryStream' AS destination_delivery_stream
+    FROM
+      aws_cloudwatch_log_group,
+      jsonb_array_elements(data_protection_policy -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'DataIdentifier') AS i
+    WHERE
+      s ->> 'Sid' = 'audit-policy'
+      AND name = 'log-group-name';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch Log Groups
+    - CloudWatch Log Groups
 Title: Find AWS CloudWatch Log Groups and Retrieve Attributes

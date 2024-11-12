@@ -1,31 +1,38 @@
-Description: Allows users to query AWS VPC Route Tables and obtain detailed information
-  about each route table, including its associations, routes, and tags.
+Description: Allows users to query AWS VPC Route Tables and obtain detailed information about each route table, including its associations, routes, and tags.
 ID: aws_vpc_route_table_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  route_table_id,\n  route_detail -> 'CarrierGatewayId'\
-    \ ->> 'State' as carrier_gateway_id,\n  route_detail -> 'DestinationCidrBlock'\
-    \ as destination_CIDR_block,\n  route_detail -> 'DestinationIpv6CidrBlock' as\
-    \ destination_ipv6_CIDR_block,\n  route_detail -> 'EgressOnlyInternetGatewayId'\
-    \ as egress_only_internet_gateway,\n  route_detail -> 'GatewayId' as gateway_id,\n\
-    \  route_detail -> 'InstanceId' as instance_id,\n  route_detail -> 'InstanceOwnerId'\
-    \ as instance_owner_id,\n  route_detail -> 'LocalGatewayId' as local_gateway_id,\n\
-    \  route_detail -> 'NatGatewayId' as nat_gateway_id,\n  route_detail -> 'NetworkInterfaceId'\
-    \ as network_interface_id,\n  route_detail -> 'TransitGatewayId' as transit_gateway_id,\n\
-    \  route_detail -> 'VpcPeeringConnectionId' as vpc_peering_connection_id\nfrom\n\
-    \  aws_vpc_route_table\n  cross join jsonb_array_elements(routes) as route_detail;"
+  QueryToExecute: |
+    SELECT
+      route_table_id,
+      route_detail -> 'CarrierGatewayId' ->> 'State' AS carrier_gateway_id,
+      route_detail -> 'DestinationCidrBlock' AS destination_CIDR_block,
+      route_detail -> 'DestinationIpv6CidrBlock' AS destination_ipv6_CIDR_block,
+      route_detail -> 'EgressOnlyInternetGatewayId' AS egress_only_internet_gateway,
+      route_detail -> 'GatewayId' AS gateway_id,
+      route_detail -> 'InstanceId' AS instance_id,
+      route_detail -> 'InstanceOwnerId' AS instance_owner_id,
+      route_detail -> 'LocalGatewayId' AS local_gateway_id,
+      route_detail -> 'NatGatewayId' AS nat_gateway_id,
+      route_detail -> 'NetworkInterfaceId' AS network_interface_id,
+      route_detail -> 'TransitGatewayId' AS transit_gateway_id,
+      route_detail -> 'VpcPeeringConnectionId' AS vpc_peering_connection_id
+    FROM
+      aws_vpc_route_table
+    CROSS JOIN
+      jsonb_array_elements(routes) AS route_detail;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Route Tables with Detailed Info

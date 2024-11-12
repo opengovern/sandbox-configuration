@@ -1,21 +1,27 @@
-Description: Allows users to query AWS SSM Documents and retrieve detailed information
-  about each document, including its name, version, owner, status, and permissions,
-  among others.
+Description: Allows users to query AWS SSM Documents and retrieve detailed information about each document, including its name, version, owner, status, and permissions, among others.
 ID: aws_ssm_document_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  owner,\n  account_ids\nfrom\n  aws_ssm_document\n\
-    where\n  owner_type = 'Self'\n  and account_ids :: jsonb ? 'all';"
+  QueryToExecute: |
+    SELECT
+      name,
+      owner,
+      account_ids
+    FROM
+      aws_ssm_document
+    WHERE
+      owner_type = 'Self'
+      AND account_ids::jsonb ? 'all';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM Document
+    - SSM Document
 Title: Find AWS SSM Documents and Retrieve Detailed Information

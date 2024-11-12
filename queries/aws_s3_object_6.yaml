@@ -1,23 +1,31 @@
-Description: Allows users to query AWS S3 Objects and retrieve metadata and details
-  about each object stored in S3 buckets.
+Description: Allows users to query AWS S3 Objects and retrieve metadata and details about each object stored in S3 buckets.
 ID: aws_s3_object_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.key,\n  s.bucket_name,\n  s.owner,\n  acl_grant ->\
-    \ 'Grantee' as grantee,\n  acl_grant ->> 'Permission' as permission\nfrom\n  aws_s3_object\
-    \ as s,\n  jsonb_array_elements(aws_s3_object.acl -> 'Grants') as acl_grant\n\
-    where\n  bucket_name = 'steampipe-test'\n  and acl_grant ->> 'Permission' = 'FULL_CONTROL'\n\
-    \  and acl_grant -> 'Grantee' ->> 'ID' != aws_s3_object.owner ->> 'ID';"
+  QueryToExecute: |
+    SELECT
+      s.key,
+      s.bucket_name,
+      s.owner,
+      acl_grant -> 'Grantee' AS grantee,
+      acl_grant ->> 'Permission' AS permission
+    FROM
+      aws_s3_object AS s,
+      jsonb_array_elements(aws_s3_object.acl -> 'Grants') AS acl_grant
+    WHERE
+      bucket_name = 'steampipe-test'
+      AND acl_grant ->> 'Permission' = 'FULL_CONTROL'
+      AND acl_grant -> 'Grantee' ->> 'ID' != aws_s3_object.owner ->> 'ID';
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: List AWS S3 Objects and Retrieve Metadata Details

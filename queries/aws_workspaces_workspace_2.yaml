@@ -1,20 +1,27 @@
-Description: Allows users to query Amazon WorkSpaces Workspace to retrieve details
-  about each workspace in the AWS account.
+Description: Allows users to query Amazon WorkSpaces Workspace to retrieve details about each workspace in the AWS account.
 ID: aws_workspaces_workspace_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  workspace_id,\n  arn,\n  state\nfrom\n  aws_workspaces_workspace\n\
-    where\n  state = 'TERMINATED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      workspace_id,
+      arn,
+      state
+    FROM
+      aws_workspaces_workspace
+    WHERE
+      state = 'TERMINATED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon WorkSpaces
+    - Amazon WorkSpaces
 Title: Find Amazon WorkSpaces Workspace details in AWS

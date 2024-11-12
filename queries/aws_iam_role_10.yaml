@@ -1,29 +1,40 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_10
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  iam.arn as resource,\n  iam.description,\n  iam.assume_role_policy_std,\n\
-    \  case\n    when pstatement -> 'Condition' -> 'StringLike' -> 'token.actions.githubusercontent.com:sub'\
-    \ is not null\n    or pstatement -> 'Condition' -> 'StringEquals' -> 'token.actions.githubusercontent.com:sub'\
-    \ is not null then 'ok'\n    else 'alarm'\n  end as status,\n  case\n    when\
-    \ pstatement -> 'Condition' -> 'StringLike' -> 'token.actions.githubusercontent.com:sub'\
-    \ is not null\n    or pstatement -> 'Condition' -> 'StringEquals' -> 'token.actions.githubusercontent.com:sub'\
-    \ is not null then iam.arn || ' Condition Check Exists'\n    else iam.arn || '\
-    \ Missing Condition Check'\n  end as reason\nfrom\n  aws_iam_role as iam,\n  jsonb_array_elements(iam.assume_role_policy_std\
-    \ -> 'Statement') as pstatement\nwhere\n  pstatement -> 'Action' ?& array [ 'sts:assumerolewithwebidentity'\
-    \ ]\n  and (pstatement -> 'Principal' -> 'Federated') :: text like '%token.actions.githubusercontent.com%'\n\
-    order by\n  status asc"
+  QueryToExecute: |
+    SELECT
+      iam.arn AS resource,
+      iam.description,
+      iam.assume_role_policy_std,
+      CASE
+        WHEN pstatement -> 'Condition' -> 'StringLike' -> 'token.actions.githubusercontent.com:sub' IS NOT NULL
+        OR pstatement -> 'Condition' -> 'StringEquals' -> 'token.actions.githubusercontent.com:sub' IS NOT NULL THEN 'ok'
+        ELSE 'alarm'
+      END AS status,
+      CASE
+        WHEN pstatement -> 'Condition' -> 'StringLike' -> 'token.actions.githubusercontent.com:sub' IS NOT NULL
+        OR pstatement -> 'Condition' -> 'StringEquals' -> 'token.actions.githubusercontent.com:sub' IS NOT NULL THEN iam.arn || ' Condition Check Exists'
+        ELSE iam.arn || ' Missing Condition Check'
+      END AS reason
+    FROM
+      aws_iam_role AS iam,
+      jsonb_array_elements(iam.assume_role_policy_std -> 'Statement') AS pstatement
+    WHERE
+      pstatement -> 'Action' ?& ARRAY [ 'sts:assumerolewithwebidentity' ]
+      AND (pstatement -> 'Principal' -> 'Federated')::TEXT LIKE '%token.actions.githubusercontent.com%'
+    ORDER BY
+      status ASC
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Roles
+    - IAM Roles
 Title: Find all AWS Identity and Access Management (IAM) Roles

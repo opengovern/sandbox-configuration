@@ -1,21 +1,28 @@
-Description: Gets a list of the VPCs that were created by other accounts and that
-  can be associated with a specified hosted zone because you''ve submitted one or
-  more `CreateVPCAssociationAuthorization` requests.
+Description: Gets a list of the VPCs that were created by other accounts and that can be associated with a specified hosted zone because you've submitted one or more `CreateVPCAssociationAuthorization` requests.
 ID: aws_route53_vpc_association_authorization_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  hosted_zone_id,\n  vpc_id,\n  vpc_region\nfrom\n  aws_route53_vpc_association_authorization\n\
-    where\n  hosted_zone_id = 'Z3M3LMPEXAMPLE'\norder by\n  vpc_region desc;"
+  QueryToExecute: |
+    SELECT
+      hosted_zone_id,
+      vpc_id,
+      vpc_region
+    FROM
+      aws_route53_vpc_association_authorization
+    WHERE
+      hosted_zone_id = 'Z3M3LMPEXAMPLE'
+    ORDER BY
+      vpc_region DESC;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route53
+    - Route53
 Title: List all VPCs from other accounts for Route53 association

@@ -1,22 +1,28 @@
-Description: Allows users to query AWS EBS snapshots, providing detailed information
-  about each snapshot''s configuration, status, and associated metadata.
+Description: Allows users to query AWS EBS snapshots, providing detailed information about each snapshot's configuration, status, and associated metadata.
 ID: aws_ebs_snapshot_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  snapshot_id,\n  arn,\n  encrypted\nfrom\n  aws_ebs_snapshot\n\
-    where\n  not encrypted;"
+  QueryToExecute: |
+    SELECT
+      snapshot_id,
+      arn,
+      encrypted
+    FROM
+      aws_ebs_snapshot
+    WHERE
+      NOT encrypted;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Block Store (EBS)
+    - Elastic Block Store (EBS)
 Title: Find Detailed Information About AWS EBS Snapshots

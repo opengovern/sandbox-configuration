@@ -1,26 +1,32 @@
-Description: Allows users to query AWS Inspector findings to gain insights into potential
-  security issues and vulnerabilities within their AWS resources. The table provides
-  detailed information about each finding, including its severity, status, and associated
-  resources.
+Description: Allows users to query AWS Inspector findings to gain insights into potential security issues and vulnerabilities within their AWS resources. The table provides detailed information about each finding, including its severity, status, and associated resources.
 ID: aws_inspector2_finding_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  status,\n  type,\n  resources,\n  vulnerable_packages\n\
-    from\n  aws_inspector2_finding\nwhere\n  type = 'PACKAGE_VULNERABILITY';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      status,
+      type,
+      resources,
+      vulnerable_packages
+    FROM
+      aws_inspector2_finding
+    WHERE
+      type = 'PACKAGE_VULNERABILITY';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Inspector
+    - AWS Inspector
 Title: Find AWS Inspector findings to identify vulnerabilities

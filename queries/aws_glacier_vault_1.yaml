@@ -1,21 +1,26 @@
-Description: Allows users to query AWS Glacier Vaults for detailed information on
-  each vault, including the vault''s name, ARN, creation date, number of archives,
-  size of archives, and more.
+Description: Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault's name, ARN, creation date, number of archives, size of archives, and more.
 ID: aws_glacier_vault_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vault_name,\n  creation_date,\n  last_inventory_date,\n\
-    \  number_of_archives,\n  size_in_bytes\nfrom\n  aws_glacier_vault;"
+  QueryToExecute: |
+    SELECT
+      vault_name,
+      creation_date,
+      last_inventory_date,
+      number_of_archives,
+      size_in_bytes
+    FROM
+      aws_glacier_vault;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glacier
+    - Glacier
 Title: List all AWS Glacier Vault details with SQL Query

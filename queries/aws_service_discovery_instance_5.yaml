@@ -1,25 +1,34 @@
-Description: Allows users to query AWS Cloud Map Service Instances and retrieve detailed
-  information about each instance associated with a specified service. This information
-  includes the instance ID, instance attributes, and the health status of the instance.
+Description: Allows users to query AWS Cloud Map Service Instances and retrieve detailed information about each instance associated with a specified service. This information includes the instance ID, instance attributes, and the health status of the instance.
 ID: aws_service_discovery_instance_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i.id,\n  i.service_id,\n  i.ec2_instance_id,\n  ei.instance_type,\n\
-    \  ei.instance_state,\n  ei.launch_time\nfrom\n  aws_service_discovery_instance\
-    \ as i,\n  aws_ec2_instance as ei\nwhere\n  i.ec2_instance_id is not null\nand\n\
-    \  ei.instance_id = i.ec2_instance_id;"
+  QueryToExecute: |
+    SELECT
+      i.id,
+      i.service_id,
+      i.ec2_instance_id,
+      ei.instance_type,
+      ei.instance_state,
+      ei.launch_time
+    FROM
+      aws_service_discovery_instance AS i,
+      aws_ec2_instance AS ei
+    WHERE
+      i.ec2_instance_id IS NOT NULL
+    AND
+      ei.instance_id = i.ec2_instance_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cloud Map
+    - Cloud Map
 Title: List AWS Cloud Map Service Instances and Health Status

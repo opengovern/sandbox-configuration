@@ -1,25 +1,31 @@
-Description: Allows users to query AWS CodeArtifact Domains for details such as domain
-  ownership, encryption key, and policy information.
+Description: Allows users to query AWS CodeArtifact Domains for details such as domain ownership, encryption key, and policy information.
 ID: aws_codeartifact_domain_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  d.arn as domain_arn,\n  b.arn as bucket_arn,\n  d.encryption_key\
-    \ domain_encryption_key,\n  bucket_policy_is_public\nfrom\n  aws_codeartifact_domain\
-    \ d\n  join aws_s3_bucket b on d.s3_bucket_arn = b.arn;"
+  QueryToExecute: |
+    SELECT
+      d.arn AS domain_arn,
+      b.arn AS bucket_arn,
+      d.encryption_key AS domain_encryption_key,
+      bucket_policy_is_public
+    FROM
+      aws_codeartifact_domain d
+    JOIN
+      aws_s3_bucket b ON d.s3_bucket_arn = b.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeArtifact
+    - CodeArtifact
 Title: Find AWS CodeArtifact Domain Ownership & Encryption Key

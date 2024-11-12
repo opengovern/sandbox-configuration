@@ -1,25 +1,35 @@
-Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to
-  obtain detailed metrics data.
+Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data.
 ID: aws_cloudwatch_metric_statistic_data_point_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  metric_name,\n  timestamp,\n  round(minimum::numeric,\
-    \ 2) as min_cpu,\n  round(maximum::numeric, 2) as max_cpu,\n  round(average::numeric,\
-    \ 2) as avg_cpu,\n  sum,\n  sample_count\nfrom\n  aws_cloudwatch_metric_statistic_data_point\n\
-    where\n  namespace = 'AWS/EC2'\n  and metric_name = 'CPUUtilization'\norder by\n\
-    \  timestamp;"
+  QueryToExecute: |
+    SELECT
+      metric_name,
+      timestamp,
+      ROUND(minimum::numeric, 2) AS min_cpu,
+      ROUND(maximum::numeric, 2) AS max_cpu,
+      ROUND(average::numeric, 2) AS avg_cpu,
+      sum,
+      sample_count
+    FROM
+      aws_cloudwatch_metric_statistic_data_point
+    WHERE
+      namespace = 'AWS/EC2'
+      AND metric_name = 'CPUUtilization'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Query AWS CloudWatch Metric Statistics Data Points

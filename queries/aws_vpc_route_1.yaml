@@ -1,24 +1,30 @@
-Description: Allows users to query AWS VPC Routes to retrieve detailed information
-  about each route in a route table within a VPC.
+Description: Allows users to query AWS VPC Routes to retrieve detailed information about each route in a route table within a VPC.
 ID: aws_vpc_route_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  route_table_id,\n  gateway_id\nfrom\n  aws_vpc_route\n\
-    where\n  gateway_id ilike 'igw%'\n  and destination_cidr_block = '0.0.0.0/0';"
+  QueryToExecute: |
+    SELECT
+      route_table_id,
+      gateway_id
+    FROM
+      aws_vpc_route
+    WHERE
+      gateway_id ILIKE 'igw%' 
+      AND destination_cidr_block = '0.0.0.0/0';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Routes Information using SQL

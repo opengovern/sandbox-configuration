@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Lambda Versions to fetch detailed information
-  about each version of a specific AWS Lambda function.
+Description: Allows users to query AWS Lambda Versions to fetch detailed information about each version of a specific AWS Lambda function.
 ID: aws_lambda_version_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  function_name,\n  version,\n  vpc_id,\n  vpc_security_group_ids,\n\
-    \  vpc_subnet_ids\nfrom\n  aws_lambda_version;"
+  QueryToExecute: |
+    SELECT
+      function_name,
+      version,
+      vpc_id,
+      vpc_security_group_ids,
+      vpc_subnet_ids
+    FROM
+      aws_lambda_version;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda
+    - Lambda
 Title: Find all Versions of a Specific AWS Lambda Function

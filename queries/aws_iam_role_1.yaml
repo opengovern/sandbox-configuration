@@ -1,22 +1,27 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  create_date\nfrom\n  aws_iam_role\nwhere\n \
-    \ inline_policies is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      create_date
+    FROM
+      aws_iam_role
+    WHERE
+      inline_policies IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find IAM Roles with Inline Policies in AWS

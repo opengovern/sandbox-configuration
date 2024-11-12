@@ -1,24 +1,31 @@
-Description: Allows users to query AWS EMR Instance Groups to fetch details about
-  each instance group within an EMR cluster.
+Description: Allows users to query AWS EMR Instance Groups to fetch details about each instance group within an EMR cluster.
 ID: aws_emr_instance_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  ig.id as instance_group_id,\n  ig.cluster_id,\n  c.name\
-    \ as cluster_name,\n  ig.instance_type\nfrom\n  aws_emr_instance_group as ig,\n\
-    \  aws_emr_cluster as c\nwhere\n  ig.cluster_id = c.id\n  and ig.instance_group_type\
-    \ = 'MASTER';"
+  QueryToExecute: |
+    SELECT
+      ig.id AS instance_group_id,
+      ig.cluster_id,
+      c.name AS cluster_name,
+      ig.instance_type
+    FROM
+      aws_emr_instance_group AS ig,
+      aws_emr_cluster AS c
+    WHERE
+      ig.cluster_id = c.id
+      AND ig.instance_group_type = 'MASTER';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EMR
+    - EMR
 Title: List AWS EMR instance groups within clusters

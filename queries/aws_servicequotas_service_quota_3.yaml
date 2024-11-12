@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Service Quotas, providing detailed information
-  about each quota''s value, default value, and whether it''s adjustable.
+Description: Allows users to query AWS Service Quotas, providing detailed information about each quota's value, default value, and whether it's adjustable.
 ID: aws_servicequotas_service_quota_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  quota_name,\n  quota_code,\n  quota_arn,\n  service_name,\n\
-    \  service_code,\n  value\nfrom\n  aws_servicequotas_service_quota\nwhere\n  service_code\
-    \ = 'athena';"
+  QueryToExecute: |
+    SELECT
+      quota_name,
+      quota_code,
+      quota_arn,
+      service_name,
+      service_code,
+      value
+    FROM
+      aws_servicequotas_service_quota
+    WHERE
+      service_code = 'athena';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Service Quotas
+    - Service Quotas
 Title: Find AWS Service Quotas for Specific Services

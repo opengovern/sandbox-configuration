@@ -1,20 +1,25 @@
-Description: Allows users to query AWS CloudFormation Stack data, including stack
-  name, status, creation time, and associated tags.
+Description: Allows users to query AWS CloudFormation Stack data, including stack name, status, creation time, and associated tags.
 ID: aws_cloudformation_stack_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  enable_termination_protection\nfrom\n  aws_cloudformation_stack\n\
-    where\n  not enable_termination_protection;"
+  QueryToExecute: |
+    SELECT
+      name,
+      enable_termination_protection
+    FROM
+      aws_cloudformation_stack
+    WHERE
+      NOT enable_termination_protection;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: List AWS CloudFormation Stack Data with SQL

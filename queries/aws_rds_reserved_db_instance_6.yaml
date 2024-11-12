@@ -1,23 +1,31 @@
-Description: Allows users to query RDS Reserved DB Instances in AWS, providing details
-  such as reservation status, instance type, duration, and associated costs.
+Description: Allows users to query RDS Reserved DB Instances in AWS, providing details such as reservation status, instance type, duration, and associated costs.
 ID: aws_rds_reserved_db_instance_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  reserved_db_instance_id,\n  arn,\n  reserved_db_instances_offering_id,\n\
-    \  state,\n  class,\n  usage_price\nfrom\n  aws_rds_reserved_db_instance\nwhere\n\
-    \  state <> 'active';"
+  QueryToExecute: |
+    SELECT
+      reserved_db_instance_id,
+      arn,
+      reserved_db_instances_offering_id,
+      state,
+      class,
+      usage_price
+    FROM
+      aws_rds_reserved_db_instance
+    WHERE
+      state <> 'active';
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon RDS
+    - Amazon RDS
 Title: List all AWS RDS Reserved DB Instances with details and costs

@@ -1,25 +1,30 @@
-Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information
-  about the status, configuration, and security settings of each DB cluster.
+Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster.
 ID: aws_rds_db_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  member ->> 'DBClusterParameterGroupStatus'\
-    \ as db_cluster_parameter_group_status,\n  member ->> 'DBInstanceIdentifier' as\
-    \ db_instance_identifier,\n  member ->> 'IsClusterWriter' as is_cluster_writer,\n\
-    \  member ->> 'PromotionTier' as promotion_tier\nfrom\n  aws_rds_db_cluster\n\
-    \  cross join jsonb_array_elements(members) as member;"
+  QueryToExecute: |
+    SELECT 
+      db_cluster_identifier,
+      member ->> 'DBClusterParameterGroupStatus' AS db_cluster_parameter_group_status,
+      member ->> 'DBInstanceIdentifier' AS db_instance_identifier,
+      member ->> 'IsClusterWriter' AS is_cluster_writer,
+      member ->> 'PromotionTier' AS promotion_tier
+    FROM 
+      aws_rds_db_cluster
+    CROSS JOIN 
+      jsonb_array_elements(members) AS member;
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List all AWS RDS DB Clusters status and settings

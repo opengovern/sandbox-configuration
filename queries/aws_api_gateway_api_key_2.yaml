@@ -1,27 +1,28 @@
-Description: Allows users to query API Keys in AWS API Gateway. The `aws_api_gateway_api_key`
-  table in Steampipe provides information about API Keys within AWS API Gateway. This
-  table allows DevOps engineers to query API Key-specific details, including its ID,
-  value, enabled status, and associated metadata. Users can utilize this table to
-  gather insights on API Keys, such as keys that are enabled, keys associated with
-  specific stages, and more. The schema outlines the various attributes of the API
-  Key, including the key ID, creation date, enabled status, and associated tags.
+Description: Allows users to query API Keys in AWS API Gateway. The `aws_api_gateway_api_key` table in Steampipe provides information about API Keys within AWS API Gateway. This table allows DevOps engineers to query API Key-specific details, including its ID, value, enabled status, and associated metadata. Users can utilize this table to gather insights on API Keys, such as keys that are enabled, keys associated with specific stages, and more. The schema outlines the various attributes of the API Key, including the key ID, creation date, enabled status, and associated tags.
 ID: aws_api_gateway_api_key_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  customer_id\nfrom\n  aws_api_gateway_api_key\n\
-    where\n  not enabled;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      customer_id
+    FROM
+      aws_api_gateway_api_key
+    WHERE
+      NOT enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: Find AWS API Gateway API Keys That Are Disabled

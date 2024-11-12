@@ -1,21 +1,25 @@
-Description: Allows users to query AWS Lambda Functions, providing information about
-  each function''s configuration, including runtime, code size, timeout, and associated
-  tags.
+Description: Allows users to query AWS Lambda Functions, providing information about each function's configuration, including runtime, code size, timeout, and associated tags.
 ID: aws_lambda_function_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  kms_key_arn\nfrom\n  aws_lambda_function\nwhere\n\
-    \  kms_key_arn is null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      kms_key_arn
+    FROM
+      aws_lambda_function
+    WHERE
+      kms_key_arn IS NULL;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lambda Functions
+    - Lambda Functions
 Title: Find AWS Lambda Functions Without KMS Key ARN

@@ -1,22 +1,26 @@
-Description: Allows users to query AWS EC2 Launch Templates to retrieve detailed information,
-  including the associated AMI, instance type, key pair, security groups, and user
-  data.
+Description: Allows users to query AWS EC2 Launch Templates to retrieve detailed information, including the associated AMI, instance type, key pair, security groups, and user data.
 ID: aws_ec2_launch_template_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  launch_template_name,\n  launch_template_id,\n  create_time\n\
-    from\n  aws_ec2_launch_template\nwhere\n  create_time >= now() - interval '30'\
-    \ day;"
+  QueryToExecute: |
+    SELECT
+      launch_template_name,
+      launch_template_id,
+      create_time
+    FROM
+      aws_ec2_launch_template
+    WHERE
+      create_time >= NOW() - INTERVAL '30' DAY;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all AWS EC2 Launch Templates with Details

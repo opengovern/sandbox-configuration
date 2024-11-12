@@ -1,22 +1,29 @@
-Description: Allows users to query AWS EMR Instance Groups to fetch details about
-  each instance group within an EMR cluster.
+Description: Allows users to query AWS EMR Instance Groups to fetch details about each instance group within an EMR cluster.
 ID: aws_emr_instance_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_id,\n  sum(running_instance_count) as running_instance_count\n\
-    from\n  aws_emr_instance_group\nwhere\n  state = 'RUNNING'\ngroup by cluster_id;"
+  QueryToExecute: |
+    SELECT
+      cluster_id,
+      SUM(running_instance_count) AS running_instance_count
+    FROM
+      aws_emr_instance_group
+    WHERE
+      state = 'RUNNING'
+    GROUP BY
+      cluster_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS EMR
+    - AWS EMR
 Title: List All AWS EMR Instance Groups and Running Instances

@@ -1,24 +1,30 @@
-Description: Allows users to query AWS CloudFormation StackSets, providing detailed
-  information about each StackSet''s configuration, status, and associated AWS resources.
+Description: Allows users to query AWS CloudFormation StackSets, providing detailed information about each StackSet's configuration, status, and associated AWS resources.
 ID: aws_cloudformation_stack_set_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  stack_set_name,\n  stack_set_id,\n  p ->> 'ParameterKey'\
-    \ as parameter_key,\n  p ->> 'ParameterValue' as parameter_value,\n  p ->> 'ResolvedValue'\
-    \ as resolved_value,\n  p ->> 'UsePreviousValue' as use_previous_value\nfrom\n\
-    \  aws_cloudformation_stack_set,\n  jsonb_array_elements(parameters) as p;"
+  QueryToExecute: |
+    SELECT
+      stack_set_name,
+      stack_set_id,
+      p ->> 'ParameterKey' AS parameter_key,
+      p ->> 'ParameterValue' AS parameter_value,
+      p ->> 'ResolvedValue' AS resolved_value,
+      p ->> 'UsePreviousValue' AS use_previous_value
+    FROM
+      aws_cloudformation_stack_set,
+      jsonb_array_elements(parameters) AS p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudFormation
+    - CloudFormation
 Title: List all AWS CloudFormation StackSets with Parameters

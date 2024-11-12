@@ -1,20 +1,30 @@
-Description: Allows users to query AWS EMR Cluster Metrics to determine if a cluster
-  is idle.
+Description: Allows users to query AWS EMR Cluster Metrics to determine if a cluster is idle.
 ID: aws_emr_cluster_metric_is_idle_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n\
-    \  sample_count\nfrom\n  aws_emr_cluster_metric_is_idle\norder by\n  id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    FROM
+      aws_emr_cluster_metric_is_idle
+    ORDER BY
+      id,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EMR
+    - EMR
 Title: Find Idle Status of AWS EMR Cluster Metrics

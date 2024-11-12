@@ -1,21 +1,26 @@
-Description: Allows users to query AWS Cost and Usage Report Records on a monthly
-  basis.
+Description: Allows users to query AWS Cost and Usage Report Records on a monthly basis.
 ID: aws_cost_by_record_type_monthly_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  linked_account_id,\n  record_type,\n  period_start,\n\
-    \  unblended_cost_amount::numeric::money,\n  rank() over(partition by linked_account_id,\
-    \ record_type order by unblended_cost_amount desc)\nfrom \n  aws_cost_by_record_type_monthly;"
+  QueryToExecute: |
+    SELECT 
+      linked_account_id,
+      record_type,
+      period_start,
+      unblended_cost_amount::numeric::money,
+      RANK() OVER (PARTITION BY linked_account_id, record_type ORDER BY unblended_cost_amount DESC)
+    FROM 
+      aws_cost_by_record_type_monthly;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost and Usage Report
+    - Cost and Usage Report
 Title: List AWS Cost and Usage Report Records Monthly

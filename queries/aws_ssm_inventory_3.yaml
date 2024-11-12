@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Systems Manager Inventory, providing information
-  about managed instances in AWS Systems Manager.
+Description: Allows users to query AWS Systems Manager Inventory, providing information about managed instances in AWS Systems Manager.
 ID: aws_ssm_inventory_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  s ->> 'Version' as schema_version,\n  s ->> 'TypeName'\
-    \ as type_name,\n  s ->> 'DisplayName' as display_name,\n  jsonb_pretty(s -> 'Attributes')\
-    \ as attributes\nfrom\n  aws_ssm_inventory,\n  jsonb_array_elements(schema) as\
-    \ s\norder by \n  id;"
+  QueryToExecute: |
+    SELECT
+      id,
+      s ->> 'Version' AS schema_version,
+      s ->> 'TypeName' AS type_name,
+      s ->> 'DisplayName' AS display_name,
+      jsonb_pretty(s -> 'Attributes') AS attributes
+    FROM
+      aws_ssm_inventory,
+      jsonb_array_elements(schema) AS s
+    ORDER BY
+      id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Systems Manager
+    - Systems Manager
 Title: List all AWS Systems Manager Inventory Details

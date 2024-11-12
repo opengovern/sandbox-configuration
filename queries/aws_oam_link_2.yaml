@@ -1,20 +1,26 @@
-Description: Allows users to query AWS OAM Links to gather information about the link
-  between an AWS resource and an AWS OAM resource.
+Description: Allows users to query AWS OAM Links to gather information about the link between an AWS resource and an AWS OAM resource.
 ID: aws_oam_link_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  l.id,\n  l.arn,\n  s.name as sink_name,\n  l.sink_arn\n\
-    from\n  aws_oam_link as l,\n  aws_oam_sink as s;"
+  QueryToExecute: |
+    SELECT
+      l.id,
+      l.arn,
+      s.name AS sink_name,
+      l.sink_arn
+    FROM
+      aws_oam_link AS l,
+      aws_oam_sink AS s;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - OAM
+    - OAM
 Title: List all AWS OAM Links and Their Associated Sinks

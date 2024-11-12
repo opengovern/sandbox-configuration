@@ -1,24 +1,27 @@
-Description: Allows users to query AWS EC2 Transit Gateway Route Tables and retrieve
-  detailed information about each route table, including its ID, state, transit gateway
-  ID, and other associated metadata.
+Description: Allows users to query AWS EC2 Transit Gateway Route Tables and retrieve detailed information about each route table, including its ID, state, transit gateway ID, and other associated metadata.
 ID: aws_ec2_transit_gateway_route_table_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  transit_gateway_id,\n  count(transit_gateway_route_table_id)\
-    \ as transit_gateway_route_table_count\nfrom\n  aws_ec2_transit_gateway_route_table\n\
-    group by\n  transit_gateway_id;"
+  QueryToExecute: |
+    SELECT
+      transit_gateway_id,
+      COUNT(transit_gateway_route_table_id) AS transit_gateway_route_table_count
+    FROM
+      aws_ec2_transit_gateway_route_table
+    GROUP BY
+      transit_gateway_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Transit Gateway
+    - EC2 Transit Gateway
 Title: List all AWS EC2 Transit Gateway Route Tables by ID and State

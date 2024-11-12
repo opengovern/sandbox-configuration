@@ -1,23 +1,30 @@
-Description: Allows users to query AWS API Gateway Rest APIs to retrieve information
-  about API Gateway REST APIs in an AWS account.
+Description: Allows users to query AWS API Gateway Rest APIs to retrieve information about API Gateway REST APIs in an AWS account.
 ID: aws_api_gateway_rest_api_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  api_id,\n  api_key_source,\n  endpoint_configuration_types,\n\
-    \  endpoint_configuration_vpc_endpoint_ids\nfrom\n  aws_api_gateway_rest_api\n\
-    where\n  not endpoint_configuration_types ? 'PRIVATE';"
+  QueryToExecute: |
+    SELECT
+      name,
+      api_id,
+      api_key_source,
+      endpoint_configuration_types,
+      endpoint_configuration_vpc_endpoint_ids
+    FROM
+      aws_api_gateway_rest_api
+    WHERE
+      NOT endpoint_configuration_types ? 'PRIVATE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: List AWS API Gateway REST APIs Information

@@ -1,25 +1,33 @@
-Description: Allows users to query Amazon Elastic Container Registry (ECR) Images
-  and retrieve detailed information about each image, including image tags, push timestamps,
-  image sizes, and more.
+Description: Allows users to query Amazon Elastic Container Registry (ECR) Images and retrieve detailed information about each image, including image tags, push timestamps, image sizes, and more.
 ID: aws_ecr_image_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  i.repository_name as repository_name,\n  r.repository_uri\
-    \ as repository_uri,\n  i.image_digest as image_digest,\n  i.image_tags as image_tags,\n\
-    \  s ->> 'Effect' as effect,\n  s ->> 'Action' as action,\n  s ->> 'Condition'\
-    \ as condition,\n  s ->> 'Principal' as principal\nfrom\n  aws_ecr_image as i,\n\
-    \  aws_ecr_repository as r,\n  jsonb_array_elements(r.policy -> 'Statement') as\
-    \ s\nwhere\n  i.repository_name = r.repository_name;"
+  QueryToExecute: |
+    SELECT
+      i.repository_name AS repository_name,
+      r.repository_uri AS repository_uri,
+      i.image_digest AS image_digest,
+      i.image_tags AS image_tags,
+      s ->> 'Effect' AS effect,
+      s ->> 'Action' AS action,
+      s ->> 'Condition' AS condition,
+      s ->> 'Principal' AS principal
+    FROM
+      aws_ecr_image AS i,
+      aws_ecr_repository AS r,
+      jsonb_array_elements(r.policy -> 'Statement') AS s
+    WHERE
+      i.repository_name = r.repository_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Elastic Container Registry
+    - Amazon Elastic Container Registry
 Title: Find Amazon ECR Images and Retrieve Detailed Information

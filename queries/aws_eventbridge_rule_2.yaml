@@ -1,20 +1,27 @@
-Description: Allows users to query AWS EventBridge Rule to access information regarding
-  the EventBridge rules defined within an AWS account.
+Description: Allows users to query AWS EventBridge Rule to access information regarding the EventBridge rules defined within an AWS account.
 ID: aws_eventbridge_rule_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  state,\n  created_by\nfrom\n  aws_eventbridge_rule\n\
-    where\n  state != 'ENABLED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      state,
+      created_by
+    FROM
+      aws_eventbridge_rule
+    WHERE
+      state != 'ENABLED';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EventBridge
+    - EventBridge
 Title: Find all AWS EventBridge Rules not enabled

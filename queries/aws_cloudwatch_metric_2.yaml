@@ -1,20 +1,26 @@
-Description: Allows users to query AWS CloudWatch Metrics to gather information about
-  the performance of their AWS resources and applications.
+Description: Allows users to query AWS CloudWatch Metrics to gather information about the performance of their AWS resources and applications.
 ID: aws_cloudwatch_metric_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  metric_name,\n  namespace,\n  dimensions\nfrom\n  aws_cloudwatch_metric\n\
-    where\n  namespace = 'AWS/EBS';"
+  QueryToExecute: |
+    SELECT 
+      metric_name,
+      namespace,
+      dimensions
+    FROM 
+      aws_cloudwatch_metric
+    WHERE 
+      namespace = 'AWS/EBS';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Find AWS Resources Performance via CloudWatch Metrics

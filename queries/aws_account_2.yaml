@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Account information, including details about
-  the account''s status, owner, and associated resources.
+Description: Allows users to query AWS Account information, including details about the account's status, owner, and associated resources.
 ID: aws_account_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  organization_id,\n  policy ->> 'Type' as policy_type,\n\
-    \  policy ->> 'Status' as policy_status\nfrom\n  aws_account\n  cross join jsonb_array_elements(organization_available_policy_types)\
-    \ as policy;"
+  QueryToExecute: |
+    SELECT
+      organization_id,
+      policy ->> 'Type' AS policy_type,
+      policy ->> 'Status' AS policy_status
+    FROM
+      aws_account
+    CROSS JOIN 
+      jsonb_array_elements(organization_available_policy_types) AS policy;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Account
+    - AWS Account
 Title: Find AWS Account Information and Associated Resources

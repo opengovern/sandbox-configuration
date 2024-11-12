@@ -1,22 +1,29 @@
-Description: Allows users to query AWS CloudTrail events for a detailed view of account
-  activity, including actions taken through the AWS Management Console, AWS SDKs,
-  command line tools, and other AWS services.
+Description: Allows users to query AWS CloudTrail events for a detailed view of account activity, including actions taken through the AWS Management Console, AWS SDKs, command line tools, and other AWS services.
 ID: aws_cloudtrail_query_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  query_id,\n  event_data_store_arn,\n  query_status,\n\
-    \  creation_time,\n  query_string,\n  execution_time_in_millis\nfrom\n  aws_cloudtrail_query\n\
-    where\n  query_status = 'FAILED';"
+  QueryToExecute: |
+    SELECT
+      query_id,
+      event_data_store_arn,
+      query_status,
+      creation_time,
+      query_string,
+      execution_time_in_millis
+    FROM
+      aws_cloudtrail_query
+    WHERE
+      query_status = 'FAILED';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudTrail
+    - CloudTrail
 Title: Find failed AWS CloudTrail queries using SQL

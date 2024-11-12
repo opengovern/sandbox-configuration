@@ -1,33 +1,80 @@
 Description: List Function Apps with unsupported runtime
 ID: azure_insight_functionapp_with_unsupported_runtime
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_app_service_function_app
+    - azure_app_service_function_app
   Parameters: []
   PrimaryTable: azure_app_service_function_app
-  QueryToExecute: "SELECT \n  id, language_runtime_type, language_runtime_version,\
-    \ subscription_id, og_account_id, og_resource_id\nFROM azure_app_service_function_app\n\
-    WHERE ( \n  (\n    language_runtime_type = 'dotnet' AND (\n      language_runtime_version\
-    \ != '6' AND\n      language_runtime_version != '7'\n    )\n  ) OR (\n    language_runtime_type\
-    \ = 'dotnetcore' AND (\n      language_runtime_version != 'v4.0' AND\n      language_runtime_version\
-    \ != 'v6.0' AND\n      language_runtime_version != 'v7.0' AND\n      language_runtime_version\
-    \ != '6' AND\n      language_runtime_version != '7' AND\n      language_runtime_version\
-    \ != '4' AND\n      language_runtime_version != '4.8'\n    )\n  ) OR (\n    language_runtime_type\
-    \ = 'python' AND (\n      language_runtime_version != '3.7' AND\n      language_runtime_version\
-    \ != '3.8' AND\n      language_runtime_version != '3.9' AND\n      language_runtime_version\
-    \ != '3.10' AND\n      language_runtime_version != '3.11'\n    )\n  ) OR (\n \
-    \   language_runtime_type = 'java' AND (\n      language_runtime_version != '8'\
-    \ AND\n      language_runtime_version != '11' AND\n      language_runtime_version\
-    \ != '17'\n    )\n  ) OR (\n    language_runtime_type = 'powershell' AND (\n \
-    \     language_runtime_version != '7.2'\n    )\n  ) OR (\n    language_runtime_type\
-    \ = 'node' AND (\n      language_runtime_version != '14' AND\n      language_runtime_version\
-    \ != '16' AND\n      language_runtime_version != '18' AND\n      language_runtime_version\
-    \ != '~14' AND\n      language_runtime_version != '~16' AND\n      language_runtime_version\
-    \ != '~18'\n    )\n  )\n);"
+  QueryToExecute: |
+    SELECT 
+      id, 
+      language_runtime_type, 
+      language_runtime_version, 
+      subscription_id, 
+      og_account_id, 
+      og_resource_id
+    FROM azure_app_service_function_app
+    WHERE 
+      (
+        (
+          language_runtime_type = 'dotnet' 
+          AND (
+            language_runtime_version != '6' 
+            AND language_runtime_version != '7'
+          )
+        ) 
+        OR (
+          language_runtime_type = 'dotnetcore'
+          AND (
+            language_runtime_version != 'v4.0' 
+            AND language_runtime_version != 'v6.0' 
+            AND language_runtime_version != 'v7.0' 
+            AND language_runtime_version != '6' 
+            AND language_runtime_version != '7' 
+            AND language_runtime_version != '4' 
+            AND language_runtime_version != '4.8'
+          )
+        ) 
+        OR (
+          language_runtime_type = 'python' 
+          AND (
+            language_runtime_version != '3.7' 
+            AND language_runtime_version != '3.8' 
+            AND language_runtime_version != '3.9' 
+            AND language_runtime_version != '3.10' 
+            AND language_runtime_version != '3.11'
+          )
+        ) 
+        OR (
+          language_runtime_type = 'java' 
+          AND (
+            language_runtime_version != '8' 
+            AND language_runtime_version != '11' 
+            AND language_runtime_version != '17'
+          )
+        ) 
+        OR (
+          language_runtime_type = 'powershell' 
+          AND (
+            language_runtime_version != '7.2'
+          )
+        ) 
+        OR (
+          language_runtime_type = 'node' 
+          AND (
+            language_runtime_version != '14' 
+            AND language_runtime_version != '16' 
+            AND language_runtime_version != '18' 
+            AND language_runtime_version != '~14' 
+            AND language_runtime_version != '~16' 
+            AND language_runtime_version != '~18'
+          )
+        )
+      );
 Tags:
   category:
-  - Technical Debt
+    - Technical Debt
 Title: Function Apps with unsupported runtime

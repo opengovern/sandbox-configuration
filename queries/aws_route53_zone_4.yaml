@@ -1,20 +1,27 @@
-Description: Allows users to query AWS Route 53 Zone details including hosted zone
-  ID, name, type, record set count, and associated tags.
+Description: Allows users to query AWS Route 53 Zone details including hosted zone ID, name, type, record set count, and associated tags.
 ID: aws_route53_zone_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  private_zone,\n  resource_record_set_count\n\
-    from \n  aws_route53_zone\nwhere\n  name like '%.turbot.com."
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      private_zone,
+      resource_record_set_count
+    FROM
+      aws_route53_zone
+    WHERE
+      name LIKE '%.turbot.com.'
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: List all AWS Route 53 Zone details including record count

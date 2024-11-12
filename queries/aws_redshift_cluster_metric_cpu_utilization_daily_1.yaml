@@ -1,21 +1,30 @@
-Description: Allows users to query AWS Redshift Cluster CPU Utilization Metrics on
-  a daily basis.
+Description: Allows users to query AWS Redshift Cluster CPU Utilization Metrics on a daily basis.
 ID: aws_redshift_cluster_metric_cpu_utilization_daily_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_identifier,\n  timestamp,\n  minimum,\n  maximum,\n\
-    \  average,\n  sample_count\nfrom\n  aws_redshift_cluster_metric_cpu_utilization_daily\n\
-    order by\n  cluster_identifier,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cluster_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sample_count
+    FROM
+      aws_redshift_cluster_metric_cpu_utilization_daily
+    ORDER BY
+      cluster_identifier,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift
+    - Redshift
 Title: List AWS Redshift CPU Utilization Metrics by day

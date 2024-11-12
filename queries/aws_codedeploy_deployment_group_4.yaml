@@ -1,22 +1,27 @@
-Description: Allows users to query AWS CodeDeploy Deployment Group details including
-  deployment configurations, target revisions, and associated alarm configurations.
+Description: Allows users to query AWS CodeDeploy Deployment Group details including deployment configurations, target revisions, and associated alarm configurations.
 ID: aws_codedeploy_deployment_group_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  count(arn) as group_count,\n  deployment_style\nfrom\n\
-    \  aws_codedeploy_deployment_group\ngroup by\n  deployment_style;"
+  QueryToExecute: |
+    SELECT
+      COUNT(arn) AS group_count,
+      deployment_style
+    FROM
+      aws_codedeploy_deployment_group
+    GROUP BY
+      deployment_style;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeDeploy
+    - CodeDeploy
 Title: List all AWS CodeDeploy Deployment Group Details

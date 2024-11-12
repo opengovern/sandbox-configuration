@@ -1,24 +1,32 @@
-Description: Allows users to query AWS EC2 Reserved Instances to gather comprehensive
-  insights on the reserved instances, such as their configurations, state, and associated
-  tags.
+Description: Allows users to query AWS EC2 Reserved Instances to gather comprehensive insights on the reserved instances, such as their configurations, state, and associated tags.
 ID: aws_ec2_reserved_instance_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  reserved_instance_id,\n  arn,\n  instance_type,\n  instance_state,\n\
-    \  currency_code,\n  CAST(fixed_price AS varchar),\n  offering_class, scope,\n\
-    \  CAST(usage_price AS varchar)\nfrom\n  aws_ec2_reserved_instance;"
+  QueryToExecute: |
+    SELECT
+      reserved_instance_id,
+      arn,
+      instance_type,
+      instance_state,
+      currency_code,
+      CAST(fixed_price AS VARCHAR),
+      offering_class,
+      scope,
+      CAST(usage_price AS VARCHAR)
+    FROM
+      aws_ec2_reserved_instance;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: 'Find AWS EC2 Reserved Instances: Configurations and State'

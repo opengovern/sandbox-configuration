@@ -1,23 +1,27 @@
-Description: Allows users to query AWS SSM Patch Baseline data to retrieve information
-  about each patch baseline in your AWS account.
+Description: Allows users to query AWS SSM Patch Baseline data to retrieve information about each patch baseline in your AWS account.
 ID: aws_ssm_patch_baseline_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  baseline_id,\n  p ->> 'ApproveAfterDays' as approve_after_days,\n\
-    \  p ->> 'ApproveUntilDate' as approve_until_date,\n  p ->> 'ComplianceLevel'\
-    \ as compliance_level,\n  p -> 'PatchFilterGroup' ->> 'PatchFilters' as patch_filters\n\
-    from\n  aws_ssm_patch_baseline,\n  jsonb_array_elements(approval_rules -> 'PatchRules')\
-    \ as p;"
+  QueryToExecute: |
+    SELECT
+      baseline_id,
+      p ->> 'ApproveAfterDays' AS approve_after_days,
+      p ->> 'ApproveUntilDate' AS approve_until_date,
+      p ->> 'ComplianceLevel' AS compliance_level,
+      p -> 'PatchFilterGroup' ->> 'PatchFilters' AS patch_filters
+    FROM
+      aws_ssm_patch_baseline,
+      jsonb_array_elements(approval_rules -> 'PatchRules') AS p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM Patch Baseline
+    - SSM Patch Baseline
 Title: Find all AWS SSM Patch Baselines and Approval Rules

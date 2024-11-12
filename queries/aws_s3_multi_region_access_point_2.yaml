@@ -1,26 +1,31 @@
-Description: Allows users to query AWS S3 Multi-Region Access Points to retrieve information
-  about their configuration, status, and associated policies.
+Description: Allows users to query AWS S3 Multi-Region Access Points to retrieve information about their configuration, status, and associated policies.
 ID: aws_s3_multi_region_access_point_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  public_access_block ->> 'BlockPublicAcls' as\
-    \ block_public_acls,\n  public_access_block ->> 'BlockPublicPolicy' as block_public_policy,\n\
-    \  public_access_block ->> 'IgnorePublicAcls' as ignore_public_acls,\n  public_access_block\
-    \ ->> 'RestrictPublicBuckets' as restrict_public_buckets \nfrom\n  aws_s3_multi_region_access_point\
-    \ \nwhere\n  public_access_block ->> 'BlockPublicAcls'::text = 'true' \n  and\
-    \ public_access_block ->> 'BlockPublicPolicy'::text = 'true' \n  and public_access_block\
-    \ ->> 'IgnorePublicAcls'::text = 'true' \n  and public_access_block ->> 'RestrictPublicBuckets'::text\
-    \ = 'true';"
+  QueryToExecute: |
+    SELECT
+      name,
+      public_access_block ->> 'BlockPublicAcls' AS block_public_acls,
+      public_access_block ->> 'BlockPublicPolicy' AS block_public_policy,
+      public_access_block ->> 'IgnorePublicAcls' AS ignore_public_acls,
+      public_access_block ->> 'RestrictPublicBuckets' AS restrict_public_buckets
+    FROM
+      aws_s3_multi_region_access_point
+    WHERE
+      public_access_block ->> 'BlockPublicAcls'::text = 'true'
+      AND public_access_block ->> 'BlockPublicPolicy'::text = 'true'
+      AND public_access_block ->> 'IgnorePublicAcls'::text = 'true'
+      AND public_access_block ->> 'RestrictPublicBuckets'::text = 'true';
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find AWS S3 Multi-Region Access Points configuration and status

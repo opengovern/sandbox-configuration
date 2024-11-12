@@ -1,23 +1,29 @@
-Description: Allows users to query AWS ElastiCache Replication Groups to retrieve
-  information related to their configuration, status, and associated resources.
+Description: Allows users to query AWS ElastiCache Replication Groups to retrieve information related to their configuration, status, and associated resources.
 ID: aws_elasticache_replication_group_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  replication_group_id,\n  snapshot_retention_limit,\n\
-    \  snapshot_window,\n  snapshotting_cluster_id\nfrom\n  aws_elasticache_replication_group\n\
-    where\n  snapshot_retention_limit < 30;"
+  QueryToExecute: |
+    SELECT
+      replication_group_id,
+      snapshot_retention_limit,
+      snapshot_window,
+      snapshotting_cluster_id
+    FROM
+      aws_elasticache_replication_group
+    WHERE
+      snapshot_retention_limit < 30;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: List all AWS ElastiCache Replication Groups with Config and Status

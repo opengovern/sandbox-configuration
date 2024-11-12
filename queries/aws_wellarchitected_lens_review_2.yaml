@@ -1,21 +1,27 @@
-Description: Allows users to query AWS Well-Architected Tool Lens Reviews to obtain
-  detailed information about each review, including its associated workload, lens,
-  and milestone information.
+Description: Allows users to query AWS Well-Architected Tool Lens Reviews to obtain detailed information about each review, including its associated workload, lens, and milestone information.
 ID: aws_wellarchitected_lens_review_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  lens_name,\n  workload_id,\n  lens_alias,\n  lens_status\n\
-    from\n  aws_wellarchitected_lens_review\nwhere\n  lens_status = 'DEPRECATED';"
+  QueryToExecute: |
+    SELECT
+      lens_name,
+      workload_id,
+      lens_alias,
+      lens_status
+    FROM
+      aws_wellarchitected_lens_review
+    WHERE
+      lens_status = 'DEPRECATED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: List all AWS Well-Architected Lens Reviews with Status

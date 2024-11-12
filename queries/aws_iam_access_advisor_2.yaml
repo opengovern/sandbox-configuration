@@ -1,21 +1,28 @@
-Description: Allows users to query AWS IAM Access Advisor to retrieve information
-  about the service last accessed data for IAM entities (users, groups, and roles).
+Description: Allows users to query AWS IAM Access Advisor to retrieve information about the service last accessed data for IAM entities (users, groups, and roles).
 ID: aws_iam_access_advisor_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  principal_arn,\n  service_name\nfrom \n  aws_iam_access_advisor\n\
-    where\n  principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'\n  and\
-    \ last_authenticated is null\norder by \n  service_name"
+  QueryToExecute: |
+    SELECT
+      principal_arn,
+      service_name
+    FROM
+      aws_iam_access_advisor
+    WHERE
+      principal_arn = 'arn:aws:iam::123456789123:role/turbot/admin'
+      AND last_authenticated IS NULL
+    ORDER BY
+      service_name
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Access Advisor
+    - IAM Access Advisor
 Title: List all AWS IAM entities with no recent service access

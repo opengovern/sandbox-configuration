@@ -1,23 +1,29 @@
-Description: Allows users to query AWS EC2 Network Load Balancer data including configuration,
-  status, and other related information.
+Description: Allows users to query AWS EC2 Network Load Balancer data including configuration, status, and other related information.
 ID: aws_ec2_network_load_balancer_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  count(az ->> 'ZoneName') as zone_count\nfrom\n\
-    \  aws_ec2_network_load_balancer\n  cross join jsonb_array_elements(availability_zones)\
-    \ as az\ngroup by\n  name;"
+  QueryToExecute: |
+    SELECT
+      name,
+      COUNT(az ->> 'ZoneName') AS zone_count
+    FROM
+      aws_ec2_network_load_balancer
+    CROSS JOIN
+      jsonb_array_elements(availability_zones) AS az
+    GROUP BY
+      name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Network Load Balancer
+    - EC2 Network Load Balancer
 Title: List all AWS EC2 Network Load Balancer Configurations

@@ -1,23 +1,28 @@
-Description: Allows users to query Amazon Neptune DB clusters for comprehensive information
-  about their configuration, status, and other relevant details.
+Description: Allows users to query Amazon Neptune DB clusters for comprehensive information about their configuration, status, and other relevant details.
 ID: aws_neptune_db_cluster_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  member ->> 'DBClusterParameterGroupStatus'\
-    \ as db_cluster_parameter_group_status,\n  member ->> 'DBInstanceIdentifier' as\
-    \ db_instance_identifier,\n  member ->> 'IsClusterWriter' as is_cluster_writer,\n\
-    \  member ->> 'PromotionTier' as promotion_tier\nfrom\n  aws_neptune_db_cluster\n\
-    \  cross join jsonb_array_elements(db_cluster_members) as member;"
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier,
+      member ->> 'DBClusterParameterGroupStatus' AS db_cluster_parameter_group_status,
+      member ->> 'DBInstanceIdentifier' AS db_instance_identifier,
+      member ->> 'IsClusterWriter' AS is_cluster_writer,
+      member ->> 'PromotionTier' AS promotion_tier
+    FROM
+      aws_neptune_db_cluster
+    CROSS JOIN
+      jsonb_array_elements(db_cluster_members) AS member;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Neptune DB
+    - Amazon Neptune DB
 Title: Find Amazon Neptune DB Clusters including configuration & status

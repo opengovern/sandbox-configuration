@@ -1,20 +1,28 @@
-Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve
-  detailed information about potential security risks.
+Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve detailed information about potential security risks.
 ID: aws_accessanalyzer_finding_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  resource_type,\n  access_analyzer_arn,\n  status,\n\
-    \  is_public\nfrom\n  aws_accessanalyzer_finding\nwhere\n  is_public = true;"
+  QueryToExecute: |
+    SELECT
+      id,
+      resource_type,
+      access_analyzer_arn,
+      status,
+      is_public
+    FROM
+      aws_accessanalyzer_finding
+    WHERE
+      is_public = true;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Access Analyzer
+    - Access Analyzer
 Title: Find all AWS IAM Access Analyzer public findings

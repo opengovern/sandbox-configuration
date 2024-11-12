@@ -1,26 +1,32 @@
-Description: Allows users to query AWS VPC Verified Access Endpoint data, including
-  details about the endpoint configuration, service name, and VPC ID. This information
-  can be used to manage and secure network access to services within an AWS Virtual
-  Private Cloud.
+Description: Allows users to query AWS VPC Verified Access Endpoint data, including details about the endpoint configuration, service name, and VPC ID. This information can be used to manage and secure network access to services within an AWS Virtual Private Cloud.
 ID: aws_vpc_verified_access_endpoint_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  e.verified_access_endpoint_id,\n  i.network_interface_id,\n\
-    \  i.interface_type,\n  i.private_ip_address,\n  i.association_public_ip,\n  jsonb_pretty(i.groups)\
-    \ as security_groups\nfrom\n  aws_vpc_verified_access_endpoint as e,\n  aws_ec2_network_interface\
-    \ as i\nwhere\n  e.network_interface_options ->> 'NetworkInterfaceId' = i.network_interface_id;"
+  QueryToExecute: |
+    SELECT 
+      e.verified_access_endpoint_id,
+      i.network_interface_id,
+      i.interface_type,
+      i.private_ip_address,
+      i.association_public_ip,
+      jsonb_pretty(i.groups) AS security_groups
+    FROM 
+      aws_vpc_verified_access_endpoint AS e,
+      aws_ec2_network_interface AS i
+    WHERE 
+      e.network_interface_options ->> 'NetworkInterfaceId' = i.network_interface_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS VPC
+    - AWS VPC
 Title: List AWS VPC Verified Access Endpoints and Network Interface

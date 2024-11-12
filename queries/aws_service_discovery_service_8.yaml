@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Service Discovery Service to retrieve detailed
-  information about AWS resources that are registered with AWS Cloud Map.
+Description: Allows users to query AWS Service Discovery Service to retrieve detailed information about AWS resources that are registered with AWS Cloud Map.
 ID: aws_service_discovery_service_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  s.name,\n  s.id,\n  s.namespace_id,\n  n.service_count,\n\
-    \  n.type as namespace_type,\n  n.dns_properties\nfrom\n  aws_service_discovery_service\
-    \ as s,\n  aws_service_discovery_namespace as n;"
+  QueryToExecute: |
+    SELECT
+      s.name,
+      s.id,
+      s.namespace_id,
+      n.service_count,
+      n.type AS namespace_type,
+      n.dns_properties
+    FROM
+      aws_service_discovery_service AS s,
+      aws_service_discovery_namespace AS n;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Service Discovery
+    - AWS Service Discovery
 Title: List all AWS Service Discovery resources using SQL

@@ -1,23 +1,29 @@
-Description: Allows users to query AWS RDS DB Recommendations and retrieve valuable
-  information about each recommendation''s status, impact, and suggested actions.
+Description: Allows users to query AWS RDS DB Recommendations and retrieve valuable information about each recommendation's status, impact, and suggested actions.
 ID: aws_rds_db_recommendation_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  recommendation_id,\n  title,\n  created_time,\n  description\n\
-    from\n  aws_rds_db_recommendation\nwhere\n  created_time >= now() - interval '30\
-    \ days';"
+  QueryToExecute: |
+    SELECT
+      recommendation_id,
+      title,
+      created_time,
+      description
+    FROM
+      aws_rds_db_recommendation
+    WHERE
+      created_time >= NOW() - INTERVAL '30 days';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List all AWS RDS DB Recommendations and Details

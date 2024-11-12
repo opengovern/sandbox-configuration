@@ -1,21 +1,30 @@
-Description: Allows users to query AWS IAM SAML Providers and retrieve detailed information
-  about each SAML provider within AWS Identity and Access Management (IAM).
+Description: Allows users to query AWS IAM SAML Providers and retrieve detailed information about each SAML provider within AWS Identity and Access Management (IAM).
 ID: aws_iam_saml_provider_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  create_date,\n  valid_until,\n  region,\n  account_id\n\
-    from\n  aws_iam_saml_provider\nwhere\n  valid_until <= (current_date - interval\
-    \ '30' day)\norder by\n  valid_until;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      create_date,
+      valid_until,
+      region,
+      account_id
+    FROM
+      aws_iam_saml_provider
+    WHERE
+      valid_until <= (CURRENT_DATE - INTERVAL '30' DAY)
+    ORDER BY
+      valid_until;
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Identity and Access Management
+    - Identity and Access Management
 Title: Find AWS IAM SAML Providers expiring within 30 days

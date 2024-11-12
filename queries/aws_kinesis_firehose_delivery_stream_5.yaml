@@ -1,23 +1,30 @@
-Description: Allows users to query AWS Kinesis Firehose Delivery Stream data, providing
-  detailed information about each delivery stream in the AWS account.
+Description: Allows users to query AWS Kinesis Firehose Delivery Stream data, providing detailed information about each delivery stream in the AWS account.
 ID: aws_kinesis_firehose_delivery_stream_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  delivery_stream_name,\n  arn,\n  delivery_stream_status,\n\
-    \  delivery_stream_type,\n  failure_description\nfrom\n  aws_kinesis_firehose_delivery_stream\n\
-    where\n  failure_description is not null;"
+  QueryToExecute: |
+    SELECT
+      delivery_stream_name,
+      arn,
+      delivery_stream_status,
+      delivery_stream_type,
+      failure_description
+    FROM
+      aws_kinesis_firehose_delivery_stream
+    WHERE
+      failure_description IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Kinesis Firehose
+    - Kinesis Firehose
 Title: List all AWS Kinesis Firehose Delivery Stream details

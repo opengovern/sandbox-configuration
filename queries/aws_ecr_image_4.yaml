@@ -1,24 +1,30 @@
-Description: Allows users to query Amazon Elastic Container Registry (ECR) Images
-  and retrieve detailed information about each image, including image tags, push timestamps,
-  image sizes, and more.
+Description: Allows users to query Amazon Elastic Container Registry (ECR) Images and retrieve detailed information about each image, including image tags, push timestamps, image sizes, and more.
 ID: aws_ecr_image_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  image_digest,\n  image_pushed_at,\n\
-    \  image_size_in_bytes\nfrom\n  aws_ecr_image\nwhere\n  image_pushed_at >= now()\
-    \ - interval '10' day\nand\n  repository_name = 'test1';"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      image_digest,
+      image_pushed_at,
+      image_size_in_bytes
+    FROM
+      aws_ecr_image
+    WHERE
+      image_pushed_at >= NOW() - INTERVAL '10' DAY
+      AND repository_name = 'test1';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Elastic Container Registry
+    - Amazon Elastic Container Registry
 Title: List All Amazon ECR Images and Their Details

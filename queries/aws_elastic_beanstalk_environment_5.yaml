@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Elastic Beanstalk Environments to gain insights
-  into their configuration, status, health, related applications, and other metadata.
+Description: Allows users to query AWS Elastic Beanstalk Environments to gain insights into their configuration, status, health, related applications, and other metadata.
 ID: aws_elastic_beanstalk_environment_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  environment_name,\n  a ->> 'ActionDescription' as action_description,\n\
-    \  a ->> 'ActionId' as action_id,\n  a ->> 'ActionType' as action_type,\n  a ->>\
-    \ 'Status' as action_status,\n  a ->> 'WindowStartTime' as action_window_start_time\n\
-    from\n  aws_elastic_beanstalk_environment,\n  jsonb_array_elements(managed_actions)\
-    \ as a;"
+  QueryToExecute: |
+    SELECT
+      environment_name,
+      a ->> 'ActionDescription' AS action_description,
+      a ->> 'ActionId' AS action_id,
+      a ->> 'ActionType' AS action_type,
+      a ->> 'Status' AS action_status,
+      a ->> 'WindowStartTime' AS action_window_start_time
+    FROM
+      aws_elastic_beanstalk_environment,
+      jsonb_array_elements(managed_actions) AS a;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Beanstalk
+    - Elastic Beanstalk
 Title: List All AWS Elastic Beanstalk Environment Configurations and Status

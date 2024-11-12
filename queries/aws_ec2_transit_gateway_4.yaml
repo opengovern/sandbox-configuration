@@ -1,20 +1,25 @@
-Description: Allows users to query AWS EC2 Transit Gateway resources for detailed
-  information on configuration, status, and associations.
+Description: Allows users to query AWS EC2 Transit Gateway resources for detailed information on configuration, status, and associations.
 ID: aws_ec2_transit_gateway_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  transit_gateway_id,\n  tags\nfrom\n  aws_ec2_transit_gateway\n\
-    where\n  not tags :: JSONB ? 'application';"
+  QueryToExecute: |
+    SELECT
+      transit_gateway_id,
+      tags
+    FROM
+      aws_ec2_transit_gateway
+    WHERE
+      NOT tags :: JSONB ? 'application';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Transit Gateway
+    - EC2 Transit Gateway
 Title: Find AWS EC2 Transit Gateway Details

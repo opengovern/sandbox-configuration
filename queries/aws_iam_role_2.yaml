@@ -1,23 +1,27 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  description,\n  split_part(policy, '/', 3) as\
-    \ attached_policy\nfrom\n  aws_iam_role\n  cross join jsonb_array_elements_text(attached_policy_arns)\
-    \ as policy;"
+  QueryToExecute: |
+    SELECT
+      name,
+      description,
+      SPLIT_PART(policy, '/', 3) AS attached_policy
+    FROM
+      aws_iam_role
+      CROSS JOIN jsonb_array_elements_text(attached_policy_arns) AS policy;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Identity and Access Management
+    - Identity and Access Management
 Title: Find AWS IAM Roles' Permissions, Policies & Metadata

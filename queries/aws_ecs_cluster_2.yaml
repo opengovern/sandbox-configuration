@@ -1,22 +1,27 @@
-Description: Allows users to query AWS ECS Clusters to retrieve detailed information
-  about each cluster''s configuration, status, and associated resources.
+Description: Allows users to query AWS ECS Clusters to retrieve detailed information about each cluster's configuration, status, and associated resources.
 ID: aws_ecs_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_arn,\n  status\nfrom\n  aws_ecs_cluster\nwhere\n\
-    \  status = 'FAILED';"
+  QueryToExecute: |
+    SELECT
+      cluster_arn,
+      status
+    FROM
+      aws_ecs_cluster
+    WHERE
+      status = 'FAILED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: Find AWS ECS Clusters with Detailed Information

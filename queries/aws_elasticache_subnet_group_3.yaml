@@ -1,24 +1,28 @@
-Description: Allows users to query AWS ElastiCache Subnet Groups, providing details
-  about each subnet group within their ElastiCache service, including the associated
-  VPC, subnets, and status.
+Description: Allows users to query AWS ElastiCache Subnet Groups, providing details about each subnet group within their ElastiCache service, including the associated VPC, subnets, and status.
 ID: aws_elasticache_subnet_group_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  c.cache_cluster_id,\n  sg.cache_subnet_group_name,\n\
-    \  sg.vpc_id\nfrom\n  aws_elasticache_subnet_group as sg\n  join aws_elasticache_cluster\
-    \ as c on sg.cache_subnet_group_name = c.cache_subnet_group_name;"
+  QueryToExecute: |
+    SELECT
+      c.cache_cluster_id,
+      sg.cache_subnet_group_name,
+      sg.vpc_id
+    FROM
+      aws_elasticache_subnet_group AS sg
+      JOIN aws_elasticache_cluster AS c 
+      ON sg.cache_subnet_group_name = c.cache_subnet_group_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: Find AWS ElastiCache Subnet Groups and VPC Details

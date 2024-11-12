@@ -1,22 +1,27 @@
-Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information
-  about the status, configuration, and security settings of each DB cluster.
+Description: Allows users to query AWS RDS DB Clusters and retrieve valuable information about the status, configuration, and security settings of each DB cluster.
 ID: aws_rds_db_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_cluster_identifier,\n  backup_retention_period\nfrom\n\
-    \  aws_rds_db_cluster\nwhere\n  backup_retention_period > 7;"
+  QueryToExecute: |
+    SELECT
+      db_cluster_identifier,
+      backup_retention_period
+    FROM
+      aws_rds_db_cluster
+    WHERE
+      backup_retention_period > 7;
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List AWS RDS DB Clusters Status and Configurations

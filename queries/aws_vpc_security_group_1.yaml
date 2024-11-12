@@ -1,28 +1,33 @@
-Description: Allows users to query AWS VPC Security Groups and retrieve data such
-  as group ID, name, description, owner ID, and associated VPC ID. This table can
-  be used to gain insights on security group configurations, policies, and related
-  metadata.
+Description: Allows users to query AWS VPC Security Groups and retrieve data such as group ID, name, description, owner ID, and associated VPC ID. This table can be used to gain insights on security group configurations, policies, and related metadata.
 ID: aws_vpc_security_group_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  group_name,\n  vpc_id,\n  perm ->> 'FromPort' as from_port,\n\
-    \  perm ->> 'ToPort' as to_port,\n  perm ->> 'IpProtocol' as ip_protocol,\n  perm\
-    \ ->> 'IpRanges' as ip_ranges,\n  perm ->> 'Ipv6Ranges' as ipv6_ranges,\n  perm\
-    \ ->> 'UserIdGroupPairs' as user_id_group_pairs,\n  perm ->> 'PrefixListIds' as\
-    \ prefix_list_ids\nfrom\n  aws_vpc_security_group as sg\n  cross join jsonb_array_elements(ip_permissions)\
-    \ as perm;"
+  QueryToExecute: |
+    SELECT
+      group_name,
+      vpc_id,
+      perm ->> 'FromPort' AS from_port,
+      perm ->> 'ToPort' AS to_port,
+      perm ->> 'IpProtocol' AS ip_protocol,
+      perm ->> 'IpRanges' AS ip_ranges,
+      perm ->> 'Ipv6Ranges' AS ipv6_ranges,
+      perm ->> 'UserIdGroupPairs' AS user_id_group_pairs,
+      perm ->> 'PrefixListIds' AS prefix_list_ids
+    FROM
+      aws_vpc_security_group AS sg
+    CROSS JOIN jsonb_array_elements(ip_permissions) AS perm;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Security Groups with SQL Queries

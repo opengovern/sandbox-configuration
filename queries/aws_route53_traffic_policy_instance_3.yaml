@@ -1,24 +1,34 @@
-Description: Allows users to query AWS Route 53 Traffic Policy Instances, providing
-  detailed information about each instance such as the ID, version, DNS name, and
-  more. This table is useful for gaining insights into the configuration and status
-  of traffic policy instances.
+Description: Allows users to query AWS Route 53 Traffic Policy Instances, providing detailed information about each instance such as the ID, version, DNS name, and more. This table is useful for gaining insights into the configuration and status of traffic policy instances.
 ID: aws_route53_traffic_policy_instance_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  i.name,\n  i.id,\n  traffic_policy_id,\n  p.name as\
-    \ traffic_policy_name,\n  traffic_policy_type,\n  traffic_policy_version,\n  p.document\n\
-    from \n  aws_route53_traffic_policy_instance i\n  join aws_route53_traffic_policy\
-    \ p on i.traffic_policy_id = p.id \n  and i.traffic_policy_version = p.version;"
+  QueryToExecute: |
+    SELECT 
+      i.name,
+      i.id,
+      traffic_policy_id,
+      p.name AS traffic_policy_name,
+      traffic_policy_type,
+      traffic_policy_version,
+      p.document
+    FROM 
+      aws_route53_traffic_policy_instance i
+    JOIN 
+      aws_route53_traffic_policy p 
+    ON 
+      i.traffic_policy_id = p.id
+    AND 
+      i.traffic_policy_version = p.version;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: List all AWS Route 53 Traffic Policy Instances

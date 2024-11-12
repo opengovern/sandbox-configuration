@@ -1,24 +1,29 @@
-Description: Allows users to query AWS EMR Block Public Access Configuration to retrieve
-  details about the block public access configurations for EMR clusters.
+Description: Allows users to query AWS EMR Block Public Access Configuration to retrieve details about the block public access configurations for EMR clusters.
 ID: aws_emr_block_public_access_configuration_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  created_by_arn,\n  creation_date,\n  rules ->> 'MaxRange'\
-    \ as max_range,\n  rules ->> 'MinRange' as min_range\nfrom\n  aws_emr_block_public_access_configuration\n\
-    \  cross join jsonb_array_elements(permitted_public_security_group_rule_ranges)\
-    \ as rules;"
+  QueryToExecute: |
+    SELECT
+      created_by_arn,
+      creation_date,
+      rules ->> 'MaxRange' AS max_range,
+      rules ->> 'MinRange' AS min_range
+    FROM
+      aws_emr_block_public_access_configuration
+    CROSS JOIN
+      jsonb_array_elements(permitted_public_security_group_rule_ranges) AS rules;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EMR Block Public Access Configuration
+    - EMR Block Public Access Configuration
 Title: Find AWS EMR Block Public Access Configurations

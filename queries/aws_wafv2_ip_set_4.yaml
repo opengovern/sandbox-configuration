@@ -1,21 +1,30 @@
-Description: Allows users to query AWS WAFv2 IPSet information, including IP addresses,
-  IP address version, and associated metadata.
+Description: Allows users to query AWS WAFv2 IPSet information, including IP addresses, IP address version, and associated metadata.
 ID: aws_wafv2_ip_set_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  description,\n  arn,\n  ip_address_version,\n\
-    \  region,\n  address\nfrom\n  aws_wafv2_ip_set,\n  jsonb_array_elements_text(addresses)\
-    \ as address\nwhere\n  address = '1.2.3.4/32';"
+  QueryToExecute: |
+    SELECT
+      name,
+      description,
+      arn,
+      ip_address_version,
+      region,
+      address
+    FROM
+      aws_wafv2_ip_set,
+      jsonb_array_elements_text(addresses) AS address
+    WHERE
+      address = '1.2.3.4/32';
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - WAFv2
+    - WAFv2
 Title: Find AWS WAFv2 IPSet Information including IP Addresses

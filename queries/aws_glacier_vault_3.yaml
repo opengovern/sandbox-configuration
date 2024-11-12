@@ -1,24 +1,32 @@
-Description: Allows users to query AWS Glacier Vaults for detailed information on
-  each vault, including the vault''s name, ARN, creation date, number of archives,
-  size of archives, and more.
+Description: Allows users to query AWS Glacier Vaults for detailed information on each vault, including the vault's name, ARN, creation date, number of archives, size of archives, and more.
 ID: aws_glacier_vault_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  p as principal,\n  a as action,\n  s ->> 'Effect'\
-    \ as effect,\n  s -> 'Condition' as conditions\nfrom\n  aws_glacier_vault,\n \
-    \ jsonb_array_elements(policy_std -> 'Statement') as s,\n  jsonb_array_elements_text(s\
-    \ -> 'Principal' -> 'AWS') as p,\n  jsonb_array_elements_text(s -> 'Action') as\
-    \ a\nwhere\n  p = '*'\n  and s ->> 'Effect' = 'Allow';"
+  QueryToExecute: |
+    SELECT
+      title,
+      p AS principal,
+      a AS action,
+      s ->> 'Effect' AS effect,
+      s -> 'Condition' AS conditions
+    FROM
+      aws_glacier_vault,
+      jsonb_array_elements(policy_std -> 'Statement') AS s,
+      jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+      jsonb_array_elements_text(s -> 'Action') AS a
+    WHERE
+      p = '*'
+      AND s ->> 'Effect' = 'Allow';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glacier
+    - Glacier
 Title: List AWS Glacier Vaults with Detailed Information

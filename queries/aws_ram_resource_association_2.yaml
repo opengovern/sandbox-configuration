@@ -1,24 +1,29 @@
-Description: Allows users to query AWS RAM Resource Associations to retrieve information
-  about the associations between resources and resource shares.
+Description: Allows users to query AWS RAM Resource Associations to retrieve information about the associations between resources and resource shares.
 ID: aws_ram_resource_association_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  resource_share_name,\n  resource_share_arn,\n  associated_entity,\n\
-    \  p ->> 'Arn' as resource_share_permission_arn,\n  p ->> 'Status' as resource_share_permission_status\n\
-    from\n  aws_ram_resource_association,\n  jsonb_array_elements(resource_share_permission)\
-    \ p;"
+  QueryToExecute: |
+    SELECT
+      resource_share_name,
+      resource_share_arn,
+      associated_entity,
+      p ->> 'Arn' AS resource_share_permission_arn,
+      p ->> 'Status' AS resource_share_permission_status
+    FROM
+      aws_ram_resource_association,
+      jsonb_array_elements(resource_share_permission) p;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS RAM Resource Association
+    - AWS RAM Resource Association
 Title: List AWS RAM Resource Associations and Permissions

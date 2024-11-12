@@ -1,22 +1,29 @@
-Description: Allows users to query AWS Step Functions State Machine Execution data,
-  including execution status, start and end times, and associated state machine details.
+Description: Allows users to query AWS Step Functions State Machine Execution data, including execution status, start and end times, and associated state machine details.
 ID: aws_sfn_state_machine_execution_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  execution_arn,\n  status,\n  state_machine_arn\n\
-    from\n  aws_sfn_state_machine_execution\nwhere\n  status = 'FAILED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      execution_arn,
+      status,
+      state_machine_arn
+    FROM
+      aws_sfn_state_machine_execution
+    WHERE
+      status = 'FAILED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Step Functions
+    - Step Functions
 Title: Find AWS Step Functions Execution Status and Details

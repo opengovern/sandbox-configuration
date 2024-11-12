@@ -1,27 +1,31 @@
-Description: Allows users to query VPC Verified Access Groups within AWS Virtual Private
-  Cloud (VPC). This table provides information about each verified access group within
-  a VPC, including details such as group ID, group name, and the VPC ID it is associated
-  with.
+Description: Allows users to query VPC Verified Access Groups within AWS Virtual Private Cloud (VPC). This table provides information about each verified access group within a VPC, including details such as group ID, group name, and the VPC ID it is associated with.
 ID: aws_vpc_verified_access_group_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  g.verified_access_group_id,\n  g.creation_time,\n  i.creation_time\
-    \ as instance_create_time,\n  i.verified_access_instance_id,\n  jsonb_pretty(i.verified_access_trust_providers)\
-    \ as verified_access_trust_providers\nfrom\n  aws_vpc_verified_access_group as\
-    \ g,\n  aws_vpc_verified_access_instance as i\nwhere\n  g.verified_access_instance_id\
-    \ = i.verified_access_instance_id;"
+  QueryToExecute: |
+    SELECT
+      g.verified_access_group_id,
+      g.creation_time,
+      i.creation_time AS instance_create_time,
+      i.verified_access_instance_id,
+      JSONB_PRETTY(i.verified_access_trust_providers) AS verified_access_trust_providers
+    FROM
+      aws_vpc_verified_access_group AS g,
+      aws_vpc_verified_access_instance AS i
+    WHERE
+      g.verified_access_instance_id = i.verified_access_instance_id;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Virtual Private Cloud
+    - Virtual Private Cloud
 Title: List AWS VPC Verified Access Groups within AWS VPC

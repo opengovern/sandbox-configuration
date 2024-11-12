@@ -1,23 +1,30 @@
-Description: Allows users to query AWS SSM Documents and retrieve detailed information
-  about each document, including its name, version, owner, status, and permissions,
-  among others.
+Description: Allows users to query AWS SSM Documents and retrieve detailed information about each document, including its name, version, owner, status, and permissions, among others.
 ID: aws_ssm_document_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  approved_version,\n  created_date,\n\
-    \  document_type\nfrom\n  aws_ssm_document\nwhere\n  arn = 'arn:aws:ssm:ap-south-1:112233445566:document/AWS-ASGEnterStandby';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      approved_version,
+      created_date,
+      document_type
+    FROM
+      aws_ssm_document
+    WHERE
+      arn = 'arn:aws:ssm:ap-south-1:112233445566:document/AWS-ASGEnterStandby';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM
+    - SSM
 Title: Find all AWS SSM Document Details with SQL

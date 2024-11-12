@@ -1,21 +1,28 @@
-Description: Allows users to query AWS Route 53 Resolver Endpoints, providing detailed
-  information about each endpoint, including its ID, direction, IP addresses, and
-  status, among other details.
+Description: Allows users to query AWS Route 53 Resolver Endpoints, providing detailed information about each endpoint, including its ID, direction, IP addresses, and status, among other details.
 ID: aws_route53_resolver_endpoint_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  direction,\n  status,\n  status_message\n\
-    from\n  aws_route53_resolver_endpoint\nwhere\n  status = 'ACTION_NEEDED';"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      direction,
+      status,
+      status_message
+    FROM
+      aws_route53_resolver_endpoint
+    WHERE
+      status = 'ACTION_NEEDED';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53 Resolver
+    - Route 53 Resolver
 Title: List all AWS Route 53 Resolver Endpoints Needing Action

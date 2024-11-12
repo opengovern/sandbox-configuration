@@ -1,24 +1,31 @@
-Description: Allows users to query AWS DLM Lifecycle Policies to retrieve detailed
-  information about each policy, including its configuration, status, and tags.
+Description: Allows users to query AWS DLM Lifecycle Policies to retrieve detailed information about each policy, including its configuration, status, and tags.
 ID: aws_dlm_lifecycle_policy_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  policy_id,\n  arn,\n  date_created,\n  policy_type,\n\
-    \  s -> 'RetainRule' ->> 'Count' as retain_count\nfrom\n  aws_dlm_lifecycle_policy,\n\
-    \  jsonb_array_elements(policy_details -> 'Schedules') s\nwhere \n  s -> 'RetainRule'\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      policy_id,
+      arn,
+      date_created,
+      policy_type,
+      s -> 'RetainRule' ->> 'Count' AS retain_count
+    FROM
+      aws_dlm_lifecycle_policy,
+      jsonb_array_elements(policy_details -> 'Schedules') s
+    WHERE
+      s -> 'RetainRule' IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS DLM
+    - AWS DLM
 Title: List AWS DLM Lifecycle Policies with Configuration and Status

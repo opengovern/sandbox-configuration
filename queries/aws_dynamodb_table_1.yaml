@@ -1,22 +1,27 @@
-Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information
-  about their configuration, status, and associated attributes.
+Description: Allows users to query AWS DynamoDB Tables and retrieve detailed information about their configuration, status, and associated attributes.
 ID: aws_dynamodb_table_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  sse_description\nfrom\n  aws_dynamodb_table\n\
-    where\n  sse_description is null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      sse_description
+    FROM
+      aws_dynamodb_table
+    WHERE
+      sse_description IS NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DynamoDB
+    - DynamoDB
 Title: Find AWS DynamoDB Tables with Missing SSE Description

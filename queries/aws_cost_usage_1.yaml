@@ -1,24 +1,34 @@
-Description: Allows users to query Cost and Usage data from AWS Cost Explorer Service
-  to monitor, track, and manage AWS costs and usage over time.
+Description: Allows users to query Cost and Usage data from AWS Cost Explorer Service to monitor, track, and manage AWS costs and usage over time.
 ID: aws_cost_usage_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  period_start,\n  dimension_1 as account_id,\n  dimension_2\
-    \ as service_name,\n  net_unblended_cost_amount::numeric::money\nfrom\n  aws_cost_usage\n\
-    where\n  granularity = 'MONTHLY'\n  and dimension_type_1 = 'LINKED_ACCOUNT'\n\
-    \  and dimension_type_2 = 'SERVICE'\norder by\n  dimension_1,\n  period_start;"
+  QueryToExecute: |
+    SELECT
+      period_start,
+      dimension_1 AS account_id,
+      dimension_2 AS service_name,
+      net_unblended_cost_amount::numeric::money
+    FROM
+      aws_cost_usage
+    WHERE
+      granularity = 'MONTHLY'
+      AND dimension_type_1 = 'LINKED_ACCOUNT'
+      AND dimension_type_2 = 'SERVICE'
+    ORDER BY
+      dimension_1,
+      period_start;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer Service
+    - Cost Explorer Service
 Title: Find AWS Cost Explorer Service Cost and Usage Data

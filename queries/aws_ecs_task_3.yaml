@@ -1,21 +1,25 @@
-Description: Allows users to query AWS ECS Tasks to obtain detailed information about
-  each task, including its status, task definition, cluster, and other related metadata.
+Description: Allows users to query AWS ECS Tasks to obtain detailed information about each task, including its status, task definition, cluster, and other related metadata.
 ID: aws_ecs_task_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cluster_name,\n  task_arn,\n  protection ->> 'ProtectionEnabled'\
-    \ as protection_enabled,\n  protection ->> 'ExpirationDate' as protection_expiration_date\n\
-    from\n  aws_ecs_task;"
+  QueryToExecute: |
+    SELECT
+      cluster_name,
+      task_arn,
+      protection ->> 'ProtectionEnabled' AS protection_enabled,
+      protection ->> 'ExpirationDate' AS protection_expiration_date
+    FROM
+      aws_ecs_task;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: List all AWS ECS Tasks with Detailed Metadata

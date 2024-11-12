@@ -1,21 +1,25 @@
-Description: Allows users to query AWS Macie2 Classification Jobs and retrieve detailed
-  information about each job''s settings, status, and results.
+Description: Allows users to query AWS Macie2 Classification Jobs and retrieve detailed information about each job's settings, status, and results.
 ID: aws_macie2_classification_job_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  job_id,\n  arn,\n  statistics ->> 'ApproximateNumberOfObjectsToProcess'\
-    \ as approximate_number_of_objects_to_process,\n  statistics ->> 'NumberOfRuns'\
-    \ as number_of_runs\nfrom\n  aws_macie2_classification_job;"
+  QueryToExecute: |
+    SELECT
+      job_id,
+      arn,
+      statistics ->> 'ApproximateNumberOfObjectsToProcess' AS approximate_number_of_objects_to_process,
+      statistics ->> 'NumberOfRuns' AS number_of_runs
+    FROM
+      aws_macie2_classification_job;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Macie2
+    - Macie2
 Title: List AWS Macie2 Classification Jobs and Details

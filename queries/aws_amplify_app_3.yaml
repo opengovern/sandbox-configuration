@@ -1,21 +1,28 @@
-Description: Allows users to query AWS Amplify Apps to retrieve detailed information
-  about each application, including its name, ARN, creation date, default domain,
-  and more.
+Description: Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more.
 ID: aws_amplify_app_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  app_id,\n  update_time\nfrom\n  aws_amplify_app\n\
-    where\n  update_time >= (now() - interval '1' hour)\norder by\n  update_time;"
+  QueryToExecute: |
+    SELECT
+      name,
+      app_id,
+      update_time
+    FROM
+      aws_amplify_app
+    WHERE
+      update_time >= (NOW() - INTERVAL '1' HOUR)
+    ORDER BY
+      update_time;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amplify
+    - Amplify
 Title: List all AWS Amplify Apps with Recent Update Time

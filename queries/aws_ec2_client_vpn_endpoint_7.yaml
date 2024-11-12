@@ -1,26 +1,31 @@
-Description: Allows users to query AWS EC2 Client VPN Endpoints to retrieve detailed
-  information about the configuration, status, and associated network details of each
-  endpoint.
+Description: Allows users to query AWS EC2 Client VPN Endpoints to retrieve detailed information about the configuration, status, and associated network details of each endpoint.
 ID: aws_ec2_client_vpn_endpoint_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  status ->> 'Code' as status,\n  client_vpn_endpoint_id,\n\
-    \  autentication ->> 'Type' as authentication_options_type,\n  autentication ->\
-    \ 'MutualAuthentication' ->> 'ClientRootCertificateChain' as authentication_client_root_certificate_chain,\n\
-    \  authentication_options,\n  tags\nfrom\n  aws_ec2_client_vpn_endpoint,\n  jsonb_array_elements(authentication_options)\
-    \ as autentication;"
+  QueryToExecute: |
+    SELECT
+      title,
+      status ->> 'Code' AS status,
+      client_vpn_endpoint_id,
+      autentication ->> 'Type' AS authentication_options_type,
+      autentication -> 'MutualAuthentication' ->> 'ClientRootCertificateChain' AS authentication_client_root_certificate_chain,
+      authentication_options,
+      tags
+    FROM
+      aws_ec2_client_vpn_endpoint,
+      jsonb_array_elements(authentication_options) AS autentication;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: List all Configuration and Status of EC2 Client VPN Endpoints

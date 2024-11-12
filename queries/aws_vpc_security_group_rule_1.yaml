@@ -1,23 +1,31 @@
-Description: Allows users to query AWS VPC Security Group Rule, providing detailed
-  information about security group rules within Amazon Virtual Private Cloud (VPC).
+Description: Allows users to query AWS VPC Security Group Rule, providing detailed information about security group rules within Amazon Virtual Private Cloud (VPC).
 ID: aws_vpc_security_group_rule_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  security_group_rule_id,\n  group_id,\n  ip_protocol,\n\
-    \  from_port,\n  to_port\nfrom\n  aws_vpc_security_group_rule\nwhere\n  cidr_ipv4\
-    \ = '0.0.0.0/0'\n  and not is_egress;"
+  QueryToExecute: |
+    SELECT
+      security_group_rule_id,
+      group_id,
+      ip_protocol,
+      from_port,
+      to_port
+    FROM
+      aws_vpc_security_group_rule
+    WHERE
+      cidr_ipv4 = '0.0.0.0/0'
+      AND NOT is_egress;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon VPC
+    - Amazon VPC
 Title: List AWS VPC Security Group Rules using SQL

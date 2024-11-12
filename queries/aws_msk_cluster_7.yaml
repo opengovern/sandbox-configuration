@@ -1,19 +1,22 @@
 Description: Allows users to query AWS Managed Streaming for Apache Kafka (MSK) clusters.
 ID: aws_msk_cluster_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  sum((provisioned -> 'BrokerNodeGroupInfo' -> 'StorageInfo'\
-    \ -> 'EbsStorageInfo' ->> 'VolumeSize')::int) as total_storage\nfrom\n  aws_msk_cluster;"
+  QueryToExecute: |
+    SELECT
+      SUM((provisioned -> 'BrokerNodeGroupInfo' -> 'StorageInfo' -> 'EbsStorageInfo' ->> 'VolumeSize')::int) AS total_storage
+    FROM
+      aws_msk_cluster;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Managed Streaming for Apache Kafka
+    - Managed Streaming for Apache Kafka
 Title: Find Total Storage of AWS MSK Clusters

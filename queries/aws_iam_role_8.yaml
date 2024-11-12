@@ -1,32 +1,35 @@
-Description: Allows users to query IAM Roles to gain insights into their permissions,
-  trust policies, and associated metadata.
+Description: Allows users to query IAM Roles to gain insights into their permissions, trust policies, and associated metadata.
 ID: aws_iam_role_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  maintenance.name,\n  admin.name,\n  jsonb_pretty(maintenance_stmt),\n\
-    \  jsonb_pretty(admin_stmt)\nfrom\n  -- use the account to get the organization_id\n\
-    \  aws_account as a,\n  -- check any role as the \"maintenance-role\"\n  aws_iam_role\
-    \ as maintenance,\n  -- Combine via join with any role as the \"admin-role\"\n\
-    \  aws_iam_role as admin,\n  jsonb_array_elements(maintenance.assume_role_policy_std\
-    \ -> 'Statement') as maintenance_stmt,\n  jsonb_array_elements(admin.assume_role_policy_std\
-    \ -> 'Statement') as admin_stmt\nwhere\n  -- maintenance role can be assumed by\
-    \ any AWS principal\n  maintenance_stmt -> 'Principal' -> 'AWS' ? '*'\n  -- maintenance\
-    \ role principal must be in same account\n  and maintenance_stmt -> 'Condition'\
-    \ -> 'StringEquals' -> 'aws:principalorgid' ? a.organization_id\n  -- admin role\
-    \ specifically allow maintenance role\n  and admin_stmt -> 'Principal' -> 'AWS'\
-    \ ? maintenance.arn;"
+  QueryToExecute: |
+    SELECT
+      maintenance.name,
+      admin.name,
+      JSONB_PRETTY(maintenance_stmt),
+      JSONB_PRETTY(admin_stmt)
+    FROM
+      aws_account AS a,
+      aws_iam_role AS maintenance,
+      aws_iam_role AS admin,
+      JSONB_ARRAY_ELEMENTS(maintenance.assume_role_policy_std -> 'Statement') AS maintenance_stmt,
+      JSONB_ARRAY_ELEMENTS(admin.assume_role_policy_std -> 'Statement') AS admin_stmt
+    WHERE
+      maintenance_stmt -> 'Principal' -> 'AWS' ? '*'
+      AND maintenance_stmt -> 'Condition' -> 'StringEquals' -> 'aws:principalorgid' ? a.organization_id
+      AND admin_stmt -> 'Principal' -> 'AWS' ? maintenance.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM
+    - IAM
 Title: Find IAM Roles, Insights into Permissions and Policies in AWS

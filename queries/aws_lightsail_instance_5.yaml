@@ -1,20 +1,24 @@
-Description: Allows users to query AWS Lightsail Instances and retrieve detailed information
-  about each instance such as instance state, type, associated bundles, and more.
+Description: Allows users to query AWS Lightsail Instances and retrieve detailed information about each instance such as instance state, type, associated bundles, and more.
 ID: aws_lightsail_instance_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  hardware ->> 'CpuCount' as \"CPU Count\",\n\
-    \  hardware ->> 'RamSizeInGb' as \"RAM Size (in GB)\"\nfrom\n  aws_lightsail_instance;"
+  QueryToExecute: |
+    SELECT
+      name,
+      hardware ->> 'CpuCount' AS "CPU Count",
+      hardware ->> 'RamSizeInGb' AS "RAM Size (in GB)"
+    FROM
+      aws_lightsail_instance;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: Find AWS Lightsail Instances with Details

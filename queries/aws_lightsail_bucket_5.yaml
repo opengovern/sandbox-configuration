@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information
-  such as bucket configuration, access rules, tags, and more.
+Description: Allows users to query AWS Lightsail Buckets and retrieve detailed information such as bucket configuration, access rules, tags, and more.
 ID: aws_lightsail_bucket_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  tags\nfrom\n  aws_lightsail_bucket\nwhere\n\
-    \  tags is null or tags = '[]';"
+  QueryToExecute: |
+    SELECT
+      name,
+      tags
+    FROM
+      aws_lightsail_bucket
+    WHERE
+      tags IS NULL
+      OR tags = '[]';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: Find all AWS Lightsail Buckets without tags

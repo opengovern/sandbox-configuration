@@ -1,23 +1,35 @@
-Description: Allows users to query Amazon EC2 EBS Volume Read Operations metrics on
-  an hourly basis.
+Description: Allows users to query Amazon EC2 EBS Volume Read Operations metrics on an hourly basis.
 ID: aws_ebs_volume_metric_read_ops_hourly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  volume_id,\n  timestamp,\n  minimum,\n  maximum,\n  average,\n\
-    \  sum,\n  sample_count\nfrom\n  aws_ebs_volume_metric_read_ops_hourly\nwhere\n\
-    \  average > 1000\norder by\n  volume_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      volume_id,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    FROM
+      aws_ebs_volume_metric_read_ops_hourly
+    WHERE
+      average > 1000
+    ORDER BY
+      volume_id,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon EC2
+    - Amazon EC2
 Title: List all Amazon EC2 EBS Volume Read Ops metrics hourly

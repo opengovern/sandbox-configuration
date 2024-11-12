@@ -1,25 +1,35 @@
-Description: Allows users to query AWS GuardDuty Publishing Destinations to retrieve
-  information about where GuardDuty findings are published.
+Description: Allows users to query AWS GuardDuty Publishing Destinations to retrieve information about where GuardDuty findings are published.
 ID: aws_guardduty_publishing_destination_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  d.destination_id,\n  p ->> 'Sid' as sid,\n  p ->> 'Action'\
-    \ as policy_action,\n  p ->> 'Effect' as effect,\n  p ->> 'Principal' as policy_principal,\n\
-    \  p ->> 'Condition' as policy_condition\nfrom\n  aws_guardduty_publishing_destination\
-    \ as d,\n  aws_kms_key as k,\n  jsonb_array_elements(k.policy -> 'Statement')\
-    \ as p\nwhere\n  d.kms_key_arn is not null\nand\n  k.arn = d.kms_key_arn;"
+  QueryToExecute: |
+    SELECT
+      d.destination_id,
+      p ->> 'Sid' AS sid,
+      p ->> 'Action' AS policy_action,
+      p ->> 'Effect' AS effect,
+      p ->> 'Principal' AS policy_principal,
+      p ->> 'Condition' AS policy_condition
+    FROM
+      aws_guardduty_publishing_destination AS d,
+      aws_kms_key AS k,
+      jsonb_array_elements(k.policy -> 'Statement') AS p
+    WHERE
+      d.kms_key_arn IS NOT NULL
+    AND
+      k.arn = d.kms_key_arn;
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - GuardDuty
+    - GuardDuty
 Title: Find all AWS GuardDuty Publishing Destinations

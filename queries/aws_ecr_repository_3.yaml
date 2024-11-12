@@ -1,23 +1,27 @@
-Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
-  and retrieve detailed information about each repository.
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository.
 ID: aws_ecr_repository_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  image_scanning_configuration ->>\
-    \ 'ScanOnPush' as scan_on_push\nfrom\n  aws_ecr_repository\nwhere\n  image_scanning_configuration\
-    \ ->> 'ScanOnPush' = 'false';"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      image_scanning_configuration ->> 'ScanOnPush' AS scan_on_push
+    FROM
+      aws_ecr_repository
+    WHERE
+      image_scanning_configuration ->> 'ScanOnPush' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry
+    - Elastic Container Registry
 Title: Find AWS ECR Repositories Not Scanning on Push

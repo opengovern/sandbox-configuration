@@ -1,23 +1,25 @@
-Description: Allows users to query AWS ECS Task Definitions to gain insights into
-  the configuration of running tasks in an ECS service. The table provides details
-  such as task definition ARN, family, network mode, revision, status, and more.
+Description: Allows users to query AWS ECS Task Definitions to gain insights into the configuration of running tasks in an ECS service. The table provides details such as task definition ARN, family, network mode, revision, status, and more.
 ID: aws_ecs_task_definition_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  task_definition_arn,\n  jsonb_array_length(container_definitions)\
-    \ as num_of_conatiners\nfrom\n  aws_ecs_task_definition;"
+  QueryToExecute: |
+    SELECT
+      task_definition_arn,
+      JSONB_ARRAY_LENGTH(container_definitions) AS num_of_containers
+    FROM
+      aws_ecs_task_definition;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ECS
+    - ECS
 Title: Find AWS ECS Task Definitions Configuration Details

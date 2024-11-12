@@ -1,27 +1,31 @@
-Description: Allows users to query AWS Database Migration Service Source Servers for
-  detailed information about the replication servers used in database migrations.
+Description: Allows users to query AWS Database Migration Service Source Servers for detailed information about the replication servers used in database migrations.
 ID: aws_drs_source_server_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  data_replication_info ->> 'DataReplicationState'\
-    \ as data_replication_state,\n  data_replication_info ->> 'DataReplicationError'\
-    \ as data_replication_error,\n  data_replication_info -> 'DataReplicationInitiation'\
-    \ ->> 'StartDateTime' as data_replication_start_date_time,\n  data_replication_info\
-    \ -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' as data_replication_next_attempt_date_time\n\
-    from\n  aws_drs_source_server\nwhere\n  data_replication_info ->> 'DataReplicationState'\
-    \ = 'DISCONNECTED';"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      data_replication_info ->> 'DataReplicationState' AS data_replication_state,
+      data_replication_info ->> 'DataReplicationError' AS data_replication_error,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'StartDateTime' AS data_replication_start_date_time,
+      data_replication_info -> 'DataReplicationInitiation' ->> 'NextAttemptDateTime' AS data_replication_next_attempt_date_time
+    FROM
+      aws_drs_source_server
+    WHERE
+      data_replication_info ->> 'DataReplicationState' = 'DISCONNECTED';
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Database Migration Service
+    - Database Migration Service
 Title: Find AWS DMS Source Server Data Replication Details

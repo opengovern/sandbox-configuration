@@ -1,27 +1,41 @@
-Description: Allows users to query Cost Forecasts in AWS Cost Explorer for monthly
-  cost predictions.
+Description: Allows users to query Cost Forecasts in AWS Cost Explorer for monthly cost predictions.
 ID: aws_cost_forecast_monthly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with cost_data as (\n  select\n    period_start,\n    mean_value\
-    \ as this_month,\n    lag(mean_value,-1) over(order by period_start desc) as previous_month\n\
-    \  from \n    aws_cost_forecast_monthly\n)\nselect\n    period_start,\n    this_month::numeric::money,\n\
-    \    previous_month::numeric::money,\n    case \n      when previous_month = 0\
-    \ and this_month = 0  then 0\n      when previous_month = 0 then 999\n      else\
-    \ round((100 * ( (this_month - previous_month) / previous_month))::numeric, 2)\
-    \ \n    end as percent_change\nfrom\n  cost_data\norder by\n  period_start;"
+  QueryToExecute: |
+    WITH cost_data AS (
+      SELECT
+        period_start,
+        mean_value AS this_month,
+        LAG(mean_value, -1) OVER(ORDER BY period_start DESC) AS previous_month
+      FROM 
+        aws_cost_forecast_monthly
+    )
+    SELECT
+      period_start,
+      this_month::numeric::money,
+      previous_month::numeric::money,
+      CASE 
+        WHEN previous_month = 0 AND this_month = 0 THEN 0
+        WHEN previous_month = 0 THEN 999
+        ELSE ROUND((100 * ((this_month - previous_month) / previous_month))::numeric, 2) 
+      END AS percent_change
+    FROM
+      cost_data
+    ORDER BY
+      period_start;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: List AWS Monthly Cost Forecasts using SQL

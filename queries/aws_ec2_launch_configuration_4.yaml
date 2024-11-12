@@ -1,20 +1,23 @@
-Description: Allows users to query AWS EC2 Launch Configurations to gain insights
-  into their configurations, metadata, and associated instances.
+Description: Allows users to query AWS EC2 Launch Configurations to gain insights into their configurations, metadata, and associated instances.
 ID: aws_ec2_launch_configuration_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  jsonb_array_elements_text(security_groups) as\
-    \ security_groups\nfrom\n  aws_ec2_launch_configuration;"
+  QueryToExecute: |
+    SELECT
+      name,
+      JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS security_groups
+    FROM
+      aws_ec2_launch_configuration;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find AWS EC2 Launch Configurations and Security Groups

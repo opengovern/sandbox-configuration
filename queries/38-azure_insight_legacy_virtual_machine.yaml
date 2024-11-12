@@ -1,46 +1,105 @@
 Description: This insight identifies virtual machines that are running on legacy hardware.
 ID: azure_insight_legacy_virtual_machine
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_application_gateway
+    - azure_application_gateway
   Parameters: []
   PrimaryTable: azure_application_gateway
-  QueryToExecute: 'SELECT name, power_state, id, subscription_id, og_account_id, og_resource_id
-    FROM azure_compute_virtual_machine WHERE (size = ''Standard_F1'' OR size = ''Standard_F2''
-    OR size = ''Standard_F4'' OR size = ''Standard_F8'' OR size = ''Standard_F16''
-    OR size = ''Standard_F1s'' OR size = ''Standard_F2s'' OR size = ''Standard_F4s''
-    OR size = ''Standard_F8s'' OR size = ''Standard_F16s'' OR size = ''Standard_NV6s_v2''
-    OR size = ''Standard_NV12s_v2'' OR size = ''Standard_NV24s_v2'' OR size = ''A0\Basic_A0''
-    OR size = ''A1\Basic_A1'' OR size = ''A2\Basic_A2'' OR size = ''A3\Basic_A3''
-    OR size = ''A4\Basic_A4'' OR size = ''Standard_A0'' OR size = ''Standard_A1''
-    OR size = ''Standard_A2'' OR size = ''Standard_A3'' OR size = ''Standard_A4''
-    OR size = ''Standard_A5'' OR size = ''Standard_A6'' OR size = ''Standard_A7''
-    OR size = ''Standard_A8'' OR size = ''Standard_A9'' OR size = ''Standard_A10''
-    OR size = ''Standard_A11'' OR size = ''Standard_D1'' OR size = ''Standard_D2''
-    OR size = ''Standard_D3'' OR size = ''Standard_D4'' OR size = ''Standard_D11''
-    OR size = ''Standard_D12'' OR size = ''Standard_D13'' OR size = ''Standard_D14''
-    OR size = ''Standard_DC2s'' OR size = ''Standard_DC4s'' OR size = ''Standard_DS1''
-    OR size = ''Standard_DS2'' OR size = ''Standard_DS3'' OR size = ''Standard_DS4''
-    OR size = ''Standard_DS11'' OR size = ''Standard_DS12'' OR size = ''Standard_DS13''
-    OR size = ''Standard_DS14'' OR size = ''Standard_L4s'' OR size = ''Standard_L8s''
-    OR size = ''Standard_L16s'' OR size = ''Standard_L32s'' OR size = ''Standard_GS1''
-    OR size = ''Standard_GS2'' OR size = ''Standard_GS3'' OR size = ''Standard_GS4''
-    OR size = ''Standard_GS5'' OR size = ''Standard_G1'' OR size = ''Standard_G2''
-    OR size = ''Standard_G3'' OR size = ''Standard_G4'' OR size = ''Standard_G5''
-    OR size = ''Standard_NC6'' OR size = ''Standard_NC12'' OR size = ''Standard_NC24''
-    OR size = ''Standard_NC24r'' OR size = ''Standard_NC6s_v2'' OR size = ''Standard_NC12s_v2''
-    OR size = ''Standard_NC24s_v2'' OR size = ''Standard_NC24rs_v2'' OR size = ''Standard_ND6s''
-    OR size = ''Standard_ND12s'' OR size = ''Standard_ND24s'' OR size = ''Standard_ND24rs'')
-
-    ;'
+  QueryToExecute: |
+    SELECT
+      name,
+      power_state,
+      id,
+      subscription_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      azure_compute_virtual_machine
+    WHERE
+      size IN (
+        'Standard_F1',
+        'Standard_F2',
+        'Standard_F4',
+        'Standard_F8',
+        'Standard_F16',
+        'Standard_F1s',
+        'Standard_F2s',
+        'Standard_F4s',
+        'Standard_F8s',
+        'Standard_F16s',
+        'Standard_NV6s_v2',
+        'Standard_NV12s_v2',
+        'Standard_NV24s_v2',
+        'A0/Basic_A0',
+        'A1/Basic_A1',
+        'A2/Basic_A2',
+        'A3/Basic_A3',
+        'A4/Basic_A4',
+        'Standard_A0',
+        'Standard_A1',
+        'Standard_A2',
+        'Standard_A3',
+        'Standard_A4',
+        'Standard_A5',
+        'Standard_A6',
+        'Standard_A7',
+        'Standard_A8',
+        'Standard_A9',
+        'Standard_A10',
+        'Standard_A11',
+        'Standard_D1',
+        'Standard_D2',
+        'Standard_D3',
+        'Standard_D4',
+        'Standard_D11',
+        'Standard_D12',
+        'Standard_D13',
+        'Standard_D14',
+        'Standard_DC2s',
+        'Standard_DC4s',
+        'Standard_DS1',
+        'Standard_DS2',
+        'Standard_DS3',
+        'Standard_DS4',
+        'Standard_DS11',
+        'Standard_DS12',
+        'Standard_DS13',
+        'Standard_DS14',
+        'Standard_L4s',
+        'Standard_L8s',
+        'Standard_L16s',
+        'Standard_L32s',
+        'Standard_GS1',
+        'Standard_GS2',
+        'Standard_GS3',
+        'Standard_GS4',
+        'Standard_GS5',
+        'Standard_G1',
+        'Standard_G2',
+        'Standard_G3',
+        'Standard_G4',
+        'Standard_G5',
+        'Standard_NC6',
+        'Standard_NC12',
+        'Standard_NC24',
+        'Standard_NC24r',
+        'Standard_NC6s_v2',
+        'Standard_NC12s_v2',
+        'Standard_NC24s_v2',
+        'Standard_NC24rs_v2',
+        'Standard_ND6s',
+        'Standard_ND12s',
+        'Standard_ND24s',
+        'Standard_ND24rs'
+      );
 Tags:
   category:
-  - Technical Debt
+    - Technical Debt
   persona:
-  - Executive
-  - Product
-  - FinOps
+    - Executive
+    - Product
+    - FinOps
 Title: Legacy Virtual Machine

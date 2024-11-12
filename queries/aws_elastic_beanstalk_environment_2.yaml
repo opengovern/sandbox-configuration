@@ -1,21 +1,25 @@
-Description: Allows users to query AWS Elastic Beanstalk Environments to gain insights
-  into their configuration, status, health, related applications, and other metadata.
+Description: Allows users to query AWS Elastic Beanstalk Environments to gain insights into their configuration, status, health, related applications, and other metadata.
 ID: aws_elastic_beanstalk_environment_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  environment_name,\n  abortable_operation_in_progress\n\
-    from\n  aws_elastic_beanstalk_environment\nwhere\n  abortable_operation_in_progress\
-    \ = 'true';"
+  QueryToExecute: |
+    SELECT
+      environment_name,
+      abortable_operation_in_progress
+    FROM
+      aws_elastic_beanstalk_environment
+    WHERE
+      abortable_operation_in_progress = 'true';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Beanstalk
+    - Elastic Beanstalk
 Title: Find AWS Elastic Beanstalk Environments and Operations

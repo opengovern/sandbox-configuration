@@ -1,21 +1,29 @@
-Description: Allows users to query AWS Redshift Event Subscriptions, providing insights
-  into the subscription''s configuration, status, and associated Redshift clusters.
+Description: Allows users to query AWS Redshift Event Subscriptions, providing insights into the subscription's configuration, status, and associated Redshift clusters.
 ID: aws_redshift_event_subscription_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cust_subscription_id,\n  customer_aws_id,\n  status,\n\
-    \  enabled,\n  sns_topic_arn,\n  subscription_creation_time\nfrom\n  aws_redshift_event_subscription\n\
-    where\n  enabled is false;"
+  QueryToExecute: |
+    SELECT
+      cust_subscription_id,
+      customer_aws_id,
+      status,
+      enabled,
+      sns_topic_arn,
+      subscription_creation_time
+    FROM
+      aws_redshift_event_subscription
+    WHERE
+      enabled IS false;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Redshift
+    - Redshift
 Title: Find all AWS Redshift Event Subscriptions

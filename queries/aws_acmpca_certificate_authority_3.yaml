@@ -1,21 +1,27 @@
-Description: Allows users to query AWS ACM PCA Certificate Authorities. It can be
-  used to monitor certificate authorities details, validity, usage mode and expiration
-  data.
+Description: Allows users to query AWS ACM PCA Certificate Authorities. It can be used to monitor certificate authorities details, validity, usage mode and expiration data.
 ID: aws_acmpca_certificate_authority_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  status,\n  created_at,\n  last_state_change_at\n\
-    from\n  aws_acmpca_certificate_authority\nwhere\n  status = 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      status,
+      created_at,
+      last_state_change_at
+    FROM
+      aws_acmpca_certificate_authority
+    WHERE
+      status = 'ACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ACM PCA
+    - ACM PCA
 Title: List all AWS ACM PCA Certificate Authorities details and status

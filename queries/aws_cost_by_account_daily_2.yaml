@@ -1,24 +1,31 @@
-Description: Allows users to query daily AWS costs by account. This table provides
-  an overview of AWS usage and cost data for each AWS account on a daily basis.
+Description: Allows users to query daily AWS costs by account. This table provides an overview of AWS usage and cost data for each AWS account on a daily basis.
 ID: aws_cost_by_account_daily_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  linked_account_id,\n  min(unblended_cost_amount)::numeric::money\
-    \ as min,\n  max(unblended_cost_amount)::numeric::money as max,\n  avg(unblended_cost_amount)::numeric::money\
-    \ as average\nfrom \n  aws_cost_by_account_daily\ngroup by\n  linked_account_id\n\
-    order by\n  linked_account_id;"
+  QueryToExecute: |
+    SELECT
+      linked_account_id,
+      MIN(unblended_cost_amount)::numeric::money AS min,
+      MAX(unblended_cost_amount)::numeric::money AS max,
+      AVG(unblended_cost_amount)::numeric::money AS average
+    FROM 
+      aws_cost_by_account_daily
+    GROUP BY
+      linked_account_id
+    ORDER BY
+      linked_account_id;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Cost Explorer
+    - AWS Cost Explorer
 Title: List AWS Daily Costs by Account Overview with SQL

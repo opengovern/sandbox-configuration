@@ -1,24 +1,28 @@
-Description: Allows users to query AWS ECS Container Instance to retrieve data about
-  the Amazon Elastic Container Service (ECS) container instances. This includes information
-  about the container instance ARN, status, running tasks count, pending tasks count,
-  agent connected status, and more.
+Description: Allows users to query AWS ECS Container Instance to retrieve data about the Amazon Elastic Container Service (ECS) container instances. This includes information about the container instance ARN, status, running tasks count, pending tasks count, agent connected status, and more.
 ID: aws_ecs_container_instance_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  setting ->> 'Name' as name,\n  setting ->> 'Value'\
-    \ as value\nfrom\n  aws_ecs_container_instance,\n  jsonb_array_elements(attributes)\
-    \ as setting\nwhere\n  setting ->> 'Name' = 'ecs.ami-id' and\n  setting ->> 'Value'\
-    \ = 'ami-0babb0c4a4e5769b8';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      setting ->> 'Name' AS name,
+      setting ->> 'Value' AS value
+    FROM
+      aws_ecs_container_instance,
+      jsonb_array_elements(attributes) AS setting
+    WHERE
+      setting ->> 'Name' = 'ecs.ami-id' 
+      AND setting ->> 'Value' = 'ami-0babb0c4a4e5769b8';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon Elastic Container Service
+    - Amazon Elastic Container Service
 Title: Find AWS ECS Container Instances with Specific AMI IDs

@@ -1,20 +1,26 @@
-Description: Allows users to query AWS Route 53 Domains for detailed information about
-  domain names, including their status, expiration date, and associated tags.
+Description: Allows users to query AWS Route 53 Domains for detailed information about domain names, including their status, expiration date, and associated tags.
 ID: aws_route53_domain_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  domain_name,\n  expiration_date,\n  transfer_lock\nfrom\n\
-    \  aws_route53_domain\nwhere\n  transfer_lock;"
+  QueryToExecute: |
+    SELECT
+      domain_name,
+      expiration_date,
+      transfer_lock
+    FROM
+      aws_route53_domain
+    WHERE
+      transfer_lock;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Route 53
+    - Route 53
 Title: Find AWS Route 53 Domains with Transfer Lock Status

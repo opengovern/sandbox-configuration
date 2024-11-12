@@ -1,23 +1,29 @@
-Description: Allows users to query AWS Cloud Control API Resource data, providing
-  detailed insights into resource properties, types, and statuses.
+Description: Allows users to query AWS Cloud Control API Resource data, providing detailed insights into resource properties, types, and statuses.
 ID: aws_cloudcontrol_resource_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  identifier,\n  properties ->> 'IncludeGlobalServiceEvents'\
-    \ as include_global_service_events,\n  properties ->> 'IsLogging' as is_logging,\n\
-    \  properties ->> 'IsMultiRegionTrail' as is_multi_region_trail,\n  region\nfrom\n\
-    \  aws_cloudcontrol_resource\nwhere\n  type_name = 'AWS::CloudTrail::Trail'\n\
-    \  and identifier = 'my-trail';"
+  QueryToExecute: |
+    SELECT
+      identifier,
+      properties ->> 'IncludeGlobalServiceEvents' AS include_global_service_events,
+      properties ->> 'IsLogging' AS is_logging,
+      properties ->> 'IsMultiRegionTrail' AS is_multi_region_trail,
+      region
+    FROM
+      aws_cloudcontrol_resource
+    WHERE
+      type_name = 'AWS::CloudTrail::Trail'
+      AND identifier = 'my-trail';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cloud Control API Resource
+    - Cloud Control API Resource
 Title: Find AWS Cloud Control API Resource using SQL

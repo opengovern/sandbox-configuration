@@ -1,21 +1,32 @@
-Description: Allows users to query AWS Health Events to retrieve information about
-  events that affect your AWS services and accounts.
+Description: Allows users to query AWS Health Events to retrieve information about events that affect your AWS services and accounts.
 ID: aws_health_event_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  availability_zone,\n  start_time,\n  end_time,\n\
-    \  event_type_category,\n  event_type_code,\n  event_scope_code,\n  status_code,\n\
-    \  service\nfrom\n  aws_health_event\nwhere\n  availability_zone = 'us-east-1a';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      availability_zone,
+      start_time,
+      end_time,
+      event_type_category,
+      event_type_code,
+      event_scope_code,
+      status_code,
+      service
+    FROM
+      aws_health_event
+    WHERE
+      availability_zone = 'us-east-1a';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Health
+    - AWS Health
 Title: List all AWS Health Events affecting services and accounts

@@ -1,23 +1,27 @@
-Description: Allows users to query Amazon ElastiCache Cluster data, providing information
-  about each ElastiCache Cluster within the AWS account.
+Description: Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account.
 ID: aws_elasticache_cluster_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  sg ->> 'SecurityGroupId' as security_group_id,\n\
-    \  sg ->> 'Status' as status\nfrom\n  aws_elasticache_cluster,\n  jsonb_array_elements(security_groups)\
-    \ as sg;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      sg ->> 'SecurityGroupId' AS security_group_id,
+      sg ->> 'Status' AS status
+    FROM
+      aws_elasticache_cluster,
+      jsonb_array_elements(security_groups) AS sg;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: List All Amazon ElastiCache Clusters with Security Details

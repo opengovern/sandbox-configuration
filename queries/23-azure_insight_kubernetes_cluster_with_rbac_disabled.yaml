@@ -1,17 +1,30 @@
 Description: List clusters that have role-based access control (RBAC) disabled
 ID: azure_insight_kubernetes_cluster_with_rbac_disabled
 IntegrationType:
-- azure_subscription
+  - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - azure_kubernetes_cluster
+    - azure_kubernetes_cluster
   Parameters: []
   PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: "select\n  name,\n  id,\n  location,\n  type,\n  identity,\n  enable_rbac,\n\
-    \  sku, subscription_id, og_account_id, og_resource_id\nfrom\n  azure_kubernetes_cluster\n\
-    where\n  not enable_rbac;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      location,
+      type,
+      identity,
+      enable_rbac,
+      sku,
+      subscription_id,
+      og_account_id,
+      og_resource_id
+    FROM
+      azure_kubernetes_cluster
+    WHERE
+      NOT enable_rbac;
 Tags:
   category:
-  - Security
+    - Security
 Title: Clusters with no RBAC

@@ -1,19 +1,27 @@
 Description: Allows users to query AWS Elastic MapReduce Cluster data.
 ID: aws_emr_cluster_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  cluster_arn,\n  name,\n  auto_terminate,\n  status\
-    \ ->> 'State' as state,\n  tags\nfrom\n  aws_emr_cluster;"
+  QueryToExecute: |
+    SELECT
+      id,
+      cluster_arn,
+      name,
+      auto_terminate,
+      status ->> 'State' AS state,
+      tags
+    FROM
+      aws_emr_cluster;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic MapReduce
+    - Elastic MapReduce
 Title: List all AWS Elastic MapReduce Cluster data

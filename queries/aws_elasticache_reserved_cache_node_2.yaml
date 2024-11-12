@@ -1,23 +1,30 @@
-Description: Allows users to query AWS ElastiCache Reserved Cache Nodes to gather
-  details such as the reservation status, start time, duration, and associated metadata.
+Description: Allows users to query AWS ElastiCache Reserved Cache Nodes to gather details such as the reservation status, start time, duration, and associated metadata.
 ID: aws_elasticache_reserved_cache_node_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  reserved_cache_node_id,\n  arn,\n  reserved_cache_nodes_offering_id,\n\
-    \  state,\n  cache_node_type\nfrom\n  aws_elasticache_reserved_cache_node\nwhere\n\
-    \  offering_type = 'All Upfront';"
+  QueryToExecute: |
+    SELECT
+      reserved_cache_node_id,
+      arn,
+      reserved_cache_nodes_offering_id,
+      state,
+      cache_node_type
+    FROM
+      aws_elasticache_reserved_cache_node
+    WHERE
+      offering_type = 'All Upfront';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: Find AWS ElastiCache Reserved Cache Node Details

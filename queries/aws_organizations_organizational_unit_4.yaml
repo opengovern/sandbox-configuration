@@ -1,20 +1,27 @@
-Description: Allows users to query AWS Organizations Organizational Units and provides
-  information about each OU.
+Description: Allows users to query AWS Organizations Organizational Units and provides information about each OU.
 ID: aws_organizations_organizational_unit_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  parent_id,\n  path\nfrom\n  aws_organizations_organizational_unit\n\
-    where\n  'r_wxnb.ou_wxnb_m8l123aq.ou_wxnb_5gri123b' @> path;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      parent_id,
+      path
+    FROM
+      aws_organizations_organizational_unit
+    WHERE
+      'r_wxnb.ou_wxnb_m8l123aq.ou_wxnb_5gri123b' @> path;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Organizations
+    - Organizations
 Title: Find all AWS Organizations Organizational Units

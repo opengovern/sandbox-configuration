@@ -1,23 +1,27 @@
-Description: Allows users to query AWS S3 buckets for detailed information about their
-  configuration, policies, and permissions.
+Description: Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions.
 ID: aws_s3_bucket_11
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  object_lock_configuration ->> 'ObjectLockEnabled'\
-    \ as object_lock_enabled\nfrom\n  aws_s3_bucket\nwhere\n  object_lock_configuration\
-    \ ->> 'ObjectLockEnabled' = 'Enabled';"
+  QueryToExecute: |
+    SELECT
+      name,
+      object_lock_configuration ->> 'ObjectLockEnabled' AS object_lock_enabled
+    FROM
+      aws_s3_bucket
+    WHERE
+      object_lock_configuration ->> 'ObjectLockEnabled' = 'Enabled';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find AWS S3 Buckets with Object Lock Enabled

@@ -1,24 +1,27 @@
-Description: Allows users to query AWS Serverless Application Repository Applications
-  to fetch details like application name, status, author, description, labels, license
-  URL, creation time, and more.
+Description: Allows users to query AWS Serverless Application Repository Applications to fetch details like application name, status, author, description, labels, license URL, creation time, and more.
 ID: aws_serverlessapplicationrepository_application_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  jsonb_pretty(statement -> 'Actions') as actions,\n\
-    \  jsonb_pretty(statement -> 'PrincipalOrgIDs') as principal_org_ids,\n  jsonb_pretty(statement\
-    \ -> 'Principals') as principals,\n  statement ->> 'StatementId' as statement_id\n\
-    from\n  aws_serverlessapplicationrepository_application,\n  jsonb_array_elements(statements)\
-    \ as statement;"
+  QueryToExecute: |
+    SELECT
+      name,
+      JSONB_PRETTY(statement -> 'Actions') AS actions,
+      JSONB_PRETTY(statement -> 'PrincipalOrgIDs') AS principal_org_ids,
+      JSONB_PRETTY(statement -> 'Principals') AS principals,
+      statement ->> 'StatementId' AS statement_id
+    FROM
+      aws_serverlessapplicationrepository_application,
+      JSONB_ARRAY_ELEMENTS(statements) AS statement;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Serverless Application Repository
+    - AWS Serverless Application Repository
 Title: List all AWS Serverless Application Repository Applications

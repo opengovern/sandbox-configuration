@@ -1,20 +1,25 @@
-Description: Allows users to query Amazon ElastiCache Cluster data, providing information
-  about each ElastiCache Cluster within the AWS account.
+Description: Allows users to query Amazon ElastiCache Cluster data, providing information about each ElastiCache Cluster within the AWS account.
 ID: aws_elasticache_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  preferred_availability_zone\nfrom\n\
-    \  aws_elasticache_cluster\nwhere\n  preferred_availability_zone <> 'Multiple';"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      preferred_availability_zone
+    FROM
+      aws_elasticache_cluster
+    WHERE
+      preferred_availability_zone <> 'Multiple';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon ElastiCache
+    - Amazon ElastiCache
 Title: Find Amazon ElastiCache Cluster Information within AWS

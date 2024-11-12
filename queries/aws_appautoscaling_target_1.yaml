@@ -1,22 +1,27 @@
-Description: Allows users to query AWS Application Auto Scaling Targets. This table
-  provides information about each target, including the service namespace, scalable
-  dimension, resource ID, and the associated scaling policies.
+Description: Allows users to query AWS Application Auto Scaling Targets. This table provides information about each target, including the service namespace, scalable dimension, resource ID, and the associated scaling policies.
 ID: aws_appautoscaling_target_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_namespace,\n  scalable_dimension,\n  resource_id,\n\
-    \  creation_time\nfrom\n  aws_appautoscaling_target\nwhere\n  service_namespace\
-    \ = 'dynamodb';"
+  QueryToExecute: |
+    SELECT
+      service_namespace,
+      scalable_dimension,
+      resource_id,
+      creation_time
+    FROM
+      aws_appautoscaling_target
+    WHERE
+      service_namespace = 'dynamodb';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Application Auto Scaling
+    - Application Auto Scaling
 Title: Find AWS Application Auto Scaling Targets using SQL

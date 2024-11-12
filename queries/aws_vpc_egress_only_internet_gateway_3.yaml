@@ -1,23 +1,31 @@
-Description: Allows users to query AWS VPC Egress Only Internet Gateways, which provide
-  egress only access for IPv6 traffic from the VPC to the internet.
+Description: Allows users to query AWS VPC Egress Only Internet Gateways, which provide egress only access for IPv6 traffic from the VPC to the internet.
 ID: aws_vpc_egress_only_internet_gateway_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vig.id,\n  vpc.is_default\nfrom\n  aws_vpc_egress_only_internet_gateway\
-    \ as vig\n  cross join jsonb_array_elements(attachments) as i\n  join aws_vpc\
-    \ vpc on i ->> 'VpcId' = vpc.vpc_id\nwhere\n  vpc.is_default = true;"
+  QueryToExecute: |
+    SELECT
+      vig.id,
+      vpc.is_default
+    FROM
+      aws_vpc_egress_only_internet_gateway AS vig
+    CROSS JOIN
+      jsonb_array_elements(attachments) AS i
+    JOIN
+      aws_vpc vpc ON i ->> 'VpcId' = vpc.vpc_id
+    WHERE
+      vpc.is_default = TRUE;
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC Egress Only Internet Gateways

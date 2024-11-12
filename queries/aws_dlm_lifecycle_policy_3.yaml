@@ -1,22 +1,29 @@
-Description: Allows users to query AWS DLM Lifecycle Policies to retrieve detailed
-  information about each policy, including its configuration, status, and tags.
+Description: Allows users to query AWS DLM Lifecycle Policies to retrieve detailed information about each policy, including its configuration, status, and tags.
 ID: aws_dlm_lifecycle_policy_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  policy_id,\n  arn,\n  date_created,\n  policy_type,\n\
-    \  s ->> 'CrossRegionCopyRules' as cross_region_copy_rules\nfrom\n  aws_dlm_lifecycle_policy,\n\
-    \  jsonb_array_elements(policy_details -> 'Schedules') s\nwhere \n  s ->> 'CrossRegionCopyRules'\
-    \ is not null;"
+  QueryToExecute: |
+    SELECT
+      policy_id,
+      arn,
+      date_created,
+      policy_type,
+      s ->> 'CrossRegionCopyRules' AS cross_region_copy_rules
+    FROM
+      aws_dlm_lifecycle_policy,
+      jsonb_array_elements(policy_details -> 'Schedules') s
+    WHERE
+      s ->> 'CrossRegionCopyRules' IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - DLM
+    - DLM
 Title: List all AWS DLM Lifecycle Policies with Configuration

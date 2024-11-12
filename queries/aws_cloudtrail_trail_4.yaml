@@ -1,22 +1,28 @@
-Description: Allows users to query AWS CloudTrail Trails for information about the
-  AWS CloudTrail service''s trail records. This includes trail configuration details,
-  status, and associated metadata.
+Description: Allows users to query AWS CloudTrail Trails for information about the AWS CloudTrail service's trail records. This includes trail configuration details, status, and associated metadata.
 ID: aws_cloudtrail_trail_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  trail.name as trail_name,\n  bucket.name as bucket_name,\n\
-    \  logging\nfrom\n  aws_cloudtrail_trail as trail\n  join aws_s3_bucket as bucket\
-    \ on trail.s3_bucket_name = bucket.name\nwhere\n  not versioning_enabled;"
+  QueryToExecute: |
+    SELECT
+      trail.name AS trail_name,
+      bucket.name AS bucket_name,
+      logging
+    FROM
+      aws_cloudtrail_trail AS trail
+      JOIN aws_s3_bucket AS bucket
+        ON trail.s3_bucket_name = bucket.name
+    WHERE
+      NOT versioning_enabled;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS CloudTrail
+    - AWS CloudTrail
 Title: List all AWS CloudTrail Trails with Bucket Details

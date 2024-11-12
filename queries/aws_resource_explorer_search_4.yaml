@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Resource Explorer to obtain a structured view
-  of all resources across AWS services. It provides detailed information about each
-  resource, including the service name, resource type, resource ID, and associated
-  tags.
+Description: Allows users to query AWS Resource Explorer to obtain a structured view of all resources across AWS services. It provides detailed information about each resource, including the service name, resource type, resource ID, and associated tags.
 ID: aws_resource_explorer_search_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  region,\n  resource_type,\n  service,\n  owning_account_id\n\
-    from\n  aws_resource_explorer_search\nwhere\n  query = 'resourcetype:iam:user';"
+  QueryToExecute: |
+    SELECT
+      arn,
+      region,
+      resource_type,
+      service,
+      owning_account_id
+    FROM
+      aws_resource_explorer_search
+    WHERE
+      query = 'resourcetype:iam:user';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Resource Explorer
+    - Resource Explorer
 Title: List All AWS Resources in Resource Explorer

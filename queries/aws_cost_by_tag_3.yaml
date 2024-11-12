@@ -1,25 +1,41 @@
-Description: Allows users to query AWS Cost Explorer to obtain cost allocation tags
-  and associated costs.
+Description: Allows users to query AWS Cost Explorer to obtain cost allocation tags and associated costs.
 ID: aws_cost_by_tag_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with ranked_costs as\n(\n  select\n    tag_key_1,\n    tag_value_1,\n\
-    \    period_start,\n    unblended_cost_amount::numeric::money,\n    rank() over(partition\
-    \ by tag_key_1\n  order by\n    unblended_cost_amount desc)\n  from\n    aws_cost_by_tag\n\
-    \  where\n    granularity = 'DAILY'\n    and tag_key_1 = 'Name'\n)\nselect\n \
-    \ *\nfrom\n  ranked_costs\nwhere\n  rank <= 10;"
+  QueryToExecute: |
+    WITH ranked_costs AS
+    (
+      SELECT
+        tag_key_1,
+        tag_value_1,
+        period_start,
+        unblended_cost_amount::numeric::money,
+        RANK() OVER (PARTITION BY tag_key_1
+                     ORDER BY unblended_cost_amount DESC)
+      FROM
+        aws_cost_by_tag
+      WHERE
+        granularity = 'DAILY'
+        AND tag_key_1 = 'Name'
+    )
+    SELECT
+      *
+    FROM
+      ranked_costs
+    WHERE
+      rank <= 10;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: List Top 10 AWS Costs by Tag Using SQL

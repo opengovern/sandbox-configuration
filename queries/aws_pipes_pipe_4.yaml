@@ -1,21 +1,24 @@
-Description: Allows users to query AWS Pipes to obtain detailed information about
-  individual pipes.
+Description: Allows users to query AWS Pipes to obtain detailed information about individual pipes.
 ID: aws_pipes_pipe_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  enrichment_parameters ->> 'HttpParameters' as\
-    \ http_parameters,\n  enrichment_parameters ->> 'InputTemplate' as input_template\n\
-    from\n  aws_pipes_pipe;"
+  QueryToExecute: |
+    SELECT
+      name,
+      enrichment_parameters ->> 'HttpParameters' AS http_parameters,
+      enrichment_parameters ->> 'InputTemplate' AS input_template
+    FROM
+      aws_pipes_pipe;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Pipes
+    - AWS Pipes
 Title: List All AWS Pipes and Their Details

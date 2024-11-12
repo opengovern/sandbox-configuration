@@ -1,21 +1,28 @@
-Description: Allows users to query AWS Account information, including details about
-  the account''s status, owner, and associated resources.
+Description: Allows users to query AWS Account information, including details about the account's status, owner, and associated resources.
 ID: aws_account_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  alias,\n  arn,\n  organization_id,\n  organization_master_account_email,\n\
-    \  organization_master_account_id\nfrom\n  aws_account\n  cross join jsonb_array_elements(account_aliases)\
-    \ as alias;"
+  QueryToExecute: |
+    SELECT
+      alias,
+      arn,
+      organization_id,
+      organization_master_account_email,
+      organization_master_account_id
+    FROM
+      aws_account
+    CROSS JOIN
+      jsonb_array_elements(account_aliases) AS alias;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Account
+    - AWS Account
 Title: List all AWS Account Details with Status and Owner

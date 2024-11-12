@@ -1,25 +1,34 @@
-Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories
-  and retrieve detailed information about each repository.
+Description: Allows users to query AWS Elastic Container Registry (ECR) Repositories and retrieve detailed information about each repository.
 ID: aws_ecr_repository_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  repository_name,\n  r -> 'selection' ->> 'tagStatus'\
-    \ as tag_status,\n  r -> 'selection' ->> 'countType' as count_type\nfrom\n  aws_ecr_repository,\n\
-    \  jsonb_array_elements(lifecycle_policy -> 'rules') as r\nwhere\n  (\n    (r\
-    \ -> 'selection' ->> 'tagStatus' <> 'untagged')\n    and (\n      r -> 'selection'\
-    \ ->> 'countType' <> 'sinceImagePushed'\n    )\n  );"
+  QueryToExecute: |
+    SELECT
+      repository_name,
+      r -> 'selection' ->> 'tagStatus' AS tag_status,
+      r -> 'selection' ->> 'countType' AS count_type
+    FROM
+      aws_ecr_repository,
+      jsonb_array_elements(lifecycle_policy -> 'rules') AS r
+    WHERE
+      (
+        (r -> 'selection' ->> 'tagStatus' <> 'untagged')
+        AND (
+          r -> 'selection' ->> 'countType' <> 'sinceImagePushed'
+        )
+      );
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Container Registry
+    - Elastic Container Registry
 Title: List all AWS ECR Repositories and Retrieve Detailed Information

@@ -1,23 +1,27 @@
-Description: Allows users to query AWS S3 buckets for detailed information about their
-  configuration, policies, and permissions.
+Description: Allows users to query AWS S3 buckets for detailed information about their configuration, policies, and permissions.
 ID: aws_s3_bucket_12
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  website_configuration -> 'IndexDocument' ->>\
-    \ 'Suffix' as suffix\nfrom\n  aws_s3_bucket\nwhere\n  website_configuration ->\
-    \ 'IndexDocument' ->> 'Suffix' is not null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      website_configuration -> 'IndexDocument' ->> 'Suffix' AS suffix
+    FROM
+      aws_s3_bucket
+    WHERE
+      website_configuration -> 'IndexDocument' ->> 'Suffix' IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - S3
+    - S3
 Title: Find all detailed AWS S3 Bucket Information via SQL

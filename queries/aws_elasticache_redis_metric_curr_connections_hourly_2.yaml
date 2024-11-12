@@ -1,25 +1,34 @@
-Description: Allows users to query ElastiCache Redis current connections metrics on
-  an hourly basis.
+Description: Allows users to query ElastiCache Redis current connections metrics on an hourly basis.
 ID: aws_elasticache_redis_metric_curr_connections_hourly_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  cache_cluster_id,\n  timestamp,\n  round(minimum::numeric,2)\
-    \ as min_currconnections,\n  round(maximum::numeric,2) as max_currconnections,\n\
-    \  round(average::numeric,2) as avg_currconnections,\n  sample_count\nfrom\n \
-    \ aws_elasticache_redis_metric_curr_connections_hourly\nwhere average > 100\n\
-    order by\n  cache_cluster_id,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      cache_cluster_id,
+      timestamp,
+      ROUND(MIN(minimum::numeric), 2) AS min_currconnections,
+      ROUND(MAX(maximum::numeric), 2) AS max_currconnections,
+      ROUND(AVG(average::numeric), 2) AS avg_currconnections,
+      sample_count
+    FROM
+      aws_elasticache_redis_metric_curr_connections_hourly
+    WHERE
+      average > 100
+    ORDER BY
+      cache_cluster_id,
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - ElastiCache
+    - ElastiCache
 Title: Find ElastiCache Redis Current Hourly Connections

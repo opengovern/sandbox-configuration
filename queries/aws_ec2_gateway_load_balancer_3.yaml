@@ -1,23 +1,30 @@
-Description: Allows users to query AWS EC2 Gateway Load Balancer details, including
-  its configuration, state, type, and associated tags.
+Description: Allows users to query AWS EC2 Gateway Load Balancer details, including its configuration, state, type, and associated tags.
 ID: aws_ec2_gateway_load_balancer_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  count(az ->> 'ZoneName') as zone_count\nfrom\n\
-    \  aws_ec2_gateway_load_balancer,\n  jsonb_array_elements(availability_zones)\
-    \ as az\ngroup by\n  name\nhaving\n  count(az ->> 'ZoneName') < 2;"
+  QueryToExecute: |
+    SELECT
+      name,
+      COUNT(az ->> 'ZoneName') AS zone_count
+    FROM
+      aws_ec2_gateway_load_balancer,
+      jsonb_array_elements(availability_zones) AS az
+    GROUP BY
+      name
+    HAVING
+      COUNT(az ->> 'ZoneName') < 2;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Gateway Load Balancer
+    - EC2 Gateway Load Balancer
 Title: Find AWS EC2 Gateway Load Balancer Details and Configuration

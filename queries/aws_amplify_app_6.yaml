@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Amplify Apps to retrieve detailed information
-  about each application, including its name, ARN, creation date, default domain,
-  and more.
+Description: Allows users to query AWS Amplify Apps to retrieve detailed information about each application, including its name, ARN, creation date, default domain, and more.
 ID: aws_amplify_app_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  redirects_array ->> 'Condition' as country_code,\n\
-    \  redirects_array ->> 'Source' as source_address,\n  redirects_array ->> 'Status'\
-    \ as redirect_type,\n  redirects_array ->> 'Target' as destination_address\nfrom\n\
-    \  aws_amplify_app,\n  jsonb_array_elements(custom_rules) as redirects_array\n\
-    where\n  redirects_array ->> 'Status' = '200'\n  and name = 'amplify_app_name';"
+  QueryToExecute: |
+    SELECT
+      name,
+      redirects_array ->> 'Condition' AS country_code,
+      redirects_array ->> 'Source' AS source_address,
+      redirects_array ->> 'Status' AS redirect_type,
+      redirects_array ->> 'Target' AS destination_address
+    FROM
+      aws_amplify_app,
+      jsonb_array_elements(custom_rules) AS redirects_array
+    WHERE
+      redirects_array ->> 'Status' = '200'
+      AND name = 'amplify_app_name';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amplify
+    - Amplify
 Title: Find AWS Amplify Apps with Detailed Information

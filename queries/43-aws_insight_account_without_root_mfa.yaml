@@ -1,22 +1,30 @@
 Description: AWS account whose root user does not have MFA enabled.
 ID: aws_insight_account_without_root_mfa
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-  - aws_iam_credential_report
+    - aws_iam_credential_report
   Parameters: []
   PrimaryTable: aws_iam_credential_report
-  QueryToExecute: select user_arn, account_id, og_account_id, og_resource_id from
-    aws_iam_credential_report where (user_name = '<root_account>' AND mfa_active =
-    false)
+  QueryToExecute: |
+    SELECT 
+      user_arn, 
+      account_id, 
+      og_account_id, 
+      og_resource_id 
+    FROM 
+      aws_iam_credential_report 
+    WHERE 
+      (user_name = '<root_account>' 
+      AND mfa_active = FALSE)
 Tags:
   category:
-  - Security
+    - Security
   persona:
-  - DevOps
-  - Security
-  - Executive
-  - Product
+    - DevOps
+    - Security
+    - Executive
+    - Product
 Title: AWS Account without Root MFA

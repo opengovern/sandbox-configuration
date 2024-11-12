@@ -1,20 +1,29 @@
 Description: Allows users to query AWS Service Quotas change requests.
 ID: aws_servicequotas_service_quota_change_request_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  case_id,\n  status,\n  quota_name,\n  quota_code,\n\
-    \  desired_value\nfrom\n  aws_servicequotas_service_quota_change_request\nwhere\n\
-    \  service_code = 'athena';"
+  QueryToExecute: |
+    SELECT
+      id,
+      case_id,
+      status,
+      quota_name,
+      quota_code,
+      desired_value
+    FROM
+      aws_servicequotas_service_quota_change_request
+    WHERE
+      service_code = 'athena';
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Service Quotas
+    - Service Quotas
 Title: Find all AWS Service Quotas change requests

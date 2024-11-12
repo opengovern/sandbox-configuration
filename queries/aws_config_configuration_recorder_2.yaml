@@ -1,21 +1,29 @@
 Description: Allows users to query AWS Config Configuration Recorder
 ID: aws_config_configuration_recorder_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  role_arn,\n  status_recording,\n  title\nfrom\n\
-    \  aws_config_configuration_recorder\nwhere\n  not status_recording;"
+  QueryToExecute: |
+    SELECT
+      name,
+      role_arn,
+      status_recording,
+      title
+    FROM
+      aws_config_configuration_recorder
+    WHERE
+      NOT status_recording;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Config
+    - AWS Config
 Title: Find AWS Config Configuration Recorder Status

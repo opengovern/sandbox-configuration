@@ -1,21 +1,25 @@
-Description: Allows users to query AWS WAFv2 WebACLs to retrieve and manage information
-  about WebACL resources within AWS WAFv2.
+Description: Allows users to query AWS WAFv2 WebACLs to retrieve and manage information about WebACL resources within AWS WAFv2.
 ID: aws_wafv2_web_acl_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  id,\n  visibility_config ->> 'CloudWatchMetricsEnabled'\
-    \ as cloud_watch_metrics_enabled,\n  visibility_config ->> 'MetricName' as metric_name\n\
-    from\n  aws_wafv2_web_acl;"
+  QueryToExecute: |
+    SELECT
+      name,
+      id,
+      visibility_config ->> 'CloudWatchMetricsEnabled' AS cloud_watch_metrics_enabled,
+      visibility_config ->> 'MetricName' AS metric_name
+    FROM
+      aws_wafv2_web_acl;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS WAFv2
+    - AWS WAFv2
 Title: List all AWS WAFv2 WebACLs and their Metric Names

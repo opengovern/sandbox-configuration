@@ -1,23 +1,28 @@
-Description: Allows users to query AWS Lightsail Instances and retrieve detailed information
-  about each instance such as instance state, type, associated bundles, and more.
+Description: Allows users to query AWS Lightsail Instances and retrieve detailed information about each instance such as instance state, type, associated bundles, and more.
 ID: aws_lightsail_instance_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  state_name\nfrom\n  aws_lightsail_instance\n\
-    where\n  state_name = 'stopped'\n  and created_at <= (current_date - interval\
-    \ '30' day);"
+  QueryToExecute: |
+    SELECT
+      name,
+      state_name
+    FROM
+      aws_lightsail_instance
+    WHERE
+      state_name = 'stopped'
+      AND created_at <= (CURRENT_DATE - INTERVAL '30' DAY);
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Lightsail
+    - Lightsail
 Title: List all AWS Lightsail Instances with Stopped State

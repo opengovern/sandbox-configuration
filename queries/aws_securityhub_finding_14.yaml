@@ -1,33 +1,43 @@
-Description: Allows users to query AWS Security Hub Findings to gather information
-  about security issues identified within AWS resources. This includes details such
-  as the severity, status, and description of the finding, the resources affected,
-  and any remediation steps recommended.
+Description: Allows users to query AWS Security Hub Findings to gather information about security issues identified within AWS resources. This includes details such as the severity, status, and description of the finding, the resources affected, and any remediation steps recommended.
 ID: aws_securityhub_finding_14
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  distinct i.instance_id,\n  i.instance_state,\n  i.instance_type,\n\
-    \  f.title,\n  f.compliance_status,\n  f.severity ->> 'Original' as severity_original\n\
-    from\n  aws_ec2_instance as i,\n  aws_securityhub_finding as f,\n  jsonb_array_elements(resources)\
-    \ as r\nwhere\n  compliance_status = 'FAILED'\nand\n  r ->> 'Type' = 'AwsEc2Instance'\n\
-    and\n  i.arn = r ->> 'Id';"
+  QueryToExecute: |
+    SELECT DISTINCT 
+      i.instance_id,
+      i.instance_state,
+      i.instance_type,
+      f.title,
+      f.compliance_status,
+      f.severity ->> 'Original' AS severity_original
+    FROM 
+      aws_ec2_instance AS i,
+      aws_securityhub_finding AS f,
+      jsonb_array_elements(resources) AS r
+    WHERE 
+      f.compliance_status = 'FAILED'
+    AND 
+      r ->> 'Type' = 'AwsEc2Instance'
+    AND 
+      i.arn = r ->> 'Id';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Security Hub
+    - Security Hub
 Title: Find all AWS Security Hub Findings and Details

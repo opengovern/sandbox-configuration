@@ -1,27 +1,32 @@
-Description: Allows users to query AWS CodeBuild Build to retrieve information about
-  AWS CodeBuild projects'' builds.
+Description: Allows users to query AWS CodeBuild Build to retrieve information about AWS CodeBuild projects' builds.
 ID: aws_codebuild_build_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  environment ->> 'Certificate' as environment_certificate,\n\
-    \  environment ->> 'ComputeType' as environment_compute_type,\n  environment ->>\
-    \ 'EnvironmentVariables' as environment_variables,\n  environment ->> 'Image'\
-    \ as environment_image,\n  environment ->> 'ImagePullCredentialsType' as environment_image_pull_credentials_type,\n\
-    \  environment ->> 'PrivilegedMode' as environment_privileged_mode,\n  environment\
-    \ ->> 'RegistryCredential' as environment_registry_credential,\n  environment\
-    \ ->> 'Type' as environment_type\nfrom\n  aws_codebuild_build;"
+  QueryToExecute: |
+    SELECT
+      id,
+      environment ->> 'Certificate' AS environment_certificate,
+      environment ->> 'ComputeType' AS environment_compute_type,
+      environment ->> 'EnvironmentVariables' AS environment_variables,
+      environment ->> 'Image' AS environment_image,
+      environment ->> 'ImagePullCredentialsType' AS environment_image_pull_credentials_type,
+      environment ->> 'PrivilegedMode' AS environment_privileged_mode,
+      environment ->> 'RegistryCredential' AS environment_registry_credential,
+      environment ->> 'Type' AS environment_type
+    FROM
+      aws_codebuild_build;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS CodeBuild
+    - AWS CodeBuild
 Title: Find AWS CodeBuild Build Information with SQL

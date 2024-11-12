@@ -1,23 +1,28 @@
-Description: Allows users to query AWS CodeArtifact Repository data, including details
-  about the repository, its domain ownership, and associated metadata.
+Description: Allows users to query AWS CodeArtifact Repository data, including details about the repository, its domain ownership, and associated metadata.
 ID: aws_codeartifact_repository_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  domain_name,\n  domain_owner,\n  u ->> 'RepositoryName'\
-    \ as upstream_repo_name\nfrom\n  aws_codeartifact_repository,\n  jsonb_array_elements(upstreams)\
-    \ u;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      domain_name,
+      domain_owner,
+      u ->> 'RepositoryName' AS upstream_repo_name
+    FROM
+      aws_codeartifact_repository,
+      jsonb_array_elements(upstreams) u;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeArtifact
+    - CodeArtifact
 Title: Find AWS CodeArtifact Repository Details with SQL

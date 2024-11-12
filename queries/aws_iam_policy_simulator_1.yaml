@@ -1,22 +1,26 @@
-Description: Allows users to query IAM Policy Simulator for evaluating the effects
-  of IAM access control policies. It provides information such as evaluation results,
-  matching resources, and involved actions.
+Description: Allows users to query IAM Policy Simulator for evaluating the effects of IAM access control policies. It provides information such as evaluation results, matching resources, and involved actions.
 ID: aws_iam_policy_simulator_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  decision\nfrom\n  aws_iam_policy_simulator\nwhere\n \
-    \ action = 's3:DeleteBucket'\n  and resource_arn = '*'\n  and principal_arn =\
-    \ 'arn:aws:iam::012345678901:user/bob';"
+  QueryToExecute: |
+    SELECT
+      decision
+    FROM
+      aws_iam_policy_simulator
+    WHERE
+      action = 's3:DeleteBucket'
+      AND resource_arn = '*'
+      AND principal_arn = 'arn:aws:iam::012345678901:user/bob';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - IAM Policy Simulator
+    - IAM Policy Simulator
 Title: Find IAM Policy Simulator Results for Access Control Evaluation

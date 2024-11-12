@@ -1,22 +1,27 @@
-Description: Allows users to query AWS EventBridge Buses for detailed information
-  about each bus, including its name, ARN, policy, and more.
+Description: Allows users to query AWS EventBridge Buses for detailed information about each bus, including its name, ARN, policy, and more.
 ID: aws_eventbridge_bus_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  jsonb_pretty(policy) as policy,\n  jsonb_pretty(policy_std)\
-    \ as policy_std\nfrom\n  aws_eventbridge_bus;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      JSONB_PRETTY(policy) AS policy,
+      JSONB_PRETTY(policy_std) AS policy_std
+    FROM
+      aws_eventbridge_bus;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EventBridge
+    - EventBridge
 Title: Find all AWS EventBridge Buses and their Details

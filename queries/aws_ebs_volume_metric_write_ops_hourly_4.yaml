@@ -1,26 +1,39 @@
 Description: Allows users to query AWS EBS Volume Metrics on hourly write operations.
 ID: aws_ebs_volume_metric_write_ops_hourly_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  r.volume_id,\n  r.timestamp,\n  v.iops as provisioned_iops,\n\
-    \  round(r.average) +round(w.average) as iops_avg,\n  round(r.average) as read_ops_avg,\n\
-    \  round(w.average) as write_ops_avg\nfrom \n  aws_ebs_volume_metric_read_ops_hourly\
-    \ as r,\n  aws_ebs_volume_metric_write_ops_hourly as w,\n  aws_ebs_volume as v\n\
-    where \n  r.volume_id = w.volume_id\n  and r.timestamp = w.timestamp\n  and v.volume_id\
-    \ = r.volume_id \n  and r.average + w.average > v.iops\norder by\n  r.volume_id,\n\
-    \  r.timestamp;"
+  QueryToExecute: |
+    SELECT 
+      r.volume_id,
+      r.timestamp,
+      v.iops AS provisioned_iops,
+      ROUND(r.average) + ROUND(w.average) AS iops_avg,
+      ROUND(r.average) AS read_ops_avg,
+      ROUND(w.average) AS write_ops_avg
+    FROM 
+      aws_ebs_volume_metric_read_ops_hourly AS r,
+      aws_ebs_volume_metric_write_ops_hourly AS w,
+      aws_ebs_volume AS v
+    WHERE 
+      r.volume_id = w.volume_id
+      AND r.timestamp = w.timestamp
+      AND v.volume_id = r.volume_id 
+      AND r.average + w.average > v.iops
+    ORDER BY
+      r.volume_id,
+      r.timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EBS
+    - EBS
 Title: Find AWS EBS Volume Hourly Write Operation Metrics

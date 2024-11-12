@@ -1,23 +1,29 @@
 Description: Allows users to query AWS Glue Data Catalog Encryption Settings.
 ID: aws_glue_data_catalog_encryption_settings_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  encryption_at_rest,\n  connection_password_encryption,\n\
-    \  region,\n  account_id\nfrom\n  aws_glue_data_catalog_encryption_settings\n\
-    where\n  connection_password_encryption ->> 'ReturnConnectionPasswordEncrypted'\
-    \ = 'false';"
+  QueryToExecute: |
+    SELECT
+      encryption_at_rest,
+      connection_password_encryption,
+      region,
+      account_id
+    FROM
+      aws_glue_data_catalog_encryption_settings
+    WHERE
+      connection_password_encryption ->> 'ReturnConnectionPasswordEncrypted' = 'false';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Glue Data Catalog
+    - AWS Glue Data Catalog
 Title: List all AWS Glue Data Catalog Encryption Settings

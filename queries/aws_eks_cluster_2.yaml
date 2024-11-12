@@ -1,27 +1,31 @@
-Description: Allows users to query AWS Elastic Kubernetes Service Cluster data, including
-  cluster configurations, statuses, and associated metadata.
+Description: Allows users to query AWS Elastic Kubernetes Service Cluster data, including cluster configurations, statuses, and associated metadata.
 ID: aws_eks_cluster_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  resources_vpc_config ->> 'ClusterSecurityGroupId'\
-    \ as cluster_security_group_id,\n  resources_vpc_config ->> 'EndpointPrivateAccess'\
-    \ as endpoint_private_access,\n  resources_vpc_config ->> 'EndpointPublicAccess'\
-    \ as endpoint_public_access,\n  resources_vpc_config ->> 'PublicAccessCidrs' as\
-    \ public_access_cidrs,\n  resources_vpc_config ->> 'SecurityGroupIds' as security_group_ids,\n\
-    \  resources_vpc_config -> 'SubnetIds' as subnet_ids,\n  resources_vpc_config\
-    \ ->> 'VpcId' as vpc_id\nfrom\n  aws_eks_cluster;"
+  QueryToExecute: |
+    SELECT
+      name,
+      resources_vpc_config ->> 'ClusterSecurityGroupId' AS cluster_security_group_id,
+      resources_vpc_config ->> 'EndpointPrivateAccess' AS endpoint_private_access,
+      resources_vpc_config ->> 'EndpointPublicAccess' AS endpoint_public_access,
+      resources_vpc_config ->> 'PublicAccessCidrs' AS public_access_cidrs,
+      resources_vpc_config ->> 'SecurityGroupIds' AS security_group_ids,
+      resources_vpc_config -> 'SubnetIds' AS subnet_ids,
+      resources_vpc_config ->> 'VpcId' AS vpc_id
+    FROM
+      aws_eks_cluster;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic Kubernetes Service
+    - Elastic Kubernetes Service
 Title: Find AWS EKS Cluster Configurations and Metadata

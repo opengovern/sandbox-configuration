@@ -1,22 +1,32 @@
 Description: Allows users to query shared Amazon Machine Images (AMIs) in AWS EC2
 ID: aws_ec2_ami_shared_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  image_id,\n  state,\n  image_location,\n  creation_date,\n\
-    \  public,\n  root_device_name\nfrom\n  aws_ec2_ami_shared\nwhere\n  owner_id\
-    \ = '137112412989';"
+  QueryToExecute: |
+    SELECT
+      name,
+      image_id,
+      state,
+      image_location,
+      creation_date,
+      public,
+      root_device_name
+    FROM
+      aws_ec2_ami_shared
+    WHERE
+      owner_id = '137112412989';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find shared Amazon Machine Images (AMIs) in AWS EC2

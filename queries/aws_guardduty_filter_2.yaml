@@ -1,22 +1,29 @@
-Description: Allows users to query AWS GuardDuty Filters to retrieve information about
-  existing filters, their conditions, actions, and associated metadata.
+Description: Allows users to query AWS GuardDuty Filters to retrieve information about existing filters, their conditions, actions, and associated metadata.
 ID: aws_guardduty_filter_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  detector_id,\n  action,\n  rank\nfrom\n  aws_guardduty_filter\n\
-    where\n  action = 'ARCHIVE';"
+  QueryToExecute: |
+    SELECT
+      name,
+      detector_id,
+      action,
+      rank
+    FROM
+      aws_guardduty_filter
+    WHERE
+      action = 'ARCHIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - GuardDuty
+    - GuardDuty
 Title: Find AWS GuardDuty Filter Information with SQL

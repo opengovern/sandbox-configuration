@@ -1,24 +1,33 @@
-Description: Allows users to query AWS EC2 Network Load Balancer Metrics for net flow
-  count data. This includes information such as the number of new or terminated flows
-  per minute from a network load balancer.
+Description: Allows users to query AWS EC2 Network Load Balancer Metrics for net flow count data. This includes information such as the number of new or terminated flows per minute from a network load balancer.
 ID: aws_ec2_network_load_balancer_metric_net_flow_count_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  metric_name,\n  namespace,\n  maximum,\n  minimum,\n\
-    \  sample_count,\n  timestamp\nfrom\n  aws_ec2_network_load_balancer_metric_net_flow_count\n\
-    order by\n  name,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      name,
+      metric_name,
+      namespace,
+      maximum,
+      minimum,
+      sample_count,
+      timestamp
+    FROM
+      aws_ec2_network_load_balancer_metric_net_flow_count
+    ORDER BY
+      name,
+      timestamp;
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2 Network Load Balancer
+    - EC2 Network Load Balancer
 Title: Query AWS EC2 Network Load Balancer Net Flow Counts

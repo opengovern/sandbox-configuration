@@ -1,20 +1,26 @@
-Description: Allows users to query AWS MemoryDB clusters, providing detailed information
-  on cluster configurations and statuses.
+Description: Allows users to query AWS MemoryDB clusters, providing detailed information on cluster configurations and statuses.
 ID: aws_memorydb_cluster_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  availability_mode\nfrom\n  aws_memorydb_cluster\n\
-    where\n  availability_mode = 'multiaz';"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      availability_mode
+    FROM
+      aws_memorydb_cluster
+    WHERE
+      availability_mode = 'multiaz';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - MemoryDB
+    - MemoryDB
 Title: List all AWS MemoryDB clusters and their configurations

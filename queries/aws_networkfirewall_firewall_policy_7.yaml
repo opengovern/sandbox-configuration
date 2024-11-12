@@ -1,21 +1,26 @@
-Description: ''
+Description: "Retrieves AWS Network Firewall policies with details on custom actions within stateless rule group references, including action names and definitions, to support detailed firewall policy configuration review."
 ID: aws_networkfirewall_firewall_policy_7
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  name as firewall_policy_name,\n  firewall_policy_status,\n\
-    \  firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionName' as custom_action_name,\n\
-    \  firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionDefinition' as\
-    \ custom_action_definition\nfrom\n  aws_networkfirewall_firewall_policy;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      name AS firewall_policy_name,
+      firewall_policy_status,
+      firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionName' AS custom_action_name,
+      firewall_policy -> 'StatelessRuleGroupReferences' ->> 'ActionDefinition' AS custom_action_definition
+    FROM
+      aws_networkfirewall_firewall_policy;
 Tags:
   cloud_network_security:
-  - 'true'
+    - 'true'
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Network Firewall
-Title: ''
+    - Network Firewall
+Title: "AWS Network Firewall Policies with Custom Stateless Actions"

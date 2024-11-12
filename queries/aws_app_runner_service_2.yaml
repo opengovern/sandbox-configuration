@@ -1,23 +1,28 @@
-Description: Allows users to query AWS App Runner services, providing detailed information
-  on service configurations, scaling, and network settings.
+Description: Allows users to query AWS App Runner services, providing detailed information on service configurations, scaling, and network settings.
 ID: aws_app_runner_service_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  arn,\n  network_configuration\nfrom\n\
-    \  aws_app_runner_service\nwhere\n  (network_configuration -> 'EgressConfiguration'\
-    \ ->> 'VpcConnectorArn') is not null;"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      arn,
+      network_configuration
+    FROM
+      aws_app_runner_service
+    WHERE
+      (network_configuration -> 'EgressConfiguration' ->> 'VpcConnectorArn') IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - App Runner
+    - App Runner
 Title: List all AWS App Runner Services with Network Configurations

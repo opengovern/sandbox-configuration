@@ -1,30 +1,40 @@
-Description: Allows users to query AWS VPC Security Groups and retrieve data such
-  as group ID, name, description, owner ID, and associated VPC ID. This table can
-  be used to gain insights on security group configurations, policies, and related
-  metadata.
+Description: Allows users to query AWS VPC Security Groups and retrieve data such as group ID, name, description, owner ID, and associated VPC ID. This table can be used to gain insights on security group configurations, policies, and related metadata.
 ID: aws_vpc_security_group_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  sg.group_name,\n  sg.group_id,\n  sgr.type,\n  sgr.ip_protocol,\n\
-    \  sgr.from_port,\n  sgr.to_port,\n  cidr_ip\nfrom\n  aws_vpc_security_group as\
-    \ sg\n  join aws_vpc_security_group_rule as sgr on sg.group_name = sgr.group_name\n\
-    where\n  sgr.type = 'ingress'\n  and sgr.cidr_ip = '0.0.0.0/0'\n  and (\n    (\n\
-    \      sgr.ip_protocol = '-1' -- all traffic\n      and sgr.from_port is null\n\
-    \    )\n    or (\n      sgr.from_port <= 22\n      and sgr.to_port >= 22\n   \
-    \ )\n    or (\n      sgr.from_port <= 3389\n      and sgr.to_port >= 3389\n  \
-    \  )\n  );"
+  QueryToExecute: |
+    SELECT
+      sg.group_name,
+      sg.group_id,
+      sgr.type,
+      sgr.ip_protocol,
+      sgr.from_port,
+      sgr.to_port,
+      sgr.cidr_ip
+    FROM
+      aws_vpc_security_group AS sg
+      JOIN aws_vpc_security_group_rule AS sgr 
+        ON sg.group_name = sgr.group_name
+    WHERE
+      sgr.type = 'ingress'
+      AND sgr.cidr_ip = '0.0.0.0/0'
+      AND (
+        (sgr.ip_protocol = '-1' AND sgr.from_port IS NULL)
+        OR (sgr.from_port <= 22 AND sgr.to_port >= 22)
+        OR (sgr.from_port <= 3389 AND sgr.to_port >= 3389)
+      );
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC Security Groups and Their Configurations

@@ -1,25 +1,33 @@
-Description: Allows users to query AWS CodeBuild Projects and retrieve comprehensive
-  information about each project.
+Description: Allows users to query AWS CodeBuild Projects and retrieve comprehensive information about each project.
 ID: aws_codebuild_project_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  source_version,\n  source ->> 'Auth' as auth,\n\
-    \  source ->> 'BuildStatusConfig' as build_status_config,\n  source ->> 'Buildspec'\
-    \ as build_spec,\n  source ->> 'GitCloneDepth' as git_clone_depth,\n  source ->>\
-    \ 'GitSubmodulesConfig' as git_submodules_config,\n  source ->> 'InsecureSsl'\
-    \ as insecure_ssl,\n  source ->> 'Location' as location,\n  source ->> 'ReportBuildStatus'\
-    \ as report_build_status,\n  source ->> 'SourceIdentifier' as source_identifier,\n\
-    \  source ->> 'Type' as type\nfrom\n  aws_codebuild_project;"
+  QueryToExecute: |
+    SELECT
+      name,
+      source_version,
+      source ->> 'Auth' AS auth,
+      source ->> 'BuildStatusConfig' AS build_status_config,
+      source ->> 'Buildspec' AS build_spec,
+      source ->> 'GitCloneDepth' AS git_clone_depth,
+      source ->> 'GitSubmodulesConfig' AS git_submodules_config,
+      source ->> 'InsecureSsl' AS insecure_ssl,
+      source ->> 'Location' AS location,
+      source ->> 'ReportBuildStatus' AS report_build_status,
+      source ->> 'SourceIdentifier' AS source_identifier,
+      source ->> 'Type' AS type
+    FROM
+      aws_codebuild_project;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeBuild
+    - CodeBuild
 Title: List all AWS CodeBuild Projects and Details

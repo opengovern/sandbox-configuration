@@ -1,26 +1,39 @@
-Description: Allows users to query AWS EC2 Spot Price data, including information
-  about the instance type, product description, spot price, and the date and time
-  the price was set.
+Description: Allows users to query AWS EC2 Spot Price data, including information about the instance type, product description, spot price, and the date and time the price was set.
 ID: aws_ec2_spot_price_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  availability_zone,\n  instance_type,\n  product_description,\n\
-    \  spot_price::numeric as spot_price,\n  create_timestamp as start_time,\n  lead(create_timestamp,\
-    \ 1, now()) over (partition by instance_type, availability_zone, product_description\
-    \ order by create_timestamp) as stop_time\nfrom\n  aws_ec2_spot_price\nwhere\n\
-    \  instance_type = 'm5.4xlarge'\n  and product_description = 'Linux/UNIX'\n  and\
-    \ availability_zone in\n  (\n    'eu-west-3a',\n    'eu-west-3b'\n  )\n  and start_time\
-    \ = now() - interval '1' month\n  and end_time = now() - interval '1' minute;"
+  QueryToExecute: |
+    SELECT
+      availability_zone,
+      instance_type,
+      product_description,
+      spot_price::numeric AS spot_price,
+      create_timestamp AS start_time,
+      LEAD(create_timestamp, 1, NOW()) OVER (
+        PARTITION BY instance_type, availability_zone, product_description
+        ORDER BY create_timestamp
+      ) AS stop_time
+    FROM
+      aws_ec2_spot_price
+    WHERE
+      instance_type = 'm5.4xlarge'
+      AND product_description = 'Linux/UNIX'
+      AND availability_zone IN (
+        'eu-west-3a',
+        'eu-west-3b'
+      )
+      AND start_time = NOW() - INTERVAL '1' MONTH
+      AND end_time = NOW() - INTERVAL '1' MINUTE;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EC2
+    - EC2
 Title: Find AWS EC2 Spot Price Data for Specific Instances

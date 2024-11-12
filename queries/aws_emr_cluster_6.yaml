@@ -1,22 +1,30 @@
 Description: Allows users to query AWS Elastic MapReduce Cluster data.
 ID: aws_emr_cluster_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  cluster_arn,\n  log_uri,\n  log_encryption_kms_key_id\n\
-    from\n  aws_emr_cluster\nwhere\n  log_uri is not null and log_encryption_kms_key_id\
-    \ is null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      cluster_arn,
+      log_uri,
+      log_encryption_kms_key_id
+    FROM
+      aws_emr_cluster
+    WHERE
+      log_uri IS NOT NULL
+      AND log_encryption_kms_key_id IS NULL;
 Tags:
   cloud_data_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Elastic MapReduce
+    - Elastic MapReduce
 Title: Find AWS EMR Cluster Data with Specific Log URIs

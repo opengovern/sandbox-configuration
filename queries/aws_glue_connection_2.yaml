@@ -1,22 +1,28 @@
-Description: Allows users to query AWS Glue Connections to retrieve detailed information
-  about each connection.
+Description: Allows users to query AWS Glue Connections to retrieve detailed information about each connection.
 ID: aws_glue_connection_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  connection_type,\n  connection_properties ->>\
-    \ 'JDBC_CONNECTION_URL' as connection_url,\n  connection_properties ->> 'JDBC_ENFORCE_SSL'\
-    \ as ssl_enabled,\n  creation_time\nfrom\n  aws_glue_connection\nwhere\n  connection_type\
-    \ = 'JDBC';"
+  QueryToExecute: |
+    SELECT
+      name,
+      connection_type,
+      connection_properties ->> 'JDBC_CONNECTION_URL' AS connection_url,
+      connection_properties ->> 'JDBC_ENFORCE_SSL' AS ssl_enabled,
+      creation_time
+    FROM
+      aws_glue_connection
+    WHERE
+      connection_type = 'JDBC';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Glue
+    - Glue
 Title: List all SQL Queryable AWS Glue Connections

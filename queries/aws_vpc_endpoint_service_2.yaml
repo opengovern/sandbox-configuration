@@ -1,23 +1,25 @@
-Description: Allows users to query AWS VPC Endpoint Services to retrieve detailed
-  information about each service, including service name, service type, and whether
-  or not the service is private.
+Description: Allows users to query AWS VPC Endpoint Services to retrieve detailed information about each service, including service name, service type, and whether or not the service is private.
 ID: aws_vpc_endpoint_service_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service_name,\n  jsonb_array_length(availability_zones)\
-    \ as availability_zone_count\nfrom\n  aws_vpc_endpoint_service;"
+  QueryToExecute: |
+    SELECT
+      service_name,
+      JSONB_ARRAY_LENGTH(availability_zones) AS availability_zone_count
+    FROM
+      aws_vpc_endpoint_service;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC Endpoint Service
+    - VPC Endpoint Service
 Title: List all AWS VPC Endpoint Services with Details

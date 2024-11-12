@@ -1,21 +1,33 @@
-Description: Allows users to query AWS RDS DBInstance Write IOPS to retrieve metrics
-  on the write input/output operations per second.
+Description: Allows users to query AWS RDS DBInstance Write IOPS to retrieve metrics on the write input/output operations per second.
 ID: aws_rds_db_instance_metric_write_iops_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  timestamp,\n  minimum,\n \
-    \ maximum,\n  average,\n  sum,\n  sample_count\nfrom\n  aws_rds_db_instance_metric_write_iops\n\
-    where\n  average > 1000\norder by\n  db_instance_identifier,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      timestamp,
+      minimum,
+      maximum,
+      average,
+      sum,
+      sample_count
+    FROM
+      aws_rds_db_instance_metric_write_iops
+    WHERE
+      average > 1000
+    ORDER BY
+      db_instance_identifier,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS RDS
+    - AWS RDS
 Title: Find AWS RDS DBInstance Write IOPS Metrics

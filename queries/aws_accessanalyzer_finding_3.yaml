@@ -1,22 +1,27 @@
-Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve
-  detailed information about potential security risks.
+Description: Allows users to query Access Analyzer findings in AWS IAM to retrieve detailed information about potential security risks.
 ID: aws_accessanalyzer_finding_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  resource_type,\n  count(*) as findings_count\nfrom\n\
-    \  aws_accessanalyzer_finding\ngroup by\n  resource_type;"
+  QueryToExecute: |
+    SELECT
+      resource_type,
+      COUNT(*) AS findings_count
+    FROM
+      aws_accessanalyzer_finding
+    GROUP BY
+      resource_type;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Access Analyzer
+    - Access Analyzer
 Title: List AWS Access Analyzer Findings Security Risks

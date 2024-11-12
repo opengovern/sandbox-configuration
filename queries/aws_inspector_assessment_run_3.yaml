@@ -1,24 +1,31 @@
-Description: Allows users to query AWS Inspector Assessment Runs to get detailed information
-  about each assessment run, including its state, duration, findings, and more.
+Description: Allows users to query AWS Inspector Assessment Runs to get detailed information about each assessment run, including its state, duration, findings, and more.
 ID: aws_inspector_assessment_run_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  t.name as assessment_template_name,\n  r.name as assessment_run_name,\n\
-    \  r.created_at as assessment_run_created_at,\n  r.state,\n  r.region\nfrom\n\
-    \  aws_inspector_assessment_run as r,\n  aws_inspector_assessment_template as\
-    \ t\nwhere\n  r.assessment_template_arn = t.arn;"
+  QueryToExecute: |
+    SELECT
+      t.name AS assessment_template_name,
+      r.name AS assessment_run_name,
+      r.created_at AS assessment_run_created_at,
+      r.state,
+      r.region
+    FROM
+      aws_inspector_assessment_run AS r,
+      aws_inspector_assessment_template AS t
+    WHERE
+      r.assessment_template_arn = t.arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Inspector
+    - Inspector
 Title: List all AWS Inspector Assessment Runs and Their Details

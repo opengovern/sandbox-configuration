@@ -1,21 +1,29 @@
-Description: Allows users to query AWS OAM Links to gather information about the link
-  between an AWS resource and an AWS OAM resource.
+Description: Allows users to query AWS OAM Links to gather information about the link between an AWS resource and an AWS OAM resource.
 ID: aws_oam_link_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  l.id,\n  l.arn,\n  l.label,\n  l.label_template,\n  r\
-    \ as resource_type\nfrom\n  aws_oam_link as l,\n  jsonb_array_elements_text(resource_types)\
-    \ as r\nwhere\n  r = 'AWS::Logs::LogGroup';"
+  QueryToExecute: |
+    SELECT
+      l.id,
+      l.arn,
+      l.label,
+      l.label_template,
+      r AS resource_type
+    FROM
+      aws_oam_link AS l,
+      jsonb_array_elements_text(resource_types) AS r
+    WHERE
+      r = 'AWS::Logs::LogGroup';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - OAM
+    - OAM
 Title: Find AWS OAM Links Between Resources

@@ -1,28 +1,51 @@
-Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed
-  information about the data points for a defined metric.
+Description: Allows users to query AWS CloudWatch MetricDataPoints to fetch detailed information about the data points for a defined metric.
 ID: aws_cloudwatch_metric_data_point_6
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  label,\n  timestamp,\n  value,\n  metric_stat\n\
-    from\n  aws_cloudwatch_metric_data_point\nwhere\n  id = 'e1'\n  and source_account_id\
-    \ = '533743456432100'\n  and timestamp between '2023-03-10T00:00:00Z' and '2023-03-16T00:00:00Z'\n\
-    \  and metric_stat = '{\n    \"Metric\": {\n    \"Namespace\": \"AWS/S3\",\n \
-    \   \"MetricName\": \"BucketSizeBytes\",\n    \"Dimensions\": [\n      {\n   \
-    \     \"Name\": \"BucketName\",\n        \"Value\": \"steampipe-test\"\n     \
-    \ },\n      {\n        \"Name\": \"StorageType\",\n        \"Value\": \"StandardStorage\"\
-    \n      }\n    ]},\n    \"Stat\": \"Maximum\"}'\norder by\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      id,
+      label,
+      timestamp,
+      value,
+      metric_stat
+    FROM
+      aws_cloudwatch_metric_data_point
+    WHERE
+      id = 'e1'
+      AND source_account_id = '533743456432100'
+      AND timestamp BETWEEN '2023-03-10T00:00:00Z' AND '2023-03-16T00:00:00Z'
+      AND metric_stat = '{
+        "Metric": {
+          "Namespace": "AWS/S3",
+          "MetricName": "BucketSizeBytes",
+          "Dimensions": [
+            {
+              "Name": "BucketName",
+              "Value": "steampipe-test"
+            },
+            {
+              "Name": "StorageType",
+              "Value": "StandardStorage"
+            }
+          ]
+        },
+        "Stat": "Maximum"
+      }'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: Query AWS CloudWatch Metric Data Points for Detailed Info

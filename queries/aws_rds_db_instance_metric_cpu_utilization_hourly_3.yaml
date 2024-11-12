@@ -1,22 +1,32 @@
-Description: Allows users to query AWS RDS DB Instance CPU Utilization Metrics on
-  an hourly basis.
+Description: Allows users to query AWS RDS DB Instance CPU Utilization Metrics on an hourly basis.
 ID: aws_rds_db_instance_metric_cpu_utilization_hourly_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  db_instance_identifier,\n  timestamp,\n  round(minimum::numeric,2)\
-    \ as min_cpu,\n  round(maximum::numeric,2) as max_cpu,\n  round(average::numeric,2)\
-    \ as avg_cpu,\n  sample_count\nfrom\n  aws_rds_db_instance_metric_cpu_utilization_hourly\n\
-    where average < 2\norder by\n  db_instance_identifier,\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      db_instance_identifier,
+      timestamp,
+      ROUND(MINIMUM::numeric, 2) AS min_cpu,
+      ROUND(MAXIMUM::numeric, 2) AS max_cpu,
+      ROUND(AVERAGE::numeric, 2) AS avg_cpu,
+      sample_count
+    FROM
+      aws_rds_db_instance_metric_cpu_utilization_hourly
+    WHERE
+      AVERAGE < 2
+    ORDER BY
+      db_instance_identifier,
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS DB Instance CPU Utilization on Hourly Basis

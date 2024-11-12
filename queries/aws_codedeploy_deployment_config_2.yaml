@@ -1,22 +1,27 @@
-Description: Allows users to query AWS CodeDeploy Deployment Configurations to retrieve
-  information about the deployment configurations within AWS CodeDeploy service.
+Description: Allows users to query AWS CodeDeploy Deployment Configurations to retrieve information about the deployment configurations within AWS CodeDeploy service.
 ID: aws_codedeploy_deployment_config_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  count(arn) as configuration_count,\n  compute_platform\n\
-    from\n  aws_codedeploy_deployment_config\ngroup by\n  compute_platform;"
+  QueryToExecute: |
+    SELECT
+      COUNT(arn) AS configuration_count,
+      compute_platform
+    FROM
+      aws_codedeploy_deployment_config
+    GROUP BY
+      compute_platform;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeDeploy
+    - CodeDeploy
 Title: List all AWS CodeDeploy Deployment Configurations

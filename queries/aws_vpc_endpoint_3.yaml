@@ -1,26 +1,30 @@
-Description: Allows users to query AWS VPC Endpoints and retrieve information about
-  each endpoint''s configuration, type, status, and related resources such as network
-  interfaces, DNS entries, and security groups.
+Description: Allows users to query AWS VPC Endpoints and retrieve information about each endpoint's configuration, type, status, and related resources such as network interfaces, DNS entries, and security groups.
 ID: aws_vpc_endpoint_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  vpc_endpoint_id,\n  vpc_id,\n  jsonb_array_elements(subnet_ids)\
-    \ as subnet_ids,\n  jsonb_array_elements(network_interface_ids) as network_interface_ids,\n\
-    \  jsonb_array_elements(route_table_ids) as route_table_ids,\n  sg ->> 'GroupName'\
-    \ as sg_name\nfrom\n  aws_vpc_endpoint\n  cross join jsonb_array_elements(groups)\
-    \ as sg;"
+  QueryToExecute: |
+    SELECT
+      vpc_endpoint_id,
+      vpc_id,
+      JSONB_ARRAY_ELEMENTS(subnet_ids) AS subnet_ids,
+      JSONB_ARRAY_ELEMENTS(network_interface_ids) AS network_interface_ids,
+      JSONB_ARRAY_ELEMENTS(route_table_ids) AS route_table_ids,
+      sg ->> 'GroupName' AS sg_name
+    FROM
+      aws_vpc_endpoint
+      CROSS JOIN JSONB_ARRAY_ELEMENTS(groups) AS sg;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: List all AWS VPC Endpoints and Related Information

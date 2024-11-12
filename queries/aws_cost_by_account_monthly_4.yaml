@@ -1,27 +1,40 @@
-Description: Allows users to query monthly AWS costs per account. It provides cost
-  details for each AWS account, allowing users to monitor and manage their AWS spending.
+Description: Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending.
 ID: aws_cost_by_account_monthly_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with cost_data as (\n  select\n    linked_account_id,\n    period_start,\n\
-    \    unblended_cost_amount as this_month,\n    lag(unblended_cost_amount,-1) over(partition\
-    \ by linked_account_id order by period_start desc) as previous_month\n  from \n\
-    \    aws_cost_by_account_monthly\n)\nselect\n    linked_account_id,\n    period_start,\n\
-    \    this_month::numeric::money,\n    previous_month::numeric::money,\n    round((100\
-    \ * ( (this_month - previous_month) / previous_month))::numeric, 2) as percent_change\n\
-    from\n  cost_data\norder by\n  linked_account_id,\n  period_start;"
+  QueryToExecute: |
+    WITH cost_data AS (
+      SELECT
+        linked_account_id,
+        period_start,
+        unblended_cost_amount AS this_month,
+        LAG(unblended_cost_amount, -1) OVER (PARTITION BY linked_account_id ORDER BY period_start DESC) AS previous_month
+      FROM 
+        aws_cost_by_account_monthly
+    )
+    SELECT
+      linked_account_id,
+      period_start,
+      this_month::numeric::money,
+      previous_month::numeric::money,
+      ROUND((100 * ((this_month - previous_month) / previous_month))::numeric, 2) AS percent_change
+    FROM
+      cost_data
+    ORDER BY
+      linked_account_id,
+      period_start;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: Find AWS Monthly Cost Per Account for Management

@@ -1,25 +1,33 @@
-Description: Allows users to query AWS Cost Explorer Service for monthly cost breakdown
-  by service. This table provides details such as the service name, the cost associated
-  with it, and the currency code.
+Description: Allows users to query AWS Cost Explorer Service for monthly cost breakdown by service. This table provides details such as the service name, the cost associated with it, and the currency code.
 ID: aws_cost_by_service_monthly_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  service,\n  period_start,\n  blended_cost_amount::numeric::money,\n\
-    \  unblended_cost_amount::numeric::money,\n  amortized_cost_amount::numeric::money,\n\
-    \  net_unblended_cost_amount::numeric::money,\n  net_amortized_cost_amount::numeric::money\n\
-    from \n  aws_cost_by_service_monthly\norder by\n  service,\n  period_start;"
+  QueryToExecute: |
+    SELECT
+      service,
+      period_start,
+      blended_cost_amount::numeric::MONEY,
+      unblended_cost_amount::numeric::MONEY,
+      amortized_cost_amount::numeric::MONEY,
+      net_unblended_cost_amount::numeric::MONEY,
+      net_amortized_cost_amount::numeric::MONEY
+    FROM 
+      aws_cost_by_service_monthly
+    ORDER BY
+      service,
+      period_start;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Cost Explorer Service
+    - AWS Cost Explorer Service
 Title: List AWS monthly cost breakdown by service

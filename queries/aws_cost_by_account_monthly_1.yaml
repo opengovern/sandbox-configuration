@@ -1,22 +1,31 @@
-Description: Allows users to query monthly AWS costs per account. It provides cost
-  details for each AWS account, allowing users to monitor and manage their AWS spending.
+Description: Allows users to query monthly AWS costs per account. It provides cost details for each AWS account, allowing users to monitor and manage their AWS spending.
 ID: aws_cost_by_account_monthly_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  linked_account_id,\n  period_start,\n  blended_cost_amount::numeric::money,\n\
-    \  unblended_cost_amount::numeric::money,\n  amortized_cost_amount::numeric::money,\n\
-    \  net_unblended_cost_amount::numeric::money,\n  net_amortized_cost_amount::numeric::money\n\
-    from \n  aws_cost_by_account_monthly\norder by\n  linked_account_id,\n  period_start;"
+  QueryToExecute: |
+    SELECT
+      linked_account_id,
+      period_start,
+      blended_cost_amount::numeric::money,
+      unblended_cost_amount::numeric::money,
+      amortized_cost_amount::numeric::money,
+      net_unblended_cost_amount::numeric::money,
+      net_amortized_cost_amount::numeric::money
+    FROM
+      aws_cost_by_account_monthly
+    ORDER BY
+      linked_account_id,
+      period_start;
 Tags:
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Cost Explorer
+    - AWS Cost Explorer
 Title: List AWS Monthly Costs Per Account Using AWS Cost Explorer

@@ -1,33 +1,56 @@
-Description: Allows users to query AWS RDS DB Instances for detailed information about
-  the configuration, status, and other metadata associated with each database instance.
+Description: Allows users to query AWS RDS DB Instances for detailed information about the configuration, status, and other metadata associated with each database instance.
 ID: aws_rds_db_instance_8
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with db_parameter_group as (\n  select\n    name as db_parameter_group_name,\n\
-    \    pg ->> 'ParameterName' as parameter_name,\n    pg ->> 'ParameterValue' as\
-    \ parameter_value\n  from\n    aws_rds_db_parameter_group,\n    jsonb_array_elements(parameters)\
-    \ as pg\n  where\n    -- The example is limited to SQL Server, this may change\
-    \ based on DB engine\n    pg ->> 'ParameterName' like 'rds.force_ssl'\n    and\
-    \ name not like 'default.%'\n),\n rds_associated_parameter_group as (\n  select\n\
-    \    db_instance_identifier as db_instance_identifier,\n    arn,\n    pg ->> 'DBParameterGroupName'\
-    \ as DBParameterGroupName\n  from\n    aws_rds_db_instance,\n    jsonb_array_elements(db_parameter_groups)\
-    \ as pg\n  where\n    engine like 'sqlserve%'\n)\nselect\n  rds.db_instance_identifier\
-    \ as name,\n  rds.DBParameterGroupName,\n  parameter_name,\n  parameter_value\n\
-    from\n  rds_associated_parameter_group as rds\n  left join db_parameter_group\
-    \ d on rds.DBParameterGroupName = d.db_parameter_group_name\nwhere\n  parameter_value\
-    \ = '0'"
+  QueryToExecute: |
+    WITH db_parameter_group AS (
+      SELECT
+        name AS db_parameter_group_name,
+        pg ->> 'ParameterName' AS parameter_name,
+        pg ->> 'ParameterValue' AS parameter_value
+      FROM
+        aws_rds_db_parameter_group,
+        jsonb_array_elements(parameters) AS pg
+      WHERE
+        pg ->> 'ParameterName' LIKE 'rds.force_ssl'
+        AND name NOT LIKE 'default.%'
+    ),
+    rds_associated_parameter_group AS (
+      SELECT
+        db_instance_identifier AS db_instance_identifier,
+        arn,
+        pg ->> 'DBParameterGroupName' AS DBParameterGroupName
+      FROM
+        aws_rds_db_instance,
+        jsonb_array_elements(db_parameter_groups) AS pg
+      WHERE
+        engine LIKE 'sqlserve%'
+    )
+    SELECT
+      rds.db_instance_identifier AS name,
+      rds.DBParameterGroupName,
+      parameter_name,
+      parameter_value
+    FROM
+      rds_associated_parameter_group AS rds
+    LEFT JOIN
+      db_parameter_group d
+    ON
+      rds.DBParameterGroupName = d.db_parameter_group_name
+    WHERE
+      parameter_value = '0'
 Tags:
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: List All AWS RDS DB Instances with SSL Parameter Details

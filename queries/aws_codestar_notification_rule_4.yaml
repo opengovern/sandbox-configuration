@@ -1,25 +1,32 @@
-Description: Allows users to query CodeStar notification rules in the AWS Developer
-  Tools to retrieve information about notification rules.
+Description: Allows users to query CodeStar notification rules in the AWS Developer Tools to retrieve information about notification rules.
 ID: aws_codestar_notification_rule_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  notification_rule.name as notification_rule,\n  target\
-    \ ->> 'TargetType' as target_type,\n  topic.title as target_topic\nfrom\n  aws_codestar_notification_rule\
-    \ as notification_rule cross\n  join jsonb_array_elements(notification_rule.targets)\
-    \ as target\n  left join aws_sns_topic as topic on target ->> 'TargetAddress'\
-    \ = topic.topic_arn;"
+  QueryToExecute: |
+    SELECT
+      notification_rule.name AS notification_rule,
+      target ->> 'TargetType' AS target_type,
+      topic.title AS target_topic
+    FROM
+      aws_codestar_notification_rule AS notification_rule
+    CROSS JOIN 
+      jsonb_array_elements(notification_rule.targets) AS target
+    LEFT JOIN 
+      aws_sns_topic AS topic 
+    ON 
+      target ->> 'TargetAddress' = topic.topic_arn;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CodeStar
+    - CodeStar
 Title: List all AWS CodeStar Notification Rules with Target Details

@@ -1,23 +1,29 @@
-Description: Allows users to query Config Rules in AWS Config service. It provides
-  information about each Config Rule, including its name, ARN, description, scope,
-  and compliance status.
+Description: Allows users to query Config Rules in AWS Config service. It provides information about each Config Rule, including its name, ARN, description, scope, and compliance status.
 ID: aws_config_rule_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  rule_id,\n  arn,\n  rule_state\nfrom\n  aws_config_rule\n\
-    where\n  rule_state <> 'ACTIVE';"
+  QueryToExecute: |
+    SELECT
+      name,
+      rule_id,
+      arn,
+      rule_state
+    FROM
+      aws_config_rule
+    WHERE
+      rule_state <> 'ACTIVE';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Config
+    - Config
 Title: Find AWS Config Rules with Inactive Rule State

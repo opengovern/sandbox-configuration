@@ -1,23 +1,31 @@
-Description: Allows users to query AWS Glue Jobs to retrieve detailed information
-  related to job properties, execution, and status.
+Description: Allows users to query AWS Glue Jobs to retrieve detailed information related to job properties, execution, and status.
 ID: aws_glue_job_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  title,\n  arn,\n  created_on,\n  job_bookmark ->> 'Attempt'\
-    \ as total_attempts,\n  job_bookmark ->> 'Run' as total_runs,\n  job_bookmark\
-    \ ->> 'RunId' as run_id\nfrom\n  aws_glue_job\nwhere\n  job_bookmark is not null;"
+  QueryToExecute: |
+    SELECT
+      title,
+      arn,
+      created_on,
+      job_bookmark ->> 'Attempt' AS total_attempts,
+      job_bookmark ->> 'Run' AS total_runs,
+      job_bookmark ->> 'RunId' AS run_id
+    FROM
+      aws_glue_job
+    WHERE
+      job_bookmark IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Glue
+    - AWS Glue
 Title: List all AWS Glue Jobs with detailed properties

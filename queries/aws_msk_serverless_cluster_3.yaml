@@ -1,23 +1,31 @@
-Description: Allows users to query AWS MSK Serverless Clusters to retrieve detailed
-  information about each cluster.
+Description: Allows users to query AWS MSK Serverless Clusters to retrieve detailed information about each cluster.
 ID: aws_msk_serverless_cluster_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  arn,\n  cluster_name,\n  state,\n  creation_time\nfrom\n\
-    \  aws_msk_serverless_cluster\nwhere\n  creation_time >= (current_date - interval\
-    \ '90' day)\norder by\n  creation_time;"
+  QueryToExecute: |
+    SELECT
+      arn,
+      cluster_name,
+      state,
+      creation_time
+    FROM
+      aws_msk_serverless_cluster
+    WHERE
+      creation_time >= (CURRENT_DATE - INTERVAL '90' DAY)
+    ORDER BY
+      creation_time;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Amazon MSK
+    - Amazon MSK
 Title: List all AWS MSK Serverless Clusters with Details

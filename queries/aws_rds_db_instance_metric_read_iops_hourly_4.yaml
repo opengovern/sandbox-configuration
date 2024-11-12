@@ -1,28 +1,39 @@
-Description: Allows users to query AWS RDS DB Instances and retrieve hourly metrics
-  related to read IOPS (Input/Output Operations Per Second).
+Description: Allows users to query AWS RDS DB Instances and retrieve hourly metrics related to read IOPS (Input/Output Operations Per Second).
 ID: aws_rds_db_instance_metric_read_iops_hourly_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select \n  r.db_instance_identifier,\n  r.timestamp,\n  v.iops\
-    \ as provisioned_iops,\n  round(r.average) +round(w.average) as iops_avg,\n  round(r.average)\
-    \ as read_ops_avg,\n  round(w.average) as write_ops_avg\nfrom \n  aws_rds_db_instance_metric_read_iops_hourly\
-    \ as r,\n  aws_rds_db_instance_metric_write_iops_hourly as w,\n  aws_rds_db_instance\
-    \ as v\nwhere \n  r.db_instance_identifier = w.db_instance_identifier\n  and r.timestamp\
-    \ = w.timestamp\n  and v.db_instance_identifier = r.db_instance_identifier \n\
-    \  and r.average + w.average > v.iops\norder by\n  r.db_instance_identifier,\n\
-    \  r.timestamp;"
+  QueryToExecute: |
+    SELECT
+      r.db_instance_identifier,
+      r.timestamp,
+      v.iops AS provisioned_iops,
+      ROUND(r.average) + ROUND(w.average) AS iops_avg,
+      ROUND(r.average) AS read_ops_avg,
+      ROUND(w.average) AS write_ops_avg
+    FROM
+      aws_rds_db_instance_metric_read_iops_hourly AS r,
+      aws_rds_db_instance_metric_write_iops_hourly AS w,
+      aws_rds_db_instance AS v
+    WHERE
+      r.db_instance_identifier = w.db_instance_identifier
+      AND r.timestamp = w.timestamp
+      AND v.db_instance_identifier = r.db_instance_identifier
+      AND r.average + w.average > v.iops
+    ORDER BY
+      r.db_instance_identifier,
+      r.timestamp;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - RDS
+    - RDS
 Title: Find AWS RDS Instances Hourly Read IOPS Metrics

@@ -1,25 +1,33 @@
-Description: Allows users to query AWS API Gateway Domain Names and provides information
-  about each domain name within the AWS API Gateway Service. This table can be used
-  to query domain name details, including associated API mappings, security policy,
-  and associated tags.
+Description: Allows users to query AWS API Gateway Domain Names and provides information about each domain name within the AWS API Gateway Service. This table can be used to query domain name details, including associated API mappings, security policy, and associated tags.
 ID: aws_api_gatewayv2_domain_name_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  d.domain_name,\n  config ->> 'CertificateArn' as certificate_arn,\n\
-    \  c.certificate,\n  c.certificate_transparency_logging_preference,\n  c.created_at,\n\
-    \  c.imported_at,\n  c.issuer,\n  c.issued_at,\n  c.key_algorithm\nfrom\n  aws_api_gatewayv2_domain_name\
-    \ AS d\n  cross join jsonb_array_elements(d.domain_name_configurations) AS config\n\
-    \  left join aws_acm_certificate AS c ON c.certificate_arn = config ->> 'CertificateArn';"
+  QueryToExecute: |
+    SELECT
+      d.domain_name,
+      config ->> 'CertificateArn' AS certificate_arn,
+      c.certificate,
+      c.certificate_transparency_logging_preference,
+      c.created_at,
+      c.imported_at,
+      c.issuer,
+      c.issued_at,
+      c.key_algorithm
+    FROM
+      aws_api_gatewayv2_domain_name AS d
+      CROSS JOIN jsonb_array_elements(d.domain_name_configurations) AS config
+      LEFT JOIN aws_acm_certificate AS c 
+      ON c.certificate_arn = config ->> 'CertificateArn';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - API Gateway
+    - API Gateway
 Title: List AWS API Gateway Domain Name Details with Certificate Info

@@ -1,20 +1,28 @@
 Description: Allows users to query Share Invitations in the AWS Well-Architected Tool.
 ID: aws_wellarchitected_share_invitation_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  share_invitation_id,\n  permission_type,\n  shared_by,\n\
-    \  shared_with,\n  share_resource_type\nfrom\n  aws_wellarchitected_share_invitation\n\
-    where\n  permission_type = 'CONTRIBUTOR';"
+  QueryToExecute: |
+    SELECT
+      share_invitation_id,
+      permission_type,
+      shared_by,
+      shared_with,
+      share_resource_type
+    FROM
+      aws_wellarchitected_share_invitation
+    WHERE
+      permission_type = 'CONTRIBUTOR';
 Tags:
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Well-Architected Tool
+    - Well-Architected Tool
 Title: Find All AWS Well-Architected Tool Share Invitations

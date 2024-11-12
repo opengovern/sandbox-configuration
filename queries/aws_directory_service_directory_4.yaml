@@ -1,24 +1,28 @@
-Description: Allows users to query AWS Directory Service Directories for information
-  about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
+Description: Allows users to query AWS Directory Service Directories for information about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
 ID: aws_directory_service_directory_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  directory_id,\n  snapshot_limit ->> 'ManualSnapshotsCurrentCount'\
-    \ as manual_snapshots_current_count,\n  snapshot_limit ->> 'ManualSnapshotsLimit'\
-    \ as manual_snapshots_limit,\n  snapshot_limit ->> 'ManualSnapshotsLimitReached'\
-    \ as manual_snapshots_limit_reached\nfrom\n  aws_directory_service_directory;"
+  QueryToExecute: |
+    SELECT
+      name,
+      directory_id,
+      snapshot_limit ->> 'ManualSnapshotsCurrentCount' AS manual_snapshots_current_count,
+      snapshot_limit ->> 'ManualSnapshotsLimit' AS manual_snapshots_limit,
+      snapshot_limit ->> 'ManualSnapshotsLimitReached' AS manual_snapshots_limit_reached
+    FROM
+      aws_directory_service_directory;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Directory Service
+    - Directory Service
 Title: List all AWS Directory Service Directories

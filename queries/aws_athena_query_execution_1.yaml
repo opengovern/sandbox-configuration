@@ -1,20 +1,27 @@
-Description: Allows users to query AWS Athena Query Executions to retrieve detailed
-  information about each individual query execution.
+Description: Allows users to query AWS Athena Query Executions to retrieve detailed information about each individual query execution.
 ID: aws_athena_query_execution_1
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  id,\n  query,\n  error_message,\n  error_type\nfrom\n\
-    \  aws_athena_query_execution\nwhere\n  error_message is not null;"
+  QueryToExecute: |
+    SELECT
+      id,
+      query,
+      error_message,
+      error_type
+    FROM
+      aws_athena_query_execution
+    WHERE
+      error_message IS NOT NULL;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Athena
+    - Athena
 Title: List AWS Athena Queries with Errors

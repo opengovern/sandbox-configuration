@@ -1,21 +1,27 @@
 Description: Allows users to query AWS EKS Add-On Versions.
 ID: aws_eks_addon_version_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  addon_name,\n  count(addon_version) as addon_version_count\n\
-    from\n  aws_eks_addon_version\ngroup by\n  addon_name;"
+  QueryToExecute: |
+    SELECT
+      addon_name,
+      COUNT(addon_version) AS addon_version_count
+    FROM
+      aws_eks_addon_version
+    GROUP BY
+      addon_name;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - EKS
+    - EKS
 Title: List All AWS EKS Add-On Versions and Their Counts

@@ -1,23 +1,30 @@
-Description: Allows users to query AWS SSM Incidents Response Plan data to retrieve
-  information about each resource plan in your AWS account.
+Description: Allows users to query AWS SSM Incidents Response Plan data to retrieve information about each resource plan in your AWS account.
 ID: aws_ssmincidents_response_plan_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  arn,\n  display_name,\n  jsonb_pretty(engagements),\n\
-    \  title\nfrom\n  aws_ssmincidents_response_plan\nwhere\n  engagements is not\
-    \ null;"
+  QueryToExecute: |
+    SELECT
+      name,
+      arn,
+      display_name,
+      JSONB_PRETTY(engagements),
+      title
+    FROM
+      aws_ssmincidents_response_plan
+    WHERE
+      engagements IS NOT NULL;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - SSM Incidents
+    - SSM Incidents
 Title: Find AWS SSM Incidents Response Plan Information

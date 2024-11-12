@@ -1,25 +1,28 @@
-Description: Allows users to query AWS VPC Subnets and obtain detailed information
-  about each subnet, including its configuration, associated VPC, availability zone,
-  and CIDR block.
+Description: Allows users to query AWS VPC Subnets and obtain detailed information about each subnet, including its configuration, associated VPC, availability zone, and CIDR block.
 ID: aws_vpc_subnet_4
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  associations_detail ->> 'SubnetId' as subnet_id,\n  route_table_id\n\
-    from\n  aws_vpc_route_table as rt\n  cross join jsonb_array_elements(associations)\
-    \ as associations_detail\n  join aws_vpc_subnet as sub on sub.subnet_id = associations_detail\
-    \ ->> 'SubnetId';"
+  QueryToExecute: |
+    SELECT
+      associations_detail ->> 'SubnetId' AS subnet_id,
+      route_table_id
+    FROM
+      aws_vpc_route_table AS rt
+      CROSS JOIN jsonb_array_elements(associations) AS associations_detail
+      JOIN aws_vpc_subnet AS sub 
+      ON sub.subnet_id = associations_detail ->> 'SubnetId';
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_network_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - VPC
+    - VPC
 Title: Find AWS VPC Subnets with Configuration Details

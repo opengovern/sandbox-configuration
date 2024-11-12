@@ -1,24 +1,30 @@
-Description: Allows users to query AWS Directory Service Directories for information
-  about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
+Description: Allows users to query AWS Directory Service Directories for information about AWS Managed Microsoft AD, AWS Managed AD, and Simple AD directories.
 ID: aws_directory_service_directory_3
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  name,\n  directory_id,\n  sd ->> 'ShareMethod' share_method,\n\
-    \  sd ->> 'ShareStatus' share_status,\n  sd ->> 'SharedAccountId' shared_account_id,\n\
-    \  sd ->> 'SharedDirectoryId' shared_directory_id\nfrom\n  aws_directory_service_directory,\n\
-    \  jsonb_array_elements(shared_directories) sd;"
+  QueryToExecute: |
+    SELECT
+      name,
+      directory_id,
+      sd ->> 'ShareMethod' AS share_method,
+      sd ->> 'ShareStatus' AS share_status,
+      sd ->> 'SharedAccountId' AS shared_account_id,
+      sd ->> 'SharedDirectoryId' AS shared_directory_id
+    FROM
+      aws_directory_service_directory,
+      JSONB_ARRAY_ELEMENTS(shared_directories) sd;
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_identity_security:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - AWS Directory Service
+    - AWS Directory Service
 Title: List all AWS Managed and Simple AD Directory Info

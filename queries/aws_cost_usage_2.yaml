@@ -1,29 +1,42 @@
-Description: Allows users to query Cost and Usage data from AWS Cost Explorer Service
-  to monitor, track, and manage AWS costs and usage over time.
+Description: Allows users to query Cost and Usage data from AWS Cost Explorer Service to monitor, track, and manage AWS costs and usage over time.
 ID: aws_cost_usage_2
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "with ranked_costs as (\n  select\n    dimension_1 as account_id,\n\
-    \    dimension_2 as service_name,\n    sum(net_unblended_cost_amount)::numeric::money\
-    \ as net_unblended_cost,\n    rank() over(partition by dimension_1 order by sum(net_unblended_cost_amount)\
-    \ desc)\n  from\n    aws_cost_usage\n  where\n    granularity = 'MONTHLY'\n  \
-    \  and dimension_type_1 = 'LINKED_ACCOUNT'\n    and dimension_type_2 = 'SERVICE'\n\
-    \  group by\n    dimension_1,\n    dimension_2\n  order by\n    dimension_1,\n\
-    \    net_unblended_cost desc\n)\nselect * from ranked_costs where rank <=5"
+  QueryToExecute: |
+    WITH ranked_costs AS (
+      SELECT
+        dimension_1 AS account_id,
+        dimension_2 AS service_name,
+        SUM(net_unblended_cost_amount)::numeric::money AS net_unblended_cost,
+        RANK() OVER(PARTITION BY dimension_1 ORDER BY SUM(net_unblended_cost_amount) DESC)
+      FROM
+        aws_cost_usage
+      WHERE
+        granularity = 'MONTHLY'
+        AND dimension_type_1 = 'LINKED_ACCOUNT'
+        AND dimension_type_2 = 'SERVICE'
+      GROUP BY
+        dimension_1,
+        dimension_2
+      ORDER BY
+        dimension_1,
+        net_unblended_cost DESC
+    )
+    SELECT * FROM ranked_costs WHERE rank <= 5
 Tags:
   cloud_asset_management:
-  - 'true'
+    - "true"
   cloud_finops:
-  - 'true'
+    - "true"
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - Cost Explorer
+    - Cost Explorer
 Title: List Top 5 AWS Cost and Usage Data

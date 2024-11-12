@@ -1,24 +1,36 @@
-Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to
-  obtain detailed metrics data.
+Description: Allows users to query AWS CloudWatch Metric Statistics Data Point to obtain detailed metrics data.
 ID: aws_cloudwatch_metric_statistic_data_point_5
 IntegrationType:
-- aws_cloud_account
+  - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables: []
   Parameters: []
   PrimaryTable: null
-  QueryToExecute: "select\n  jsonb_pretty(dimensions) as dimensions,\n  timestamp,\n\
-    \  maximum\nfrom\n  aws_cloudwatch_metric_statistic_data_point\nwhere\n  namespace\
-    \ = 'AWS/Lambda'\n  and metric_name = 'Duration'\n  and maximum > 100\n  and timestamp\
-    \ >= '2023-02-15T00:00:00Z'\n  and timestamp <= '2023-03-15T00:00:00Z'\n  and\
-    \ period = 86400\n  and dimensions = '[\n    {\"Name\": \"FunctionName\", \"Value\"\
-    : \"test\"}\n    ]'\norder by\n  timestamp;"
+  QueryToExecute: |
+    SELECT
+      jsonb_pretty(dimensions) AS dimensions,
+      timestamp,
+      maximum
+    FROM
+      aws_cloudwatch_metric_statistic_data_point
+    WHERE
+      namespace = 'AWS/Lambda'
+      AND metric_name = 'Duration'
+      AND maximum > 100
+      AND timestamp >= '2023-02-15T00:00:00Z'
+      AND timestamp <= '2023-03-15T00:00:00Z'
+      AND period = 86400
+      AND dimensions = '[
+        {"Name": "FunctionName", "Value": "test"}
+      ]'
+    ORDER BY
+      timestamp;
 Tags:
   cloud_ops:
-  - 'true'
+    - "true"
   cloud_provider:
-  - aws
+    - aws
   cloud_service:
-  - CloudWatch
+    - CloudWatch
 Title: List All AWS CloudWatch Metric Statistics Data Points
