@@ -31,7 +31,7 @@ jobs:
           cd .github/scripts
           go mod download
           go run .
-      
+
       # Conditional step: Bump version and create tag only if the comparison script passes
       - name: Bump Version and Create Tag
         if: ${{ success() && steps.compare_control.outcome == 'success' }}
@@ -57,7 +57,8 @@ jobs:
           git tag "$new_tag"
           git push origin "$new_tag"
 
-        # Required to push changes to the repository
+          # Set the new_tag as an output
+          echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.OG_RELEASE_TAG_UPDATE }}
 
