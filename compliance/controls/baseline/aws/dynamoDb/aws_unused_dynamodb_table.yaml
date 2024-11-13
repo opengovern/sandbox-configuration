@@ -14,16 +14,6 @@ Query:
       og_resource_id,
       og_account_id,
       CASE
-        WHEN item_count::int = 0 THEN (
-          SELECT cost 
-          FROM pennywise_cost_estimate 
-          WHERE resource_type = 'aws::dynamodb::table' 
-          AND resource_id = t.og_resource_id 
-          LIMIT 1
-        )
-        ELSE 0
-      END AS cost_optimization,
-      CASE
         WHEN item_count::int = 0 THEN 'alarm'
         ELSE 'ok'
       END AS status,

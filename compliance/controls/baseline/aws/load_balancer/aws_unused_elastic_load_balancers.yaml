@@ -14,16 +14,6 @@ Query:
       og_account_id,
       og_resource_id,
       CASE
-        WHEN jsonb_array_length(instances) > 0 THEN 0
-        ELSE (
-          SELECT cost
-          FROM pennywise_cost_estimate
-          WHERE resource_type = 'aws::elasticloadbalancing::loadbalancer'
-            AND resource_id = lb.og_resource_id
-          LIMIT 1
-        )
-      END AS cost_optimization,
-      CASE
         WHEN jsonb_array_length(instances) > 0 THEN 'ok'
         ELSE 'alarm'
       END AS status,

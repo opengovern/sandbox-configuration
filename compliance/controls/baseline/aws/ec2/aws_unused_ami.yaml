@@ -39,25 +39,6 @@ Query:
         WHEN i.arn IS NULL THEN ami.name || ' is unused.'
         ELSE ami.name || ' is used.'
       END AS reason,
-      CASE
-        WHEN is_aws_backup_managed THEN 0
-        WHEN ami.root_device_type <> 'ebs' THEN 0
-        WHEN i.arn IS NULL THEN (
-          SELECT
-            SUM((
-              SELECT cost
-              FROM pennywise_cost_estimate AS es
-              WHERE es.resource_type = 'aws::ec2::volumesnapshot'
-                AND es.resource_id = s.arn
-              LIMIT 1
-            ))
-          FROM
-            jsonb_array_elements(ami.block_device_mappings) AS bdm
-          LEFT JOIN
-            aws_ebs_snapshot AS s ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId'
-        )
-        ELSE 0
-      END AS cost_optimization,
       ami.region,
       ami.account_id
     FROM

@@ -17,16 +17,6 @@ Query:
       og_account_id,
       CASE
         WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() 
-        THEN (
-          SELECT cost 
-          FROM pennywise_cost_estimate 
-          WHERE resource_type = 'aws::ec2::volumesnapshot' AND resource_id = es.og_resource_id 
-          LIMIT 1
-        )
-        ELSE 0
-      END AS cost_optimization,
-      CASE
-        WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() 
         THEN 'alarm'
         ELSE 'ok'
       END AS status,

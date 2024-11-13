@@ -31,16 +31,6 @@ Query:
         WHEN b.load_balancer_arn IS NULL THEN a.title || ' has no target registered.'
         ELSE a.title || ' has registered target of type ' || b.target_type || '.'
       END AS reason,
-      CASE
-        WHEN b.load_balancer_arn IS NULL THEN (
-          SELECT cost
-          FROM pennywise_cost_estimate
-          WHERE resource_type = 'aws::elasticloadbalancingv2::loadbalancer'
-          AND resource_id = a.og_resource_id
-          LIMIT 1
-        )
-        ELSE 0
-      END AS cost_optimization,
       a.region,
       a.account_id
     FROM

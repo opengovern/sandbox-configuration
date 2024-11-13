@@ -15,16 +15,6 @@ Query:
       v.og_resource_id,
       v.og_account_id,
       CASE
-        WHEN i.instance_state = 'running' THEN 0
-        ELSE (
-          SELECT cost
-          FROM pennywise_cost_estimate
-          WHERE resource_type = 'aws::ec2::volume'
-            AND resource_id = v.og_resource_id
-          LIMIT 1
-        )
-      END AS cost_optimization,
-      CASE
         WHEN i.instance_state = 'running' THEN 'ok'
         ELSE 'alarm'
       END AS status,

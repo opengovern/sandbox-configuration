@@ -28,19 +28,6 @@ Query:
         ) THEN lb.name || ' is used.'
         ELSE lb.name || ' is unused.'
       END AS reason,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
-        ) THEN 0
-        ELSE (
-          SELECT COALESCE(cost, 0)
-          FROM pennywise_cost_estimate
-          WHERE resource_type = 'microsoft.network/loadbalancers'
-            AND resource_id = lb.og_resource_id
-          LIMIT 1
-        )
-      END AS cost_optimization,
       lb.resource_group AS resource_group,
       sub.display_name AS subscription
     FROM

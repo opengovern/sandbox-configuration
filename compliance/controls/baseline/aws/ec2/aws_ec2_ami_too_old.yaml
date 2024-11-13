@@ -29,22 +29,6 @@ Query:
         WHEN NOW() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN name || ' needs to be restarted'
         ELSE name || ' launch time was not much time ago'
       END AS reason,
-      CASE
-        WHEN is_aws_backup_managed THEN 0
-        WHEN root_device_type <> 'ebs' THEN 0
-        WHEN NOW() - (creation_date)::timestamp > '{{.awsEbsAmiAgeMaxDays}} days'::interval THEN 
-          (SELECT SUM(
-              (SELECT cost 
-               FROM pennywise_cost_estimate AS es 
-               WHERE es.resource_type = 'aws::ec2::volumesnapshot' 
-                 AND es.resource_id = s.arn 
-               LIMIT 1)
-             )
-           FROM jsonb_array_elements(block_device_mappings) AS bdm
-           LEFT JOIN aws_ebs_snapshot AS s 
-           ON s.snapshot_id = bdm -> 'Ebs' ->> 'SnapshotId')
-        ELSE 0
-      END AS cost_optimization,
       region,
       account_id
     FROM 

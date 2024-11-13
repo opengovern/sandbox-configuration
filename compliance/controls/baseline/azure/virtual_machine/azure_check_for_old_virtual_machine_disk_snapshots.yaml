@@ -25,15 +25,6 @@ Query:
         WHEN NOW() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval THEN s.name || ' snapshot is too old and can be removed'
         ELSE s.name || ' snapshot is not old'
       END AS reason,
-      CASE
-        WHEN NOW() - s.time_created > '{{.azureDiskSnapshotAgeThreshold}} days'::interval THEN (
-          SELECT cost
-          FROM pennywise_cost_estimate
-          WHERE resource_type = 'microsoft.compute/snapshots' AND resource_id = s.og_resource_id
-          LIMIT 1
-        )
-        ELSE 0
-      END AS cost_optimization,
       s.resource_group,
       sub.display_name AS subscription
     FROM

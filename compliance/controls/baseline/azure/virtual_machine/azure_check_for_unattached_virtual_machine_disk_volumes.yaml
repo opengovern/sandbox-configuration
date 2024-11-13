@@ -22,16 +22,6 @@ Query:
         WHEN disk.disk_state = 'Unattached' THEN disk.title || ' has no attachments.'
         ELSE disk.title || ' has attachments.'
       END AS reason,
-      CASE
-        WHEN disk.disk_state = 'Unattached' THEN (
-          SELECT cost 
-          FROM pennywise_cost_estimate 
-          WHERE resource_type = 'microsoft.compute/disks' 
-            AND resource_id = disk.og_resource_id 
-          LIMIT 1
-        )
-        ELSE 0
-      END AS cost_optimization,
       disk.resource_group,
       display_name AS subscription
     FROM
