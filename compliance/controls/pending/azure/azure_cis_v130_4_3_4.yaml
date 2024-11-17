@@ -4,12 +4,16 @@ IntegrationType:
   - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  ListOfTables: []
+  ListOfTables:
+    - azure_postgresql_server
+    - azure_subscription
   Parameters: []
-  PrimaryTable: ""
+  PrimaryTable: azure_postgresql_server
   QueryToExecute: |
     SELECT
       s.id AS resource,
+      s.og_account_id AS og_account_id,
+      s.og_resource_id AS og_resource_id,
       CASE
         WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
         ELSE 'ok'
