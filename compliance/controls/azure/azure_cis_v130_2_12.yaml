@@ -5,10 +5,10 @@ IntegrationType:
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-    - azure_policy_assignment
     - azure_subscription
+    - azure_policy_assignment
   Parameters: []
-  PrimaryTable: azure_policy_assignment
+  PrimaryTable: azure_subscription
   QueryToExecute: |
     WITH policy_assignment_parameters AS (
       SELECT
@@ -45,6 +45,8 @@ Query:
       sub._ctx,
       sub.subscription_id,
       pol_assignment.subscription_id,
+      sub.og_account_id,
+      sub.og_resource_id,
       sub.display_name;
 Severity: low
 Tags: {}
