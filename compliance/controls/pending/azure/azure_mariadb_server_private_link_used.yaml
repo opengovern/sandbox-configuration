@@ -4,12 +4,16 @@ IntegrationType:
   - azure_subscription
 Query:
   Engine: CloudQL-v0.0.1
-  ListOfTables: []
+  ListOfTables:
+    - azure_mariadb_server
+    - azure_subscription
   Parameters: []
-  PrimaryTable: ""
+  PrimaryTable: azure_mariadb_server
   QueryToExecute: |
     SELECT
       a.id AS resource,
+      a.og_account_id AS og_account_id,
+      a.og_resource_id AS og_resource_id,
       CASE
         WHEN sku_tier = 'Basic' THEN 'skip'
         WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]'::jsonb THEN 'ok'
