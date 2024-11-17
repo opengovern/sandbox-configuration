@@ -15,13 +15,15 @@ Query:
         role_name,
         role_type,
         title,
+        og_account_id,
+        og_resource_id,
         action,
         _ctx,
         subscription_id
       FROM
         azure_role_definition,
-        JSONB_ARRAY_ELEMENTS(permissions) AS s,
-        JSONB_ARRAY_ELEMENTS_TEXT(s -> 'actions') AS action
+        jsonb_array_elements(permissions) AS s,
+        jsonb_array_elements_text(s -> 'actions') AS action
       WHERE
         role_type = 'CustomRole'
         AND action IN ('*', '*:*')
@@ -46,6 +48,8 @@ Query:
       sub.subscription_id = cr.subscription_id
     GROUP BY
       cr.subscription_id,
+      cr.og_account_id,
+      cr.og_resource_id,
       cr._ctx,
       sub.display_name;
 Severity: low

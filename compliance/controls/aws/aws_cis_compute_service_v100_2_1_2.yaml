@@ -14,6 +14,8 @@ Query:
         image_id AS resource,
         region,
         account_id,
+        og_account_id,
+        og_resource_id,
         tags,
         _ctx,
         BOOL_AND(COALESCE((mapping -> 'Ebs' ->> 'Encrypted')::text = 'true', FALSE)) AS all_encrypted
@@ -25,12 +27,14 @@ Query:
         region,
         account_id,
         tags,
-        _ctx
+        _ctx,
+        og_account_id,
+        og_resource_id
     )
     SELECT
       resource,
-      image_id AS og_account_id,
-      image_id AS og_resource_id,
+      og_account_id,
+      og_resource_id,
       CASE
         WHEN all_encrypted THEN 'ok'
         ELSE 'alarm'
