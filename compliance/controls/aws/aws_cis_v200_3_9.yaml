@@ -14,6 +14,8 @@ Query:
       SELECT
         arn,
         account_id,
+        og_account_id,
+        og_resource_id,
         region,
         owner_id,
         vpc_id,
@@ -36,8 +38,8 @@ Query:
     )
     SELECT
       v.arn AS resource,
-      v.account_id AS og_account_id,
-      v.vpc_id AS og_resource_id,
+      v.og_account_id AS og_account_id,
+      v.og_resource_id AS og_resource_id,
       CASE
         WHEN v.account_id <> v.owner_id THEN 'skip'
         WHEN f.resource_id IS NOT NULL THEN 'ok'
