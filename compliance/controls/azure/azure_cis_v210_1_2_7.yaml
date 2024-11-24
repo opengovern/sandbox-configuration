@@ -5,19 +5,19 @@ IntegrationType:
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-    - azuread_user
+    - entraid_user
     - azure_role_assignment
     - azure_role_definition
-    - azuread_conditional_access_policy
+    - entraid_conditional_access_policy
   Parameters: []
-  PrimaryTable: azuread_conditional_access_policy
+  PrimaryTable: entraid_conditional_access_policy
   QueryToExecute: |
     WITH distinct_tenant AS (
       SELECT
         u.id,
         tenant_id
       FROM
-        azuread_user AS u
+        entraid_user AS u
         LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
         LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
       WHERE
@@ -39,7 +39,7 @@ Query:
       t.tenant_id
     FROM
       distinct_tenant AS t,
-      azuread_conditional_access_policy AS p;
+      entraid_conditional_access_policy AS p;
 Severity: low
 Tags: {}
 Title: 1.2.7 Ensure Multifactor Authentication is Required to access Microsoft Admin Portals

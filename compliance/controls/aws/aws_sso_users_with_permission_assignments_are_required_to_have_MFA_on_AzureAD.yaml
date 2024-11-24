@@ -8,7 +8,7 @@ Query:
   ListOfTables:
     - aws_identitystore_user
     - aws_ssoadmin_account_assignment
-    - azuread_user_registration_details
+    - entraid_user_registration_details
   Parameters: []
   PrimaryTable: aws_identitystore_user
   QueryToExecute: |
@@ -27,7 +27,7 @@ Query:
     FROM 
       (aws_identitystore_user 
       CROSS JOIN jsonb_array_elements(external_ids) AS external_id) iden
-    INNER JOIN azuread_user_registration_details az 
+    INNER JOIN entraid_user_registration_details az 
       ON az.id = value ->> 'Id'
     WHERE 
       EXISTS (
