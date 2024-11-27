@@ -14,7 +14,7 @@ Query:
   QueryToExecute: |
     WITH dlm_managed AS (
       SELECT
-        og_resource_id
+        platform_resource_id
       FROM
         aws_ec2_ami
       CROSS JOIN
@@ -25,8 +25,8 @@ Query:
     )
     SELECT
       ami.name AS resource,
-      ami.og_resource_id,
-      ami.og_account_id,
+      ami.platform_resource_id,
+      ami.platform_account_id,
       CASE
         WHEN is_aws_backup_managed THEN 'skip'
         WHEN ami.root_device_type <> 'ebs' THEN 'skip'
@@ -46,7 +46,7 @@ Query:
     LEFT JOIN
       aws_ec2_instance AS i ON ami.image_id = i.image_id
     WHERE
-      NOT (EXISTS (SELECT * FROM dlm_managed dl WHERE dl.og_resource_id = ami.og_resource_id))
+      NOT (EXISTS (SELECT * FROM dlm_managed dl WHERE dl.platform_resource_id = ami.platform_resource_id))
 Severity: low
 Tags:
   platform_score_cloud_service_name:

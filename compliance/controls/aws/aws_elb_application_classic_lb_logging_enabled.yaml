@@ -13,8 +13,8 @@ Query:
     (
       SELECT
         arn AS resource,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
         'aws_ec2_application_load_balancer' AS og_table_name,
         CASE
           WHEN load_balancer_attributes @> '[{"Key": "access_logs.s3.enabled", "Value": "true"}]' THEN 'ok'
@@ -32,8 +32,8 @@ Query:
     (
       SELECT
         'arn:' || partition || ':elasticloadbalancing:' || region || ':' || account_id || ':loadbalancer/' || title AS resource,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
         'aws_ec2_classic_load_balancer' AS og_table_name,
         CASE
           WHEN access_log_enabled = 'true' THEN 'ok'

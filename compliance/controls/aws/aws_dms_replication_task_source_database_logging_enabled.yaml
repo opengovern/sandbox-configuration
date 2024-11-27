@@ -12,8 +12,8 @@ Query:
     WITH replication_task_logging AS (
       SELECT
         arn,
-        og_account_id,
-        og_resource_id,
+        platform_account_id,
+        platform_resource_id,
         BOOL_OR(o ->> 'Id' = 'SOURCE_CAPTURE' AND o ->> 'Severity' IN ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) AS capture_logging_enabled,
         BOOL_OR(o ->> 'Id' = 'SOURCE_UNLOAD' AND o ->> 'Severity' IN ('LOGGER_SEVERITY_DEFAULT', 'LOGGER_SEVERITY_DEBUG', 'LOGGER_SEVERITY_DETAILED_DEBUG')) AS unload_logging_enabled
       FROM
@@ -21,14 +21,14 @@ Query:
         JSONB_ARRAY_ELEMENTS(replication_task_settings -> 'Logging' -> 'LogComponents') AS o
       GROUP BY
         arn,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
     )
   
     SELECT
       t.arn AS resource,
-      t.og_account_id AS og_account_id,
-      t.og_resource_id AS og_resource_id,
+      t.platform_account_id AS platform_account_id,
+      t.platform_resource_id AS platform_resource_id,
       (replication_task_settings -> 'Logging' ->> 'EnableLogging')::BOOL AS logging_enabled,
       CASE
         WHEN (replication_task_settings -> 'Logging' ->> 'EnableLogging')::BOOL AND l.capture_logging_enabled AND l.unload_logging_enabled THEN 'ok'

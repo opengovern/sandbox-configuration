@@ -18,8 +18,8 @@ Query:
         action,
         _ctx,
         subscription_id,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         azure_role_definition,
         jsonb_array_elements(permissions) AS s,
@@ -30,8 +30,8 @@ Query:
     )
     SELECT
       cr.subscription_id AS resource,
-      cr.og_account_id AS og_account_id,
-      cr.og_resource_id AS og_resource_id,
+      cr.platform_account_id AS platform_account_id,
+      cr.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(*) > 0 THEN 'alarm'
         ELSE 'ok'
@@ -50,8 +50,8 @@ Query:
       cr.subscription_id,
       cr._ctx,
       sub.display_name,
-      cr.og_account_id,
-      cr.og_resource_id;
+      cr.platform_account_id,
+      cr.platform_resource_id;
 Severity: low
 Tags: {}
 Title: 1.22 Ensure That No Custom Subscription Administrator Roles Exist

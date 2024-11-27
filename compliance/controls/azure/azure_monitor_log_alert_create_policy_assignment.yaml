@@ -14,8 +14,8 @@ Query:
       SELECT
         alert.id AS alert_id,
         alert.name AS alert_name,
-        alert.og_account_id AS og_account_id,
-        alert.og_resource_id AS og_resource_id,
+        alert.platform_account_id AS platform_account_id,
+        alert.platform_resource_id AS platform_resource_id,
         alert.enabled,
         alert.location,
         alert.subscription_id
@@ -33,8 +33,8 @@ Query:
     )
     SELECT
       sub.subscription_id AS resource,
-      sub.og_account_id AS og_account_id,
-      sub.og_resource_id AS og_resource_id,
+      sub.platform_account_id AS platform_account_id,
+      sub.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
         ELSE 'alarm'
@@ -49,8 +49,8 @@ Query:
     LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
     GROUP BY
       sub.subscription_id,
-      sub.og_account_id,
-      sub.og_resource_id,
+      sub.platform_account_id,
+      sub.platform_resource_id,
       sub._ctx,
       sub.display_name
 Severity: medium

@@ -12,17 +12,17 @@ Query:
   QueryToExecute: |
     SELECT
       v.id AS resource,
-      v.og_resource_id,
-      v.og_account_id,
+      v.platform_resource_id,
+      v.platform_account_id,
       CASE
-        WHEN v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
-             AND v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
+        WHEN v.platform_resource_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
+             AND v.platform_resource_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
           THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
-        WHEN v.og_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
-             AND v.og_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
+        WHEN v.platform_resource_description -> 'Vault' -> 'Properties' ->> 'Encryption' IS NULL 
+             AND v.platform_resource_description -> 'Vault' -> 'Properties' ->> 'PublicNetworkAccess' = 'Enabled' 
           THEN v.name || ' is not encrypted and publicly accessible.'
         ELSE v.name || ' is not publicly accessible.'
       END AS reason,

@@ -12,15 +12,15 @@ Query:
   QueryToExecute: |
     SELECT 
       vm.id AS resource,
-      vm.og_account_id,
-      vm.og_resource_id,
+      vm.platform_account_id,
+      vm.platform_resource_id,
       CASE
-        WHEN vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
+        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
         THEN 'ok'
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
+        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
         THEN 'Instance Termination Notifications feature is enabled'
         ELSE 'Instance Termination Notifications feature is not enabled'
       END AS reason,

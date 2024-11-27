@@ -20,8 +20,8 @@ Query:
         i.region,
         i.account_id,
         i._ctx,
-        i.og_account_id AS og_account_id,
-        i.og_resource_id AS og_resource_id
+        i.platform_account_id AS platform_account_id,
+        i.platform_resource_id AS platform_resource_id
       FROM
         aws_rds_db_instance AS i,
         jsonb_array_elements(db_parameter_groups) AS g
@@ -41,8 +41,8 @@ Query:
     )
     SELECT
       i.arn AS resource,
-      i.og_account_id AS og_account_id,
-      i.og_resource_id AS og_resource_id,
+      i.platform_account_id AS platform_account_id,
+      i.platform_resource_id AS platform_resource_id,
       i.engine,
       CASE
         WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN 'skip'

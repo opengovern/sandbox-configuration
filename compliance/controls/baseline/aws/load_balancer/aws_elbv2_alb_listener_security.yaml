@@ -12,8 +12,8 @@ Query:
   QueryToExecute: |
     SELECT
       al.arn AS resource,
-      al.og_resource_id,
-      al.og_account_id,
+      al.platform_resource_id,
+      al.platform_account_id,
       CASE
         WHEN STRING_AGG(ll.protocol, ',') ILIKE '%HTTPS%' THEN 'ok'
         ELSE 'alarm'
@@ -32,8 +32,8 @@ Query:
       al.arn = ll.load_balancer_arn
     GROUP BY
       al.arn,
-      al.og_resource_id,
-      al.og_account_id,
+      al.platform_resource_id,
+      al.platform_account_id,
       al.title,
       al.region,
       al.account_id;

@@ -36,8 +36,8 @@ Query:
     )
     SELECT
       b.arn AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(bucket_selector) > 0 THEN 'ok'
         ELSE 'alarm'
@@ -54,7 +54,7 @@ Query:
       ON bucket_selector::json::text LIKE ('%' || b.arn || '%')
       OR bucket_selector::json::text = '\"arn:aws:s3\"'
     GROUP BY
-      b.og_account_id, b.og_resource_id, b.account_id, b.region, b.arn, b.name, b.tags, b._ctx;
+      b.platform_account_id, b.platform_resource_id, b.account_id, b.region, b.arn, b.name, b.tags, b._ctx;
 Severity: high
 Tags:
   category:

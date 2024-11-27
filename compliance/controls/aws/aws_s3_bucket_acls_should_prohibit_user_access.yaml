@@ -18,8 +18,8 @@ Query:
         object_ownership_controls,
         region,
         account_id,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
         _ctx,
         tags
       FROM
@@ -32,8 +32,8 @@ Query:
         region,
         account_id,
         object_ownership_controls,
-        og_account_id,
-        og_resource_id,
+        platform_account_id,
+        platform_resource_id,
         _ctx,
         tags
     ),
@@ -45,8 +45,8 @@ Query:
         object_ownership_controls,
         region,
         account_id,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
         _ctx,
         tags
       FROM
@@ -54,8 +54,8 @@ Query:
     )
     SELECT
       arn AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN object_ownership_controls -> 'Rules' @> '[{"ObjectOwnership": "BucketOwnerEnforced"}]' THEN 'ok'
         WHEN JSONB_ARRAY_LENGTH(additional_permissions) = 0 THEN 'ok'

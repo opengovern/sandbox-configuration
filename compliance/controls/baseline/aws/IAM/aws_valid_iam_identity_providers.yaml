@@ -13,7 +13,7 @@ Query:
   QueryToExecute: |
     WITH locations AS (
       SELECT
-        og_resource_id,
+        platform_resource_id,
         UNNEST(
           XPATH(
             '/md:EntityDescriptor/md:IDPSSODescriptor/md:SingleLogoutService/@Location',
@@ -31,15 +31,15 @@ Query:
     )
     SELECT
       arn AS resource,
-      og_resource_id,
-      og_account_id,
+      platform_resource_id,
+      platform_account_id,
       saml_metadata_document,
       CASE
         WHEN '{{.awsTrustedEndpoints}}' = '' THEN 'ok'
         WHEN EXISTS (
           SELECT 1
           FROM locations AS l
-          WHERE l.og_resource_id = p.og_resource_id 
+          WHERE l.platform_resource_id = p.platform_resource_id 
           AND l.location NOT LIKE '{{.awsTrustedEndpoints}}'
         ) THEN 'alarm'
         ELSE 'ok'
@@ -49,7 +49,7 @@ Query:
         WHEN EXISTS (
           SELECT 1
           FROM locations AS l
-          WHERE l.og_resource_id = p.og_resource_id
+          WHERE l.platform_resource_id = p.platform_resource_id
           AND l.location NOT LIKE '{{.awsTrustedEndpoints}}'
         ) THEN 'location is not inside trusted endpoints'
         ELSE 'is inside trusted endpoints'

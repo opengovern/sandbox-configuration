@@ -20,8 +20,8 @@ Query:
         account_id,
         tags,
         _ctx,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_ec2_application_load_balancer
       UNION
@@ -33,8 +33,8 @@ Query:
         account_id,
         tags,
         _ctx,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_ec2_network_load_balancer
       UNION
@@ -46,15 +46,15 @@ Query:
         account_id,
         tags,
         _ctx,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_ec2_classic_load_balancer
     )
     SELECT
       arn AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN scheme = 'internet-facing' THEN 'alarm'
         ELSE 'ok'

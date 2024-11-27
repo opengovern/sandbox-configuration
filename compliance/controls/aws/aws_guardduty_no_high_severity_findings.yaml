@@ -18,8 +18,8 @@ Query:
         region,
         account_id,
         status,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_guardduty_detector
     ), finding_count AS (
@@ -33,8 +33,8 @@ Query:
     )
     SELECT
       arn AS resource,
-      d.og_account_id AS og_account_id,
-      d.og_resource_id AS og_resource_id,
+      d.platform_account_id AS platform_account_id,
+      d.platform_resource_id AS platform_resource_id,
       CASE
         WHEN status <> 'ENABLED' THEN 'skip'
         WHEN fc.count = 0 OR fc.count IS NULL THEN 'ok'

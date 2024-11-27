@@ -13,8 +13,8 @@ Query:
   QueryToExecute: |
     WITH analysis AS (
       SELECT
-        og_account_id,
-        og_resource_id,
+        platform_account_id,
+        platform_resource_id,
         arn,
         title,
         tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
@@ -27,8 +27,8 @@ Query:
         aws_ec2_instance
     )
     SELECT
-      og_account_id,
-      og_resource_id,
+      platform_account_id,
+      platform_resource_id,
       arn AS resource,
       CASE
         WHEN has_mandatory_tags THEN 'ok'

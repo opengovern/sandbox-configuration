@@ -15,8 +15,8 @@ Query:
         account_id,
         region,
         COUNT(*) AS count,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_organizations_policy
       WHERE
@@ -25,12 +25,12 @@ Query:
         _ctx,
         region,
         account_id,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
     )
     SELECT
-      og_account_id,
-      og_resource_id,
+      platform_account_id,
+      platform_resource_id,
       CASE
         WHEN count > 0 THEN 'ok'
         ELSE 'alarm'

@@ -16,8 +16,8 @@ Query:
         name AS trail_name,
         is_multi_region_trail,
         bucket_selector,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_cloudtrail_trail,
         jsonb_array_elements(event_selectors) AS event_selector,
@@ -34,8 +34,8 @@ Query:
     )
     SELECT
       b.arn AS resource,
-      b.og_account_id AS og_account_id,
-      b.og_resource_id AS og_resource_id,
+      b.platform_account_id AS platform_account_id,
+      b.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(bucket_selector) > 0 THEN 'ok'
         ELSE 'alarm'
@@ -51,7 +51,7 @@ Query:
         ON bucket_selector LIKE (b.arn || '%')
         OR bucket_selector = 'arn:aws:s3'
     GROUP BY
-      b.account_id, b.og_account_id, b.og_resource_id, b.region, b.arn, b.name, b.tags, b._ctx;
+      b.account_id, b.platform_account_id, b.platform_resource_id, b.region, b.arn, b.name, b.tags, b._ctx;
 Severity: low
 Tags: {}
 Title: 3.9 Ensure that Object-level logging for read events is enabled for S3 bucket

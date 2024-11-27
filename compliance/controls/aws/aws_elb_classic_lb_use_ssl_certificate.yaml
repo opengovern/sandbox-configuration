@@ -12,7 +12,7 @@ Query:
     WITH detailed_classic_listeners AS (
       SELECT
         name,
-        og_resource_id
+        platform_resource_id
       FROM
         aws_ec2_classic_load_balancer,
         jsonb_array_elements(listener_descriptions) AS listener_description
@@ -22,8 +22,8 @@ Query:
     )
     SELECT
       'arn:' || a.partition || ':elasticloadbalancing:' || a.region || ':' || a.account_id || ':loadbalancer/' || a.name AS resource,
-      a.og_account_id AS og_account_id,
-      a.og_resource_id AS og_resource_id,
+      a.platform_account_id AS platform_account_id,
+      a.platform_resource_id AS platform_resource_id,
       CASE
         WHEN a.listener_descriptions IS NULL THEN 'skip'
         WHEN b.name IS NOT NULL THEN 'alarm'
@@ -38,7 +38,7 @@ Query:
       account_id
     FROM
       aws_ec2_classic_load_balancer AS a
-    LEFT JOIN detailed_classic_listeners AS b ON a.og_resource_id = b.og_resource_id
+    LEFT JOIN detailed_classic_listeners AS b ON a.platform_resource_id = b.platform_resource_id
 Severity: high
 Tags:
   category:

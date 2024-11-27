@@ -6,8 +6,8 @@ Query:
   QueryToExecute: |
     WITH analysis AS (
       SELECT
-        og_account_id,
-        og_resource_id,
+        platform_account_id,
+        platform_resource_id,
         id,
         title,
         tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
@@ -18,8 +18,8 @@ Query:
         azure_public_ip
     )
     SELECT
-      og_account_id,
-      og_resource_id,
+      platform_account_id,
+      platform_resource_id,
       id AS resource,
       CASE
         WHEN has_mandatory_tags THEN 'ok'

@@ -13,8 +13,8 @@ Query:
     WITH instance_pg AS (
       SELECT
         g ->> 'DBParameterGroupName' AS pg_name,
-        i.og_account_id,
-        i.og_resource_id,
+        i.platform_account_id,
+        i.platform_resource_id,
         i.engine,
         i.title,
         i.arn,
@@ -43,8 +43,8 @@ Query:
     SELECT
       i.arn AS resource,
       i.engine,
-      i.og_account_id,
-      i.og_resource_id,
+      i.platform_account_id,
+      i.platform_resource_id,
       CASE
         WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN 'skip'
         WHEN p.name IS NOT NULL THEN 'ok'
