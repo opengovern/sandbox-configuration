@@ -19,9 +19,9 @@ Query:
         region,
         account_id,
         tags,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
-        'aws_api_gateway_stage' AS og_table_name,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
+        'aws_api_gateway_stage' AS platform_table_name,
         _ctx
       FROM
         aws_api_gateway_stage
@@ -34,18 +34,18 @@ Query:
         region,
         account_id,
         tags,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
-        'aws_api_gatewayv2_stage' AS og_table_name,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
+        'aws_api_gatewayv2_stage' AS platform_table_name,
         _ctx
       FROM
         aws_api_gatewayv2_stage
     )
     SELECT
       arn AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
-      og_table_name AS og_table_name,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
+      platform_table_name AS platform_table_name,
       CASE
         WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN 'alarm'
         ELSE 'ok'

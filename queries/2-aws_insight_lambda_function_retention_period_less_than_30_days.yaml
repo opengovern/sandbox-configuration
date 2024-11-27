@@ -16,12 +16,12 @@ Query:
       lg.name,
       lg.retention_in_days,
       fn.account_id,
-      fn.og_account_id,
-      fn.og_resource_id
+      fn.platform_account_id,
+      fn.platform_resource_id
     FROM
       aws_lambda_function AS fn
       INNER JOIN aws_cloudwatch_log_group AS lg ON (
-        lg.og_account_id = fn.og_account_id
+        lg.platform_account_id = fn.platform_account_id
         AND (
           lg.name = '/aws/lambda/' OR
           lg.name = fn.name

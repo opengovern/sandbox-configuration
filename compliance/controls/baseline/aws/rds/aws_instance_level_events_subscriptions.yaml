@@ -11,8 +11,8 @@ Query:
   PrimaryTable: aws_account
   QueryToExecute: |
     SELECT DISTINCT
-      a.og_account_id,
-      a.og_resource_id,
+      a.platform_account_id,
+      a.platform_resource_id,
       CASE
         WHEN s.arn IS NULL THEN 'alarm'
         ELSE 'ok'
@@ -27,7 +27,7 @@ Query:
     LEFT JOIN (
       SELECT * FROM aws_rds_db_event_subscription 
       WHERE source_type = 'db-instance'
-    ) s ON s.og_account_id = a.og_account_id
+    ) s ON s.platform_account_id = a.platform_account_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:

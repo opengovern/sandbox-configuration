@@ -12,14 +12,14 @@ Query:
   QueryToExecute: |
     SELECT
       vm.id AS resource,
-      vm.og_account_id,
-      vm.og_resource_id,
+      vm.platform_account_id,
+      vm.platform_resource_id,
       CASE
-        WHEN vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'alarm'
+        WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
-        WHEN vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'SSH authentication type for the selected Microsoft Azure virtual machine is password-based and is not secured'
+        WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'SSH authentication type for the selected Microsoft Azure virtual machine is password-based and is not secured'
         ELSE 'SSH authentication type for the selected Microsoft Azure virtual machine is secured'
       END AS reason,
       vm.resource_group,

@@ -24,8 +24,8 @@ Query:
       WHERE s IN (SELECT SubnetId FROM public_subnets)
     )
     SELECT d.arn AS resource,
-           d.og_account_id AS og_account_id,
-           d.og_resource_id AS og_resource_id,
+           d.platform_account_id AS platform_account_id,
+           d.platform_resource_id AS platform_resource_id,
            CASE
              WHEN d.vpc_options ->> 'VPCId' IS NULL THEN 'alarm'
              WHEN d.vpc_options ->> 'VPCId' IS NOT NULL AND p.arn IS NOT NULL THEN 'alarm'

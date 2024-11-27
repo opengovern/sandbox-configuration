@@ -14,14 +14,14 @@ Query:
   QueryToExecute: |
     SELECT
       vm.id AS resource,
-      vm.og_account_id,
-      vm.og_resource_id,
+      vm.platform_account_id,
+      vm.platform_resource_id,
       CASE
-        WHEN (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'ok'
+        WHEN (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'ok'
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN (vm.og_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'OS disk encrypted'
+        WHEN (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'OS disk encrypted'
         ELSE 'OS disk not encrypted'
       END AS reason,
       vm.resource_group,

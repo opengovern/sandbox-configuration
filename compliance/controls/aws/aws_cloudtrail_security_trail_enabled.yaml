@@ -46,8 +46,8 @@ Query:
         a.kms_key_id,
         a.region,
         a.account_id,
-        a.og_account_id AS og_account_id,
-        a.og_resource_id AS og_resource_id,
+        a.platform_account_id AS platform_account_id,
+        a.platform_resource_id AS platform_resource_id,
         a.title
       FROM
         aws_cloudtrail_trail AS a
@@ -55,8 +55,8 @@ Query:
     )
     SELECT
       arn AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN NOT is_logging THEN 'alarm'
         WHEN NOT include_global_service_events THEN 'alarm'

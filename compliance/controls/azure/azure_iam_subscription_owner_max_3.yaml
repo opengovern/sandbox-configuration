@@ -17,8 +17,8 @@ Query:
         d.role_type,
         d.name,
         d.title,
-        d.og_account_id AS og_account_id,
-        d.og_resource_id AS og_resource_id,
+        d.platform_account_id AS platform_account_id,
+        d.platform_resource_id AS platform_resource_id,
         d._ctx,
         d.subscription_id
       FROM
@@ -32,8 +32,8 @@ Query:
     )
     SELECT
       owner.subscription_id AS resource,
-      owner.og_account_id AS og_account_id,
-      owner.og_resource_id AS og_resource_id,
+      owner.platform_account_id AS platform_account_id,
+      owner.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(*) <= 3 THEN 'ok'
         ELSE 'alarm'
@@ -47,8 +47,8 @@ Query:
       sub.subscription_id = owner.subscription_id
     GROUP BY
       owner.subscription_id,
-      owner.og_account_id,
-      owner.og_resource_id,
+      owner.platform_account_id,
+      owner.platform_resource_id,
       owner._ctx,
       sub.display_name
 Severity: medium

@@ -19,8 +19,8 @@ Query:
         title,
         tags,
         _ctx,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_sagemaker_notebook_instance
     ), kms_keys AS (
@@ -33,8 +33,8 @@ Query:
     )
     SELECT
       i.arn AS resource,
-      i.og_account_id AS og_account_id,
-      i.og_resource_id AS og_resource_id,
+      i.platform_account_id AS platform_account_id,
+      i.platform_resource_id AS platform_resource_id,
       CASE
         WHEN kms_key_id IS NULL THEN 'alarm'
         WHEN k.key_manager = 'CUSTOMER' THEN 'ok'

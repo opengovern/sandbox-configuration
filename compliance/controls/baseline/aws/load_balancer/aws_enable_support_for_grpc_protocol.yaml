@@ -12,14 +12,14 @@ Query:
   QueryToExecute: |
     SELECT
       a.arn AS resource,
-      a.og_account_id,
-      a.og_resource_id,
+      a.platform_account_id,
+      a.platform_resource_id,
       CASE
-        WHEN tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 'ok'
+        WHEN tg.platform_resource_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 'ok'
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN tg.og_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 
+        WHEN tg.platform_resource_description -> 'TargetGroup' ->> 'ProtocolVersion' = 'GRPC' THEN 
           a.title || ' is configured to send requests to targets using the gRPC protocol.'
         ELSE 
           a.title || ' is not configured to send requests to targets using the gRPC protocol.'

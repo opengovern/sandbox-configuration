@@ -17,8 +17,8 @@ Query:
         t.region,
         t.account_id,
         t.tags,
-        t.og_account_id AS og_account_id,
-        t.og_resource_id AS og_resource_id,
+        t.platform_account_id AS platform_account_id,
+        t.platform_resource_id AS platform_resource_id,
         t._ctx,
         COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AllUsers') AS all_user_grants,
         COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AuthenticatedUsers') AS auth_user_grants,
@@ -35,13 +35,13 @@ Query:
         t.region,
         t.account_id,
         t.tags,
-        t.og_account_id,
-        t.og_resource_id,
+        t.platform_account_id,
+        t.platform_resource_id,
         t._ctx
     )
     SELECT
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN arn IS NULL THEN 'arn:aws:s3::' || name
         ELSE arn

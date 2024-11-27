@@ -11,14 +11,14 @@ Query:
   QueryToExecute: |
     SELECT
       instance_id AS resource,
-      og_resource_id,
-      og_account_id,
+      platform_resource_id,
+      platform_account_id,
       CASE
-        WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'
+        WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
-        WHEN now() - (og_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted'
+        WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted'
         ELSE instance_id || ' launch time was not much time ago'
       END AS reason,
       region,

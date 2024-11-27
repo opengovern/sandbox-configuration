@@ -19,8 +19,8 @@ Query:
         region,
         account_id,
         _ctx,
-        og_account_id,
-        og_resource_id
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_elasticache_replication_group
       ORDER BY
@@ -37,8 +37,8 @@ Query:
     )
     SELECT
       r.arn AS resource,
-      r.og_account_id AS og_account_id,
-      r.og_resource_id AS og_resource_id,
+      r.platform_account_id AS platform_account_id,
+      r.platform_resource_id AS platform_resource_id,
       CASE
         WHEN NOT at_rest_encryption_enabled THEN 'alarm'
         WHEN at_rest_encryption_enabled AND kms_key_id IS NULL THEN 'alarm'

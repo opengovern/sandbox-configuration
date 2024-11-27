@@ -12,14 +12,14 @@ Query:
   QueryToExecute: |
     SELECT
       vm.id AS resource,
-      vm.og_account_id,
-      vm.og_resource_id,
+      vm.platform_account_id,
+      vm.platform_resource_id,
       CASE
-        WHEN vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' THEN 'ok'
+        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' THEN 'ok'
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN vm.og_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' THEN 'Automatic repairs feature is enabled'
+        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'AutomaticRepairsPolicy' ->> 'Enabled' = 'true' THEN 'Automatic repairs feature is enabled'
         ELSE 'Automatic repairs feature is not currently enabled'
       END AS reason,
       vm.resource_group,

@@ -17,8 +17,8 @@ Query:
         alert.enabled,
         alert.location,
         alert.subscription_id,
-        alert.og_account_id AS og_account_id,
-        alert.og_resource_id AS og_resource_id
+        alert.platform_account_id AS platform_account_id,
+        alert.platform_resource_id AS platform_resource_id
       FROM
         azure_log_alert AS alert,
         jsonb_array_elements_text(scopes) AS sc
@@ -32,8 +32,8 @@ Query:
     )
     SELECT
       a.subscription_id AS resource,
-      a.og_account_id AS og_account_id,
-      a.og_resource_id AS og_resource_id,
+      a.platform_account_id AS platform_account_id,
+      a.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
         ELSE 'alarm'
@@ -50,8 +50,8 @@ Query:
       sub.subscription_id,
       sub._ctx,
       sub.display_name,
-      a.og_account_id,
-      a.og_resource_id;
+      a.platform_account_id,
+      a.platform_resource_id;
 Severity: low
 Tags: {}
 Title: 5.2.1 Ensure that Activity Log Alert exists for Create Policy Assignment

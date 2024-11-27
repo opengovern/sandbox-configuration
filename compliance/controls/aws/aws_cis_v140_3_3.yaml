@@ -18,8 +18,8 @@ Query:
         t.account_id,
         t.tags,
         t._ctx,
-        t.og_account_id,
-        t.og_resource_id,
+        t.platform_account_id,
+        t.platform_resource_id,
         COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AllUsers') AS all_user_grants,
         COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AuthenticatedUsers') AS auth_user_grants,
         COUNT(s) FILTER (WHERE s ->> 'Effect' = 'Allow' AND p = '*') AS anon_statements
@@ -36,16 +36,16 @@ Query:
         t.account_id,
         t.tags,
         t._ctx,
-        t.og_account_id,
-        t.og_resource_id
+        t.platform_account_id,
+        t.platform_resource_id
     )
     SELECT
       CASE
         WHEN arn IS NULL THEN 'arn:aws:s3::' || name
         ELSE arn
       END AS resource,
-      og_account_id AS og_account_id,
-      og_resource_id AS og_resource_id,
+      platform_account_id AS platform_account_id,
+      platform_resource_id AS platform_resource_id,
       CASE
         WHEN arn IS NULL THEN 'skip'
         WHEN all_user_grants > 0 THEN 'alarm'

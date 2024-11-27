@@ -12,14 +12,14 @@ Query:
   QueryToExecute: |
     SELECT
       vm.id AS resource,
-      vm.og_account_id,
-      vm.og_resource_id,
+      vm.platform_account_id,
+      vm.platform_resource_id,
       CASE
-        WHEN (vm.og_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'alarm'
+        WHEN (vm.platform_resource_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
-        WHEN (vm.og_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'system-assigned managed identity is not enabled'
+        WHEN (vm.platform_resource_description -> 'VirtualMachine' ->> 'Identity') IS NULL THEN 'system-assigned managed identity is not enabled'
         ELSE 'system-assigned managed identity is enabled'
       END AS reason,
       vm.resource_group,

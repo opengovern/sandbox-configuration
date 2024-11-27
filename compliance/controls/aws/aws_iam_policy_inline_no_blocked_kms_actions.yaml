@@ -18,9 +18,9 @@ Query:
         name,
         account_id,
         region,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
-        'aws_iam_user' AS og_table_name,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
+        'aws_iam_user' AS platform_table_name,
         _ctx
       FROM
         aws_iam_user
@@ -31,9 +31,9 @@ Query:
         name,
         account_id,
         region,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
-        'aws_iam_role' AS og_table_name,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
+        'aws_iam_role' AS platform_table_name,
         _ctx
       FROM
         aws_iam_role
@@ -44,9 +44,9 @@ Query:
         name,
         account_id,
         region,
-        og_account_id AS og_account_id,
-        og_resource_id AS og_resource_id,
-        'aws_iam_group' AS og_table_name,
+        platform_account_id AS platform_account_id,
+        platform_resource_id AS platform_resource_id,
+        'aws_iam_group' AS platform_table_name,
         _ctx
       FROM
         aws_iam_group
@@ -69,9 +69,9 @@ Query:
     )
     SELECT
       u.arn AS resource,
-      u.og_account_id AS og_account_id,
-      u.og_resource_id AS og_resource_id,
-      u.og_table_name AS og_table_name,
+      u.platform_account_id AS platform_account_id,
+      u.platform_resource_id AS platform_resource_id,
+      u.platform_table_name AS platform_table_name,
       CASE
         WHEN w.arn IS NULL THEN 'ok'
         ELSE 'alarm'

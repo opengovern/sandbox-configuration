@@ -12,13 +12,13 @@ Query:
   QueryToExecute: |
     SELECT
       account_id AS resource,
-      og_account_id,
-      og_resource_id,
+      platform_account_id,
+      platform_resource_id,
       CASE
         WHEN EXISTS (
           SELECT 1
           FROM aws_cloudtrail_trail AS ct
-          WHERE ct.og_account_id = a.og_account_id 
+          WHERE ct.platform_account_id = a.platform_account_id 
             AND ct.is_logging = 'true'
         ) THEN 'ok'
         ELSE 'alarm'
@@ -27,7 +27,7 @@ Query:
         WHEN EXISTS (
           SELECT 1
           FROM aws_cloudtrail_trail AS ct
-          WHERE ct.og_account_id = a.og_account_id 
+          WHERE ct.platform_account_id = a.platform_account_id 
             AND ct.is_logging = 'true'
         ) THEN 'There are active trails'
         ELSE 'There are no active trails'

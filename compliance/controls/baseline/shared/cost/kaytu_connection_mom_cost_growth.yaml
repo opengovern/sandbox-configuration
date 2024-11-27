@@ -48,17 +48,17 @@ Query:
         WHEN az.subscription_id IS NOT NULL THEN az.subscription_id
       END AS resource,
       CASE 
-        WHEN aw.og_account_id IS NOT NULL THEN aw.og_account_id
-        WHEN az.og_account_id IS NOT NULL THEN az.og_account_id
-      END AS og_account_id,
+        WHEN aw.platform_account_id IS NOT NULL THEN aw.platform_account_id
+        WHEN az.platform_account_id IS NOT NULL THEN az.platform_account_id
+      END AS platform_account_id,
       CASE 
-        WHEN aw.og_resource_id IS NOT NULL THEN aw.og_resource_id
-        WHEN az.og_resource_id IS NOT NULL THEN az.og_resource_id
-      END AS og_resource_id,
+        WHEN aw.platform_resource_id IS NOT NULL THEN aw.platform_resource_id
+        WHEN az.platform_resource_id IS NOT NULL THEN az.platform_resource_id
+      END AS platform_resource_id,
       CASE 
         WHEN aw.account_id IS NOT NULL THEN 'aws_account'
         WHEN az.subscription_id IS NOT NULL THEN 'azure_subscription'
-      END AS og_table_name,
+      END AS platform_table_name,
       CASE 
         WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuConnectionMoMCostGrowthAllowedGrowth}} 
         THEN 'alarm'
@@ -74,8 +74,8 @@ Query:
         ELSE 'Connection did not have more than allowed growth'
       END AS reason
     FROM last_valid_60 AS l
-    LEFT JOIN aws_account AS aw ON aw.og_account_id = l.connection_id
-    LEFT JOIN azure_subscription AS az ON az.og_account_id = l.connection_id
+    LEFT JOIN aws_account AS aw ON aw.platform_account_id = l.connection_id
+    LEFT JOIN azure_subscription AS az ON az.platform_account_id = l.connection_id
 Severity: high
 Tags:
   platform_score_cloud_service_name:

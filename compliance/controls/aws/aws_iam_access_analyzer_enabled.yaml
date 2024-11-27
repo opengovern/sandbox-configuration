@@ -14,8 +14,8 @@ Query:
     WITH regions AS (
       SELECT
         'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
-        r.og_account_id AS og_account_id,
-        r.og_resource_id AS og_resource_id,
+        r.platform_account_id AS platform_account_id,
+        r.platform_resource_id AS platform_resource_id,
         CASE
           WHEN r.opt_in_status = 'not-opted-in' THEN 1
           WHEN aa.arn IS NOT NULL THEN 0
@@ -31,8 +31,8 @@ Query:
     results AS (
       SELECT
         account_id AS resource,
-        og_account_id AS og_account_id,
-        og_account_id AS og_resource_id,
+        platform_account_id AS platform_account_id,
+        platform_account_id AS platform_resource_id,
         CASE
           WHEN MAX(status) = 2 THEN 'alarm'
           WHEN MAX(status) = 1 THEN 'skip'
@@ -44,17 +44,17 @@ Query:
           WHEN MAX(status) = 0 THEN 'IAM Access analyzer is enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
         END AS reason
       FROM regions
-      GROUP BY account_id, og_account_id
+      GROUP BY account_id, platform_account_id
     )
     SELECT 
       r.resource AS resource,
-      r.og_account_id AS og_account_id,
-      a.og_resource_id AS og_resource_id,
+      r.platform_account_id AS platform_account_id,
+      a.platform_resource_id AS platform_resource_id,
       r.status AS status,
       r.reason AS reason
     FROM results AS r 
     JOIN aws_account AS a 
-    ON r.og_account_id = a.og_account_id
+    ON r.platform_account_id = a.platform_account_id
 Severity: high
 Tags:
   category:

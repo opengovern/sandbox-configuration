@@ -16,8 +16,8 @@ Query:
     WITH users_with_roles AS (
       SELECT DISTINCT
         u.id AS id,
-        u.og_account_id AS og_account_id,
-        u.og_resource_id AS og_resource_id,
+        u.platform_account_id AS platform_account_id,
+        u.platform_resource_id AS platform_resource_id,
         u.display_name AS display_name,
         u.subscription_id AS subscription_id,
         u.account_enabled AS account_enabled,
@@ -27,8 +27,8 @@ Query:
     )
     SELECT
       u.id AS resource,
-      u.og_account_id AS og_account_id,
-      u.og_resource_id AS og_resource_id,
+      u.platform_account_id AS platform_account_id,
+      u.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COALESCE(NULLIF('{{.entraidAccountStatusInclude}}', ''), 'true,false,null') NOT LIKE ('%' || COALESCE(u.account_enabled::text, 'null') || '%') THEN 'skip'
         WHEN rd.is_mfa_registered::bool = false OR rd.is_mfa_registered::bool IS NULL THEN 'alarm'
