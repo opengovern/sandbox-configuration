@@ -30,12 +30,12 @@ Query:
       a.platform_resource_id AS platform_resource_id,
       CASE
         WHEN b.id IS NULL THEN 'skip'
-        WHEN configuration -> 'properties' -> 'cors' -> 'allowedOrigins' @> '[\"*\"]' THEN 'alarm'
+        WHEN configuration -> 'properties' -> 'cors' -> 'allowedOrigins' @> '["*"]' THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
         WHEN b.id IS NULL THEN a.title || ' is ' || a.kind || ' kind.'
-        WHEN configuration -> 'properties' -> 'cors' -> 'allowedOrigins' @> '[\"*\"]' THEN a.name || ' CORS allow all domains to access the application.'
+        WHEN configuration -> 'properties' -> 'cors' -> 'allowedOrigins' @> '["*"]' THEN a.name || ' CORS allow all domains to access the application.'
         ELSE a.name || ' CORS does not allow all domains to access the application.'
       END AS reason,
       a.resource_group AS resource_group,
