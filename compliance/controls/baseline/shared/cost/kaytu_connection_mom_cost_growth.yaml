@@ -9,10 +9,12 @@ Query:
     - aws_account
     - azure_subscription
   Parameters:
-    - Key: kaytuConnectionMoMCostGrowthMinCost
+    - Key: platformConnectionMoMCostGrowthMinCost
       Required: true
-    - Key: kaytuConnectionMoMCostGrowthAllowedGrowth
+      DefaultValue: ""
+    - Key: platformConnectionMoMCostGrowthAllowedGrowth
       Required: true
+      DefaultValue: ""
   PrimaryTable: ""
   QueryToExecute: |
     WITH last30 AS (
@@ -40,7 +42,7 @@ Query:
         s.cost_value AS last60to30_cost_value
       FROM last30 AS l 
       JOIN last60to30 AS s ON (l.connection_id = s.connection_id)
-      WHERE l.cost_value > {{.kaytuConnectionMoMCostGrowthMinCost}}
+      WHERE l.cost_value > {{.platformConnectionMoMCostGrowthMinCost}}
     )
     SELECT 
       CASE 
@@ -60,16 +62,16 @@ Query:
         WHEN az.subscription_id IS NOT NULL THEN 'azure_subscription'
       END AS platform_table_name,
       CASE 
-        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuConnectionMoMCostGrowthAllowedGrowth}} 
+        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformConnectionMoMCostGrowthAllowedGrowth}} 
         THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE 
         WHEN aw.account_id IS NOT NULL 
-          AND (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuConnectionMoMCostGrowthAllowedGrowth}} 
+          AND (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformConnectionMoMCostGrowthAllowedGrowth}} 
         THEN aw.account_id || ' cost grew from ' || l.last60to30_cost_value || ' to ' || l.last30_cost_value || ' which is more than allowed growth'
         WHEN az.subscription_id IS NOT NULL 
-          AND (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuConnectionMoMCostGrowthAllowedGrowth}} 
+          AND (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformConnectionMoMCostGrowthAllowedGrowth}} 
         THEN az.subscription_id || ' cost grew from ' || l.last60to30_cost_value || ' to ' || l.last30_cost_value || ' which is more than allowed growth'
         ELSE 'Connection did not have more than allowed growth'
       END AS reason

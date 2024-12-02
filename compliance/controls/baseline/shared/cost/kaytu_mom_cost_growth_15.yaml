@@ -9,10 +9,12 @@ Query:
     - aws_account
     - azure_subscription
   Parameters:
-    - Key: kaytuMoMCostGrowthMinCost
+    - Key: platformMoMCostGrowthMinCost
       Required: true
-    - Key: kaytuMoMCostGrowthAllowedGrowth
+      DefaultValue: ""
+    - Key: platformMoMCostGrowthAllowedGrowth
       Required: true
+      DefaultValue: ""
   PrimaryTable: ""
   QueryToExecute: |
     WITH last30 AS (
@@ -39,7 +41,7 @@ Query:
       FROM last30 AS l
       JOIN last60to30 AS s 
       ON (l.connection_id = s.connection_id AND l.metric_id = s.metric_id)
-      WHERE l.cost_value > {{.kaytuMoMCostGrowthMinCost}}
+      WHERE l.cost_value > {{.platformMoMCostGrowthMinCost}}
     )
     SELECT 
       CASE 
@@ -59,12 +61,12 @@ Query:
         WHEN az.subscription_id IS NOT NULL THEN 'azure_subscription'
       END AS platform_table_name, 
       CASE 
-        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuMoMCostGrowthAllowedGrowth}} 
+        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformMoMCostGrowthAllowedGrowth}} 
         THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE 
-        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.kaytuMoMCostGrowthAllowedGrowth}} 
+        WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformMoMCostGrowthAllowedGrowth}} 
         THEN l.metric_name || ' cost grew from ' || l.last60to30_cost_value || ' to ' || l.last30_cost_value || ' which is more than allowed growth'
         ELSE l.metric_name || ' did not have more than allowed growth'
       END AS reason
