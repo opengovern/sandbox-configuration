@@ -11,44 +11,42 @@ Query:
   QueryToExecute: |
     SELECT 
       c.name AS cloud_account_name,
-      c.id AS _discovered_provider_id,
+      c.provider_id AS _discovered_provider_id,
       t.*
     FROM (
       (SELECT 
         'AWS' AS provider,
-        r.name AS name,
-        r.region AS location,
+        r.resource_name AS name,
         jsonb_path_query(r.description, '$.Cluster.Tags') AS _tags,
-        r.connection_id AS _og_connection_id,
+        r.integration_id AS _platform_integration_id,
         r.resource_id AS _resource_id,
         r.resource_type AS _resource_type,
         jsonb_path_query(r.description, '$.Cluster.PlatformVersion') AS kubernetes_version,
-        r.created_at AS _last_discovered
+        r.described_at AS _last_discovered
       FROM 
         platform_resources r
       WHERE 
         resource_type = 'aws::eks::cluster')
-      
+    
       UNION
-      
+    
       (SELECT 
         'Azure' AS provider,
-        r.name AS vm_name,
-        r.region AS location,
+        r.resource_name AS vm_name,
         jsonb_path_query(r.description, '$.ManagedCluster.Tags') AS _tags,
-        r.connection_id AS _og_connection_id,
+        r.integration_id AS _platform_integration_id,
         r.resource_id AS _resource_id,
         r.resource_type AS _resource_type,
         jsonb_path_query(r.description, '$.ManagedCluster.Properties.KubernetesVersion') AS kubernetes_version,
-        r.created_at AS _last_discovered
+        r.described_at AS _last_discovered
       FROM 
         platform_resources r 
       WHERE 
         resource_type = 'microsoft.containerservice/managedclusters')
     
     ) AS t 
-    INNER JOIN og_connections c 
-    ON t._og_connection_id = c.og_id
+    INNER JOIN platform_integrations c 
+    ON t._platform_integration_id = c.integration_id
 Tags:
   cloud_asset_management:
     - "true"
