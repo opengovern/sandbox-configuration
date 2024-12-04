@@ -11,52 +11,50 @@ Query:
   QueryToExecute: |
     SELECT
       c.name AS cloud_account_name,
-      c.id AS _discovered_provider_id,
+      c.provider_id AS _discovered_provider_id,
       t.*
     FROM (
       (
         SELECT
           'AWS' AS provider,
-          r.name AS vm_name,
-          r.region AS location,
+          r.resource_name AS vm_name,
           jsonb_path_query(r.description, '$.Instance.InstanceType') AS instance_size,
           jsonb_path_query(r.description, '$.Instance.NetworkInterfaces[*].PrivateIpAddress') AS private_ip,
           jsonb_path_query(r.description, '$.Instance.PlatformDetails') AS platform,
           jsonb_path_query(r.description, '$.InstanceStatus.InstanceState.Name') AS state,
           jsonb_path_query(r.description, '$.Instance.Tags') AS _tags,
-          r.connection_id AS _og_connection_id,
+          r.integration_id AS _platform_integration_id,
           r.resource_id AS _resource_id,
           r.resource_type AS _resource_type,
-          r.created_at AS _last_discovered
+          r.described_at AS _last_discovered
         FROM
           platform_resources r
         WHERE
           resource_type = 'aws::ec2::instance'
       )
-      
+    
       UNION
-      
+    
       (
         SELECT
           'Azure' AS provider,
-          r.name AS vm_name,
-          r.region AS location,
+          r.resource_name AS vm_name,
           jsonb_path_query(r.description, '$.VirtualMachine.Properties.HardwareProfile.VMSize') AS instance_size,
           jsonb_path_query(r.description, '$.InterfaceIPConfigurations[*].Properties.PrivateIPAddress') AS private_ip,
           jsonb_path_query(r.description, '$.VirtualMachineInstanceView.OSName') AS platform,
           jsonb_path_query(r.description, '$.VirtualMachineInstanceView.Statuses') AS state,
           jsonb_path_query(r.description, '$.VirtualMachine.Tags') AS _tags,
-          r.connection_id AS _og_connection_id,
+          r.integration_id AS _platform_integration_id,
           r.resource_id AS _resource_id,
           r.resource_type AS _resource_type,
-          r.created_at AS _last_discovered
+          r.described_at AS _last_discovered
         FROM
           platform_resources r
         WHERE
           resource_type = 'microsoft.compute/virtualmachines'
       )
     ) AS t
-    INNER JOIN og_connections c ON t._og_connection_id = c.og_id
+    INNER JOIN platform_integrations c ON t._platform_integration_id = c.integration_id
 Tags:
   cloud_asset_management:
     - "true"

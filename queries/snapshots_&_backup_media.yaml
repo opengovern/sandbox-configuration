@@ -15,17 +15,16 @@ Query:
         ELSE 'Azure'
       END AS provider,
       c.name AS cloud_account_name,
-      c.id AS _discovered_provider_id,
-      r.name AS name,
-      r.region AS location,
-      r.connection_id AS _og_connection_id,
+      c.provider_id AS _discovered_provider_id,
+      r.resource_name AS name,
+      r.integration_id AS _platform_integration_id,
       r.resource_id AS _resource_id,
       r.resource_type AS _resource_type,
-      r.created_at AS _last_discovered
+      r.described_at AS _last_discovered
     FROM 
       platform_resources r
     INNER JOIN 
-      og_connections c ON r.connection_id = c.og_id
+      platform_integrations c ON r.integration_id = c.integration_id
     WHERE 
       resource_type IN ('aws::ec2::image', 'aws::elasticache::cluster', 'aws::rds::dbsnapshot')
 Tags:

@@ -5,20 +5,20 @@ IntegrationType:
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-    - og_connections
+    - platform_integrations
     - aws_cloudtrail_trail
   Parameters: []
-  PrimaryTable: null
+  PrimaryTable: platform_integrations
   QueryToExecute: |
     SELECT 
-      id AS account_id, 
-      og_id AS platform_account_id 
+      provider_id AS account_id, 
+      integration_id AS platform_account_id 
     FROM 
-      og_connections 
+      platform_integrations 
     WHERE 
-      connector = 'AWS' 
-      AND lifecycle_state = 'onboard' 
-      AND id NOT IN (
+      integration_type = 'aws_cloud_account' 
+      AND state = 'ACTIVE' 
+      AND provider_id NOT IN (
         SELECT DISTINCT account_id 
         FROM aws_cloudtrail_trail
       )
