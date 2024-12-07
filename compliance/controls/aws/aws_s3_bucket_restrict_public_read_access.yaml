@@ -1,5 +1,6 @@
-Description: Manage access to resources in the AWS Cloud by only allowing authorized users, processes, and devices access to AWS Simple Storage Service (AWS S3) buckets.
 ID: aws_s3_bucket_restrict_public_read_access
+Title: S3 buckets should prohibit public read access
+Description: Manage access to resources in the AWS Cloud by only allowing authorized users, processes, and devices access to AWS Simple Storage Service (AWS S3) buckets.
 IntegrationType:
   - aws_cloud_account
 Query:
@@ -10,73 +11,77 @@ Query:
   PrimaryTable: aws_s3_bucket
   QueryToExecute: |
     WITH public_acl AS (
-      SELECT DISTINCT name
-      FROM aws_s3_bucket,
-      jsonb_array_elements(
-        CASE jsonb_typeof(acl -> 'Grants')
-          WHEN 'array' THEN acl -> 'Grants'
-          ELSE '[]' 
-        END
-      ) AS grants
-      WHERE 
-        (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'
-        OR grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')
-      AND (
-        grants ->> 'Permission' = 'FULL_CONTROL'
-        OR grants ->> 'Permission' = 'READ_ACP'
-        OR grants ->> 'Permission' = 'READ'
-      )
+        SELECT DISTINCT b.name
+        FROM aws_s3_bucket AS b
+        CROSS JOIN LATERAL (
+            SELECT 
+                CASE 
+                    WHEN jsonb_typeof(b.acl -> 'Grants') = 'array' THEN b.acl -> 'Grants'
+                    ELSE '[]'::jsonb
+                END AS grants_json
+        ) AS grants_array
+        CROSS JOIN LATERAL jsonb_array_elements(grants_array.grants_json) AS grants
+        WHERE 
+            (grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AllUsers'
+            OR grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers')
+        AND (
+            grants ->> 'Permission' IN ('FULL_CONTROL', 'READ_ACP', 'READ')
+        )
     ),
     read_access_policy AS (
-      SELECT DISTINCT name
-      FROM aws_s3_bucket,
-      jsonb_array_elements(
-        CASE jsonb_typeof(policy_std -> 'Statement')
-          WHEN 'array' THEN policy_std -> 'Statement'
-          ELSE '[]'
-        END
-      ) AS s,
-      jsonb_array_elements_text(
-        CASE jsonb_typeof(s -> 'Action')
-          WHEN 'array' THEN s -> 'Action'
-          ELSE '[]'
-        END
-      ) AS action
-      WHERE
-        s ->> 'Effect' = 'Allow'
-      AND (
-        s -> 'Principal' -> 'AWS' = '[\"*\"]'
-        OR s ->> 'Principal' = '*'
-      )
-      AND (
-        action = '*'
-        OR action = '*:*'
-        OR action = 's3:*'
-        OR action ILIKE 's3:get%'
-        OR action ILIKE 's3:list%'
-      )
+        SELECT DISTINCT b.name
+        FROM aws_s3_bucket AS b
+        CROSS JOIN LATERAL (
+            SELECT 
+                CASE 
+                    WHEN jsonb_typeof(b.policy_std -> 'Statement') = 'array' THEN b.policy_std -> 'Statement'
+                    ELSE '[]'::jsonb
+                END AS statements_json
+        ) AS statements_array
+        CROSS JOIN LATERAL jsonb_array_elements(statements_array.statements_json) AS s
+        CROSS JOIN LATERAL (
+            SELECT 
+                CASE 
+                    WHEN jsonb_typeof(s -> 'Action') = 'array' THEN s -> 'Action'
+                    WHEN jsonb_typeof(s -> 'Action') = 'string' THEN jsonb_build_array(s -> 'Action')
+                    ELSE '[]'::jsonb
+                END AS actions_json
+        ) AS actions_array
+        CROSS JOIN LATERAL jsonb_array_elements_text(actions_array.actions_json) AS action
+        WHERE
+            s ->> 'Effect' = 'Allow'
+        AND (
+            -- Check if Principal AWS is a JSON array containing "*"
+            (s -> 'Principal' -> 'AWS') @> '["*"]'::jsonb
+            OR s ->> 'Principal' = '*'
+        )
+        AND (
+            action IN ('*', '*:*', 's3:*')
+            OR action ILIKE 's3:get%'
+            OR action ILIKE 's3:list%'
+        )
     )
     SELECT
-      b.arn AS resource,
-      b.platform_account_id AS platform_account_id,
-      b.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN 'ok'
-        WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND block_public_policy) THEN 'ok'
-        WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND p.name IS NULL) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (block_public_acls OR a.name IS NULL) AND NOT bucket_policy_is_public THEN b.title || ' not publicly readable.'
-        WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND block_public_policy) THEN b.title || ' not publicly readable.'
-        WHEN (block_public_acls OR a.name IS NULL) AND (bucket_policy_is_public AND p.name IS NULL) THEN  b.title || ' not publicly readable.'
-        ELSE b.title || ' publicly readable.'
-      END AS reason,
-      b.region,
-      b.account_id
+        b.arn AS resource,
+        b.platform_account_id AS platform_account_id,
+        b.platform_resource_id AS platform_resource_id,
+        CASE
+            WHEN (b.block_public_acls OR a.name IS NULL) AND NOT b.bucket_policy_is_public THEN 'ok'
+            WHEN (b.block_public_acls OR a.name IS NULL) AND (b.bucket_policy_is_public AND b.block_public_policy) THEN 'ok'
+            WHEN (b.block_public_acls OR a.name IS NULL) AND (b.bucket_policy_is_public AND p.name IS NULL) THEN 'ok'
+            ELSE 'alarm'
+        END AS status,
+        CASE
+            WHEN (b.block_public_acls OR a.name IS NULL) AND NOT b.bucket_policy_is_public THEN b.title || ' not publicly readable.'
+            WHEN (b.block_public_acls OR a.name IS NULL) AND (b.bucket_policy_is_public AND b.block_public_policy) THEN b.title || ' not publicly readable.'
+            WHEN (b.block_public_acls OR a.name IS NULL) AND (b.bucket_policy_is_public AND p.name IS NULL) THEN b.title || ' not publicly readable.'
+            ELSE b.title || ' publicly readable.'
+        END AS reason,
+        b.region,
+        b.account_id
     FROM aws_s3_bucket AS b
     LEFT JOIN public_acl AS a ON b.name = a.name
-    LEFT JOIN read_access_policy AS p ON b.name = p.name
+    LEFT JOIN read_access_policy AS p ON b.name = p.name;
 Severity: high
 Tags:
   audit_manager_control_tower:
@@ -117,4 +122,4 @@ Tags:
     - AWS/S3
   soc_2:
     - "true"
-Title: S3 buckets should prohibit public read access
+
