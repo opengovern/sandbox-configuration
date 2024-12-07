@@ -1,5 +1,6 @@
-Description: Manage access to resources in the AWS Cloud by ensuring AWS Lambda functions cannot be publicly accessed.
 ID: aws_lambda_function_restrict_public_access
+Title: Lambda functions should restrict public access
+Description: Manage access to resources in the AWS Cloud by ensuring AWS Lambda functions cannot be publicly accessed.
 IntegrationType:
   - aws_cloud_account
 Query:
@@ -11,25 +12,27 @@ Query:
   QueryToExecute: |
     WITH wildcard_action_policies AS (
       SELECT
-        arn,
+        b.arn,
         COUNT(*) AS statements_num
       FROM
-        aws_lambda_function,
-        jsonb_array_elements(
-          CASE jsonb_typeof(policy_std -> 'Statement') 
-            WHEN 'array' 
-            THEN policy_std -> 'Statement' 
-            ELSE '[]' 
-          END
-        ) AS s
+        aws_lambda_function AS b
+        CROSS JOIN LATERAL (
+          SELECT 
+            CASE 
+              WHEN jsonb_typeof(b.policy_std -> 'Statement') = 'array' THEN b.policy_std -> 'Statement'
+              ELSE '[]'::jsonb
+            END AS statements_json
+        ) AS statements_array
+        CROSS JOIN LATERAL jsonb_array_elements(statements_array.statements_json) AS s
       WHERE
         s ->> 'Effect' = 'Allow'
         AND (
-          (s -> 'Principal' -> 'AWS') = '[\"*\"]'
+          -- Check if Principal AWS is a JSON array containing "*"
+          (s -> 'Principal' -> 'AWS') @> '["*"]'::jsonb
           OR s ->> 'Principal' = '*'
         )
       GROUP BY
-        arn
+        b.arn
     )
     SELECT
       f.arn AS resource,
@@ -40,15 +43,15 @@ Query:
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN p.arn IS NULL THEN title || ' does not allow public access.'
-        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allows public access.'
+        WHEN p.arn IS NULL THEN f.title || ' does not allow public access.'
+        ELSE f.title || ' contains ' || COALESCE(p.statements_num, 0) || ' statement(s) that allow public access.'
       END AS reason,
       f.region, 
       f.account_id
     FROM
       aws_lambda_function AS f
       LEFT JOIN wildcard_action_policies AS p 
-      ON p.arn = f.arn
+        ON p.arn = f.arn;
 Severity: high
 Tags:
   category:
@@ -87,4 +90,3 @@ Tags:
     - AWS/Lambda
   soc_2:
     - "true"
-Title: Lambda functions should restrict public access
