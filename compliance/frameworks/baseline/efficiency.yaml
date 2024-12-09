@@ -1,0 +1,407 @@
+framework:
+  id: baseline_efficiency
+  title: "Efficiency"
+  description: "Efficiency Framework aligns with baseline principles and the Well-Architected Framework, ensuring resources are utilized optimally, reducing waste, and improving performance."
+  section-code: "baseline_efficiency"
+  metadata:
+    defaults:
+      auto-assign: true
+      enabled: true
+      tracks-drift-events: false
+    tags:
+      baseline_category:
+        - "efficiency"
+      type:
+        - "BASELINE"
+  control-group:
+    - id: aws_baseline_efficiency
+      title: "AWS Baseline Efficiency"
+      description: "Ensures optimal use of AWS resources across various categories to enhance performance and reduce costs."
+      section-code: "aws_baseline_efficiency"
+      metadata:
+        tags:
+          baseline_category:
+            - "efficiency"
+          type:
+            - "BASELINE"
+      control-group:
+        - id: aws_baseline_efficiency_compute
+          title: "AWS Compute Efficiency"
+          description: "Optimizes AWS compute resources for performance and cost-effectiveness."
+          section-code: "aws_baseline_efficiency_compute"
+          metadata:
+            tags:
+              baseline_category:
+                - "compute"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: aws_baseline_efficiency_compute_ec2
+              title: "AWS EC2 Optimization"
+              description: "Ensures AWS EC2 instances are optimized for performance and cost."
+              section-code: "aws_baseline_efficiency_compute_ec2"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "compute"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_ec2_instance_too_old
+                - aws_ec2_desired_instance_type
+                - aws_ec2_ami_too_old
+
+            - id: aws_baseline_efficiency_compute_kubernetes
+              title: "AWS Kubernetes Optimization"
+              description: "Ensures Kubernetes clusters on AWS are optimized for performance and security."
+              section-code: "aws_baseline_efficiency_compute_kubernetes"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "compute"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_kubernetes_cluster_version
+                - aws_enable_support_for_grpc_protocol
+                - aws_enable_cloudtrail_logging_for_kubernetes_api_calls
+                - aws_enable_cloudwatch_container_insights
+
+        - id: aws_baseline_efficiency_storage
+          title: "AWS Storage Efficiency"
+          description: "Optimizes AWS storage services to enhance performance and reduce costs."
+          section-code: "aws_baseline_efficiency_storage"
+          metadata:
+            tags:
+              baseline_category:
+                - "storage"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: aws_baseline_efficiency_storage_ebs
+              title: "AWS EBS Optimization"
+              description: "Optimizes Elastic Block Store (EBS) volumes for cost and performance."
+              section-code: "aws_baseline_efficiency_storage_ebs"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "storage"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_ebs_volumes_too_old_snapshots
+                - aws_ebs_volume_unused
+                - aws_ebs_volumes_attached_to_stopped_ec2_instances
+                - aws_use_gp3_not_gp2
+                - aws_enable_instance_storage_auto_scaling
+                - aws_enable_serverless_log_exports
+
+            - id: aws_baseline_efficiency_storage_dynamodb
+              title: "AWS DynamoDB Optimization"
+              description: "Ensures DynamoDB tables are optimized for performance and cost."
+              section-code: "aws_baseline_efficiency_storage_dynamodb"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "storage"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_unused_dynamodb_table
+
+            - id: aws_baseline_efficiency_storage_opensearch
+              title: "AWS OpenSearch Optimization"
+              description: "Optimizes OpenSearch domains for performance and cost-efficiency."
+              section-code: "aws_baseline_efficiency_storage_opensearch"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "storage"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_opensearch_version
+                - aws_opensearch_slow_logs
+
+        - id: aws_baseline_efficiency_networking
+          title: "AWS Networking Efficiency"
+          description: "Optimizes AWS networking components for performance and cost."
+          section-code: "aws_baseline_efficiency_networking"
+          metadata:
+            tags:
+              baseline_category:
+                - "networking"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: aws_baseline_efficiency_networking_load_balancers
+              title: "AWS Load Balancers Optimization"
+              description: "Optimizes various types of AWS Load Balancers for performance and cost-efficiency."
+              section-code: "aws_baseline_efficiency_networking_load_balancers"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "networking"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_unused_gateway_load_balancers
+                - aws_unused_application_load_balancers
+                - aws_unused_elastic_load_balancers
+
+            - id: aws_baseline_efficiency_networking_enis
+              title: "AWS Elastic Network Interfaces Optimization"
+              description: "Ensures Elastic Network Interfaces (ENIs) are optimized and not unused."
+              section-code: "aws_baseline_efficiency_networking_enis"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "networking"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_unassociated_elastic_ip_addresses
+                - aws_unused_elastic_network_interfaces
+
+            - id: aws_baseline_efficiency_networking_nat_gateway
+              title: "AWS NAT Gateway Optimization"
+              description: "Optimizes NAT Gateways for cost and performance."
+              section-code: "aws_baseline_efficiency_networking_nat_gateway"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "networking"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_managed_nat_gateway_in_use
+
+        - id: aws_baseline_efficiency_monitoring_logging
+          title: "AWS Monitoring & Logging Efficiency"
+          description: "Enhances monitoring and logging configurations for AWS services."
+          section-code: "aws_baseline_efficiency_monitoring_logging"
+          metadata:
+            tags:
+              baseline_category:
+                - "monitoring"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: aws_baseline_efficiency_monitoring_logging_events
+              title: "AWS Events Optimization"
+              description: "Optimizes event subscriptions for AWS services."
+              section-code: "aws_baseline_efficiency_monitoring_logging_events"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_instance_level_events_subscriptions
+                - aws_rds_event_notifications
+                - aws_security_groups_events_subscriptions
+
+            - id: aws_baseline_efficiency_monitoring_logging_security_groups
+              title: "AWS Security Groups Optimization"
+              description: "Ensures security groups are efficiently configured and monitored."
+              section-code: "aws_baseline_efficiency_monitoring_logging_security_groups"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_security_groups_events_subscriptions
+
+            - id: aws_baseline_efficiency_monitoring_logging_performance
+              title: "AWS Performance Insights Optimization"
+              description: "Optimizes performance insights for AWS databases."
+              section-code: "aws_baseline_efficiency_monitoring_logging_performance"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - aws_performance_insights
+                - aws_enable_cross_region_replication
+
+    - id: azure_baseline_efficiency
+      title: "Azure Baseline Efficiency"
+      description: "Ensures optimal use of Azure resources across various categories to enhance performance and reduce costs."
+      section-code: "azure_baseline_efficiency"
+      metadata:
+        tags:
+          baseline_category:
+            - "efficiency"
+          type:
+            - "BASELINE"
+      control-group:
+        - id: azure_baseline_efficiency_compute
+          title: "Azure Compute Efficiency"
+          description: "Optimizes Azure compute resources for performance and cost-effectiveness."
+          section-code: "azure_baseline_efficiency_compute"
+          metadata:
+            tags:
+              baseline_category:
+                - "compute"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: azure_baseline_efficiency_compute_virtual_machines
+              title: "Azure Virtual Machines Optimization"
+              description: "Ensures Azure Virtual Machines are optimized for performance and cost."
+              section-code: "azure_baseline_efficiency_compute_virtual_machines"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "compute"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_usage_of_managed_disk_volumes_for_virtual_machines
+                - azure_enable_automatic_tuning_for_sql_database_servers
+
+            - id: azure_baseline_efficiency_compute_kubernetes
+              title: "Azure Kubernetes Optimization"
+              description: "Ensures Kubernetes clusters on Azure are optimized for performance and security."
+              section-code: "azure_baseline_efficiency_compute_kubernetes"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "compute"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_kubernetes_api_version
+                - azure_use_azure_cni_add_on_for_managing_network_resources
+
+        - id: azure_baseline_efficiency_storage
+          title: "Azure Storage Efficiency"
+          description: "Optimizes Azure storage services to enhance performance and reduce costs."
+          section-code: "azure_baseline_efficiency_storage"
+          metadata:
+            tags:
+              baseline_category:
+                - "storage"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: azure_baseline_efficiency_storage_virtual_machine_disks
+              title: "Azure Virtual Machine Disks Optimization"
+              description: "Ensures Azure Virtual Machine disks are optimized and not unused."
+              section-code: "azure_baseline_efficiency_storage_virtual_machine_disks"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "storage"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_unattached_virtual_machine_disk_volumes
+                - azure_check_for_usage_of_managed_disk_volumes_for_virtual_machines
+
+            - id: azure_baseline_efficiency_storage_snapshots
+              title: "Azure Snapshots Optimization"
+              description: "Optimizes Azure Virtual Machine disk snapshots for performance and cost."
+              section-code: "azure_baseline_efficiency_storage_snapshots"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "storage"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_old_virtual_machine_disk_snapshots
+                - azure_disks_should_use_standard_snapshots
+
+        - id: azure_baseline_efficiency_networking
+          title: "Azure Networking Efficiency"
+          description: "Optimizes Azure networking components for performance and cost."
+          section-code: "azure_baseline_efficiency_networking"
+          metadata:
+            tags:
+              baseline_category:
+                - "networking"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: azure_baseline_efficiency_networking_load_balancers
+              title: "Azure Load Balancers Optimization"
+              description: "Optimizes Azure Load Balancers for performance and cost-efficiency."
+              section-code: "azure_baseline_efficiency_networking_load_balancers"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "networking"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_unused_load_balancers
+
+            - id: azure_baseline_efficiency_networking_network_resources
+              title: "Azure Network Resources Optimization"
+              description: "Ensures Azure network resources are efficiently managed and optimized."
+              section-code: "azure_baseline_efficiency_networking_network_resources"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "networking"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_use_azure_cni_add_on_for_managing_network_resources
+
+        - id: azure_baseline_efficiency_monitoring_diagnostics
+          title: "Azure Monitoring & Diagnostics Efficiency"
+          description: "Enhances monitoring and diagnostics configurations for Azure services."
+          section-code: "azure_baseline_efficiency_monitoring_diagnostics"
+          metadata:
+            tags:
+              baseline_category:
+                - "monitoring"
+              type:
+                - "BASELINE"
+          control-group:
+            - id: azure_baseline_efficiency_monitoring_diagnostics_health_monitoring
+              title: "Azure Health Monitoring Optimization"
+              description: "Optimizes health monitoring configurations for Azure services."
+              section-code: "azure_baseline_efficiency_monitoring_diagnostics_health_monitoring"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_configure_health_monitoring
+
+            - id: azure_baseline_efficiency_monitoring_diagnostics_performance_diagnostics
+              title: "Azure Performance Diagnostics Optimization"
+              description: "Ensures performance diagnostics are properly configured for Azure services."
+              section-code: "azure_baseline_efficiency_monitoring_diagnostics_performance_diagnostics"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_performance_diagnostics_for_azure_virtual_machines
+                - azure_check_for_guest_level_diagnostics_for_virtual_machines
+
+            - id: azure_baseline_efficiency_monitoring_diagnostics_autoscale_notifications
+              title: "Azure Autoscale Notifications Optimization"
+              description: "Optimizes autoscale notifications for Azure services."
+              section-code: "azure_baseline_efficiency_monitoring_diagnostics_autoscale_notifications"
+              metadata:
+                tags:
+                  baseline_category:
+                    - "monitoring"
+                  type:
+                    - "BASELINE"
+              controls:
+                - azure_check_for_autoscale_notifications
