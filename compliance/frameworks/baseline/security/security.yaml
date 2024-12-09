@@ -1,0 +1,438 @@
+framework:
+  id: baseline_security
+  title: "Security"
+  description: "Comprehensive security benchmarks for AWS and Azure environments, categorized for streamlined management."
+  section-code: "baseline_security"
+  metadata:
+    defaults:
+      auto-assign: true
+      enabled: false
+      tracks-drift-events: false
+    tags:
+      baseline_category:
+        - "security"
+      type:
+        - "BASELINE"
+  control-group:
+    - id: aws_baseline_security
+      title: "Security for AWS"
+      description: "Comprehensive security controls and benchmarks for AWS environments, categorized for streamlined management."
+      section-code: "aws_baseline_security"
+      metadata:
+        tags:
+          baseline_category:
+            - "security"
+          type:
+            - "BASELINE"
+      control-group:
+        - id: aws_baseline_security_data_protection
+          title: "Data Protection and Encryption"
+          description: "Controls related to encrypting data at rest and in transit to ensure data integrity and confidentiality."
+          section-code: "data_protection_encryption"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - aws_ami_encryption
+            - aws_ebs_snapshot_encrypted
+            - aws_ebs_encrypted
+            - aws_ebs_encrypted_with_kms_customer_master_keys
+            - aws_encryption_at_rest
+            - aws_opensearch_domain_encrypted_with_kms_cmks
+            - aws_rds_encryption_enabled
+            - aws_rds_encrypted_with_kms_customer_master_keys
+            - aws_enable_rds_snapshot_encryption
+            - aws_efs_encryption_enabled
+            - aws_use_kms_customer_master_keys_for_fsx_windows_file_server_file_systems
+            - aws_use_kms_customer_master_keys_for_aws_backup
+            - aws_enable_in_transit_encryption
+            - aws_tls_security_policy_version
+            - aws_rotate_ssltls_certificates_for_database_instances
+            - aws_acm_certificates_validity
+            - aws_acm_certificate_expired
+            - aws_acm_certificates_with_wildcard_domain_names
+            - aws_pre_heartbleed_server_certificates
+            - aws_ssl_tls_certificate_expiry_30_days
+            - aws_ssl_tls_certificate_expiry_x_days
+            - aws_enable_envelope_encryption_for_eks_kubernetes_secrets
+
+        - id: aws_baseline_security_iam
+          title: "IAM Security"
+          description: "Controls related to Identity and Access Management to ensure secure authentication and authorization mechanisms."
+          section-code: "iam_security"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - aws_sso_users_with_permission_assignments_are_required_to_have_MFA_on_AzureAD
+            - aws_iam_users_with_console_access_are_requried_to_have_MFA
+            - aws_root_accounts_needs_to_have_mfa
+            - aws_iam_users_with_api_keys_should_have_keys_rotated_every_x_days
+            - aws_valid_iam_identity_providers
+            - aws_iam_users_with_administrative_privileges
+            - aws_iam_user_no_policies
+            - aws_iam_policies_with_effect_set_to_allow_and_notaction
+            - aws_iam_role_policy_too_permissive
+            - aws_unapproved_iam_policy_in_use
+            - aws_iam_policies_with_full_administrative_privileges
+            - aws_attach_policy_to_iam_roles_associated_with_app_tier_ec2_instances
+            - aws_unused_iam_group
+            - aws_iam_user_policies
+            - aws_iam_groups_with_administrative_privileges
+            - aws_check_for_individual_iam_users
+            - aws_check_for_overly_permissive_iam_group_policies
+            - aws_iam_access_analyzer_in_use
+            - aws_iam_access_analyzer_findings
+            - aws_iam_user_password_expiry_30_days
+            - aws_iam_user_password_expiry_7_days
+            - aws_iam_user_password_expiry_x_days
+            - aws_allow_iam_users_to_change_their_own_password
+            - aws_credentials_last_used
+
+        - id: aws_baseline_security_infrastructure
+          title: "Infrastructure Configuration and Compliance"
+          description: "Controls ensuring infrastructure adheres to best practices and compliance standards for secure and efficient AWS operations."
+          section-code: "infrastructure_configuration_compliance"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - aws_disable_remote_access_to_eks_cluster_node_groups
+            - aws_require_imdsv2_for_ec2_instances
+            - aws_security_group_name_prefixed_with_launch_wizard
+            - aws_security_group_port_range
+            - aws_configure_http_desync_mitigation_mode_for_application_load_balancers
+            - aws_configure_aws_backup_vault_access_policy
+            - aws_backup_service_lifecycle_configuration
+            - aws_multi_account_centralized_management
+            - aws_enable_audit_logs
+            - aws_enable_rds_snapshot_encryption
+            - aws_kubernetes_cluster_version
+            - aws_use_oidc_provider_for_authenticating_kubernetes_api_calls
+            - aws_enable_envelope_encryption_for_eks_kubernetes_secrets
+            - aws_ec2_purchase_restriction
+            - aws_instance_deletion_protection
+            - aws_elbv2_elastic_load_balancing_deletion_protection
+            - aws_enforce_infrastructure_as_code_using_iam_policies
+            - aws_use_aws_managed_policy_to_manage_networking_resources
+            - aws_use_aws_managed_policy_to_access_amazon_ecr_repositories
+            - aws_use_aws_managed_policy_to_manage_aws_resources
+
+        - id: aws_baseline_security_monitoring
+          title: "Monitoring, Logging, and Auditing"
+          description: "Controls focused on monitoring AWS environments, logging activities, and auditing for compliance and security incident response."
+          section-code: "monitoring_logging_auditing"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - aws_enable_audit_logs
+            - aws_vpc_flow_logs_enabled
+            - aws_cluster_deletion_protection
+            - aws_enable_alert_notifications_for_failed_backup_jobs
+            - aws_enable_cloudtrail_logging_for_kubernetes_api_calls
+            - aws_kubernetes_cluster_logging
+            - aws_rds_event_notifications
+            - aws_enable_scan_on_push_for_ecr_container_images
+            - aws_ecs_task_log_driver_in_use
+            - aws_elbv2_access_log
+            - aws_elb_access_log
+            - aws_elbv2_access_log
+            - aws_enable_cloudtrail_logging_for_kubernetes_api_calls
+            - aws_enable_rds_snapshot_encryption
+            - aws_enable_envelope_encryption_for_eks_kubernetes_secrets
+
+        - id: aws_baseline_security_network
+          title: "Network Security"
+          description: "Controls focused on securing network configurations, managing traffic flow, and protecting network boundaries."
+          section-code: "network_security"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - aws_unrestricted_inbound_traffic_on_remote_server_administration_ports
+            - aws_unrestricted_network_acl_inbound_traffic
+            - aws_unrestricted_network_acl_outbound_traffic
+            - aws_security_group_port_range
+            - aws_security_group_name_prefixed_with_launch_wizard
+            - aws_ec2_instance_not_in_public_subnet
+            - aws_disable_public_ip_address_assignment_for_ec2_instances
+            - aws_ec2_instance_in_vpc
+            - aws_rds_db_instance_no_public_subnet
+            - aws_vpc_endpoint_cross_account_access
+            - aws_vpc_endpoints_in_use
+            - aws_vpc_peering_connections_to_accounts_outside_aws_organization
+            - aws_unrestricted_icmp_access
+            - aws_unrestricted_mongodb_access
+            - aws_unrestricted_mssql_access
+            - aws_unrestricted_mysql_access
+            - aws_unrestricted_netbios_access
+            - aws_unrestricted_opensearch_access
+            - aws_unrestricted_oracle_access
+            - aws_unrestricted_rpc_access
+            - aws_unrestricted_smtp_access
+            - aws_unrestricted_security_group_ingress_on_uncommon_ports
+            - aws_unrestricted_cifs_access
+            - aws_enable_amazon_waf_integration_for_application_load_balancers
+            - aws_elbv2_alb_listener_security
+            - aws_elbv2_nlb_listener_security
+            - aws_enable_http_to_https_redirect_for_application_load_balancers
+            - aws_elbv2_alb_security_policy
+            - aws_enable_cross_zone_load_balancing
+            - aws_elb_insecure_ssl_protocols
+            - aws_internet_facing_elbs
+            - aws_internet_facing_elbv2s
+
+    - id: azure_baseline_security
+      title: "Security for Azure"
+      description: "Comprehensive security controls and benchmarks for Azure environments, categorized for streamlined management."
+      section-code: "azure_baseline_security"
+      metadata:
+        tags:
+          baseline_category:
+            - "security"
+          type:
+            - "BASELINE"
+      control-group:
+        - id: azure_baseline_security_data_protection
+          title: "Data Protection and Encryption for Azure"
+          description: "Controls related to encrypting data at rest and in transit to ensure data integrity and confidentiality in Azure environments."
+          section-code: "data_protection_encryption"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - azure_enable_infrastructure_encryption
+            - azure_storage_account_encryption_using_customer_managed_keys
+            - azure_disk_encryption_for_unattached_disk_volumes
+            - azure_disk_encryption_for_non_boot_disk_volumes
+            - azure_disk_encryption_for_boot_disk_volumes
+            - azure_monitor_log_all_activities
+            - azure_enable_transparent_data_encryption_for_sql_managed_instance_using_customer_managed_keys
+            - azure_recovery_service_vault_not_publicly_accessible_and_not_encrypted
+            - azure_check_for_key_vault_full_administrator_permissions
+            - azure_check_for_usage_of_byok_for_disk_volumes_encryption
+            - azure_check_for_usage_of_customer_managed_keys_for_virtual_hard_disk_encryption
+            - azure_server_side_encryption_for_unattached_disk_using_cmk
+            - azure_server_side_encryption_for_boot_disk_using_cmk
+            - azure_server_side_encryption_for_non_boot_disk_using_cmk
+            - azure_use_byok_for_transparent_data_encryption
+            - azure_use_byok_for_storage_account_encryption
+            - azure_enable_trusted_microsoft_services_for_key_vault_access
+            - azure_set_azure_secret_key_expiration
+
+        - id: azure_baseline_security_iam
+          title: "IAM Security for Azure"
+          description: "Controls related to Identity and Access Management to ensure secure authentication and authorization mechanisms in Azure."
+          section-code: "iam_security"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - entraid_user_should_have_mfa_enabled_with_azure_subscription_role_assignment
+            - entraid_spn_with_active_client_secret_created_x_days_ago
+            - azure_enable_kubernetes_role_based_access_control
+            - azure_use_system_assigned_managed_identities_for_aks_clusters
+            - azure_use_user_assigned_managed_identities_for_aks_clusters
+            - azure_use_microsoft_entra_id_integration_for_aks_clusters
+            - azure_use_microsoft_entra_admin_for_sql_authentication
+            - azure_enable_defender_for_cloud_for_aks_clusters
+
+        - id: azure_baseline_security_infrastructure
+          title: "Infrastructure Configuration and Compliance for Azure"
+          description: "Controls ensuring infrastructure adheres to best practices and compliance standards for secure and efficient Azure operations."
+          section-code: "infrastructure_configuration_compliance"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - azure_check_for_kubernetes_version
+            - azure_enable_defender_for_cloud_for_aks_clusters
+            - azure_enable_kubernetes_role_based_access_control
+            - azure_secure_access_to_kubernetes_api_server_using_authorized_ip_address_ranges
+            - azure_use_system_assigned_managed_identities_for_aks_clusters
+            - azure_disable_plain_ftp_deployment
+            - azure_restrict_default_network_access_for_azure_cosmos_db_accounts
+            - azure_check_for_publicly_accessible_web_containers
+            - azure_disable_anonymous_access_to_blob_containers
+            - azure_disable_public_access_to_storage_accounts_with_blob_containers
+            - azure_enable_infrastructure_encryption
+            - azure_private_endpoint_in_use
+            - azure_restrict_default_network_access_for_storage_accounts
+            - azure_storage_account_encryption_using_customer_managed_keys
+            - azure_disk_encryption_for_unattached_disk_volumes
+            - azure_disk_encryption_for_non_boot_disk_volumes
+            - azure_disk_encryption_for_boot_disk_volumes
+            - azure_monitor_log_all_activities
+            - azure_enable_transparent_data_encryption_for_sql_managed_instance_using_customer_managed_keys
+            - azure_recovery_service_vault_not_publicly_accessible_and_not_encrypted
+            - azure_check_for_key_vault_full_administrator_permissions
+            - azure_restrict_default_network_access_for_azure_key_vaults
+            - azure_enable_key_vault_recoverability
+            - azure_check_for_unattached_virtual_machine_disk_volumes
+            - azure_check_for_allowed_certificate_key_types
+            - azure_check_for_azure_key_vault_keys_expiration_date
+            - azure_configure_minimum_tls_version
+            - azure_limit_storage_account_access_by_ip_address
+            - azure_app_tier_customer_managed_key_in_use
+            - azure_database_tier_customer_managed_key_in_use
+            - azure_check_for_azure_key_vault_secrets_expiration_date
+            - azure_check_for_certificate_minimum_key_size
+            - azure_set_encryption_key_expiration
+            - azure_check_for_unrestricted_sql_database_access
+            - azure_enable_all_types_of_threat_detection_on_sql_servers
+            - azure_enable_auditing_for_sql_servers
+            - azure_enable_vulnerability_assessment_email_notifications_for_admins_and_subscription_owners
+            - azure_enable_vulnerability_assessment_periodic_recurring_scans
+            - azure_enable_vulnerability_assessment_for_microsoft_sql_servers
+            - azure_sql_auditing_retention
+            - azure_use_byok_for_transparent_data_encryption
+            - azure_check_for_desired_vm_sku_sizes
+            - azure_check_for_usage_of_byok_for_disk_volumes_encryption
+            - azure_check_for_usage_of_customer_managed_keys_for_virtual_hard_disk_encryption
+            - azure_server_side_encryption_for_unattached_disk_using_cmk
+            - azure_server_side_encryption_for_boot_disk_using_cmk
+            - azure_server_side_encryption_for_non_boot_disk_using_cmk
+            - azure_check_for_usage_of_endpoint_protection
+            - azure_approved_azure_machine_image_in_use
+            - azure_check_for_ssh_authentication_type
+            - azure_check_for_automatic_os_upgrades
+            - azure_check_for_zone_redundant_virtual_machine_scale_sets
+            - azure_check_for_just_in_time_access_for_virtual_machines
+            - azure_check_for_virtual_machine_access_using_microsoft_entra_id_authentication
+            - azure_check_for_usage_of_approved_extensions_only
+            - azure_check_for_virtual_machine_boot_diagnostics
+            - azure_check_for_system_assigned_managed_identities
+            - azure_check_for_encryption_for_web_tier_disk_volumes
+            - azure_check_for_guest_level_diagnostics_for_virtual_machines
+            - azure_use_byok_for_storage_account_encryption
+            - azure_enable_trusted_microsoft_services_for_storage_account_access
+            - azure_enable_secure_transfer_in_azure_storage
+            - azure_enable_logging_for_azure_storage_table_service
+            - azure_enable_logging_for_azure_storage_queue_service
+            - azure_enable_logging_for_azure_storage_blob_service
+            - azure_enable_immutable_blob_storage
+            - azure_enable_blob_storage_lifecycle_management
+            - azure_check_for_unrestricted_telnet_access
+            - azure_enable_azure_network_watcher
+            - azure_check_for_unrestricted_udp_access
+            - azure_check_for_unrestricted_ssh_access
+            - azure_check_for_unrestricted_smtp_access
+            - azure_check_for_unrestricted_rpc_access
+            - azure_check_for_unrestricted_mssql_access
+            - azure_check_for_unrestricted_mysql_database_access
+            - azure_check_for_unrestricted_oracle_database_access
+            - azure_check_for_unrestricted_postgresql_database_access
+            - azure_check_for_unrestricted_rdp_access
+            - azure_check_for_unrestricted_netbios_access
+            - azure_check_for_unrestricted_mongodb_access
+            - azure_review_network_interfaces_with_ip_forwarding_enabled
+            - azure_enable_ddos_standard_protection_for_virtual_networks
+            - azure_use_azure_cni_add_on_for_managing_network_resources
+            - azure_use_microsoft_entra_id_integration_for_aks_clusters
+            - azure_check_for_installataion_for_latest_os_patches
+            - azure_check_for_backups_for_azure_virtual_machines
+            - azure_use_user_assigned_managed_identities_for_aks_clusters
+            - azure_kubernetes_api_version
+            - azure_set_azure_secret_key_expiration
+            - azure_web_tier_customer_managed_key_in_use
+            - azure_enable_trusted_microsoft_services_for_key_vault_access
+            - azure_use_network_contributor_role_for_managing_azure_network_resources
+            - azure_configure_emails_for_vulnerability_assessment_scan_reports_and_alerts
+            - azure_configure_audit_action_group_for_sql_server_auditing
+            - azure_use_microsoft_entra_admin_for_sql_authentication
+            - azure_enable_in_transit_encryption_for_mysql_servers
+            - azure_enable_automatic_failover
+            - azure_check_for_sufficient_certificate_auto_renewal_period
+            - azure_enable_ssl_certificate_auto_renewal
+            - azure_enable_certificate_transparency
+
+        - id: azure_baseline_security_monitoring
+          title: "Monitoring, Logging, and Auditing for Azure"
+          description: "Controls focused on monitoring Azure environments, logging activities, and auditing for compliance and security incident response."
+          section-code: "monitoring_logging_auditing"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - azure_monitor_log_all_activities
+            - azure_enable_defender_for_cloud_for_aks_clusters
+            - azure_enable_auditevent_logging_for_azure_key_vaults
+            - azure_enable_auditing_for_sql_servers
+            - azure_enable_vulnerability_assessment_email_notifications_for_admins_and_subscription_owners
+            - azure_enable_vulnerability_assessment_periodic_recurring_scans
+            - azure_enable_vulnerability_assessment_for_microsoft_sql_servers
+            - azure_sql_auditing_retention
+            - azure_enable_trusted_microsoft_services_for_key_vault_access
+            - azure_configure_audit_action_group_for_sql_server_auditing
+
+        - id: azure_baseline_security_network
+          title: "Network Security for Azure"
+          description: "Controls focused on securing network configurations, managing traffic flow, and protecting network boundaries in Azure environments."
+          section-code: "network_security"
+          metadata:
+            tags:
+              baseline_category:
+                - "security"
+              type:
+                - "BASELINE"
+          controls:
+            - azure_secure_access_to_kubernetes_api_server_using_authorized_ip_address_ranges
+            - azure_disable_plain_ftp_deployment
+            - azure_restrict_default_network_access_for_azure_cosmos_db_accounts
+            - azure_check_for_publicly_accessible_web_containers
+            - azure_disable_anonymous_access_to_blob_containers
+            - azure_disable_public_access_to_storage_accounts_with_blob_containers
+            - azure_private_endpoint_in_use
+            - azure_restrict_default_network_access_for_storage_accounts
+            - azure_limit_storage_account_access_by_ip_address
+            - azure_enable_trusted_microsoft_services_for_storage_account_access
+            - azure_enable_secure_transfer_in_azure_storage
+            - azure_enable_logging_for_azure_storage_table_service
+            - azure_enable_logging_for_azure_storage_queue_service
+            - azure_enable_logging_for_azure_storage_blob_service
+            - azure_enable_immutable_blob_storage
+            - azure_enable_blob_storage_lifecycle_management
+            - azure_check_for_unrestricted_telnet_access
+            - azure_enable_azure_network_watcher
+            - azure_check_for_unrestricted_udp_access
+            - azure_check_for_unrestricted_ssh_access
+            - azure_check_for_unrestricted_smtp_access
+            - azure_check_for_unrestricted_rpc_access
+            - azure_check_for_unrestricted_mssql_access
+            - azure_check_for_unrestricted_mysql_database_access
+            - azure_check_for_unrestricted_oracle_database_access
+            - azure_check_for_unrestricted_postgresql_database_access
+            - azure_check_for_unrestricted_rdp_access
+            - azure_check_for_unrestricted_netbios_access
+            - azure_check_for_unrestricted_mongodb_access
+            - azure_review_network_interfaces_with_ip_forwarding_enabled
+            - azure_enable_ddos_standard_protection_for_virtual_networks
+            - azure_use_azure_cni_add_on_for_managing_network_resources
