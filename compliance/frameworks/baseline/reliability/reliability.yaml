@@ -1,0 +1,159 @@
+framework:
+  id: baseline_reliability
+  title: "Reliability"
+  description: "Reliability Framework aligns with SRE principles and the Well-Architected Framework, ensuring systems are resilient, highly available, and capable of recovering swiftly from failures."
+  section-code: "baseline_reliability"
+  metadata:
+    defaults:
+      auto-assign: true
+      enabled: true
+      tracks-drift-events: false
+    tags:
+      baseline_category:
+        - "reliability"
+      type:
+        - "Baseline"
+  control-group:
+    - id: aws_baseline_reliability
+      title: "AWS Baseline Reliability"
+      description: "AWS reliability framework focusing on resiliency, failover, and disaster recovery."
+      section-code: "aws_baseline_reliability"
+      metadata:
+        tags:
+          baseline_category:
+            - "reliability"
+          type:
+            - "Baseline"
+      control-group:
+        - id: aws_baseline_reliability_infrastructure
+          title: "AWS Reliability - Infrastructure"
+          description: "Ensures AWS infrastructure follows best practices for reliability."
+          section-code: "aws_baseline_reliability_infrastructure"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - aws_ec2_ami_too_old
+            - aws_disable_public_ip_address_assignment_for_ec2_instances
+            - aws_opensearch_dedicated_master_enabled
+            - aws_opensearch_zone_awareness_enabled
+            - aws_elbv2_alb_minimum_number_of_ec2_target_instances
+            - aws_elbv2_glb_minimum_number_of_ec2_target_instances
+            - aws_ec2_instance_termination_protection
+            - aws_enable_deletion_protection
+            - aws_elb_connection_draining_enabled
+            - aws_elb_cross_zone_load_balancing_enabled
+            - aws_check_for_amazon_ecs_service_placement_strategy
+
+        - id: aws_baseline_reliability_monitoring
+          title: "AWS Reliability - Monitoring & Alerts"
+          description: "Ensures AWS monitoring systems are in place to detect and respond to reliability events."
+          section-code: "aws_baseline_reliability_monitoring"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - aws_performance_insights
+            - aws_rds_event_notifications
+            - aws_elb_cross_zone_load_balancing_enabled
+            - aws_enable_cloudtrail_logging_for_kubernetes_api_calls
+            - aws_enable_cloudwatch_container_insights
+            - aws_kubernetes_cluster_version
+
+        - id: aws_baseline_reliability_backup
+          title: "AWS Reliability - Backup & Recovery"
+          description: "Ensures backups and recovery systems are in place for AWS services."
+          section-code: "aws_baseline_reliability_backup"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - aws_use_aws_backup_service_in_use_for_amazon_rds
+            - aws_rds_automated_backups_enabled
+            - aws_backtrack
+            - aws_aurora_database_instance_accessibility
+            - aws_dynamodb_instances_have_backup_with_lifecyclepolicy_above_35_days
+            - aws_dynamodb_instances_have_backup_withing_48_hours
+            - aws_ebs_instances_have_backup_with_lifecyclepolicy_above_35_days
+            - aws_ebs_instances_have_backup_withing_rpo_period
+            - aws_ec2_instances_have_backup_with_lifecyclepolicy_above_35_days
+            - aws_ec2_instances_have_backup_withing_48_hours
+            - aws_efs_files_have_backup_with_lifecyclepolicy_above_35_days
+            - aws_efs_files_have_backup_withing_48_hours
+            - aws_rds_database_instances_have_a_minimum_acceptable_backup_policy
+            - aws_rds_database_instances_must_have_a_minimum_acceptable_restore_time
+
+    - id: azure_baseline_reliability
+      title: "Azure Baseline Reliability"
+      description: "Azure reliability framework focusing on resiliency, failover, and disaster recovery."
+      section-code: "azure_baseline_reliability"
+      metadata:
+        tags:
+          baseline_category:
+            - "reliability"
+          type:
+            - "Baseline"
+      control-group:
+        - id: azure_baseline_reliability_infrastructure
+          title: "Azure Reliability - Infrastructure"
+          description: "Ensures Azure infrastructure follows best practices for reliability."
+          section-code: "azure_baseline_reliability_infrastructure"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - azure_check_for_kubernetes_version
+            - azure_disable_plain_ftp_deployment
+            - azure_check_for_usage_of_managed_disk_volumes_for_virtual_machines
+            - azure_check_for_automatic_os_upgrades
+            - azure_check_for_automatic_instance_repairs
+            - azure_check_for_instance_termination_notifications_for_virtual_machine_scale_sets
+            - azure_check_for_associated_load_balancers
+            - azure_check_for_guest_level_diagnostics_for_virtual_machines
+
+        - id: azure_baseline_reliability_backup
+          title: "Azure Reliability - Backup & Recovery"
+          description: "Ensures backups and recovery systems are in place for Azure services."
+          section-code: "azure_baseline_reliability_backup"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - azure_recovery_service_vault_alert_for_job_failures_enabled
+            - azure_check_for_sufficient_point_in_time_restore_pitr_backup_retention_period
+            - azure_check_for_sufficient_soft_deleted_data_retention_period
+            - azure_check_for_sufficient_daily_backup_retention_period
+            - azure_check_for_sufficient_instant_restore_retention_period
+            - azure_enable_soft_delete_for_azure_blob_storage
+            - azure_enable_auto_failover_groups
+
+        - id: azure_baseline_reliability_monitoring
+          title: "Azure Reliability - Monitoring & Alerts"
+          description: "Ensures Azure monitoring systems are in place to detect and respond to reliability events."
+          section-code: "azure_baseline_reliability_monitoring"
+          metadata:
+            tags:
+              baseline_category:
+                - "reliability"
+              type:
+                - "Baseline"
+          controls:
+            - azure_check_for_configure_health_monitoring
+            - azure_configure_minimum_tls_version
+            - azure_check_for_autoscale_notifications
+            - azure_kubernetes_api_version
