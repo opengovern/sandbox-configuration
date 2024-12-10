@@ -1,12 +1,12 @@
-Description: AWS provides customers with the option of specifying the contact information for account's security team. It is recommended that this information be provided.
+Description: Checks if the AWS Account has an alternate security contact registered. If the account is in GovCloud (aws-us-gov), manual verification is advised. Otherwise, if no security contact is set, an alarm is raised.
 ID: aws_cis_v120_1_18
 IntegrationType:
   - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
-    - aws_account_alternate_contact
     - aws_account
+    - aws_account_alternate_contact
   Parameters: []
   PrimaryTable: aws_account
   QueryToExecute: |
@@ -25,7 +25,9 @@ Query:
         partition,
         title,
         account_id,
-        _ctx
+        _ctx,
+        platform_account_id,
+        platform_resource_id
       FROM
         aws_account
     )
@@ -44,10 +46,8 @@ Query:
         ELSE a.title || ' security contact not registered.'
       END AS reason
     FROM
-      account AS a,
-      alternate_security_contact AS c
-    WHERE
-      c.account_id = a.account_id;
+      account AS a
+      JOIN alternate_security_contact AS c ON c.account_id = a.account_id;
 Severity: low
 Tags: {}
-Title: 1.18 Ensure security contact information is registered
+Title: Ensure alternate security contact is registered for the AWS Account
