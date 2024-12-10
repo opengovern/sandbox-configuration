@@ -1,5 +1,7 @@
-Description: AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services. Create an IAM Role to allow authorized users to manage incidents with AWS Support.
 ID: aws_cis_v120_1_20
+
+Title: 1.20 Ensure a support role has been created to manage incidents with AWS Support
+Description: AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services. Create an IAM Role to allow authorized users to manage incidents with AWS Support.
 IntegrationType:
   - aws_cloud_account
 Query:
@@ -13,9 +15,11 @@ Query:
     WITH support_role_count AS (
       SELECT
         'arn:' || a.partition || ':::' || a.account_id AS resource,
-        COUNT(policy_arn),
+        COUNT(policy_arn) AS count,
         a.account_id,
-        a._ctx
+        a._ctx,
+        a.platform_account_id,
+        a.platform_resource_id
       FROM
         aws_account AS a
       LEFT JOIN aws_iam_role AS r 
@@ -28,23 +32,25 @@ Query:
       GROUP BY
         a.account_id,
         a.partition,
-        a._ctx
+        a._ctx,
+        a.platform_account_id,
+        a.platform_resource_id
     )
     SELECT
       resource,
-      a.platform_account_id AS platform_account_id,
-      a.platform_resource_id AS platform_resource_id,
+      platform_account_id,
+      platform_resource_id,
       CASE
-        WHEN COUNT > 0 THEN 'ok'
+        WHEN count > 0 THEN 'ok'
         ELSE 'alarm'
       END AS status,
       CASE
-        WHEN COUNT = 1 THEN 'AWSSupportAccess policy attached to 1 role.'
-        WHEN COUNT > 1 THEN 'AWSSupportAccess policy attached to ' || COUNT || ' roles.'
+        WHEN count = 1 THEN 'AWSSupportAccess policy attached to 1 role.'
+        WHEN count > 1 THEN 'AWSSupportAccess policy attached to ' || count || ' roles.'
         ELSE 'AWSSupportAccess policy not attached to any role.'
       END AS reason
     FROM
       support_role_count;
 Severity: low
 Tags: {}
-Title: 1.20 Ensure a support role has been created to manage incidents with AWS Support
+
