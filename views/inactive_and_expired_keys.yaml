@@ -1,0 +1,97 @@
+ID: inactive_and_expired_keys
+Title: Inactive and Expired API Keys
+Description: List of all inactive and expired API Keys from AWS and Azure platforms.
+Query:
+  Engine: CloudQL-v0.0.1
+  QueryToExecute: |
+    WITH 
+    -- CTE for expired AWS keys
+    expired_aws_keys AS (
+        SELECT 
+            access_key_id AS key_id,
+            user_name,
+            status,
+            'Aws' AS Platform,
+            platform_account_id AS Integration
+        FROM 
+            aws_iam_access_key
+        WHERE 
+            status = 'Inactive'
+    ),
+    
+    -- CTE for expired Azure key_credentials
+    expired_azure_key_credentials AS (
+        SELECT 
+            sp.id AS integration_id,
+            sp.display_name,
+            kc->>'keyId' AS key_id,
+            kc->>'endDate' AS expiration_date
+        FROM 
+            entraid_service_principal sp,
+            LATERAL jsonb_array_elements(sp.key_credentials) AS kc
+        WHERE 
+            (kc->>'endDate')::timestamp < NOW()
+    ),
+    
+    -- CTE for expired Azure password_credentials
+    expired_azure_password_credentials AS (
+        SELECT 
+            sp.id AS integration_id,
+            sp.display_name,
+            pc->>'keyId' AS key_id,
+            pc->>'endDate' AS expiration_date
+        FROM 
+            entraid_service_principal sp,
+            LATERAL jsonb_array_elements(sp.password_credentials) AS pc
+        WHERE 
+            (pc->>'endDate')::timestamp < NOW()
+    ),
+    
+    -- Combine expired Azure key_credentials and password_credentials
+    expired_azure_keys AS (
+        SELECT 
+            ekc.key_id,
+            ekc.display_name AS user_name,
+            'Expired' AS status,
+            'Azure' AS Platform,
+            ekc.integration_id AS Integration
+        FROM 
+            expired_azure_key_credentials ekc
+        
+        UNION ALL
+        
+        SELECT 
+            epc.key_id,
+            epc.display_name AS user_name,
+            'Expired' AS status,
+            'Azure' AS Platform,
+            epc.integration_id AS Integration
+        FROM 
+            expired_azure_password_credentials epc
+    )
+    
+    -- Final UNION ALL of AWS and Azure expired keys
+    SELECT 
+        key_id,
+        user_name,
+        status,
+        Platform,
+        Integration
+    FROM 
+        expired_aws_keys
+    
+    UNION ALL
+    
+    SELECT 
+        key_id,
+        user_name,
+        status,
+        Platform,
+        Integration
+    FROM 
+        expired_azure_keys
+Tags:
+  category:
+    - Security
+  subject:
+    - Expired Keys
