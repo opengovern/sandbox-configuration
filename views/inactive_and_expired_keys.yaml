@@ -1,12 +1,12 @@
-ID: inactive_and_expired_keys
+ID: inactive_expired_keys
 Title: Inactive and Expired API Keys
-Description: List of all inactive and expired API Keys from AWS and Azure platforms.
+Description: List of all inactive and expired API Keys from AWS, Azure, and Cloudflare platforms.
 Query:
   Engine: CloudQL-v0.0.1
   QueryToExecute: |
     WITH 
-    -- CTE for expired AWS keys
-    expired_aws_keys AS (
+    -- CTE for inactive AWS keys
+    inactive_aws_keys AS (
         SELECT 
             access_key_id AS key_id,
             user_name,
@@ -19,6 +19,10 @@ Query:
             status = 'Inactive'
     ),
     
+    -- CTE for expired AWS keys (if any additional criteria are needed)
+    -- Currently, assuming only 'Inactive' status indicates expired
+    -- If there's a separate expiration logic, it can be added here
+
     -- CTE for expired Azure key_credentials
     expired_azure_key_credentials AS (
         SELECT 
@@ -68,9 +72,28 @@ Query:
             epc.integration_id AS Integration
         FROM 
             expired_azure_password_credentials epc
+    ),
+    
+    -- CTE for expired or inactive Cloudflare API tokens
+    expired_cloudflare_tokens AS (
+        SELECT 
+            cft.id AS key_id,
+            cft.name AS user_name,
+            CASE 
+                WHEN cft.status != 'active' THEN 'Inactive'
+                WHEN cft.expires_on < NOW() THEN 'Expired'
+                ELSE cft.status
+            END AS status,
+            'Cloudflare' AS Platform,
+            cft.id AS Integration
+        FROM 
+            cloudflare_api_token cft
+        WHERE 
+            cft.status != 'active' 
+            OR cft.expires_on < NOW()
     )
     
-    -- Final UNION ALL of AWS and Azure expired keys
+    -- Final UNION ALL of AWS, Azure, and Cloudflare expired/inactive keys
     SELECT 
         key_id,
         user_name,
@@ -78,7 +101,7 @@ Query:
         Platform,
         Integration
     FROM 
-        expired_aws_keys
+        inactive_aws_keys
     
     UNION ALL
     
@@ -90,6 +113,17 @@ Query:
         Integration
     FROM 
         expired_azure_keys
+    
+    UNION ALL
+    
+    SELECT 
+        key_id,
+        user_name,
+        status,
+        Platform,
+        Integration
+    FROM 
+        expired_cloudflare_tokens
 Tags:
   category:
     - Security
