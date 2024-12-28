@@ -1,5 +1,6 @@
-Description: Check for all AWS RDS Database Instances are covered by configured to be backup for a minimum time period
 ID: aws_rds_database_instances_have_a_minimum_acceptable_backup_policy
+Title: AWS RDS Database Instances have a minimum acceptable backup policy
+Description: Check for all AWS RDS Database Instances are configured with a minimum acceptable backup period
 IntegrationType:
   - aws_cloud_account
 Query:
@@ -9,7 +10,7 @@ Query:
   Parameters:
     - Key: awsRdsBaselineRetentionPeriodDays
       Required: true
-      DefaultValue: 7
+      DefaultValue: "7"
   PrimaryTable: aws_rds_db_instance
   QueryToExecute: |
     SELECT
@@ -17,14 +18,15 @@ Query:
       platform_integration_id,
       platform_resource_id,
       CASE
-        WHEN backup_retention_period < '{{.awsRdsBaselineRetentionPeriodDays}}'::INT THEN 'alarm'
+        -- If this param is empty, Postgres will throw an error because ''::INT is invalid.
+        WHEN backup_retention_period < '{{.awsRdsBaselineRetentionPeriodDays}}'::INT 
+        THEN 'alarm'
         ELSE 'ok'
       END AS status,
       title || ' backup retention period set to ' || backup_retention_period || '.' AS reason,
       region,
       account_id
-    FROM
-      aws_rds_db_instance;
+    FROM aws_rds_db_instance;
 Severity: medium
 Tags:
   platform_score_cloud_service_name:
@@ -35,4 +37,3 @@ Tags:
     - AWS Relational Database Service (RDS)
   score_tags:
     - Missing Backup
-Title: AWS RDS Database Instances have a minimum acceptable backup policy
