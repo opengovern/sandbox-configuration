@@ -1,0 +1,29 @@
+ID: github_container_package
+Title: Find Container Packages to be utilized in tasks
+Description: Find Container Packages in GitHub for tasks
+IntegrationType:
+  - github_account
+Query:
+  Engine: CloudQL-v0.0.1
+  Parameters:
+    - Key: github_package
+      Required: true
+      DefaultValue: "*"
+    - Key: limit_of_packages
+      Required: true
+      DefaultValue: "50"
+  QueryToExecute: |
+    SELECT
+      id,
+      name,
+      digest,
+      platform_integration_id
+    FROM
+      github_container_package
+    WHERE
+      (
+        COALESCE('{{.github_package}}', '*') = '*'
+        OR name = ANY(STRING_TO_ARRAY('{{.github_package}}', ','))
+      )
+      LIMIT {{.limit_of_packages}};
+Tags: {}
