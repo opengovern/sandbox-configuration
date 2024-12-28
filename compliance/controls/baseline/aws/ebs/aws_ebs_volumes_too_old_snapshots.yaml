@@ -1,42 +1,50 @@
-Description: Identify and remove old AWS Elastic Block Store (EBS) volume snapshots for cost optimization.
-ID: aws_ebs_volumes_too_old_snapshots
+ID: aws_ec2_ami_too_old
+Title: EC2 AMI Too Old
+Description: Ensure EC2 Amazon Machine Images (AMIs) aren't too old
 IntegrationType:
   - aws_cloud_account
 Query:
   Engine: CloudQL-v0.0.1
   ListOfTables:
+    - aws_backup_managed
     - aws_ebs_snapshot
+    - aws_ec2_ami
   Parameters:
-    - key: awsEbsSnapshotAgeMaxDays
-      required: false
-  PrimaryTable: aws_ebs_snapshot
+    - Key: awsEbsAmiAgeMaxDays
+      Required: true
+      DefaultValue: "365"
+  PrimaryTable: aws_ec2_ami
   QueryToExecute: |
     SELECT 
-      snapshot_id AS resource,
+      image_id AS resource,
       platform_resource_id,
       platform_integration_id,
       CASE
-        WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() 
-        THEN 'alarm'
+        WHEN is_aws_backup_managed THEN 'skip'
+        WHEN root_device_type <> 'ebs' THEN 'skip'
+        WHEN creation_date + ('{{.awsEbsAmiAgeMaxDays}} days')::interval < NOW() 
+          THEN 'alarm'
         ELSE 'ok'
       END AS status,
       CASE
-        WHEN start_time + ({{.awsEbsSnapshotAgeMaxDays}}::INT || ' days')::interval < now() 
-        THEN snapshot_id || ' snapshot is older than 30 days' 
-        ELSE snapshot_id || ' snapshot is not older than 30 days'
+        WHEN is_aws_backup_managed THEN name || ' is managed by aws'
+        WHEN root_device_type <> 'ebs' THEN name || ' is not stored in ebs'
+        WHEN creation_date + ('{{.awsEbsAmiAgeMaxDays}} days')::interval < NOW()
+          THEN name || ' needs to be restarted'
+        ELSE name || ' launch time was not long ago'
       END AS reason,
       region,
       account_id
     FROM 
-      aws_ebs_snapshot es
+      aws_ec2_ami
 Severity: high
 Tags:
   platform_score_cloud_service_name:
-    - AWS Elastic Block Store (EBS)
+    - AWS EC2
   platform_score_use_case:
-    - Optimization
+    - Lacking High Availability
   score_service_name:
-    - AWS Elastic Block Store (EBS)
+    - AWS EC2
   score_tags:
-    - Optimization
-Title: EBS Volumes Too Old Snapshots
+    - Lacking High Availability
+
