@@ -41,7 +41,7 @@ Query:
     )
     SELECT
       sub.subscription_id AS resource,
-      sub.platform_account_id AS platform_account_id,
+      sub.platform_integration_id AS platform_integration_id,
       sub.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
@@ -56,7 +56,7 @@ Query:
       azure_subscription sub
     LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
     GROUP BY
-      sub.platform_account_id,
+      sub.platform_integration_id,
       sub.platform_resource_id,
       sub._ctx,
       sub.subscription_id,

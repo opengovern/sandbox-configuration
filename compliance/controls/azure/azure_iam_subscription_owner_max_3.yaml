@@ -17,7 +17,7 @@ Query:
         d.role_type,
         d.name,
         d.title,
-        d.platform_account_id AS platform_account_id,
+        d.platform_integration_id AS platform_integration_id,
         d.platform_resource_id AS platform_resource_id,
         d._ctx,
         d.subscription_id
@@ -32,7 +32,7 @@ Query:
     )
     SELECT
       owner.subscription_id AS resource,
-      owner.platform_account_id AS platform_account_id,
+      owner.platform_integration_id AS platform_integration_id,
       owner.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(*) <= 3 THEN 'ok'
@@ -47,7 +47,7 @@ Query:
       sub.subscription_id = owner.subscription_id
     GROUP BY
       owner.subscription_id,
-      owner.platform_account_id,
+      owner.platform_integration_id,
       owner.platform_resource_id,
       owner._ctx,
       sub.display_name

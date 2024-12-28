@@ -26,7 +26,7 @@ Query:
     )
     SELECT
       r.arn AS resource,
-      r.platform_account_id AS platform_account_id,
+      r.platform_integration_id AS platform_integration_id,
       r.platform_resource_id AS platform_resource_id,
       CASE
         WHEN o.arn IS NOT NULL THEN 'alarm'
@@ -40,7 +40,7 @@ Query:
       aws_ecr_repository AS r
       LEFT JOIN open_access_ecr_repo AS o ON r.arn = o.arn
     GROUP BY
-      resource, status, reason, r.region, r.account_id, r.tags, r._ctx, r.platform_account_id, r.platform_resource_id;
+      resource, status, reason, r.region, r.account_id, r.tags, r._ctx, r.platform_integration_id, r.platform_resource_id;
 Severity: low
 Tags: {}
 Title: ECR repositories should prohibit public access

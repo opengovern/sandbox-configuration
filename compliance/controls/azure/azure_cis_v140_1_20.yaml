@@ -15,7 +15,7 @@ Query:
         role_name,
         role_type,
         title,
-        platform_account_id,
+        platform_integration_id,
         platform_resource_id,
         action,
         _ctx,
@@ -30,7 +30,7 @@ Query:
     )
     SELECT
       cr.subscription_id AS resource,
-      cr.platform_account_id AS platform_account_id,
+      cr.platform_integration_id AS platform_integration_id,
       cr.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(*) > 0 THEN 'alarm'
@@ -48,7 +48,7 @@ Query:
       sub.subscription_id = cr.subscription_id
     GROUP BY
       cr.subscription_id,
-      cr.platform_account_id,
+      cr.platform_integration_id,
       cr.platform_resource_id,
       cr._ctx,
       sub.display_name;

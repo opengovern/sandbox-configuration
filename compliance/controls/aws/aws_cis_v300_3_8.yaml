@@ -15,7 +15,7 @@ Query:
         name AS trail_name,
         is_multi_region_trail,
         bucket_selector,
-        platform_account_id,
+        platform_integration_id,
         platform_resource_id
       FROM
         aws_cloudtrail_trail,
@@ -29,7 +29,7 @@ Query:
     )
     SELECT
       b.arn AS resource,
-      b.platform_account_id AS platform_account_id,
+      b.platform_integration_id AS platform_integration_id,
       b.platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT(bucket_selector) > 0 THEN 'ok'
@@ -48,7 +48,7 @@ Query:
       OR bucket_selector = 'arn:aws:s3'
     GROUP BY
       b.account_id,
-      b.platform_account_id,
+      b.platform_integration_id,
       b.platform_resource_id,
       b.region,
       b.arn,

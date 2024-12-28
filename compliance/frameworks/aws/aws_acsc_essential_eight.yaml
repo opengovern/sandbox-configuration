@@ -1,0 +1,518 @@
+framework:
+  id: aws_acsc_essential_eight
+  title: "Australian Cyber Security Center (ACSC) Essential Eight"
+  description: "The Australian Cyber Security Center (ACSC) Essential Eight is a set of baseline security strategies designed to mitigate cyber security incidents. The Essential Eight is a prioritized list of mitigation strategies that organizations can implement to protect their systems against a range of adversaries. The Essential Eight is based on the Australian Signals Directorate (ASD) Strategies to Mitigate Cyber Security Incidents."
+  section-code: aws_acsc_essential_eight
+  metadata:
+    defaults:
+      auto-assign: false
+      enabled: false
+      tracks-drift-events: false
+    tags: {}
+  control-group:
+    - id: aws_acsc_essential_eight_ml_1
+      title: "ACSC Essential Eight Maturity Level 1"
+      description: "The availability category refers to the accessibility of information used by the entity’s systems, as well as the products or services provided to its customers."
+      section-code: ml_1
+      control-group:
+        - id: aws_acsc_essential_eight_ml_1_2
+          title: "ACSC-EE-ML1-2: Patch applications ML1"
+          description: "A vulnerability scanner with an up-to-date vulnerability database is used for vulnerability scanning activities."
+          section-code: "2"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_1_2_5
+              title: "ACSC-EE-ML1-2.5: Patch applications ML1"
+              description: "Patches, updates or vendor mitigations for security vulnerabilities in internet-facing services are applied within two weeks of release, or within 48 hours if an exploit exists."
+              section-code: "5"
+              controls:
+                - aws_ecs_service_fargate_using_latest_platform_version
+                - aws_eks_cluster_with_latest_kubernetes_version
+                - aws_elastic_beanstalk_environment_managed_updates_enabled
+                - aws_elasticache_cluster_auto_minor_version_upgrade_enabled
+                - aws_lambda_function_use_latest_runtime
+                - aws_opensearch_domain_updated_with_latest_service_software_version
+                - aws_rds_db_instance_automatic_minor_version_upgrade_enabled
+                - aws_redshift_cluster_maintenance_settings_check
+                - aws_ssm_managed_instance_compliance_patch_compliant
+
+        - id: aws_acsc_essential_eight_ml_1_5
+          title: "ACSC-EE-ML1-5: Restrict administrative privileges ML1"
+          description: "The restriction of administrative privileges is the practice of limiting the number of privileged accounts and the extent of their access to systems and data."
+          section-code: "5"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_1_5_2
+              title: "ACSC-EE-ML1-5.2: Restrict administrative privileges ML1"
+              description: "Privileged accounts (excluding privileged service accounts) are prevented from accessing the internet, email and web services."
+              section-code: "2"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+
+            - id: aws_acsc_essential_eight_ml_1_5_3
+              title: "ACSC-EE-ML1-5.3: Restrict administrative privileges ML1"
+              description: "Privileged users use separate privileged and unprivileged operating environments."
+              section-code: "3"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+                - aws_ssm_managed_instance_compliance_association_compliant
+
+            - id: aws_acsc_essential_eight_ml_1_5_4
+              title: "ACSC-EE-ML1-5.4: Restrict administrative privileges ML1"
+              description: "Unprivileged accounts cannot logon to privileged operating environments."
+              section-code: "4"
+              controls:
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_1_5_5
+              title: "ACSC-EE-ML1-5.5: Restrict administrative privileges ML1"
+              description: "Privileged accounts (excluding local administrator accounts) cannot logon to unprivileged operating environments."
+              section-code: "5"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+        - id: aws_acsc_essential_eight_ml_1_8
+          title: "ACSC-EE-ML1-8: Regular backups ML1"
+          description: "Regular backups of important data, software and configuration settings are performed and retained..."
+          section-code: "8"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_1_8_1
+              title: "ACSC-EE-ML1-8.1: Regular backups ML1"
+              description: "Backups of important data, software and configuration settings are performed..."
+              section-code: "1"
+              controls:
+                - aws_backup_plan_min_retention_35_days
+                - aws_backup_recovery_point_min_retention_35_days
+                - aws_docdb_cluster_backup_retention_period_7_days
+                - aws_dynamodb_table_in_backup_plan
+                - aws_dynamodb_table_point_in_time_recovery_enabled
+                - aws_dynamodb_table_protected_by_backup_plan
+                - aws_ebs_volume_in_backup_plan
+                - aws_ebs_volume_protected_by_backup_plan
+                - aws_ec2_instance_protected_by_backup_plan
+                - aws_efs_file_system_in_backup_plan
+                - aws_efs_file_system_protected_by_backup_plan
+                - aws_elasticache_redis_cluster_automatic_backup_retention_15_days
+                - aws_fsx_file_system_protected_by_backup_plan
+                - aws_neptune_db_cluster_automated_backup_enabled
+                - aws_rds_db_cluster_aurora_backtracking_enabled
+                - aws_rds_db_cluster_aurora_protected_by_backup_plan
+                - aws_rds_db_instance_backup_enabled
+                - aws_rds_db_instance_in_backup_plan
+                - aws_rds_db_instance_protected_by_backup_plan
+                - aws_redshift_cluster_automatic_snapshots_min_7_days
+
+            - id: aws_acsc_essential_eight_ml_1_8_2
+              title: "ACSC-EE-ML1-8.2: Regular backups ML1"
+              description: "Backups of important data, software and configuration settings are synchronised..."
+              section-code: "2"
+              controls:
+                - aws_backup_plan_min_retention_35_days
+                - aws_backup_recovery_point_min_retention_35_days
+                - aws_docdb_cluster_backup_retention_period_7_days
+                - aws_dynamodb_table_in_backup_plan
+                - aws_dynamodb_table_point_in_time_recovery_enabled
+                - aws_dynamodb_table_protected_by_backup_plan
+                - aws_ebs_volume_in_backup_plan
+                - aws_ebs_volume_protected_by_backup_plan
+                - aws_ec2_instance_protected_by_backup_plan
+                - aws_efs_file_system_in_backup_plan
+                - aws_efs_file_system_protected_by_backup_plan
+                - aws_elasticache_redis_cluster_automatic_backup_retention_15_days
+                - aws_fsx_file_system_protected_by_backup_plan
+                - aws_neptune_db_cluster_automated_backup_enabled
+                - aws_rds_db_cluster_aurora_backtracking_enabled
+                - aws_rds_db_cluster_aurora_protected_by_backup_plan
+                - aws_rds_db_instance_backup_enabled
+                - aws_rds_db_instance_in_backup_plan
+                - aws_rds_db_instance_protected_by_backup_plan
+                - aws_redshift_cluster_automatic_snapshots_min_7_days
+
+            - id: aws_acsc_essential_eight_ml_1_8_3
+              title: "ACSC-EE-ML1-8.3: Regular backups ML1"
+              description: "Backups of important data, software and configuration settings are retained..."
+              section-code: "3"
+              controls:
+                - aws_backup_plan_min_retention_35_days
+                - aws_backup_recovery_point_min_retention_35_days
+                - aws_docdb_cluster_backup_retention_period_7_days
+                - aws_dynamodb_table_in_backup_plan
+                - aws_dynamodb_table_point_in_time_recovery_enabled
+                - aws_dynamodb_table_protected_by_backup_plan
+                - aws_ebs_volume_in_backup_plan
+                - aws_ebs_volume_protected_by_backup_plan
+                - aws_ec2_instance_protected_by_backup_plan
+                - aws_efs_file_system_in_backup_plan
+                - aws_efs_file_system_protected_by_backup_plan
+                - aws_elasticache_redis_cluster_automatic_backup_retention_15_days
+                - aws_fsx_file_system_protected_by_backup_plan
+                - aws_neptune_db_cluster_automated_backup_enabled
+                - aws_rds_db_cluster_aurora_backtracking_enabled
+                - aws_rds_db_cluster_aurora_protected_by_backup_plan
+                - aws_rds_db_instance_backup_enabled
+                - aws_rds_db_instance_in_backup_plan
+                - aws_rds_db_instance_protected_by_backup_plan
+                - aws_redshift_cluster_automatic_snapshots_min_7_days
+
+            - id: aws_acsc_essential_eight_ml_1_8_5
+              title: "ACSC-EE-ML1-8.5: Regular backups ML1"
+              description: "Unprivileged accounts cannot access backups belonging to other accounts."
+              section-code: "5"
+              controls:
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_readonly_root_filesystem
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_user_in_group
+                - aws_opensearch_domain_fine_grained_access_enabled
+                - aws_s3_bucket_policy_restricts_cross_account_permission_changes
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_1_8_6
+              title: "ACSC-EE-ML1-8.6: Regular backups ML1"
+              description: "Unprivileged accounts are prevented from modifying and deleting backups."
+              section-code: "6"
+              controls:
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_readonly_root_filesystem
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_user_in_group
+                - aws_opensearch_domain_fine_grained_access_enabled
+                - aws_s3_bucket_policy_restricts_cross_account_permission_changes
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+    - id: aws_acsc_essential_eight_ml_2
+      title: "ACSC Essential Eight Maturity Level 2"
+      description: "The Essential Eight Maturity Model is a prioritised list of strategies..."
+      section-code: ml_2
+      control-group:
+        - id: aws_acsc_essential_eight_ml_2_1
+          title: "ACSC-EE-ML2-1: Patch applications ML2"
+          description: "An automated method of asset discovery is used at least weekly..."
+          section-code: "1"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_2_1_3
+              title: "ACSC-EE-ML2-1.3: Application control ML2"
+              description: "Allowed and blocked execution events on workstations and internet-facing servers are logged."
+              section-code: "3"
+              controls:
+                - aws_apigateway_rest_api_stage_xray_tracing_enabled
+                - aws_apigateway_stage_logging_enabled
+                - aws_appsync_graphql_api_field_level_logging_enabled
+                - aws_cloudfront_distribution_logging_enabled
+                - aws_cloudtrail_multi_region_trail_enabled
+                - aws_cloudtrail_s3_data_events_enabled
+                - aws_cloudtrail_trail_enabled
+                - aws_codebuild_project_logging_enabled
+                - aws_dms_replication_task_source_database_logging_enabled
+                - aws_ec2_client_vpn_endpoint_client_connection_logging_enabled
+                - aws_ecs_task_definition_logging_enabled
+                - aws_eks_cluster_control_plane_audit_logging_enabled
+                - aws_elastic_beanstalk_environment_logs_to_cloudwatch
+                - aws_elb_application_classic_lb_logging_enabled
+                - aws_elb_classic_lb_desync_mitigation_mode
+                - aws_gatewayv2_stage_access_logging_enabled
+                - aws_neptune_db_cluster_audit_logging_enabled
+                - aws_networkfirewall_firewall_logging_enabled
+                - aws_rds_db_cluster_aurora_mysql_audit_logging_enabled
+                - aws_rds_db_cluster_events_subscription
+                - aws_rds_db_instance_events_subscription
+                - aws_rds_db_instance_logging_enabled
+                - aws_rds_db_parameter_group_events_subscription
+                - aws_rds_db_security_group_events_subscription
+                - aws_redshift_cluster_audit_logging_enabled
+                - aws_redshift_cluster_encryption_logging_enabled
+                - aws_route53_zone_query_logging_enabled
+                - aws_s3_bucket_logging_enabled
+                - aws_sfn_state_machine_logging_enabled
+                - aws_vpc_flow_logs_enabled
+                - aws_waf_web_acl_logging_enabled
+                - aws_wafv2_web_acl_logging_enabled
+
+        - id: aws_acsc_essential_eight_ml_2_2
+          title: "ACSC-EE-ML2-2: Patch operating systems ML2"
+          description: "An automated method of asset discovery is used at least weekly..."
+          section-code: "2"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_2_2_5
+              title: "ACSC-EE-ML2-2.5: Patch applications ML2"
+              description: "A vulnerability scanner is used at least fortnightly..."
+              section-code: "5"
+              controls:
+                - aws_ecr_repository_image_scan_on_push_enabled
+        - id: aws_acsc_essential_eight_ml_2_5
+          title: "ACSC-EE-ML2-5: Restrict administrative privileges ML2"
+          description: "Requests for privileged access to systems and applications are validated when first requested."
+          section-code: "5"
+          control-group:
+            - id: aws_acsc_essential_eight_ml_2_5_10
+              title: "ACSC-EE-ML2-5.10: Restrict administrative privileges ML2"
+              description: "Credentials for local administrator accounts..."
+              section-code: "10"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+
+            - id: aws_acsc_essential_eight_ml_2_5_11
+              title: "ACSC-EE-ML2-5.11: Restrict administrative privileges ML2"
+              description: "Privileged access events are logged."
+              section-code: "11"
+              controls:
+                - aws_apigateway_rest_api_stage_xray_tracing_enabled
+                - aws_apigateway_stage_logging_enabled
+                - aws_appsync_graphql_api_field_level_logging_enabled
+                - aws_cloudfront_distribution_logging_enabled
+                - aws_cloudtrail_multi_region_trail_enabled
+                - aws_cloudtrail_s3_data_events_enabled
+                - aws_cloudtrail_trail_enabled
+                - aws_codebuild_project_logging_enabled
+                - aws_dms_replication_task_source_database_logging_enabled
+                - aws_ec2_client_vpn_endpoint_client_connection_logging_enabled
+                - aws_ecs_task_definition_logging_enabled
+                - aws_eks_cluster_control_plane_audit_logging_enabled
+                - aws_elastic_beanstalk_environment_logs_to_cloudwatch
+                - aws_elb_application_classic_lb_logging_enabled
+                - aws_elb_classic_lb_desync_mitigation_mode
+                - aws_gatewayv2_stage_access_logging_enabled
+                - aws_neptune_db_cluster_audit_logging_enabled
+                - aws_networkfirewall_firewall_logging_enabled
+                - aws_rds_db_cluster_aurora_mysql_audit_logging_enabled
+                - aws_rds_db_cluster_events_subscription
+                - aws_rds_db_instance_events_subscription
+                - aws_rds_db_instance_logging_enabled
+                - aws_rds_db_parameter_group_events_subscription
+                - aws_rds_db_security_group_events_subscription
+                - aws_redshift_cluster_audit_logging_enabled
+                - aws_redshift_cluster_encryption_logging_enabled
+                - aws_route53_zone_query_logging_enabled
+                - aws_s3_bucket_logging_enabled
+                - aws_sfn_state_machine_logging_enabled
+                - aws_vpc_flow_logs_enabled
+                - aws_waf_web_acl_logging_enabled
+                - aws_wafv2_web_acl_logging_enabled
+
+            - id: aws_acsc_essential_eight_ml_2_5_12
+              title: "ACSC-EE-ML2-5.12: Restrict administrative privileges ML2"
+              description: "Privileged account and group management events are logged."
+              section-code: "12"
+              controls:
+                - aws_apigateway_rest_api_stage_xray_tracing_enabled
+                - aws_apigateway_stage_logging_enabled
+                - aws_appsync_graphql_api_field_level_logging_enabled
+                - aws_cloudfront_distribution_logging_enabled
+                - aws_cloudtrail_multi_region_trail_enabled
+                - aws_cloudtrail_s3_data_events_enabled
+                - aws_cloudtrail_trail_enabled
+                - aws_codebuild_project_logging_enabled
+                - aws_dms_replication_task_source_database_logging_enabled
+                - aws_ec2_client_vpn_endpoint_client_connection_logging_enabled
+                - aws_ecs_task_definition_logging_enabled
+                - aws_eks_cluster_control_plane_audit_logging_enabled
+                - aws_elastic_beanstalk_environment_logs_to_cloudwatch
+                - aws_elb_application_classic_lb_logging_enabled
+                - aws_elb_classic_lb_desync_mitigation_mode
+                - aws_gatewayv2_stage_access_logging_enabled
+                - aws_neptune_db_cluster_audit_logging_enabled
+                - aws_networkfirewall_firewall_logging_enabled
+                - aws_rds_db_cluster_aurora_mysql_audit_logging_enabled
+                - aws_rds_db_cluster_events_subscription
+                - aws_rds_db_instance_events_subscription
+                - aws_rds_db_instance_logging_enabled
+                - aws_rds_db_parameter_group_events_subscription
+                - aws_rds_db_security_group_events_subscription
+                - aws_redshift_cluster_audit_logging_enabled
+                - aws_redshift_cluster_encryption_logging_enabled
+                - aws_route53_zone_query_logging_enabled
+                - aws_s3_bucket_logging_enabled
+                - aws_sfn_state_machine_logging_enabled
+                - aws_vpc_flow_logs_enabled
+                - aws_waf_web_acl_logging_enabled
+                - aws_wafv2_web_acl_logging_enabled
+            - id: aws_acsc_essential_eight_ml_2_5_2
+              title: "ACSC-EE-ML2-5.2: Restrict administrative privileges ML2"
+              description: "Privileged access to systems and applications is automatically disabled after 12 months unless revalidated."
+              section-code: "2"
+              controls:
+                - aws_account_part_of_organizations
+                - aws_backup_recovery_point_manual_deletion_disabled
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_container_readonly_root_filesystem
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_all_policy_no_service_wild_card
+                - aws_iam_group_user_role_no_inline_policies
+                - aws_iam_managed_policy_attached_to_role
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_policy_unused
+                - aws_iam_root_user_no_access_keys
+                - aws_iam_user_no_inline_attached_policies
+                - aws_neptune_db_cluster_iam_authentication_enabled
+                - aws_opensearch_domain_fine_grained_access_enabled
+                - aws_rds_db_cluster_iam_authentication_enabled
+                - aws_rds_db_instance_iam_authentication_enabled
+                - aws_s3_bucket_acls_should_prohibit_user_access
+                - aws_s3_bucket_policy_restrict_public_access
+                - aws_s3_bucket_policy_restricts_cross_account_permission_changes
+                - aws_sagemaker_notebook_instance_root_access_disabled
+
+            - id: aws_acsc_essential_eight_ml_2_5_3
+              title: "ACSC-EE-ML2-5.3: Restrict administrative privileges ML2"
+              description: "Privileged access to systems and applications is automatically disabled after 45 days of inactivity."
+              section-code: "3"
+              controls:
+                - aws_account_part_of_organizations
+                - aws_backup_recovery_point_manual_deletion_disabled
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_container_readonly_root_filesystem
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_all_policy_no_service_wild_card
+                - aws_iam_group_user_role_no_inline_policies
+                - aws_iam_managed_policy_attached_to_role
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_policy_unused
+                - aws_iam_root_user_no_access_keys
+                - aws_iam_user_no_inline_attached_policies
+                - aws_neptune_db_cluster_iam_authentication_enabled
+                - aws_opensearch_domain_fine_grained_access_enabled
+                - aws_rds_db_cluster_iam_authentication_enabled
+                - aws_rds_db_instance_iam_authentication_enabled
+                - aws_s3_bucket_acls_should_prohibit_user_access
+                - aws_s3_bucket_policy_restrict_public_access
+                - aws_s3_bucket_policy_restricts_cross_account_permission_changes
+                - aws_sagemaker_notebook_instance_root_access_disabled
+
+            - id: aws_acsc_essential_eight_ml_2_5_4
+              title: "ACSC-EE-ML2-5.4: Restrict administrative privileges ML2"
+              description: "Privileged accounts (excluding privileged service accounts) are prevented from accessing..."
+              section-code: "4"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+
+            - id: aws_acsc_essential_eight_ml_2_5_5
+              title: "ACSC-EE-ML2-5.5: Restrict administrative privileges ML2"
+              description: "Privileged users use separate privileged and unprivileged operating environments."
+              section-code: "5"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_2_5_6
+              title: "ACSC-EE-ML2-5.6: Restrict administrative privileges ML2"
+              description: "Privileged operating environments are not virtualised within unprivileged operating environments."
+              section-code: "6"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_2_5_7
+              title: "ACSC-EE-ML2-5.7: Restrict administrative privileges ML2"
+              description: "Unprivileged accounts cannot logon to privileged operating environments."
+              section-code: "7"
+              controls:
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_2_5_8
+              title: "ACSC-EE-ML2-5.8: Restrict administrative privileges ML2"
+              description: "Privileged accounts (excluding local administrator accounts) cannot logon..."
+              section-code: "8"
+              controls:
+                - aws_codebuild_project_environment_privileged_mode_disabled
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_ecs_task_definition_container_non_privileged
+                - aws_ecs_task_definition_no_root_user
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_iam_policy_custom_no_blocked_kms_actions
+                - aws_iam_policy_inline_no_blocked_kms_actions
+                - aws_iam_policy_no_star_star
+                - aws_iam_root_user_no_access_keys
+                - aws_sagemaker_notebook_instance_root_access_disabled
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all
+
+            - id: aws_acsc_essential_eight_ml_2_5_9
+              title: "ACSC-EE-ML2-5.9: Restrict administrative privileges ML2"
+              description: "Unprivileged accounts cannot logon to privileged operating environments."
+              section-code: "9"
+              controls:
+                - aws_codebuild_project_source_repo_oauth_configured
+                - aws_ec2_instance_iam_profile_attached
+                - aws_eventbridge_custom_bus_resource_based_policy_attached
+                - aws_ssm_managed_instance_compliance_association_compliant
+                - aws_vpc_security_group_restrict_ingress_ssh_all

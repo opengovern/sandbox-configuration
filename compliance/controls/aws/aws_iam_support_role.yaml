@@ -15,7 +15,7 @@ Query:
         'arn:' || a.partition || ':::' || a.account_id AS resource,
         COUNT(policy_arn),
         a.account_id,
-        a.platform_account_id AS platform_account_id,
+        a.platform_integration_id AS platform_integration_id,
         a.platform_resource_id AS platform_resource_id,
         a._ctx
       FROM
@@ -28,13 +28,13 @@ Query:
       GROUP BY
         a.account_id,
         a.partition,
-        a.platform_account_id,
+        a.platform_integration_id,
         a.platform_resource_id,
         a._ctx
     )
     SELECT
       resource,
-      platform_account_id AS platform_account_id,
+      platform_integration_id AS platform_integration_id,
       platform_resource_id AS platform_resource_id,
       CASE
         WHEN COUNT > 0 THEN 'ok'

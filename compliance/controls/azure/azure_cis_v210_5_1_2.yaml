@@ -17,7 +17,7 @@ Query:
         _ctx,
         resource_group,
         subscription_id,
-        platform_account_id AS platform_account_id,
+        platform_integration_id AS platform_integration_id,
         platform_resource_id AS platform_resource_id,
         COUNT(*) FILTER (WHERE l ->> 'enabled' = 'true'
           AND l ->> 'category' IN ('Administrative', 'Security', 'Alert', 'Policy')
@@ -34,12 +34,12 @@ Query:
         _ctx,
         resource_group,
         subscription_id,
-        platform_account_id,
+        platform_integration_id,
         platform_resource_id
     )
     SELECT
       sett.id AS resource,
-      sett.platform_account_id AS platform_account_id,
+      sett.platform_integration_id AS platform_integration_id,
       sett.platform_resource_id AS platform_resource_id,
       CASE
         WHEN valid_category_count = 4 THEN 'ok'

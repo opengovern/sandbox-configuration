@@ -17,7 +17,7 @@ Query:
         t.region,
         t.account_id,
         t.tags,
-        t.platform_account_id AS platform_account_id,
+        t.platform_integration_id AS platform_integration_id,
         t.platform_resource_id AS platform_resource_id,
         t._ctx,
         COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AllUsers') AS all_user_grants,
@@ -35,12 +35,12 @@ Query:
         t.region,
         t.account_id,
         t.tags,
-        t.platform_account_id,
+        t.platform_integration_id,
         t.platform_resource_id,
         t._ctx
     )
     SELECT
-      platform_account_id AS platform_account_id,
+      platform_integration_id AS platform_integration_id,
       platform_resource_id AS platform_resource_id,
       CASE
         WHEN arn IS NULL THEN 'arn:aws:s3::' || name
