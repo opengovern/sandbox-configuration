@@ -1,18 +1,15 @@
-ID: aws_rds_database_instances_have_a_minimum_acceptable_backup_policy
-Title: AWS RDS Database Instances have a minimum acceptable backup policy
-Description: Check for all AWS RDS Database Instances are configured with a minimum acceptable backup period
-IntegrationType:
+id: aws_rds_database_instances_have_a_minimum_acceptable_backup_policy
+title: AWS RDS Database Instances have a minimum acceptable backup policy
+description: Check for all AWS RDS Database Instances are configured with a minimum acceptable backup period
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters:
-    - Key: awsRdsBaselineRetentionPeriodDays
-      Required: true
-      DefaultValue: "7"
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
+parameters:
+  - Key: awsRdsBaselineRetentionPeriodDays
+    Value: "7"
+policy:
+  language: sql
+  primary_resource: aws_rds_db_instance
+  definition: |
     SELECT
       arn AS resource,
       platform_integration_id,
@@ -27,8 +24,8 @@ Query:
       region,
       account_id
     FROM aws_rds_db_instance;
-Severity: medium
-Tags:
+severity: medium
+tags:
   platform_score_cloud_service_name:
     - AWS Relational Database Service (RDS)
   platform_score_use_case:
