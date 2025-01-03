@@ -1,0 +1,35 @@
+id: azure_enable_trusted_microsoft_services_for_storage_account_access
+title: Enable Trusted Microsoft Services for Storage Account Access
+description: Allow Trusted Microsoft Services to access your Azure Storage account resources.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN network_rule_bypass = 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_rule_bypass = 'None' THEN 'Trusted Microsoft services are not allowed to access the selected Azure Storage account'
+            ELSE 'Trusted Microsoft services are allowed to access the selected Azure Storage account'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

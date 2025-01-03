@@ -1,0 +1,42 @@
+id: aws_vpc_endpoints_in_use
+title: VPC Endpoints In Use
+description: Ensure that VPC endpoints are being used to connect your VPC to another AWS cloud service.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        SELECT
+          v.vpc_id AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM aws_vpc_endpoint AS e WHERE e.vpc_id = v.vpc_id
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM aws_vpc_endpoint AS e WHERE e.vpc_id = v.vpc_id
+            ) THEN v.vpc_id || ' has VPC endpoints'
+            ELSE 'there are no Amazon VPC endpoints deployed for ' || v.vpc_id
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_vpc AS v
+        WHERE
+          is_default = FALSE;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Exposed Endpoints

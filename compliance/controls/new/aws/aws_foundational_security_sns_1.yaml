@@ -1,0 +1,26 @@
+id: aws_foundational_security_sns_1
+title: SNS topics should be encrypted at rest using AWS KMS
+description: This control checks whether an SNS topic is encrypted at rest using AWS KMS.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sns_topic
+    definition: |
+        SELECT
+          topic_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN kms_master_key_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms_master_key_id IS NULL THEN title || ' encryption at rest disabled.'
+            ELSE title || ' encryption at rest enabled.'
+          END AS reason
+        FROM
+          aws_sns_topic;
+severity: medium
+tags: {}

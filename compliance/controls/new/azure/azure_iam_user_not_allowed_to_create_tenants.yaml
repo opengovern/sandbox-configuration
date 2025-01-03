@@ -1,0 +1,36 @@
+id: azure_iam_user_not_allowed_to_create_tenants
+title: Ensure that 'Users Can Create Tenants' is set to 'No'
+description: Restrict tenant creation to administrators only.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_authorization_policy
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            DISTINCT tenant_id,
+            subscription_id,
+            _ctx
+          FROM
+            azure_tenant
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateTenants' = 'true' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateTenants' = 'true' THEN a.display_name || ' allows user to create tenants.'
+            ELSE a.display_name || ' restricts the user to create tenants.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          distinct_tenant AS t,
+          entraid_authorization_policy AS a;
+severity: low
+tags: {}

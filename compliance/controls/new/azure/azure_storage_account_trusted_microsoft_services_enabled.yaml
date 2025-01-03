@@ -1,0 +1,49 @@
+id: azure_storage_account_trusted_microsoft_services_enabled
+title: Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access
+description: Some Azure services that interact with storage accounts operate from networks that can't be granted access through network rules. To help this type of service work as intended, allow the set of trusted Azure services to bypass the network rules. These services will then use strong authentication to access the storage account.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN sa.name || ' trusted Microsoft services not enabled.'
+            ELSE sa.name || ' trusted Microsoft services enabled.'
+          END AS reason,
+          sa.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.7'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

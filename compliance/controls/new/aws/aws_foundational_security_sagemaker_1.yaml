@@ -1,0 +1,26 @@
+id: aws_foundational_security_sagemaker_1
+title: 1 SageMaker notebook instances should not have direct internet access
+description: This control checks whether direct internet access is disabled for an SageMaker notebook instance. To do this, it checks whether the DirectInternetAccess field is disabled for the notebook instance. If you configure your SageMaker instance without a VPC, then by default direct internet access is enabled on your instance. You should configure your instance with a VPC and change the default setting to Disable — Access the internet through a VPC.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_notebook_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN direct_internet_access = 'Enabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN direct_internet_access = 'Enabled' THEN title || ' direct internet access enabled.'
+            ELSE title || ' direct internet access disabled.'
+          END AS reason
+        FROM
+          aws_sagemaker_notebook_instance;
+severity: high
+tags: {}

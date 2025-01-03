@@ -1,0 +1,39 @@
+id: azure_kubernetes_cluster_max_pod_50
+title: Kubernetes clusters should use a minimum number of 50 pods
+description: This control checks if Kubernetes clusters is using a minimum number of 50 pods.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        WITH max_node AS (
+            SELECT
+                DISTINCT id
+            FROM
+                azure_kubernetes_cluster,
+                jsonb_array_elements(agent_pool_profiles) AS p
+            WHERE
+                (p ->> 'maxPods')::INT < 50
+        )
+        SELECT
+            c.id AS resource,
+            c.platform_integration_id AS platform_integration_id,
+            c.platform_resource_id AS platform_resource_id,
+            CASE
+                WHEN n.id IS NOT NULL THEN 'alarm'
+                ELSE 'ok'
+            END AS status,
+            CASE
+                WHEN n.id IS NOT NULL THEN c.name || ' nodes have less than 50 pods.'
+                ELSE c.name || ' nodes have greater than 50 pods.'
+            END AS reason
+        FROM
+            azure_kubernetes_cluster c
+            LEFT JOIN max_node AS n ON n.id = c.id,
+            azure_subscription sub
+        WHERE
+            sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

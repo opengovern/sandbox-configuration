@@ -1,0 +1,23 @@
+id: azure_compute_vm_administrators_group_with_no_specified_members_windows
+title: Audit Windows machines missing any of specified members in the Administrators group
+description: Requires that prerequisites are deployed to the policy assignment scope. Machines are non-compliant if the local Administrators group does not contain one or more members that are listed in the policy parameter.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required. Check control description for more details.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

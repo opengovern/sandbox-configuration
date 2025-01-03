@@ -1,0 +1,50 @@
+id: aws_ec2_instance_uses_imdsv2
+title: EC2 instances should use IMDSv2
+description: Ensure the Instance Metadata Service Version 2 (IMDSv2) method is enabled to help protect access and control of AWS Elastic Compute Cloud (AWS EC2) instance metadata.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+            ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/EC2

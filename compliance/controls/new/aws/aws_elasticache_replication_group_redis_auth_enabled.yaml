@@ -1,0 +1,51 @@
+id: aws_elasticache_replication_group_redis_auth_enabled
+title: ElastiCache for Redis replication groups before version 6.0 should use Redis Auth
+description: This control checks if ElastiCache for Redis replication groups has Redis Auth enabled. The control fails for an ElastiCache for Redis replication group if the Redis version of its nodes is below 6.0 and AuthToken isn't in use.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticache_replication_group
+    definition: |
+        WITH elasticache_cluster_node_version AS (
+          SELECT
+            DISTINCT replication_group_id,
+            engine_version
+          FROM
+            aws_elasticache_cluster
+        )
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN regexp_split_to_array(v.engine_version, '.')::int[] >= regexp_split_to_array('6.0', '.')::int[] THEN 'skip'
+            WHEN regexp_split_to_array(v.engine_version, '.')::int[] < regexp_split_to_array('6.0', '.')::int[] AND eg.auth_token_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN regexp_split_to_array(v.engine_version, '.')::int[] >= regexp_split_to_array('6.0', '.')::int[] THEN eg.title || ' node version is ' || engine_version || '.'
+            WHEN regexp_split_to_array(v.engine_version, '.')::int[] < regexp_split_to_array('6.0', '.')::int[] AND eg.auth_token_enabled THEN eg.title || ' has Redis AUTH enabled.'
+            ELSE eg.title || ' has Redis AUTH disabled.'
+          END AS reason,
+          eg.region,
+          eg.account_id
+        FROM
+          aws_elasticache_replication_group AS eg
+        LEFT JOIN elasticache_cluster_node_version AS v 
+          ON eg.replication_group_id = v.replication_group_id;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - secure_access_management
+    foundational_security_item_id:
+      - elasticache_6
+    plugin:
+      - aws
+    service:
+      - AWS/ElastiCache

@@ -1,0 +1,49 @@
+id: azure_postgresql_server_infrastructure_encryption_enabled
+title: Infrastructure encryption should be enabled for Azure Database for PostgreSQL servers
+description: Enable infrastructure encryption for Azure Database for PostgreSQL servers to have higher level of assurance that the data is secure. When infrastructure encryption is enabled, the data at rest is encrypted twice using FIPS 140-2 compliant Microsoft managed keys.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN infrastructure_encryption = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN infrastructure_encryption = 'Enabled' THEN name || ' infrastructure encryption enabled.'
+            ELSE name || ' infrastructure encryption disabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_postgresql_server AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.3.8
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '4.3'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.4.0
+    plugin:
+      - azure
+    service:
+      - Azure/PostgreSQL

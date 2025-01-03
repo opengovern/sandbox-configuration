@@ -1,0 +1,23 @@
+id: aws_ec2_ami_not_older_than_90_days
+title: Ensure Images (AMI) are not older than 90 days
+description: Ensure that your AMIs are not older than 90 days.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_ami
+    definition: |
+        SELECT
+          image_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN creation_date >= (current_date - INTERVAL '90 days') THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' created ' || TO_CHAR(creation_date, 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - creation_date) || ' days).' AS reason
+        FROM
+          aws_ec2_ami;
+severity: low
+tags: {}

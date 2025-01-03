@@ -1,0 +1,67 @@
+id: azure_sql_server_va_setting_periodic_scan_enabled
+title: Ensure that VA setting Periodic Recurring Scans is enabled on a SQL server
+description: Enable Vulnerability Assessment (VA) Periodic recurring scans for critical SQL servers and corresponding SQL databases.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              security -> 'properties' ->> 'state' = 'Disabled'
+              OR
+              (
+                security -> 'properties' ->> 'state' = 'Enabled'
+                AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+                AND assessment -> 'properties' -> 'recurringScans' ->> 'isEnabled' = 'false'
+              )
+              THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN
+              security -> 'properties' ->> 'state' = 'Disabled'
+              OR
+              (
+                security -> 'properties' ->> 'state' = 'Enabled'
+                AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+                AND assessment -> 'properties' -> 'recurringScans' ->> 'isEnabled' = 'false'
+              )
+              THEN s.name || ' VA setting periodic recurring scans disabled.'
+            ELSE s.name || ' VA setting periodic recurring scans enabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server s,
+          jsonb_array_elements(server_security_alert_policy) security,
+          jsonb_array_elements(server_vulnerability_assessment) assessment,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.2.3
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '4.2'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SQL

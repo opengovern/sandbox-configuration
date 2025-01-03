@@ -1,0 +1,66 @@
+id: aws_apigateway_stage_cache_encryption_at_rest_enabled
+title: API Gateway stage cache encryption at rest should be enabled
+description: To help protect data at rest, ensure encryption is enabled for your API Gateway stage's cache.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_stage
+    definition: |
+        SELECT
+          'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
+              AND method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true'
+              THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
+              AND method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true'
+              THEN title || ' API cache and encryption enabled.'
+            ELSE title || ' API cache and encryption not enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_api_gateway_stage;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/APIGateway
+    soc_2:
+      - 'true'

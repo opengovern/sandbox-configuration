@@ -1,0 +1,90 @@
+id: aws_kubernetes_cluster_version
+title: Kubernetes Cluster Version
+description: Ensure that the latest version of Kubernetes is installed on your Amazon EKS clusters.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsEksClusterLatestVersion
+    value: '1.29'
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        WITH cluster_versions AS (
+          SELECT
+            -- Parse up to four segments from the cluster's 'version' field
+            COALESCE(NULLIF(split_part(version, '.', 1), ''), '0')::int AS major,
+            COALESCE(NULLIF(split_part(version, '.', 2), ''), '0')::int AS minor,
+            COALESCE(NULLIF(split_part(version, '.', 3), ''), '0')::int AS patch,
+            COALESCE(NULLIF(split_part(version, '.', 4), ''), '0')::int AS sub,
+            version,
+            arn,
+            platform_integration_id,
+            platform_resource_id,
+            title,
+            region,
+            account_id
+          FROM aws_eks_cluster
+        ),
+
+        param_versions AS (
+          SELECT
+            -- Parse up to four segments from the param {{.awsEksClusterLatestVersion}}
+            COALESCE(NULLIF(split_part('{{.awsEksClusterLatestVersion}}', '.', 1), ''), '0')::int AS major,
+            COALESCE(NULLIF(split_part('{{.awsEksClusterLatestVersion}}', '.', 2), ''), '0')::int AS minor,
+            COALESCE(NULLIF(split_part('{{.awsEksClusterLatestVersion}}', '.', 3), ''), '0')::int AS patch,
+            COALESCE(NULLIF(split_part('{{.awsEksClusterLatestVersion}}', '.', 4), ''), '0')::int AS sub
+        )
+
+        SELECT
+          arn AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN (
+              -- Convert cluster version to a big integer
+              cluster_versions.major * 1000000000 +
+              cluster_versions.minor * 1000000 +
+              cluster_versions.patch * 1000 +
+              cluster_versions.sub
+            ) >= (
+              -- Convert param version to a big integer
+              param_versions.major * 1000000000 +
+              param_versions.minor * 1000000 +
+              param_versions.patch * 1000 +
+              param_versions.sub
+            )
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (
+              cluster_versions.major * 1000000000 +
+              cluster_versions.minor * 1000000 +
+              cluster_versions.patch * 1000 +
+              cluster_versions.sub
+            ) >= (
+              param_versions.major * 1000000000 +
+              param_versions.minor * 1000000 +
+              param_versions.patch * 1000 +
+              param_versions.sub
+            )
+            THEN title || ' runs on a supported Kubernetes version.'
+            ELSE
+              title || ' is running on version ' || cluster_versions.version ||
+              ' which is not supported. Supported versions are >= ' || '{{.awsEksClusterLatestVersion}}'
+          END AS reason,
+          region,
+          account_id
+        FROM cluster_versions
+        CROSS JOIN param_versions;
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

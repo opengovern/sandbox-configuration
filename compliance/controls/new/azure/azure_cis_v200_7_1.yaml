@@ -1,0 +1,43 @@
+id: azure_cis_v200_7_1
+title: 7.1 Ensure an Azure Bastion Host Exists
+description: The Azure Bastion service allows secure remote access to Azure Virtual Machines over the Internet without exposing remote access protocol ports and services directly to the Internet. The Azure Bastion service provides this access using TLS over 443/TCP, and subscribes to hardened configurations within an organization's Azure Active Directory service.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH bastion_hosts AS (
+          SELECT
+            subscription_id,
+            _ctx,
+            region,
+            resource_group,
+            COUNT(*) AS no_bastion_host
+          FROM
+            azure_bastion_host
+          GROUP BY
+            subscription_id,
+            _ctx,
+            resource_group,
+            region
+        )
+        SELECT
+          sub.id AS resource,
+          sub.platform_integration_id AS platform_integration_id,
+          sub.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN i.subscription_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN i.subscription_id IS NULL THEN sub.display_name || ' does not have bastion host.'
+            ELSE sub.display_name || ' has ' || no_bastion_host || ' bastion host(s).'
+          END AS reason
+        FROM
+          azure_subscription AS sub
+        LEFT JOIN bastion_hosts AS i
+          ON i.subscription_id = sub.subscription_id;
+severity: low
+tags: {}

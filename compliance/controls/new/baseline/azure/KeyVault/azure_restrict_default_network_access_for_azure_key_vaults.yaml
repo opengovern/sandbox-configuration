@@ -1,0 +1,39 @@
+id: azure_restrict_default_network_access_for_azure_key_vaults
+title: Restrict Default Network Access for Azure Key Vaults
+description: Ensure that default network access (i.e. public access) rule is set to "Deny" within your Azure Key Vaults configuration.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT 
+          name AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' = 'Allow' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' = 'Allow' THEN name || ' access configuration is not compliant'
+            ELSE name || ' access configuration is compliant'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM 
+          azure_key_vault AS v
+        LEFT JOIN 
+          azure_subscription AS sub 
+          ON v.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Exposed Endpoints

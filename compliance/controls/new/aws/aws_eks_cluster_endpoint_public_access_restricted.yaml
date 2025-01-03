@@ -1,0 +1,36 @@
+id: aws_eks_cluster_endpoint_public_access_restricted
+title: EKS clusters endpoint public access should be restricted
+description: EKS clusters endpoint with private access allows communication between your nodes and the API server stays within. This control is non-compliant if clusters endpoint public access is enabled as cluster API server is accessible from the internet.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPrivateAccess' = 'true'
+              AND resources_vpc_config ->> 'EndpointPublicAccess' = 'false'
+            THEN 'ok'
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true'
+              AND resources_vpc_config -> 'PublicAccessCidrs' @> '["0.0.0.0/0"]'
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPrivateAccess' = 'true'
+              AND resources_vpc_config ->> 'EndpointPublicAccess' = 'false'
+            THEN title || ' endpoint access is private.'
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true'
+              AND resources_vpc_config -> 'PublicAccessCidrs' @> '["0.0.0.0/0"]'
+            THEN title || ' endpoint access is public.'
+            ELSE title || ' endpoint public access is restricted.'
+          END AS reason
+        FROM
+          aws_eks_cluster;
+severity: low
+tags: {}

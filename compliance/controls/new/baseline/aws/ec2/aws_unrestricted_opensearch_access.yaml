@@ -1,0 +1,59 @@
+id: aws_unrestricted_opensearch_access
+title: Unrestricted OpenSearch Access
+description: Ensure no security group allows unrestricted inbound access to TCP port 9200 (OpenSearch).
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsOpensearchTrustedIpRange
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT 
+          group_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE '{{.awsOpensearchTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+                AND (p ->> 'FromPort') = '9200'
+                AND (p ->> 'ToPort') = '9200'
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE '{{.awsOpensearchTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+                AND (p ->> 'FromPort') = '9200'
+                AND (p ->> 'ToPort') = '9200'
+            ) THEN group_name || ' has Unrestricted OpenSearch Access'
+            ELSE group_name || ' OpenSearch Access is secure'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_vpc_security_group
+        WHERE
+          EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(ip_permissions) AS p
+            WHERE (p ->> 'FromPort') = '9200'
+              AND (p ->> 'ToPort') = '9200'
+          )
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

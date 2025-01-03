@@ -1,0 +1,28 @@
+id: aws_foundational_security_ec2_16
+title: 16 Unused network access control lists should be removed
+description: This control checks whether there are any unused network access control lists (ACLs). The control checks the item configuration of the resource AWS::EC2::NetworkAcl and determines the relationships of the network ACL.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_network_acl
+    definition: |
+        SELECT
+          network_acl_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(associations) >= 1 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(associations) >= 1 THEN
+              title || ' associated with subnet.'
+            ELSE
+              title || ' not associated with subnet.'
+          END AS reason
+        FROM
+          aws_vpc_network_acl;
+severity: low
+tags: {}

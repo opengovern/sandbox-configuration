@@ -1,0 +1,49 @@
+id: azure_storage_account_soft_delete_enabled
+title: Ensure soft delete is enabled for Azure Storage
+description: The Azure Storage blobs contain data like ePHI, Financial, secret or personal. Erroneously modified or deleted accidentally by an application or other storage account user cause data loss or data unavailability. It is recommended the Azure Storage be made recoverable by enabling soft delete configuration. This is to save and recover data when blobs or blob snapshots are deleted.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT blob_soft_delete_enabled THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT blob_soft_delete_enabled THEN sa.name || ' blobs soft delete disabled.'
+            ELSE sa.name || ' blobs soft delete enabled.'
+          END AS reason,
+          sa.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.8'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

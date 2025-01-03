@@ -1,0 +1,68 @@
+id: aws_ssm_managed_instance_compliance_association_compliant
+title: SSM managed instance associations should be compliant
+description: Use AWS Systems Manager Associations to help with inventory of software platforms and applications within an organization.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ssm_managed_instance_compliance
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.status = 'COMPLIANT' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.status = 'COMPLIANT' THEN c.resource_id || ' association ' || c.title || ' is compliant.'
+            ELSE c.resource_id || ' association ' || c.title || ' is non-compliant.'
+          END AS reason,
+          c.region,
+          c.account_id
+        FROM
+          aws_ssm_managed_instance AS i,
+          aws_ssm_managed_instance_compliance AS c
+        WHERE
+          c.resource_id = i.instance_id
+          AND c.compliance_type = 'Association';
+severity: low
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/SSM
+    soc_2:
+      - 'true'

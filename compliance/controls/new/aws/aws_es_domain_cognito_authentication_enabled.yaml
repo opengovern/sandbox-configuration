@@ -1,0 +1,26 @@
+id: aws_es_domain_cognito_authentication_enabled
+title: Elasticsearch domains should have cognito authentication enabled
+description: AWS Elasticsearch service uses AWS Cognito to offer user name and password protection for Kibana. This control is non-compliant if AWS Cognito authentication is not enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN cognito_options ->> 'Enabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN cognito_options ->> 'Enabled' = 'true' THEN title || ' AWS Cognito authentication for Kibana enabled.'
+            ELSE title || ' AWS Cognito authentication for Kibana disabled.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: low
+tags: {}

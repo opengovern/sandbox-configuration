@@ -1,0 +1,42 @@
+id: aws_redshift_cluster_audit_logging_enabled
+title: AWS Redshift audit logging should be enabled
+description: This control ensures if redshift clusters are logging audits to a specific bucket. The rule is non-compliant if audit logging is not enabled for a redshift cluster or if the 'bucketNames' parameter is provided but the audit logging destination does not match.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN logging_status ->> 'LoggingEnabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN logging_status ->> 'LoggingEnabled' = 'true' THEN title || ' logging enabled.'
+            ELSE title || ' logging disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_redshift_cluster;
+severity: high
+tags:
+    category:
+      - Compliance
+    gxp_21_cfr_part_11:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/Redshift
+    soc_2:
+      - 'true'

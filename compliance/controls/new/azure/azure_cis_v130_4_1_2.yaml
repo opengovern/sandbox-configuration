@@ -1,0 +1,34 @@
+id: azure_cis_v130_4_1_2
+title: 4.1.2 Ensure that 'Data encryption' is set to 'On' on a SQL Database
+description: ''
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_database
+    definition: |
+        SELECT
+          s.database_id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN transparent_data_encryption ->> 'status' = 'Enabled' 
+              OR transparent_data_encryption ->> 'state' = 'Enabled' 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN transparent_data_encryption ->> 'status' = 'Enabled' 
+              OR transparent_data_encryption ->> 'state' = 'Enabled' 
+            THEN s.title || ' transparent data encryption enabled.'
+            ELSE s.title || ' transparent data encryption disabled.'
+          END AS reason
+        FROM
+          azure_sql_database AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id
+          AND s.name <> 'master';
+severity: low
+tags: {}

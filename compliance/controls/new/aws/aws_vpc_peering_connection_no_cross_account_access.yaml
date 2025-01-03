@@ -1,0 +1,28 @@
+id: aws_vpc_peering_connection_no_cross_account_access
+title: VPCs peering connection should not be allowed in cross account
+description: Ensure that all VPCs peering connection are not having cross account access.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_peering_connection
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN status_code <> 'active' THEN 'alarm'
+            WHEN requester_owner_id <> accepter_owner_id THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN status_code <> 'active' THEN title || ' is not in active state.'
+            WHEN requester_owner_id <> accepter_owner_id THEN title || ' have cross account access.'
+            ELSE title || ' does not have cross account access.'
+          END AS reason
+        FROM
+          aws_vpc_peering_connection;
+severity: low
+tags: {}

@@ -1,0 +1,29 @@
+id: azure_batch_account_identity_provider_enabled
+title: Batch accounts identity provider should be enabled
+description: Ensure that managed identity provider is enabled for the batch account. This control is non-compliant if batch account identity provider is disabled.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_batch_account
+    definition: |
+        SELECT
+          b.id AS resource,
+          b.platform_integration_id AS platform_integration_id,
+          b.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN identity ->> 'type' = 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN identity ->> 'type' = 'None' THEN b.name || ' identity provider disabled.'
+            ELSE b.name || ' identity provider enabled.'
+          END AS reason
+        FROM
+          azure_batch_account AS b,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = b.subscription_id;
+severity: low
+tags: {}

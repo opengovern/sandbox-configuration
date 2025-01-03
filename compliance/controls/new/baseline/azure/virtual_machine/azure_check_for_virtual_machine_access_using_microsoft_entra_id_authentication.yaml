@@ -1,0 +1,46 @@
+id: azure_check_for_virtual_machine_access_using_microsoft_entra_id_authentication
+title: Check for Virtual Machine Access using Microsoft Entra ID Authentication
+description: Configure your Microsoft Azure virtual machines to use Microsoft Entra ID credentials for secure authentication.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT 
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(vm.extensions) AS ex 
+              WHERE ('AADLoginForWindows' = (ex ->> 'name')) 
+                OR ('AADLoginForLinux' = (ex ->> 'name'))
+            ) 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(vm.extensions) AS ex
+              WHERE ('AADLoginForWindows' = (ex ->> 'name')) 
+                OR ('AADLoginForLinux' = (ex ->> 'name'))
+            ) 
+            THEN 'Azure virtual machine is configured to use Microsoft Entra ID authentication'
+            ELSE 'Azure virtual machine is not configured to use Microsoft Entra ID authentication'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM 
+          azure_compute_virtual_machine AS vm
+          LEFT JOIN azure_subscription AS sub 
+          ON sub.subscription_id = vm.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

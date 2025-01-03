@@ -1,0 +1,26 @@
+id: aws_foundational_security_waf_6
+title: 6 AWS WAF Classic global rules should have at least one condition
+description: This control checks whether an AWS WAF global rule contains any conditions. The control fails if no conditions are present within a rule.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_waf_rule
+    definition: |
+        SELECT
+          rule_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
+            ELSE title || ' has ' || jsonb_array_length(predicates) || ' attached conditions.'
+          END AS reason
+        FROM
+          aws_waf_rule;
+severity: medium
+tags: {}

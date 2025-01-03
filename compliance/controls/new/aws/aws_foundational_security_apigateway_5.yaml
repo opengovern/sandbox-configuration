@@ -1,0 +1,29 @@
+id: aws_foundational_security_apigateway_5
+title: 5 API Gateway REST API cache data should be encrypted at rest
+description: This control checks whether all methods in API Gateway REST API stages that have cache enabled are encrypted. The control fails if any method in an API Gateway REST API stage is configured to cache and the cache is not encrypted.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_stage
+    definition: |
+        SELECT
+          'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
+            AND method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN method_settings -> '*/*' ->> 'CachingEnabled' = 'true'
+            AND method_settings -> '*/*' ->> 'CacheDataEncrypted' = 'true'
+              THEN title || ' API cache and encryption enabled.'
+            ELSE title || ' API cache and encryption not enabled.'
+          END AS reason
+        FROM
+          aws_api_gateway_stage;
+severity: medium
+tags: {}

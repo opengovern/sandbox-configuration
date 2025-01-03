@@ -1,0 +1,34 @@
+id: aws_use_gp3_not_gp2
+title: Use GP3, not GP2
+description: EBS gp2 volumes are legacy, costly, and have lower performance than gp3.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN volume_type = 'gp2' THEN 'alarm'
+            WHEN volume_type = 'gp3' THEN 'ok'
+            ELSE 'skip'
+          END AS status,
+          volume_id || ' type is ' || volume_type || '.' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ebs_volume;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Block Store (EBS)
+    platform_score_use_case:
+      - General Efficiency
+    score_service_name:
+      - AWS Elastic Block Store (EBS)
+    score_tags:
+      - General Efficiency

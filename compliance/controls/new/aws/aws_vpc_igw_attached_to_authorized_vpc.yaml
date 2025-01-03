@@ -1,0 +1,56 @@
+id: aws_vpc_igw_attached_to_authorized_vpc
+title: VPC internet gateways should be attached to authorized vpc
+description: Manage access to resources in the AWS Cloud by ensuring that internet gateways are only attached to authorized AWS Virtual Private Cloud (AWS VPC).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_internet_gateway
+    definition: |
+        SELECT
+          'arn:' || partition || ':ec2:' || region || ':' || account_id || ':internet-gateway/' || title AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(attachments) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(attachments) = 0 THEN title || ' not attached to VPC.'
+            ELSE title || ' attached to ' || split_part(
+              SUBSTRING(attachments::text, 3, LENGTH(attachments::text) - 6),
+              '"VpcId": "',
+              2
+            ) || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_internet_gateway;
+severity: high
+tags:
+    category:
+      - Compliance
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/VPC
+    soc_2:
+      - 'true'

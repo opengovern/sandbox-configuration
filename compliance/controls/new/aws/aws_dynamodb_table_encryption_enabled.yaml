@@ -1,0 +1,48 @@
+id: aws_dynamodb_table_encryption_enabled
+title: DynamoDB table should have encryption enabled
+description: Ensure that encryption is enabled for your AWS DynamoDB tables. Because sensitive data can exist at rest in these tables, enable encryption at rest to help protect that data.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dynamodb_table
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sse_description IS NOT NULL AND sse_description ->> 'SSEType' = 'KMS' THEN 'ok'
+            WHEN sse_description IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN sse_description IS NOT NULL AND sse_description ->> 'SSEType' = 'KMS'
+              THEN title || ' encrypted with AWS KMS.'
+            WHEN sse_description IS NULL THEN title || ' encrypted with DynamoDB managed CMK.'
+            ELSE title || ' not encrypted with CMK.'
+          END AS reason,
+          region, account_id
+        FROM
+          aws_dynamodb_table;
+severity: high
+tags:
+    category:
+      - Compliance
+    gdpr:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/DynamoDB

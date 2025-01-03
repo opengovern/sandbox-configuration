@@ -1,0 +1,40 @@
+id: aws_rds_db_instance_in_vpc
+title: RDS instances should be deployed in a VPC
+description: This control checks whether an RDS instance is deployed in a VPC (EC2-VPC).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN vpc_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN vpc_id IS NULL THEN title || ' is not in VPC.'
+            ELSE title || ' is in VPC ' || vpc_id || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance;
+severity: high
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resources_within_vpc
+    foundational_security_item_id:
+      - rds_18
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

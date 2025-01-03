@@ -1,0 +1,37 @@
+id: aws_elb_classic_lb_multiple_az_configured
+title: ELB classic load balancers should span multiple availability zones
+description: This control checks whether a Classic Load Balancer has been configured to span multiple Availability Zones. The control fails if the Classic Load Balancer does not span multiple Availability Zones.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(availability_zones) < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_classic_load_balancer;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - high_availability
+    foundational_security_item_id:
+      - elb_10
+    plugin:
+      - aws
+    service:
+      - AWS/ELB

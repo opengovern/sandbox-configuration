@@ -1,0 +1,39 @@
+id: azure_sql_server_threat_detection_all_enabled
+title: SQL server threat detection should be enabled for all
+description: This control ensures that SQL server threat detection is enabled for all.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        WITH threat_detection_disabled AS (
+          SELECT
+            DISTINCT id
+          FROM
+            azure_sql_server s,
+            jsonb_array_elements(server_security_alert_policy) p
+          WHERE
+            NOT (p -> 'properties' -> 'disabledAlerts' = '[""]')
+        )
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN t.id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN t.id IS NULL THEN name || ' threat detection enabled for all.'
+            ELSE name || ' threat detection not enabled for all.'
+          END AS reason
+        FROM
+          azure_sql_server s
+          LEFT JOIN threat_detection_disabled AS t ON t.id = s.id,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

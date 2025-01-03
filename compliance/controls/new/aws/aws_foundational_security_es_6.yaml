@@ -1,0 +1,29 @@
+id: aws_foundational_security_es_6
+title: 6 Elasticsearch domains should have at least three data nodes
+description: This control checks whether Elasticsearch domains are configured with at least three data nodes and zoneAwarenessEnabled is true.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN elasticsearch_cluster_config ->> 'ZoneAwarenessEnabled' = 'false' THEN 'alarm'
+            WHEN
+              elasticsearch_cluster_config ->> 'ZoneAwarenessEnabled' = 'true'
+              AND (elasticsearch_cluster_config ->> 'InstanceCount')::integer >= 3 THEN 'ok'
+            ELSE 'alarm'
+          END status,
+          CASE
+            WHEN elasticsearch_cluster_config ->> 'ZoneAwarenessEnabled' = 'false' THEN title || ' zone awareness disabled.'
+            ELSE title || ' has ' || (elasticsearch_cluster_config ->> 'InstanceCount') || ' data node(s).'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: medium
+tags: {}

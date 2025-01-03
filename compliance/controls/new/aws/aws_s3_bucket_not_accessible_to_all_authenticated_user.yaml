@@ -1,0 +1,36 @@
+id: aws_s3_bucket_not_accessible_to_all_authenticated_user
+title: S3 bucket ACLs should not be accessible to all authenticated user
+description: This control checks whether AWS S3 bucket ACL allow access to all authenticated users.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        WITH public_acl AS (
+          SELECT
+            DISTINCT name
+          FROM
+            aws_s3_bucket,
+            jsonb_array_elements(acl -> 'Grants') AS grants
+          WHERE
+            grants -> 'Grantee' ->> 'URI' = 'http://acs.amazonaws.com/groups/global/AuthenticatedUsers'
+        )
+        SELECT
+          b.arn AS resource,
+          b.platform_integration_id AS platform_integration_id,
+          b.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.name IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.name IS NULL THEN b.title || ' not accessible to all authenticated user.'
+            ELSE b.title || ' accessible to all authenticated user.'
+          END AS reason
+        FROM
+          aws_s3_bucket AS b
+          LEFT JOIN public_acl AS p ON b.name = p.name;
+severity: low
+tags: {}

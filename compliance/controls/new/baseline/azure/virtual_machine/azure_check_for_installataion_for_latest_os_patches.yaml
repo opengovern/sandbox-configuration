@@ -1,0 +1,37 @@
+id: azure_check_for_installataion_for_latest_os_patches
+title: Check for installataion for latest OS Patches
+description: Ensure that the latest OS patches available for Microsoft Azure virtual machines are applied.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN COALESCE((vm.platform_resource_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) +
+                 COALESCE((vm.platform_resource_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN COALESCE((vm.platform_resource_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'CriticalAndSecurityPatchCount')::int) +
+                 COALESCE((vm.platform_resource_description -> 'VirtualMachineInstanceView' -> 'PatchStatus' -> 'AvailablePatchSummary' ->> 'OtherPatchCount')::int) > 0 THEN 'There are pending updates in this virtual machine'
+            ELSE 'There is no pending updates in this virtual machine'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

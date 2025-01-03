@@ -1,0 +1,50 @@
+id: aws_vpc_security_group_restrict_ingress_kafka_port
+title: VPC security groups should restrict ingress Kafka port access from 0.0.0.0/0
+description: AWS VPC security groups can help in managing network access by providing stateful filtering of ingress and egress network traffic to AWS resources.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        WITH ingress_kafka_port AS (
+          SELECT
+            group_id,
+            COUNT(*) AS num_ssh_rules
+          FROM
+            aws_vpc_security_group_rule
+          WHERE
+            type = 'ingress'
+            AND (
+              cidr_ipv4 = '0.0.0.0/0'
+              OR cidr_ipv6 = '::/0'
+            )
+            AND (
+              (ip_protocol = '-1' AND from_port IS NULL)
+              OR (
+                from_port >= 9092
+                AND to_port <= 9092
+              )
+            )
+          GROUP BY
+            group_id
+        )
+        SELECT
+          arn AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN k.group_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN k.group_id IS NULL THEN sg.group_id || ' ingress restricted for kafka port from 0.0.0.0/0.'
+            ELSE sg.group_id || ' contains ' || k.num_ssh_rules || ' ingress rule(s) allowing kafka port from 0.0.0.0/0.'
+          END AS reason
+        FROM
+          aws_vpc_security_group AS sg
+        LEFT JOIN ingress_kafka_port AS k 
+          ON k.group_id = sg.group_id;
+severity: low
+tags: {}

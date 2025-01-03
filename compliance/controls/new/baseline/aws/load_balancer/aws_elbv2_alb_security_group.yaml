@@ -1,0 +1,60 @@
+id: aws_elbv2_alb_security_group
+title: ELBv2 ALB Security Group
+description: Ensure ELBv2 load balancers have secure and valid security groups.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH sg AS (
+          SELECT
+            group_id,
+            group_name,
+            ARRAY_AGG('(' || (p ->> 'ToPort') || ',' || LOWER(p ->> 'IpProtocol') || ')') AS ports_and_protocols
+          FROM
+            aws_vpc_security_group,
+            JSONB_ARRAY_ELEMENTS(ip_permissions) AS p
+          GROUP BY
+            group_id, group_name
+        ), lbl AS (
+          SELECT
+            load_balancer_arn,
+            ARRAY_AGG('(' || port || ',' || LOWER(protocol) || ')') AS ports_and_protocols
+          FROM
+            aws_ec2_load_balancer_listener
+          GROUP BY
+            load_balancer_arn
+        )
+        SELECT
+          al.name AS resource,
+          al.platform_integration_id,
+          al.platform_resource_id,
+          sg.ports_and_protocols,
+          lbl.ports_and_protocols,
+          CASE
+            WHEN sg.ports_and_protocols <@ lbl.ports_and_protocols THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN sg.ports_and_protocols <@ lbl.ports_and_protocols THEN al.name || ' is secure'
+            ELSE al.name || ' is not secure'
+          END AS reason,
+          al.region,
+          al.account_id
+        FROM
+          aws_ec2_application_load_balancer AS al
+          CROSS JOIN LATERAL JSONB_ARRAY_ELEMENTS_TEXT(al.security_groups) AS sgid
+          LEFT JOIN sg ON sgid = sg.group_id
+          LEFT JOIN lbl ON al.arn = lbl.load_balancer_arn
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Exposed Endpoints

@@ -1,0 +1,30 @@
+id: aws_foundational_security_ssm_3
+title: 3 Instances managed by Systems Manager should have an association compliance status of COMPLIANT
+description: This control checks whether the status of the AWS Systems Manager association compliance is COMPLIANT or non compliant after the association is run on an instance. The control passes if the association compliance status is COMPLIANT.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ssm_managed_instance
+    definition: |
+        SELECT
+          id AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.status = 'COMPLIANT' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.status = 'COMPLIANT' THEN c.resource_id || ' association ' || c.title || ' is compliant.'
+            ELSE c.resource_id || ' association ' || c.title || ' is non-compliant.'
+          END AS reason
+        FROM
+          aws_ssm_managed_instance AS i,
+          aws_ssm_managed_instance_compliance AS c
+        WHERE
+          c.resource_id = i.instance_id
+          AND c.compliance_type = 'Association';
+severity: low
+tags: {}

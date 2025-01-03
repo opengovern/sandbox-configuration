@@ -1,0 +1,51 @@
+id: aws_rds_db_instance_events_subscription
+title: An RDS event notifications subscription should be configured for critical database instance events
+description: This control checks whether an AWS RDS event subscription exists with notifications enabled for the following source type, event category key-value pairs.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_event_subscription
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN source_type <> 'db-instance' THEN 'skip'
+            WHEN source_type = 'db-instance' 
+              AND enabled 
+              AND event_categories_list @> '["failure", "maintenance", "configuration change"]' 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN source_type <> 'db-instance' THEN 
+              cust_subscription_id || ' event subscription of ' || source_type || ' type.'
+            WHEN source_type LIKE 'db-instance' 
+              AND enabled 
+              AND event_categories_list @> '["failure", "maintenance", "configuration change"]' 
+            THEN 
+              cust_subscription_id || ' event subscription enabled for critical instance events.'
+            ELSE 
+              cust_subscription_id || ' event subscription missing critical instance events.'
+          END AS reason,
+          region, 
+          account_id
+        FROM
+          aws_rds_db_event_subscription;
+severity: low
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - application_monitoring
+    foundational_security_item_id:
+      - rds_20
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

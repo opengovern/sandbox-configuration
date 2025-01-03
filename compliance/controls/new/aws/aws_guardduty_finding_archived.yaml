@@ -1,0 +1,60 @@
+id: aws_guardduty_finding_archived
+title: GuardDuty findings should be archived
+description: 'AWS GuardDuty helps you understand the impact of an incident by classifying findings by severity: low, medium, and high.'
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_guardduty_finding
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN service ->> 'Archived' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN service ->> 'Archived' = 'false' THEN title || ' not archived.'
+            ELSE title || ' archived.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_guardduty_finding;
+severity: high
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/GuardDuty
+    soc_2:
+      - 'true'

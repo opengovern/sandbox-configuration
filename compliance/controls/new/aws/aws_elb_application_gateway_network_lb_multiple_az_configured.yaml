@@ -1,0 +1,68 @@
+id: aws_elb_application_gateway_network_lb_multiple_az_configured
+title: ELB application, network, and gateway load balancers should span multiple availability zones
+description: This control checks whether an Elastic Load Balancer V2 (Application, Network, or Gateway Load Balancer) has registered instances from multiple Availability Zones. The control fails if an Elastic Load Balancer V2 has instances registered in fewer than two Availability Zones.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_ec2_application_load_balancer' AS platform_table_name,
+          CASE
+            WHEN jsonb_array_length(availability_zones) < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_application_load_balancer
+        UNION
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_ec2_network_load_balancer' AS platform_table_name,
+          CASE
+            WHEN jsonb_array_length(availability_zones) < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_network_load_balancer
+        UNION
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_ec2_gateway_load_balancer' AS platform_table_name,
+          CASE
+            WHEN jsonb_array_length(availability_zones) < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(availability_zones) || ' availability zone(s).' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_gateway_load_balancer;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - high_availability
+    foundational_security_item_id:
+      - elb_13
+    plugin:
+      - aws
+    service:
+      - AWS/ELB

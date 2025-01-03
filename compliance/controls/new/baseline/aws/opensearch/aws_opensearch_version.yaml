@@ -1,0 +1,38 @@
+id: aws_opensearch_version
+title: OpenSearch Version
+description: Ensure that the latest version of OpenSearch engine is used for your OpenSearch domains.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsOpensearchLatestVersion
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT 
+          domain_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN engine_version = '{{.awsOpensearchLatestVersion}}' THEN domain_name || ' is using the latest engine version'
+            ELSE domain_name || ' is not using the latest engine version'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_opensearch_domain
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS OpenSearch Service
+    platform_score_use_case:
+      - General Efficiency
+    score_service_name:
+      - AWS OpenSearch Service
+    score_tags:
+      - General Efficiency

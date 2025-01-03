@@ -1,0 +1,46 @@
+id: aws_kms_cmk_policy_prohibit_public_access
+title: KMS CMK policies should prohibit public access
+description: Manage access to resources in the AWS Cloud by ensuring AWS KMS CMK cannot be publicly accessed.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_kms_key
+    definition: |
+        WITH wildcard_action_policies AS (
+          SELECT
+            arn,
+            COUNT(*) AS statements_num
+          FROM
+            aws_kms_key,
+            jsonb_array_elements(policy_std -> 'Statement') AS s
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND (
+              (s -> 'Principal' -> 'AWS') = '[\"*\"]'
+              OR s ->> 'Principal' = '*'
+            )
+            AND key_manager = 'CUSTOMER'
+          GROUP BY
+            arn
+        )
+        SELECT
+          k.arn AS resource,
+          k.platform_integration_id AS platform_integration_id,
+          k.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.arn IS NULL THEN title || ' does not allow public access.'
+            ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allow public access.'
+          END AS reason
+        FROM
+          aws_kms_key AS k
+        LEFT JOIN wildcard_action_policies AS p ON p.arn = k.arn
+        WHERE
+          key_manager = 'CUSTOMER';
+severity: low
+tags: {}

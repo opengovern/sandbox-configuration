@@ -1,0 +1,41 @@
+id: azure_enable_logging_for_azure_storage_blob_service
+title: Enable Logging for Azure Storage Blob Service
+description: Ensure that storage logging is enabled for the Azure Storage Blob service.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN (blob_service_logging ->> 'Read' = 'false' AND
+                  blob_service_logging ->> 'Write' = 'false' AND
+                  blob_service_logging ->> 'Delete' = 'false') THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (blob_service_logging ->> 'Read' = 'false' AND
+                  blob_service_logging ->> 'Write' = 'false' AND
+                  blob_service_logging ->> 'Delete' = 'false') THEN
+                'The storage logging is not enabled for the Azure Storage Blob service in the selected storage account settings.'
+            ELSE
+                'The storage logging is enabled for the Azure Storage Blob service in the selected storage account settings.'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

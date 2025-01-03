@@ -1,0 +1,50 @@
+id: azure_storage_account_encryption_scopes_encrypted_at_rest_with_cmk
+title: Storage account encryption scopes should use customer-managed keys to encrypt data at rest
+description: Use customer-managed keys to manage the encryption at rest of your storage account encryption scopes. Customer-managed keys enable the data to be encrypted with an Azure key-vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        WITH storage_account_encryption_scope AS (
+          SELECT
+            e ->> 'Id' AS id,
+            e ->> 'Name' AS name,
+            e ->> 'Source' AS source,
+            subscription_id,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx,
+            region,
+            resource_group
+          FROM
+            azure_storage_account,
+            jsonb_array_elements(encryption_scope) AS e
+        )
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN source = 'Microsoft.Keyvault' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN source = 'Microsoft.Keyvault' THEN s.name || ' uses customer-managed keys to encrypt data at rest.'
+            ELSE s.name || ' does not use customer-managed keys to encrypt data at rest.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          storage_account_encryption_scope AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Storage

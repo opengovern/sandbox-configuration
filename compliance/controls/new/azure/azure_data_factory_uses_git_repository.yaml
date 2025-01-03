@@ -1,0 +1,29 @@
+id: azure_data_factory_uses_git_repository
+title: Data factories should use GitHub repository
+description: Ensure that Data Factory utilizes a Git repository as its source control mechanism. This control is non-compliant if Data Factory Git repository is not configured.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_data_factory
+    definition: |
+        SELECT 
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN repo_configuration->>'repositoryName' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN repo_configuration->>'repositoryName' IS NOT NULL THEN a.name || ' uses git repository.'
+            ELSE a.name || ' not uses git repository.'
+          END AS reason
+        FROM 
+          azure_data_factory AS a,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

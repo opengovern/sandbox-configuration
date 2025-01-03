@@ -1,0 +1,42 @@
+id: aws_foundational_security_emr_2
+title: 2 Amazon EMR block public access setting should be enabled
+description: This control checks whether your account is configured with Amazon EMR block public access. The control fails if the block public access setting isn't enabled or if any port other than port 22 is allowed.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_emr_block_public_access_configuration
+    definition: |
+        WITH emr_port_configuration AS (
+          SELECT
+            region,
+            account_id
+          FROM
+            aws_emr_block_public_access_configuration,
+            jsonb_array_elements(permitted_public_security_group_rule_ranges) AS r
+          WHERE
+            (r -> 'MaxRange')::int = 22
+            AND (r -> 'MinRange')::int = 22
+            AND block_public_security_group_rules
+        )
+        SELECT
+          'arn:' || c.partition || '::' || c.region || ':' || c.account_id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT block_public_security_group_rules THEN 'alarm'
+            WHEN block_public_security_group_rules AND p.region IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT block_public_security_group_rules THEN c.region || ' EMR block public access disabled.'
+            WHEN block_public_security_group_rules AND p.region IS NOT NULL THEN c.region || ' EMR block public access enabled.'
+            ELSE c.region || ' EMR block public access enabled for ports other than 22.'
+          END AS reason
+        FROM
+          aws_emr_block_public_access_configuration AS c
+          LEFT JOIN emr_port_configuration AS p
+            ON p.region = c.region AND p.account_id = c.account_id
+severity: critical
+tags: {}

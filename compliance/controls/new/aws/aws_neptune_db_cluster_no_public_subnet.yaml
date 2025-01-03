@@ -1,0 +1,77 @@
+id: aws_neptune_db_cluster_no_public_subnet
+title: Neptune DB clusters should not use public_subnet
+description: This control checks if Neptune DB clusters are configured with public subnet as there is a risk of exposing sensitive data.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_neptune_db_cluster
+    definition: |
+        WITH subnets_with_explicit_route AS (
+          SELECT DISTINCT (a ->> 'SubnetId') AS all_sub
+          FROM aws_vpc_route_table AS t,
+               jsonb_array_elements(associations) AS a
+          WHERE a ->> 'SubnetId' IS NOT NULL
+        ),
+        public_subnets_with_explicit_route AS (
+          SELECT DISTINCT a ->> 'SubnetId' AS SubnetId
+          FROM aws_vpc_route_table AS t,
+               jsonb_array_elements(associations) AS a,
+               jsonb_array_elements(routes) AS r
+          WHERE r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+            AND (
+              r ->> 'GatewayId' LIKE 'igw-%'
+              OR r ->> 'NatGatewayId' LIKE 'nat-%'
+            )
+            AND a ->> 'SubnetId' IS NOT NULL
+        ),
+        public_subnets_with_implicit_route AS (
+          SELECT DISTINCT route_table_id,
+                          vpc_id,
+                          region
+          FROM aws_vpc_route_table AS t,
+               jsonb_array_elements(associations) AS a,
+               jsonb_array_elements(routes) AS r
+          WHERE a ->> 'Main' = 'true'
+            AND r ->> 'DestinationCidrBlock' = '0.0.0.0/0'
+            AND (
+              r ->> 'GatewayId' LIKE 'igw-%'
+              OR r ->> 'NatGatewayId' LIKE 'nat-%'
+            )
+        ),
+        subnet_accessibility AS (
+          SELECT subnet_id,
+                 vpc_id,
+                 CASE
+                   WHEN s.subnet_id IN (SELECT all_sub FROM subnets_with_explicit_route WHERE all_sub NOT IN (SELECT SubnetId FROM public_subnets_with_explicit_route)) THEN 'private'
+                   WHEN p.SubnetId IS NOT NULL 
+                     OR s.vpc_id IN (SELECT vpc_id FROM public_subnets_with_implicit_route) THEN 'public'
+                   ELSE 'private'
+                 END AS access
+          FROM aws_vpc_subnet AS s
+          LEFT JOIN public_subnets_with_explicit_route AS p ON p.SubnetId = s.subnet_id
+        ),
+        cluster_public_subnet AS (
+          SELECT DISTINCT arn,
+                          name AS subnet_group_name
+          FROM aws_rds_db_subnet_group,
+               jsonb_array_elements(subnets) AS s
+          LEFT JOIN subnet_accessibility AS a ON a.subnet_id = s ->> 'SubnetIdentifier'
+          WHERE a.access = 'public'
+        )
+        SELECT c.arn AS resource,
+               c.platform_integration_id AS platform_integration_id,
+               c.platform_resource_id AS platform_resource_id,
+               CASE
+                 WHEN s.subnet_group_name IS NOT NULL THEN 'alarm'
+                 ELSE 'ok'
+               END AS status,
+               CASE
+                 WHEN s.subnet_group_name IS NOT NULL THEN c.title || ' has public subnet.'
+                 ELSE c.title || ' has private subnet.'
+               END AS reason
+        FROM aws_neptune_db_cluster AS c
+        LEFT JOIN cluster_public_subnet AS s ON s.subnet_group_name = c.db_subnet_group;
+severity: low
+tags: {}

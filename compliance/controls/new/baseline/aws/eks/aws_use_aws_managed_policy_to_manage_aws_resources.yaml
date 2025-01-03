@@ -1,0 +1,37 @@
+id: aws_use_aws_managed_policy_to_manage_aws_resources
+title: Use AWS-managed policy to manage AWS resources
+description: Ensure that Amazon EKS clusters implement the "AmazonEKSClusterPolicy" managed policy.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_node_group
+    definition: |
+        SELECT
+          ng.nodegroup_name AS resource,
+          ng.platform_integration_id,
+          ng.platform_resource_id,
+          CASE
+            WHEN attached_policy_arns::text LIKE '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN attached_policy_arns::text LIKE '%arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly%' THEN 'node group policies contain AmazonEC2ContainerRegistryReadOnly'
+            ELSE 'node group policies do not contain AmazonEC2ContainerRegistryReadOnly'
+          END AS reason,
+          ng.region,
+          ng.account_id
+        FROM
+          aws_eks_node_group AS ng
+        LEFT JOIN aws_iam_role AS r ON r.arn = ng.node_role
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

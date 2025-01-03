@@ -1,0 +1,28 @@
+id: aws_foundational_security_es_7
+title: 7 Elasticsearch domains should be configured with at least three dedicated master nodes
+description: This control checks whether Elasticsearch domains are configured with at least three dedicated master nodes. This control fails if the domain does not use dedicated master nodes. This control passes if Elasticsearch domains have five dedicated master nodes. However, using more than three master nodes might be unnecessary to mitigate the availability risk, and will result in additional cost.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' THEN 'alarm'
+            WHEN elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'true'
+              AND (elasticsearch_cluster_config ->> 'DedicatedMasterCount')::integer >= 3 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN elasticsearch_cluster_config ->> 'DedicatedMasterEnabled' = 'false' THEN title || ' dedicated master nodes disabled.'
+            ELSE title || ' has ' || (elasticsearch_cluster_config ->> 'DedicatedMasterCount') || ' dedicated master node(s).'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: medium
+tags: {}

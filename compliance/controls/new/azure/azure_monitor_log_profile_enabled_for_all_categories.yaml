@@ -1,0 +1,34 @@
+id: azure_monitor_log_profile_enabled_for_all_categories
+title: Azure Monitor log profile should collect logs for categories 'write,' 'delete,' and 'action'
+description: This policy ensures that a log profile collects logs for categories 'write,' 'delete,' and 'action'.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_log_profile
+    definition: |
+        SELECT
+          p.id AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.categories @> '["Write", "Action", "Delete"]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.categories @> '["Write", "Action", "Delete"]' 
+              THEN p.name || ' collects logs for categories write, delete and action'
+            ELSE p.name || ' does not collects logs for all categories.'
+          END AS reason,
+          p.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_log_profile AS p
+        LEFT JOIN azure_subscription sub ON sub.subscription_id = p.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/Monitor

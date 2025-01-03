@@ -1,0 +1,36 @@
+id: azure_check_for_autoscale_notifications
+title: Check for Autoscale Notifications
+description: Ensure that autoscale notifications are enabled for Azure virtual machine scale sets.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN s.notifications ->> 'enabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN s.notifications ->> 'enabled' = 'true' THEN 'autoscale notifications are enabled'
+            ELSE 'autoscale notifications are not enabled'
+          END AS reason,
+          vm.resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine_scale_set AS vm
+        LEFT JOIN
+          azure_subscription AS sub ON sub.subscription_id = vm.subscription_id
+        LEFT JOIN
+          azure_autoscale_setting AS s ON vm.id = s.target_resource_uri
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

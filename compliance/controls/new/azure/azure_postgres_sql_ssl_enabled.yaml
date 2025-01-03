@@ -1,0 +1,49 @@
+id: azure_postgres_sql_ssl_enabled
+title: Enforce SSL connection should be enabled for PostgreSQL database servers
+description: Azure Database for PostgreSQL supports connecting your Azure Database for PostgreSQL server to client applications using Secure Sockets Layer (SSL). Enforcing SSL connections between your database server and your client applications helps protect against 'man in the middle' attacks by encrypting the data stream between the server and your application. This configuration enforces that SSL is always enabled for accessing your database server
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ssl_enforcement = 'Disabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN ssl_enforcement = 'Disabled' THEN name || ' SSL connection disabled.'
+            ELSE name || ' SSL connection enabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_postgresql_server s,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.3.1
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '4.3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/PostgreSQL

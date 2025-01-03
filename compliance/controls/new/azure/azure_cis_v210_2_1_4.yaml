@@ -1,0 +1,30 @@
+id: azure_cis_v210_2_1_4
+title: 2.1.4 Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'
+description: Turning on Microsoft Defender for SQL servers on machines enables threat detection for SQL servers on machines, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for SQL servers on machines.'
+            ELSE 'Azure Defender off for SQL servers on machines.'
+          END AS reason
+        FROM
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN
+          azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE
+          name = 'SqlServerVirtualMachines';
+severity: low
+tags: {}

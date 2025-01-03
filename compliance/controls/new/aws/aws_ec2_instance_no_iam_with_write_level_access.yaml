@@ -1,0 +1,150 @@
+id: aws_ec2_instance_no_iam_with_write_level_access
+title: EC2 instance IAM role should not allow write level access
+description: This control ensures that EC2 instance IAM role does not allow write level access.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        WITH iam_roles AS (
+            SELECT r.arn AS role_arn,
+                   i.arn AS instance_arn
+            FROM aws_iam_role AS r,
+                 jsonb_array_elements_text(instance_profile_arns) AS p
+            LEFT JOIN aws_ec2_instance AS i 
+              ON p = i.iam_instance_profile_arn
+            WHERE i.arn IS NOT NULL
+        ),
+        iam_role_with_permission AS (
+            SELECT arn
+            FROM aws_iam_role,
+                 jsonb_array_elements(assume_role_policy_std->'Statement') AS s,
+                 jsonb_array_elements_text(s->'Principal'->'Service') AS service,
+                 jsonb_array_elements_text(s->'Action') AS action
+            WHERE arn IN (
+                    SELECT role_arn
+                    FROM iam_roles
+                )
+              AND s->>'Effect' = 'Allow'
+              AND service = 'ec2.amazonaws.com'
+              AND (
+                  (
+                      action IN (
+                          'iam:addclientidtoopenidconnectprovider',
+                          'iam:addroletoinstanceprofile',
+                          'iam:addusertogroup',
+                          'iam:changepassword',
+                          'iam:createaccesskey',
+                          'iam:createaccountalias',
+                          'iam:creategroup',
+                          'iam:createinstanceprofile',
+                          'iam:createloginprofile',
+                          'iam:createopenidconnectprovider',
+                          'iam:createrole',
+                          'iam:createsamlprovider',
+                          'iam:createservicelinkedrole',
+                          'iam:createservicespecificcredential',
+                          'iam:createuser',
+                          'iam:createvirtualmfadevice',
+                          'iam:deactivatemfadevice',
+                          'iam:deleteaccesskey',
+                          'iam:deleteaccountalias',
+                          'iam:deletegroup',
+                          'iam:deleteinstanceprofile',
+                          'iam:deleteloginprofile',
+                          'iam:deleteopenidconnectprovider',
+                          'iam:deleterole',
+                          'iam:deletesamlprovider',
+                          'iam:deletesshpublickey',
+                          'iam:deleteservercertificate',
+                          'iam:deleteservicelinkedrole',
+                          'iam:deleteservicespecificcredential',
+                          'iam:deletesigningcertificate',
+                          'iam:deleteUser',
+                          'iam:deletevirtualmfadevice',
+                          'iam:enablemfadevice',
+                          'iam:passrole',
+                          'iam:removeclientidfromopenidconnectprovider',
+                          'iam:removerolefrominstanceprofile',
+                          'iam:removeuserfromgroup',
+                          'iam:resetservicespecificcredential',
+                          'iam:resyncmfadevice',
+                          'iam:setsecuritytokenservicepreferences',
+                          'iam:updateaccesskey',
+                          'iam:updateaccountpasswordpolicy',
+                          'iam:updategroup',
+                          'iam:updateloginprofile',
+                          'iam:updateopenidconnectproviderthumbprint',
+                          'iam:updaterole',
+                          'iam:updateroledescription',
+                          'iam:updatesamlprovider',
+                          'iam:updatesshpublicKey',
+                          'iam:updateservercertificate',
+                          'iam:updateservicespecificcredential',
+                          'iam:updatesigningcertificate',
+                          'iam:updateuser',
+                          'iam:uploadsshpublicKey',
+                          'iam:uploadservercertificate',
+                          'iam:uploadsigningcertificate',
+                          '*:*'
+                      )
+                  )
+              )
+        )
+        SELECT i.arn AS resource,
+               CASE
+                 WHEN p.arn IS NULL THEN 'ok'
+                 ELSE 'alarm'
+               END AS status,
+               CASE
+                 WHEN p.arn IS NULL THEN title || ' has no IAM writ level access.'
+                 ELSE title || ' has IAM write level access.'
+               END AS reason,
+               i.platform_integration_id,
+               i.platform_resource_id,
+               i.account_id
+        FROM aws_ec2_instance AS i
+        LEFT JOIN iam_roles AS r 
+          ON r.instance_arn = i.arn
+        LEFT JOIN iam_role_with_permission AS p 
+          ON p.arn = r.role_arn;
+severity: critical
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/EC2
+    soc_2:
+      - 'true'

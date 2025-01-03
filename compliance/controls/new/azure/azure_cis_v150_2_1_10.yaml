@@ -1,0 +1,30 @@
+id: azure_cis_v150_2_1_10
+title: 2.1.10 Ensure That Microsoft Defender for Key Vault Is Set To 'On'
+description: Turning on Microsoft Defender for Key Vault enables threat detection for Key Vault, providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft Defender for Cloud.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Key Vaults.'
+            ELSE 'Azure Defender off for Key Vaults.'
+          END AS reason
+        FROM
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN
+          azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE
+          name = 'KeyVaults';
+severity: low
+tags: {}

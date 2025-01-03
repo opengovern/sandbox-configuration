@@ -1,0 +1,53 @@
+id: azure_compute_vm_jit_access_protected
+title: Management ports of virtual machines should be protected with just-in-time network access control
+description: Possible network Just In Time (JIT) access will be monitored by Azure Security Center as recommendations
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        WITH compute AS (
+          SELECT
+            vm.id AS resource,
+            'alarm' AS status,
+            vm.name || ' not JIT protected.' AS reason,
+            vm.resource_group,
+            sub.display_name AS subscription
+          FROM
+            azure_compute_virtual_machine AS vm,
+            azure_subscription sub
+          WHERE
+            vm.subscription_id = sub.subscription_id
+        )
+        SELECT
+          DISTINCT vm.vm_id AS resource,
+          vm.platform_integration_id AS platform_integration_id,
+          vm.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN LOWER(vm.id) = LOWER(vms ->> 'id') THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN LOWER(vms ->> 'id') = LOWER(vm.id) THEN vm.name || ' JIT protected.'
+            ELSE vm.name || ' not JIT protected.'
+          END AS reason,
+          vm.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_security_center_jit_network_access_policy AS jit,
+          jsonb_array_elements(virtual_machines) AS vms,
+          azure_subscription AS sub
+        LEFT JOIN compute ON TRUE
+        WHERE
+          jit.subscription_id = sub.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Compute

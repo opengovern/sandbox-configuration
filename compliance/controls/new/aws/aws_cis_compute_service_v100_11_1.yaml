@@ -1,0 +1,20 @@
+id: aws_cis_compute_service_v100_11_1
+title: 11.1 Ensure communications between your applications and clients is encrypted
+description: SimSpace Weaver doesn't manage communications between your apps and the clients.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

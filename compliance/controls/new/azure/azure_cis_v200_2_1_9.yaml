@@ -1,0 +1,30 @@
+id: azure_cis_v200_2_1_9
+title: 2.1.9 Ensure That Microsoft Defender for Azure Cosmos DB Is Set To 'On'
+description: Microsoft Defender for Azure Cosmos DB scans all incoming network requests for threats to your Azure Cosmos DB resources.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Cosmos DB.'
+            ELSE 'Azure Defender off for Cosmos DB.'
+          END AS reason
+        FROM
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN azure_subscription sub 
+          ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE
+          name = 'CosmosDbs';
+severity: low
+tags: {}

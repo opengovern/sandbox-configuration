@@ -1,0 +1,49 @@
+id: azure_check_for_guest_level_diagnostics_for_virtual_machines
+title: Check for Guest-Level Diagnostics for Virtual Machines
+description: Ensure that Microsoft Azure virtual machines are configured to use OS guest-level monitoring.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM
+                jsonb_array_elements(extensions) AS e
+              WHERE
+                (extensions_settings -> (e ->> 'id') -> 'ladCfg' ->> 'diagnosticMonitorConfiguration') IS NOT NULL OR
+                (extensions_settings -> (e ->> 'id') -> 'WadCfg' ->> 'DiagnosticMonitorConfiguration') IS NOT NULL
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM
+                jsonb_array_elements(extensions) AS e
+              WHERE
+                (extensions_settings -> (e ->> 'id') -> 'ladCfg' ->> 'diagnosticMonitorConfiguration') IS NOT NULL OR
+                (extensions_settings -> (e ->> 'id') -> 'WadCfg' ->> 'DiagnosticMonitorConfiguration') IS NOT NULL
+            ) THEN 'Guest-Level Diagnostics feature is enabled'
+            ELSE 'Guest-Level Diagnostics feature is not enabled'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

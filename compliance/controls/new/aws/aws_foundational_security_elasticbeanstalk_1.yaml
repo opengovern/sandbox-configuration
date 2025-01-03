@@ -1,0 +1,26 @@
+id: aws_foundational_security_elasticbeanstalk_1
+title: 1 Elastic Beanstalk environments should have enhanced health reporting enabled
+description: This control checks whether enhanced health reporting is enabled for your AWS Elastic Beanstalk environments. Elastic Beanstalk enhanced health reporting enables a more rapid response to changes in the health of the underlying infrastructure. These changes could result in a lack of availability of the application.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elastic_beanstalk_environment
+    definition: |
+        SELECT
+          application_name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN health_status IS NOT NULL AND health IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN health_status IS NOT NULL AND health IS NOT NULL THEN application_name || ' enhanced health check enabled.'
+            ELSE application_name || ' enhanced health check disabled.'
+          END AS reason
+        FROM
+          aws_elastic_beanstalk_environment;
+severity: low
+tags: {}

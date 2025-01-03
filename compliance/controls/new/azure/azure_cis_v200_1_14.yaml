@@ -1,0 +1,36 @@
+id: azure_cis_v200_1_14
+title: 1.14 Ensure That 'Users Can Register Applications' Is Set to 'No'
+description: Require administrators or appropriately delegated users to register third-party applications.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_authorization_policy
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            DISTINCT tenant_id,
+            subscription_id,
+            _ctx
+          FROM
+            azure_tenant
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN a.display_name || ' does not allow user to register applications.'
+            ELSE a.display_name || ' allows user to register applications.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          distinct_tenant AS t,
+          entraid_authorization_policy AS a;
+severity: low
+tags: {}

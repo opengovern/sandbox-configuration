@@ -1,0 +1,43 @@
+id: aws_sso_users_with_permission_assignments_are_required_to_have_MFA_on_AzureAD
+title: AWS SSO Users with Permission Assignments are required to have MFA on AzureAD
+description: AWS SSO Users with Permission Assignments are required to have MFA on AzureAD
+integration_type:
+  - aws_cloud_account
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_identitystore_user
+    definition: |
+        SELECT 
+          iden.id AS resource,
+          iden.platform_integration_id,
+          iden.platform_resource_id,
+          CASE
+            WHEN is_mfa_registered::BOOL THEN 'ok'
+            ELSE 'alarm'
+          END status,
+          CASE
+            WHEN is_mfa_registered::BOOL THEN iden.name || ' has MFA registered'
+            ELSE iden.name || ' doesnt have MFA'
+          END reason
+        FROM 
+          (aws_identitystore_user 
+          CROSS JOIN jsonb_array_elements(external_ids) AS external_id) iden
+        INNER JOIN entraid_user_registration_details az 
+          ON az.id = value ->> 'Id'
+        WHERE 
+          EXISTS (
+            SELECT * 
+            FROM aws_ssoadmin_account_assignment 
+            WHERE principal_type = 'USER' 
+            AND principal_id = iden.id
+          )
+severity: high
+tags:
+    category:
+      - Compliance
+    plugin:
+      - aws
+    score_service_name:
+      - AWS Single Sign-On (SSO)

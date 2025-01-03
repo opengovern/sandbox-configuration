@@ -1,0 +1,52 @@
+id: aws_enable_http_to_https_redirect_for_application_load_balancers
+title: Enable HTTP to HTTPS Redirect for Application Load Balancers
+description: Ensure that your Application Load Balancers have a rule that redirects HTTP traffic to HTTPS.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH detailed_listeners AS (
+          SELECT
+            arn,
+            load_balancer_arn,
+            protocol
+          FROM
+            aws_ec2_load_balancer_listener,
+            jsonb_array_elements(default_actions) AS ac
+          WHERE
+            split_part(arn, '/', 2) = 'app'
+            AND protocol = 'HTTP'
+            AND ac ->> 'Type' = 'redirect'
+            AND ac -> 'RedirectConfig' ->> 'Protocol' = 'HTTPS'
+        )
+        SELECT
+          a.arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN b.load_balancer_arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.load_balancer_arn IS NOT NULL THEN a.title || ' associated with HTTP redirection.'
+            ELSE a.title || ' not associated with HTTP redirection.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_application_load_balancer a
+        LEFT JOIN detailed_listeners b
+          ON a.arn = b.load_balancer_arn;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Unencrypted Traffic
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Unencrypted Traffic

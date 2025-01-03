@@ -1,0 +1,35 @@
+id: azure_review_network_interfaces_with_ip_forwarding_enabled
+title: Review Network Interfaces with IP Forwarding Enabled
+description: Ensure that the Azure network interfaces with IP forwarding enabled are regularly reviewed.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_interface
+    definition: |
+        SELECT 
+          ni.id AS resource,
+          ni.platform_integration_id,
+          ni.platform_resource_id,
+          CASE
+            WHEN enable_ip_forwarding = 'true' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN enable_ip_forwarding = 'true' THEN 'NIC resource must be reviewed in order to decide whether or not IP forwarding is required.'
+            ELSE 'IP forwarding is not enabled.'
+          END AS reason,
+          ni.resource_group,
+          display_name AS subscription
+        FROM 
+          azure_network_interface AS ni,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = ni.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Network
+    score_service_name:
+      - Azure Network

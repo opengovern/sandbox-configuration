@@ -1,0 +1,32 @@
+id: aws_cis_v120_1_21
+title: 1.21 Do not setup access keys during initial user setup for all IAM users that have a console password
+description: AWS console defaults the checkbox for creating access keys to enabled. This results in many access keys being generated unnecessarily. In addition to unnecessary credentials, it also generates unnecessary management work in auditing and rotating these keys.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN password_enabled 
+            AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT password_enabled THEN user_name || ' password login disabled.'
+            WHEN access_key_1_last_rotated IS NULL THEN user_name || ' has no access keys.'
+            WHEN password_enabled 
+            AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10
+            THEN user_name || ' has access key created during user creation and password login enabled.'
+            ELSE user_name || ' has access key not created during user creation.'
+          END AS reason
+        FROM
+          aws_iam_credential_report;
+severity: low
+tags: {}

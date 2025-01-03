@@ -1,0 +1,30 @@
+id: aws_apigateway_rest_api_authorizers_configured
+title: API Gateway stages should have authorizers configured
+description: Ensure API Gateway stages have authorizers configured.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_rest_api
+    definition: |
+        SELECT
+          p.name AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(a.provider_arns) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(a.provider_arns) > 0 THEN p.name || ' authorizers configured.'
+            ELSE p.name || ' authorizers not configured.'
+          END AS reason
+        FROM
+          aws_api_gateway_rest_api AS p
+        LEFT JOIN
+          aws_api_gateway_authorizer AS a
+        ON
+          p.api_id = a.rest_api_id;
+severity: low
+tags: {}

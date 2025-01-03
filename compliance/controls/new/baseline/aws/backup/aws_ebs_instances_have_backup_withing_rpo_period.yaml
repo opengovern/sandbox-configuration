@@ -1,0 +1,55 @@
+id: aws_ebs_instances_have_backup_withing_rpo_period
+title: Attached EBS Storage Volumes restoration needs meet RPO Standard
+description: AWS EBS Storage Volumes that are connected need to have restorable backup within the defined period
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsEbsInstancesBackupPeriod
+    value: '72'
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        WITH all_backup AS (
+          SELECT recovery_point_arn, resource_arn, creation_date
+          FROM aws_backup_recovery_point
+          WHERE now() - creation_date < '2 week'::interval
+            AND resource_type = 'EBS'
+            AND status = 'COMPLETED'
+        ), points AS (
+          SELECT recovery_point_arn, resource_arn
+          FROM aws_backup_recovery_point
+          WHERE now() - creation_date < '{{.awsEbsInstancesBackupPeriod}} hours'::interval
+            AND resource_type = 'EBS'
+            AND status = 'COMPLETED'
+        )
+
+        SELECT
+          v.arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.recovery_point_arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN p.recovery_point_arn IS NULL AND a.recovery_point_arn IS NULL THEN 'there is no backup for this resource'
+            WHEN p.recovery_point_arn IS NULL THEN 'last backup at ' || a.creation_date::text
+            ELSE ''
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ebs_volume AS v
+        LEFT JOIN points AS p ON v.arn = p.resource_arn
+        LEFT JOIN all_backup AS a ON v.arn = a.resource_arn
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Block Store (EBS)
+    platform_score_use_case:
+      - Missing Backup
+    score_service_name:
+      - AWS Elastic Block Store (EBS)
+    score_tags:
+      - Missing Backup

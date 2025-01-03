@@ -1,0 +1,29 @@
+id: azure_cosmosdb_account_key_based_metadata_write_access_disabled
+title: Cosmos DB accounts should disable key based metadata write access
+description: Ensure Cosmos DB accounts have key-based metadata write_access disabled. This control is non-compliant if Cosmos DB accounts have key-based metadata write access enabled.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_cosmosdb_account
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN disable_key_based_metadata_write_access THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN disable_key_based_metadata_write_access THEN a.name || ' key based metadata write_access disabled.'
+            ELSE a.name || ' key based metadata write_access enabled.'
+          END AS reason
+        FROM
+          azure_cosmosdb_account AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

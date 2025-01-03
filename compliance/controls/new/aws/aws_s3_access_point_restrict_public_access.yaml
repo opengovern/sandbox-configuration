@@ -1,0 +1,40 @@
+id: aws_s3_access_point_restrict_public_access
+title: S3 access points should have block public access settings enabled
+description: This control checks whether an Amazon S3 access point has block public access settings enabled. The control fails if block public access settings aren't enabled for the access point.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_access_point
+    definition: |
+        SELECT
+          access_point_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN block_public_acls
+              AND block_public_policy
+              AND ignore_public_acls
+              AND restrict_public_buckets
+              THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN block_public_acls
+              AND block_public_policy
+              AND ignore_public_acls
+              AND restrict_public_buckets
+              THEN name || ' all public access blocks enabled.'
+            ELSE name || ' not enabled for: ' ||
+              CONCAT_WS(', ',
+                CASE WHEN NOT block_public_acls THEN 'block_public_acls' END,
+                CASE WHEN NOT block_public_policy THEN 'block_public_policy' END,
+                CASE WHEN NOT ignore_public_acls THEN 'ignore_public_acls' END,
+                CASE WHEN NOT restrict_public_buckets THEN 'restrict_public_buckets' END
+              ) || '.'
+          END AS reason
+        FROM
+          aws_s3_access_point;
+severity: low
+tags: {}

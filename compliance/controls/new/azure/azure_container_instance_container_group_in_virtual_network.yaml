@@ -1,0 +1,29 @@
+id: azure_container_instance_container_group_in_virtual_network
+title: Container instance container groups should be in virtual network
+description: This control ensures that the container group is deployed into a virtual network.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_container_group
+    definition: |
+        SELECT
+          cg.id AS resource,
+          cg.platform_integration_id AS platform_integration_id,
+          cg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN subnet_ids IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN subnet_ids IS NOT NULL THEN cg.title || ' in virtual network.'
+            ELSE cg.title || ' not in virtual network.'
+          END AS reason
+        FROM
+          azure_container_group AS cg,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = cg.subscription_id;
+severity: low
+tags: {}

@@ -1,0 +1,23 @@
+id: aws_route53_domain_expires_7_days
+title: Route 53 domains should not expire within next 7 days
+description: This controls ensures that all the domain names registered with AWS Route 53 or transferred to AWS Route 53 are renewed 7 days before their validity period ends.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_route53_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN DATE(expiration_date) - DATE(current_date) >= 7 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' set to expire in ' || EXTRACT(DAY FROM expiration_date - current_date) || ' days.' AS reason
+        FROM
+          aws_route53_domain;
+severity: low
+tags: {}

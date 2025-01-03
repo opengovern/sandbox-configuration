@@ -1,0 +1,43 @@
+id: azure_check_for_just_in_time_access_for_virtual_machines
+title: Check for Just-In-Time Access for Virtual Machines
+description: Ensure that Microsoft Azure virtual machines are configured to use Just-in-Time (JIT) access.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT DISTINCT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN NOT EXISTS(
+              SELECT 1 
+              FROM azure_security_center_jit_network_access_policy
+              WHERE virtual_machines::text LIKE '%' || vm.id || '%'
+              LIMIT 1
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT EXISTS(
+              SELECT 1 
+              FROM azure_security_center_jit_network_access_policy
+              WHERE virtual_machines::text LIKE '%' || vm.id || '%'
+              LIMIT 1
+            ) THEN 'Virtual machine is not associated with a Just-in-Time (JIT) network access policy.'
+            ELSE 'Virtual machine is associated with a Just-in-Time (JIT) network access policy.'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM azure_compute_virtual_machine AS vm,
+             azure_subscription AS sub
+        WHERE sub.subscription_id = vm.subscription_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

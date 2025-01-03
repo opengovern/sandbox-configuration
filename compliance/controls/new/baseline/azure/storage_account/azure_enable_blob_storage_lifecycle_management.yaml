@@ -1,0 +1,37 @@
+id: azure_enable_blob_storage_lifecycle_management
+title: Enable Blob Storage Lifecycle Management
+description: Ensure that Azure Blob Storage service has a lifecycle management policy configured.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT 
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE 
+            WHEN lifecycle_management_policy = '{}' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE 
+            WHEN lifecycle_management_policy = '{}' THEN 
+              'Lifecycle management is not enabled for the blob data available in the selected Microsoft Azure Storage account.'
+            ELSE 
+              'Lifecycle management is enabled for the blob data available in the selected Microsoft Azure Storage account.'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM 
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

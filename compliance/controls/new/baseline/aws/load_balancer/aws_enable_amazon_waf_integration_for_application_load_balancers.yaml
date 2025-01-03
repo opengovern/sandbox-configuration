@@ -1,0 +1,45 @@
+id: aws_enable_amazon_waf_integration_for_application_load_balancers
+title: Enable Amazon WAF Integration for Application Load Balancers
+description: Use Amazon WAF to protect Application Load Balancers from common web exploits.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH associated_resource AS (
+          SELECT
+            arns
+          FROM 
+            aws_wafv2_web_acl,
+            JSONB_ARRAY_ELEMENTS_TEXT(associated_resources) AS arns
+        )
+        SELECT
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN ar.arns IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ar.arns IS NOT NULL THEN title || ' WAF enabled.'
+            ELSE title || ' WAF disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_ec2_application_load_balancer AS lb
+          LEFT JOIN associated_resource AS ar 
+          ON lb.arn = ar.arns;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Exposed Endpoints

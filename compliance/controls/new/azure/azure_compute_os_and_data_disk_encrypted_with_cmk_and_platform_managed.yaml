@@ -1,0 +1,36 @@
+id: azure_compute_os_and_data_disk_encrypted_with_cmk_and_platform_managed
+title: Managed disks should be double encrypted with both platform-managed and customer-managed keys
+description: High security sensitive customers who are concerned of the risk associated with any particular encryption algorithm, implementation, or key being compromised can opt for additional layer of encryption using a different encryption algorithm/mode at the infrastructure layer using platform managed encryption keys. The disk encryption sets are required to use double encryption.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id AS platform_integration_id,
+          disk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys' THEN disk.name || ' encrypted with both platform-managed and customer-managed keys.'
+            ELSE disk.name || ' not encrypted with both platform-managed and customer-managed keys.'
+          END AS reason,
+          disk.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_disk disk,
+          azure_subscription sub
+        WHERE
+          disk_state = 'Attached'
+          AND sub.subscription_id = disk.subscription_id;
+severity: medium
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Compute

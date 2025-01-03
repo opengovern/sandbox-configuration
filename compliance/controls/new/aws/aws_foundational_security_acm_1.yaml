@@ -1,0 +1,27 @@
+id: aws_foundational_security_acm_1
+title: 1 Imported ACM certificates should be renewed after a specified time period
+description: This control checks whether ACM certificates in your account are marked for expiration within 30 days. It checks both imported certificates and certificates provided by AWS Certificate Manager.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_acm_certificate
+    definition: |
+        SELECT
+          certificate_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN renewal_eligibility = 'INELIGIBLE' THEN 'skip'
+            WHEN DATE(not_after) - DATE(current_date) >= 30 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN renewal_eligibility = 'INELIGIBLE' THEN title || ' not eligible for renewal.'
+            ELSE title || ' expires ' || TO_CHAR(not_after, 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM not_after - current_date) || ' days).'
+          END AS reason
+        FROM
+          aws_acm_certificate;
+severity: medium
+tags: {}

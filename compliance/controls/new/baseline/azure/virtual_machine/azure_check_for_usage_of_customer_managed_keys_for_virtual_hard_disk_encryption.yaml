@@ -1,0 +1,39 @@
+id: azure_check_for_usage_of_customer_managed_keys_for_virtual_hard_disk_encryption
+title: Check for usage of Customer Managed Keys for Virtual Hard Disk Encryption
+description: Ensure that Customer Managed Keys are used to encrypt Virtual Hard Disk (VHD) volumes.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id,
+          disk.platform_resource_id,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'Disk is encrypted by CMK.'
+            ELSE 'Disk is encrypted with Platform Key instead of CMK.'
+          END AS reason,
+          disk.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_disk AS disk,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = disk.subscription_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Insecure Keys

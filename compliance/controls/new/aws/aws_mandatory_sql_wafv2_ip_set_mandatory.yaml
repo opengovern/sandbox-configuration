@@ -1,0 +1,44 @@
+id: aws_mandatory_sql_wafv2_ip_set_mandatory
+title: WAFV2 ip sets should have mandatory tags
+description: Check if WAFV2 ip sets have mandatory tags.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsMandatoryTags
+policy:
+    language: sql
+    primary_resource: aws_wafv2_ip_set
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn,
+            title,
+            tags ?& '{{.awsMandatoryTags}}'::TEXT[] AS has_mandatory_tags,
+            TO_JSONB('{{.awsMandatoryTags}}'::TEXT[]) - ARRAY(SELECT JSONB_OBJECT_KEYS(tags)) AS missing_tags,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_wafv2_ip_set
+        )
+        SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn AS resource,
+            CASE
+              WHEN has_mandatory_tags THEN 'ok'
+              ELSE 'alarm'
+            END AS status,
+            CASE
+              WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+              ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT JSONB_ARRAY_ELEMENTS_TEXT(missing_tags)), ', ') || '.'
+            END AS reason,
+            region,
+            account_id
+        FROM
+          analysis;
+severity: high
+tags: {}

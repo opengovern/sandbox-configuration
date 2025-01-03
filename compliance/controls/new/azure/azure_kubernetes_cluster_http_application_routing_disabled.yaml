@@ -1,0 +1,29 @@
+id: azure_kubernetes_cluster_http_application_routing_disabled
+title: Kubernetes clusters HTTP application routing should be disabled
+description: This control checks if HTTP application routing is disabled for Kubernetes cluster.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN addon_profiles -> 'httpApplicationRouting' ->> 'enabled' = 'true' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN addon_profiles -> 'httpApplicationRouting' ->> 'enabled' = 'true' THEN c.name || ' HTTP application routing enabled.'
+            ELSE c.name || ' HTTP application routing disabled.'
+          END AS reason
+        FROM
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

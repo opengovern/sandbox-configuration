@@ -1,0 +1,63 @@
+id: aws_cloudwatch_alarm_action_enabled
+title: CloudWatch alarm should have an action configured
+description: Checks if CloudWatch alarms have an action configured for the ALARM, INSUFFICIENT_DATA, or OK state. Optionally checks if any actions match a named ARN. The rule is non-compliant if there is no action specified for the alarm or optional parameter.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudwatch_alarm
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(alarm_actions) = 0
+              AND jsonb_array_length(insufficient_data_actions) = 0
+              AND jsonb_array_length(ok_actions) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(alarm_actions) = 0
+              AND jsonb_array_length(insufficient_data_actions) = 0
+              AND jsonb_array_length(ok_actions) = 0 THEN title || ' no action enabled.'
+            WHEN jsonb_array_length(alarm_actions) != 0 THEN title || ' alarm action enabled.'
+            WHEN jsonb_array_length(insufficient_data_actions) != 0 THEN title || ' insufficient data action enabled.'
+            WHEN jsonb_array_length(ok_actions) != 0 THEN title || ' ok action enabled.'
+            ELSE 'ok'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudwatch_alarm;
+severity: medium
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/CloudWatch
+    soc_2:
+      - 'true'

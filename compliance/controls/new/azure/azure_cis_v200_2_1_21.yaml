@@ -1,0 +1,32 @@
+id: azure_cis_v200_2_1_21
+title: 2.1.21 Ensure that Microsoft Defender for Cloud Apps integration with Microsoft Defender for Cloud is Selected
+description: This integration setting enables Microsoft Defender for Cloud Apps (formerly 'Microsoft Cloud App Security' or 'MCAS' - see additional info) to communicate with Microsoft Defender for Cloud.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_setting
+    definition: |
+        SELECT
+          sc_sett.id AS resource,
+          sc_sett.platform_integration_id AS platform_integration_id,
+          sc_sett.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enabled THEN 'Windows Defender ATP (WDATP) integrated with Security Center.'
+            ELSE 'Windows Defender ATP (WDATP) not integrated with Security Center.'
+          END AS reason
+        FROM
+          azure_security_center_setting sc_sett
+        RIGHT JOIN
+          azure_subscription sub 
+        ON
+          sc_sett.subscription_id = sub.subscription_id
+        WHERE
+          name = 'MCAS';
+severity: low
+tags: {}

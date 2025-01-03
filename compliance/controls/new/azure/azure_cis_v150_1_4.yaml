@@ -1,0 +1,40 @@
+id: azure_cis_v150_1_4
+title: 1.4 Ensure Guest Users Are Reviewed on a Regular Basis
+description: Azure AD is extended to include Azure AD B2B collaboration, allowing you to invite people from outside your organization to be guest users in your cloud account and sign in with their own work, school, or social identities. Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Work with external partners, large or small, even if they don't have Azure AD or an IT department. A simple invitation and redemption process lets partners use their own credentials to access your company's resources as a guest user. Guest users in every subscription should be reviewed on a regular basis to ensure that inactive and unneeded accounts are removed.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_user
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            DISTINCT tenant_id,
+            subscription_id,
+            _ctx
+          FROM
+            azure_tenant
+        )
+        SELECT
+          u.display_name AS resource,
+          u.platform_integration_id AS platform_integration_id,
+          u.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT account_enabled THEN 'alarm'
+            WHEN u.created_date_time::timestamp <= (current_date - INTERVAL '30' DAY) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT account_enabled THEN 'Guest user ''' || u.display_name || ''' inactive.'
+            ELSE 'Guest user ''' || u.display_name || ''' was created ' || EXTRACT(DAY FROM current_timestamp - u.created_date_time::timestamp) || ' days ago.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          entraid_user AS u
+        LEFT JOIN
+          distinct_tenant AS t ON t.tenant_id = u.tenant_id
+        WHERE
+          u.user_type = 'Guest';
+severity: low
+tags: {}

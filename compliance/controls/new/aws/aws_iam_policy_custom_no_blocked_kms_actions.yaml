@@ -1,0 +1,67 @@
+id: aws_iam_policy_custom_no_blocked_kms_actions
+title: Ensure managed IAM policies should not allow blocked actions on KMS keys
+description: Checks if the managed AWS Identity and Access Management (IAM) policies that you create do not allow blocked actions on AWS KMS keys. The rule is non-compliant if any blocked action is allowed on AWS KMS keys by the managed IAM policy.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH kms_blocked_actions AS (
+          SELECT
+            arn,
+            COUNT(*) AS statements_num
+          FROM
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            NOT is_aws_managed
+            AND s ->> 'Effect' = 'Allow'
+            AND action LIKE ANY(ARRAY['kms:decrypt', 'kms:reencryptfrom'])
+          GROUP BY
+            arn
+        )
+        SELECT
+          p.arn AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN w.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END status,
+          p.name || ' contains ' || COALESCE(w.statements_num, 0) || ' statements that allow blocked actions on AWS KMS keys.' AS reason,
+          p.account_id
+        FROM
+          aws_iam_policy AS p
+        LEFT JOIN kms_blocked_actions AS w ON p.arn = w.arn
+        WHERE
+          NOT p.is_aws_managed;
+severity: high
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/IAM

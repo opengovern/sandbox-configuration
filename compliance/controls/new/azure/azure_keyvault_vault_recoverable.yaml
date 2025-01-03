@@ -1,0 +1,51 @@
+id: azure_keyvault_vault_recoverable
+title: Ensure the key vault is recoverable
+description: The key vault contains object keys, secrets and certificates. Accidental unavailability of a key vault can cause immediate data loss or loss of security functions (authentication, validation, verification, non-repudiation, etc.) supported by the key vault objects. It is recommended the key vault be made recoverable by enabling the "Do Not Purge" and "Soft Delete" functions.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT 
+          kv.id AS resource,
+          kv.platform_integration_id AS platform_integration_id,
+          kv.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN soft_delete_enabled AND purge_protection_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT soft_delete_enabled AND NOT purge_protection_enabled THEN name || ' "soft delete" and "do not purge" not enabled.'
+            WHEN NOT soft_delete_enabled THEN name || ' "soft delete" not enabled.'
+            WHEN NOT purge_protection_enabled THEN name || ' "do not purge" not enabled.'
+            ELSE name || ' "soft delete" and "do not purge" enabled.'
+          END AS reason,
+          kv.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault kv,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = kv.subscription_id;
+severity: critical
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '8.4'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '8'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/KeyVault

@@ -1,0 +1,72 @@
+id: aws_vpc_flow_logs_enabled
+title: VPC flow logs should be enabled
+description: The VPC flow logs provide detailed records for information about the IP traffic going to and from network interfaces in your AWS Virtual Private Cloud (AWS VPC.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        SELECT DISTINCT
+          v.arn AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN 'skip'
+            WHEN f.resource_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN vpc_id || ' is a shared VPC.'
+            WHEN f.resource_id IS NOT NULL THEN vpc_id || ' flow logging enabled.'
+            ELSE vpc_id || ' flow logging disabled.'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_vpc AS v
+          LEFT JOIN aws_vpc_flow_log AS f
+            ON v.vpc_id = f.resource_id;
+severity: low
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    score_tags:
+      - Unencrypted Traffic
+    service:
+      - AWS/VPC
+    soc_2:
+      - 'true'

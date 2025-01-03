@@ -1,0 +1,26 @@
+id: aws_rds_db_instance_cloudwatch_logs_enabled
+title: RDS DB instances should be integrated with CloudWatch logs
+description: Use AWS CloudWatch to centrally collect and manage RDS DB instance activity.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN title || ' integrated with CloudWatch logs.'
+            ELSE title || ' not integrated with CloudWatch logs.'
+          END AS reason
+        FROM
+          aws_rds_db_instance;
+severity: low
+tags: {}

@@ -1,0 +1,28 @@
+id: aws_foundational_security_acm_2
+title: RSA certificates managed by ACM should use a key length of at least 2,048 bits
+description: This control checks whether RSA certificates managed by AWS Certificate Manager use a key length of at least 2,048 bits. The control fails if the key length is smaller than 2,048 bits.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_acm_certificate
+    definition: |
+        SELECT
+          certificate_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT key_algorithm LIKE 'RSA-%' THEN 'skip'
+            WHEN key_algorithm = 'RSA_1024' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT key_algorithm LIKE 'RSA-%' THEN title || ' is not a RSA certificate.'
+            WHEN key_algorithm = 'RSA_1024' THEN title || ' is using 1024 bits key length.'
+            ELSE title || ' is using ' || SPLIT_PART(key_algorithm, '-', 2) || ' bits key length.'
+          END AS reason
+        FROM
+          aws_acm_certificate;
+severity: high
+tags: {}

@@ -1,0 +1,49 @@
+id: aws_ec2_instances_with_multiple_elastic_network_interfaces
+title: EC2 Instances with Multiple Elastic Network Interfaces
+description: Ensure that Amazon EC2 instances are not using multiple ENIs.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        WITH instance_nis AS (
+          SELECT
+            i.instance_id,
+            COUNT(ni)
+          FROM
+            aws_ec2_instance AS i,
+            JSONB_ARRAY_ELEMENTS(network_interfaces) AS ni
+          WHERE
+            ni -> 'Attachment' ->> 'Status' = 'attached'
+          GROUP BY
+            i.instance_id
+        )
+
+        SELECT
+          i.instance_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN nis.count > 1 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN nis.count > 1 THEN i.instance_id || ' Has more than one network interfaces.'
+            ELSE i.instance_id || ' Has more than one network interfaces.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance AS i
+        LEFT JOIN
+          instance_nis AS nis
+        ON
+          i.instance_id = nis.instance_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    score_service_name:
+      - AWS EC2

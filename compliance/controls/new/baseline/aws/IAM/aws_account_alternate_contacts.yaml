@@ -1,0 +1,37 @@
+id: aws_account_alternate_contacts
+title: Account Alternate Contacts
+description: Ensure alternate contacts are set to improve the security of your AWS account.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT 
+          a.account_id AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN c.name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.name IS NULL THEN 'account does not have any alternate contact'
+            ELSE 'account has an alternate contact'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM aws_account AS a
+        LEFT JOIN aws_account_alternate_contact AS c 
+          ON a.account_id = c.account_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

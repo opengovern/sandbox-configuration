@@ -1,0 +1,50 @@
+id: azure_storage_account_use_virtual_service_endpoint
+title: Storage Accounts should use a virtual network service endpoint
+description: This policy audits any Storage Account not configured to use a virtual network service endpoint.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        WITH storage_account_subnet AS (
+          SELECT DISTINCT
+            a.id AS storage_account_id,
+            rule ->> 'id' AS id
+          FROM
+            azure_storage_account AS a,
+            jsonb_array_elements(virtual_network_rules) AS rule,
+            azure_subnet AS subnet,
+            jsonb_array_elements(service_endpoints) AS endpoints
+          WHERE
+            endpoints ->> 'service' LIKE '%Microsoft.Storage%'
+        )
+        SELECT DISTINCT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_rule_default_action <> 'Deny' THEN 'alarm'
+            WHEN s.storage_account_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_rule_default_action <> 'Deny' THEN a.name || ' not configured with virtual service endpoint.'
+            WHEN s.storage_account_id IS NULL THEN a.name || ' not configured with virtual service endpoint.'
+            ELSE a.name || ' configured with virtual service endpoint.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account AS a
+          LEFT JOIN storage_account_subnet AS s ON a.id = s.storage_account_id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/Storage

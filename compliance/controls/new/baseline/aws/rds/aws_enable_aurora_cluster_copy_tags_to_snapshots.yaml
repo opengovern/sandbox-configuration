@@ -1,0 +1,38 @@
+id: aws_enable_aurora_cluster_copy_tags_to_snapshots
+title: Enable Aurora Cluster Copy Tags to Snapshots
+description: Ensure that Amazon Aurora clusters have Copy Tags to Snapshots feature enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_cluster
+    definition: |
+        SELECT
+          db_cluster_identifier AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT copy_tags_to_snapshot THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT copy_tags_to_snapshot THEN title || ' Copy Tags to Snapshots feature is not enabled'
+            ELSE title || ' Copy Tags to Snapshots feature is enabled'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_cluster
+        WHERE
+          engine = 'aurora-mysql' OR engine = 'aurora-postgresql'
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    platform_score_use_case:
+      - Observability
+    score_service_name:
+      - AWS Relational Database Service (RDS)
+    score_tags:
+      - Observability

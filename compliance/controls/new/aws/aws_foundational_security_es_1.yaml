@@ -1,0 +1,26 @@
+id: aws_foundational_security_es_1
+title: 1 Elasticsearch domains should have encryption at-rest enabled
+description: This control checks whether Amazon Elasticsearch Service (Amazon ES) domains have encryption at rest configuration enabled. The check fails if encryption at rest is not enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN title || ' encryption at rest not enabled.'
+            ELSE title || ' encryption at rest enabled.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: medium
+tags: {}

@@ -1,0 +1,35 @@
+id: aws_foundational_security_elb_12
+title: 12 Application Load Balancers should be configured with defensive or strictest desync mitigation mode
+description: This control checks whether an Application Load Balancer is configured with defensive or strictest desync mitigation mode. The control fails if an Application Load Balancer is not configured with defensive or strictest desync mitigation mode.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH app_lb_desync_mitigation_mode AS (
+          SELECT
+            arn,
+            l ->> 'Key' AS key,
+            l ->> 'Value' AS v
+          FROM
+            aws_ec2_application_load_balancer,
+            jsonb_array_elements(load_balancer_attributes) AS l
+          WHERE
+            l ->> 'Key' = 'routing.http.desync_mitigation_mode'
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN m.v = ANY(ARRAY['defensive', 'strictest']) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' has ' || m.v || ' desync mitigation mode.' AS reason
+        FROM
+          aws_ec2_application_load_balancer AS a
+        LEFT JOIN app_lb_desync_mitigation_mode AS m ON a.arn = m.arn;
+severity: medium
+tags: {}

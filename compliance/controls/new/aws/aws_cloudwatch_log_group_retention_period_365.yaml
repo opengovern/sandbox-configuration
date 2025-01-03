@@ -1,0 +1,63 @@
+id: aws_cloudwatch_log_group_retention_period_365
+title: Log group retention period should be at least 365 days
+description: Ensure a minimum duration of event log data is retained for your log groups to help with troubleshooting and forensics investigations.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudwatch_log_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN retention_in_days IS NULL OR retention_in_days < 365 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN retention_in_days IS NULL THEN title || ' retention period not set.'
+            WHEN retention_in_days < 365 THEN title || ' retention period less than 365 days.'
+            ELSE title || ' retention period 365 days or above.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudwatch_log_group;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/CloudWatch
+    soc_2:
+      - 'true'

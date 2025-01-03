@@ -1,0 +1,39 @@
+id: aws_access_keys_during_initial_iam_user_setup
+title: Access Keys During Initial IAM User Setup
+description: Ensure no access keys are created during IAM user initial setup with AWS Management Console.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN (access_key_1_last_rotated - user_creation_time < '5 second'::interval) 
+              AND (access_key_1_last_used_date IS NULL) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (access_key_1_last_rotated - user_creation_time < '5 second'::interval) 
+              AND (access_key_1_last_used_date IS NULL) THEN 'access key 1 is considered as unused and is better to be removed'
+            WHEN (access_key_1_last_rotated IS NULL) THEN 'access key 1 is not defined'
+            ELSE 'access key 1 is being used'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_credential_report
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Insecure Keys

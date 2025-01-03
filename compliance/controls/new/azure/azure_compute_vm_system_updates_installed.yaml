@@ -1,0 +1,37 @@
+id: azure_compute_vm_system_updates_installed
+title: System updates should be installed on your machines
+description: Missing security system updates on your servers will be monitored by Azure Security Center as recommendations.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.vm_id AS resource,
+          vm.platform_integration_id AS platform_integration_id,
+          vm.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_automatic_updates THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_automatic_updates THEN vm.title || ' automatic system updates enabled.'
+            ELSE vm.title || ' automatic system updates disabled.'
+          END AS reason,
+          vm.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id;
+severity: high
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    service:
+      - Azure/Compute

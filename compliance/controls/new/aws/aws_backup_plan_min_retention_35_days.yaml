@@ -1,0 +1,75 @@
+id: aws_backup_plan_min_retention_35_days
+title: Backup plan min frequency and min retention check
+description: Checks if a backup plan has a backup rule that satisfies the required frequency and retention period(35 Days). The rule is non-compliant if recovery points are not created at least as often as the specified frequency or expire before the specified period.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_backup_plan
+    definition: |
+        WITH all_plans AS (
+          SELECT
+            arn,
+            r AS rules,
+            title,
+            region,
+            account_id,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx
+          FROM
+            aws_backup_plan,
+            jsonb_array_elements(backup_plan -> 'Rules') AS r
+        )
+        SELECT
+          r.arn AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          r.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN r.rules IS NULL THEN 'alarm'
+            WHEN r.rules ->> 'Lifecycle' IS NULL THEN 'ok'
+            WHEN (r.rules -> 'Lifecycle' ->> 'DeleteAfterDays')::int >= 35 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN r.rules IS NULL THEN r.title || ' retention period not set.'
+            WHEN r.rules ->> 'Lifecycle' IS NULL THEN (r.rules ->> 'RuleName') || ' retention period set to never expire.'
+            ELSE (r.rules ->> 'RuleName') || ' retention period set to ' || (r.rules -> 'Lifecycle' ->> 'DeleteAfterDays') || ' days.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          all_plans AS r;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/Backup
+    soc_2:
+      - 'true'

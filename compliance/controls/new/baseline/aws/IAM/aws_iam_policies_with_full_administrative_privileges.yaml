@@ -1,0 +1,51 @@
+id: aws_iam_policies_with_full_administrative_privileges
+title: IAM Policies With Full Administrative Privileges
+description: Ensure IAM policies that allow full '*:*' administrative privileges aren't created.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 
+              FROM jsonb_array_elements_text(stmt -> 'Action') AS a 
+              WHERE a = '*'
+            ) 
+            AND stmt ->> 'Effect' = 'Allow' 
+            AND stmt ->> 'Resource' = '[\"*\"]' 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 
+              FROM jsonb_array_elements_text(stmt -> 'Action') AS a 
+              WHERE a = '*'
+            ) 
+            AND stmt ->> 'Effect' = 'Allow' 
+            AND stmt ->> 'Resource' = '[\"*\"]' 
+            THEN 'policy allows full administrative privileges'
+            ELSE 'policy does not allow full administrative privileges'
+          END AS reason,
+          region, 
+          account_id
+        FROM
+          aws_iam_policy AS p,
+          jsonb_array_elements(p.policy_std -> 'Statement') AS stmt
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

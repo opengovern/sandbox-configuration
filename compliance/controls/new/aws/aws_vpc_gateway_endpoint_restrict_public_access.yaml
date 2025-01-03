@@ -1,0 +1,47 @@
+id: aws_vpc_gateway_endpoint_restrict_public_access
+title: VPC gateway endpoints should restrict public access
+description: Manage access to resources in the AWS Cloud by ensuring VPC gateway endpoints cannot be publicly accessed.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_endpoint
+    definition: |
+        WITH wildcard_action_policies AS (
+          SELECT
+            vpc_endpoint_id,
+            COUNT(*) AS statements_num
+          FROM
+            aws_vpc_endpoint,
+            jsonb_array_elements(policy_std -> 'Statement') AS s
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND s -> 'Condition' IS NULL
+            AND (
+              (s -> 'Principal' -> 'AWS') = '[\"*\"]'
+              OR s ->> 'Principal' = '*'
+            )
+            AND s ->> 'Action' = '[\"*\"]'
+          GROUP BY
+            vpc_endpoint_id
+        )
+        SELECT
+          e.vpc_endpoint_id AS resource,
+          e.platform_integration_id AS platform_integration_id,
+          e.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN e.vpc_endpoint_type <> 'Gateway' THEN 'skip'
+            WHEN p.vpc_endpoint_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN vpc_endpoint_type <> 'Gateway' THEN e.title || ' is of ' || e.vpc_endpoint_type || ' endpoint type.'
+            WHEN p.vpc_endpoint_id IS NULL THEN e.title || ' does not allow public access.'
+            ELSE title || ' contains ' || COALESCE(p.statements_num, 0) || ' statements that allow public access.'
+          END AS reason
+        FROM
+          aws_vpc_endpoint AS e
+          LEFT JOIN wildcard_action_policies AS p ON p.vpc_endpoint_id = e.vpc_endpoint_id
+severity: low
+tags: {}

@@ -1,0 +1,68 @@
+id: aws_cloudtrail_trail_logs_encrypted_with_kms_cmk
+title: CloudTrail trail logs should be encrypted with KMS CMK
+description: To help protect sensitive data at rest, ensure encryption is enabled for your AWS CloudWatch Log Groups.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudtrail_trail
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN kms_key_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms_key_id IS NULL THEN title || ' logs are not encrypted at rest.'
+            ELSE title || ' logs are encrypted at rest.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudtrail_trail
+        WHERE
+          region = home_region;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/CloudTrail
+    soc_2:
+      - 'true'

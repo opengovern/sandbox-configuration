@@ -1,0 +1,35 @@
+id: azure_datalake_store_account_encryption_enabled
+title: Require encryption on Data Lake Store accounts
+description: This policy ensures encryption is enabled on all Data Lake Store accounts.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_data_lake_store
+    definition: |
+        SELECT
+          b.account_id AS resource,
+          b.platform_integration_id AS platform_integration_id,
+          b.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_state = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_state = 'Enabled' THEN b.name || ' encryption enabled.'
+            ELSE b.name || ' encryption disabled.'
+          END AS reason,
+          b.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_data_lake_store AS b,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = b.subscription_id;
+severity: high
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/DataLakeStorage

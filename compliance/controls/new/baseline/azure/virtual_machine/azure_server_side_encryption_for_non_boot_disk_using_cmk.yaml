@@ -1,0 +1,40 @@
+id: azure_server_side_encryption_for_non_boot_disk_using_cmk
+title: Server Side Encryption for Non-Boot Disk using CMK
+description: Ensure that Azure VM data disk volumes are encrypted at rest using customer-managed keys (CMKs).
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id,
+          disk.platform_resource_id,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithPlatformKey' THEN 'Disk is encrypted by CMK.'
+            ELSE 'Disk is encrypted with Platform Key instead of CMK.'
+          END AS reason,
+          disk.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_disk AS disk
+          LEFT JOIN azure_subscription AS sub ON sub.subscription_id = disk.subscription_id
+          LEFT JOIN azure_compute_virtual_machine AS vm ON vm.data_disks::text LIKE '%' || disk.id || '%'
+        WHERE
+          vm.id IS NOT NULL
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Insecure Keys

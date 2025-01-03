@@ -1,0 +1,48 @@
+id: aws_elbv2_alb_minimum_number_of_ec2_target_instances
+title: ELBv2 ALB Minimum Number of EC2 Target Instances
+description: Ensure there is a minimum number of two healthy target instances associated with each AWS ELBv2 application load balancer.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH target_resource AS (
+          SELECT 
+            load_balancer_arn,
+            COUNT(*) AS c
+          FROM 
+            aws_ec2_target_group, 
+            jsonb_array_elements_text(load_balancer_arns) AS load_balancer_arn
+          GROUP BY 
+            load_balancer_arn
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN b.load_balancer_arn IS NULL OR b.c < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.load_balancer_arn IS NULL OR b.c < 2 THEN a.title || ' is not using a fault-tolerant configuration.'
+            ELSE a.title || ' is using a fault-tolerant configuration.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_application_load_balancer a
+        LEFT JOIN target_resource b
+        ON a.arn = b.load_balancer_arn;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Lacking High Availability

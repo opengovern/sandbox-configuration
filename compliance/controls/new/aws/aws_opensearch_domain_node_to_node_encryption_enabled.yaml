@@ -1,0 +1,45 @@
+id: aws_opensearch_domain_node_to_node_encryption_enabled
+title: OpenSearch domains node-to-node encryption should be enabled
+description: This control checks if AWS OpenSearch Service nodes are encrypted end to end. The rule is non-compliant if the node-to-node encryption is not enabled on the domain.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) THEN 'skip'
+            WHEN node_to_node_encryption_options_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) THEN 
+              title || ' node-to-node encryption not supported in ' || region || '.'
+            WHEN node_to_node_encryption_options_enabled THEN 
+              title || ' node-to-node encryption enabled.'
+            ELSE 
+              title || ' node-to-node encryption disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_opensearch_domain;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - encryption_of_data_in_transit
+    foundational_security_item_id:
+      - opensearch_3
+    plugin:
+      - aws
+    service:
+      - AWS/OpenSearch

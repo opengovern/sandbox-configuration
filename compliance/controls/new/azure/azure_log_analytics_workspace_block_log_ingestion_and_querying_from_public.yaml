@@ -1,0 +1,33 @@
+id: azure_log_analytics_workspace_block_log_ingestion_and_querying_from_public
+title: Log Analytics workspaces should block log ingestion and querying from public networks
+description: Improve workspace security by blocking log ingestion and querying from public networks. Only private-link connected networks will be able to ingest and query logs on this workspace. Learn more at https://aka.ms/AzMonPrivateLink#configure-log-analytics.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_log_analytics_workspace
+    definition: |
+        SELECT
+          w.id AS resource,
+          w.platform_integration_id AS platform_integration_id,
+          w.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN type = 'Microsoft.OperationalInsights/workspaces' 
+              AND public_network_access_for_ingestion = 'Enabled' 
+              AND public_network_access_for_query = 'Enabled' 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN type = 'Microsoft.OperationalInsights/workspaces' 
+              AND public_network_access_for_ingestion = 'Enabled' 
+              AND public_network_access_for_query = 'Enabled' 
+            THEN w.name || ' workspace allows log ingestion and querying from public network.'
+            ELSE w.name || ' workspace does not allow log ingestion and querying from public network.'
+          END AS reason
+        FROM
+          azure_log_analytics_workspace AS w
+          LEFT JOIN azure_subscription sub ON sub.subscription_id = w.subscription_id;
+severity: low
+tags: {}

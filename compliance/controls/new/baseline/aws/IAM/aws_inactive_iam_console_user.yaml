@@ -1,0 +1,44 @@
+id: aws_inactive_iam_console_user
+title: Inactive IAM Console User
+description: Ensure no AWS IAM users have been inactive for a long (specified) period of time.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT 
+          name AS resource,
+          u.platform_resource_id,
+          u.platform_integration_id,
+          CASE
+            WHEN (k.access_key_id IS NULL AND 
+                  (password_last_used IS NULL OR 
+                   password_last_used::timestamp < NOW() - '90 days'::interval)
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (k.access_key_id IS NULL AND
+                  (password_last_used IS NULL OR 
+                   password_last_used::timestamp < NOW() - '90 days'::interval)
+            ) THEN 'certificate has been expired'
+            ELSE 'certificate is not expired'
+          END AS reason,
+          u.region,
+          u.account_id
+        FROM 
+          aws_iam_user AS u
+          LEFT JOIN aws_iam_access_key AS k 
+          ON u.name = k.user_name
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

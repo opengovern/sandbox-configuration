@@ -1,0 +1,33 @@
+id: aws_foundational_security_ec2_2
+title: 2 VPC default security groups should not allow inbound or outbound traffic
+description: This control checks that the default security group of a VPC does not allow inbound or outbound traffic. The rules for the default security group allow all outbound and inbound traffic from network interfaces (and their associated instances) that are assigned to the same security group.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) = 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) > 0
+              THEN 'Default security group ' || group_id || ' has inbound and outbound rules.'
+            WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) = 0
+              THEN 'Default security group ' || group_id || ' has inbound rules.'
+            WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) > 0
+              THEN 'Default security group ' || group_id || ' has outbound rules.'
+            ELSE 'Default security group ' || group_id || ' has no inbound or outbound rules.'
+          END AS reason
+        FROM
+          aws_vpc_security_group
+        WHERE
+          group_name = 'default';
+severity: high
+tags: {}

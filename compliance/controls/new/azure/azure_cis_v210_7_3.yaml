@@ -1,0 +1,30 @@
+id: azure_cis_v210_7_3
+title: 7.3 Ensure that 'OS and Data' disks are encrypted with Customer Managed Key (CMK)
+description: Ensure that OS disks (boot volumes) and data disks (non-boot volumes) are encrypted with CMK (Customer Managed Keys). Customer Managed keys can be either ADE or Server Side Encryption(SSE).
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id AS platform_integration_id,
+          disk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN disk.name || ' encrypted with CMK.'
+            ELSE disk.name || ' not encrypted with CMK.'
+          END AS reason
+        FROM
+          azure_compute_disk disk,
+          azure_subscription sub
+        WHERE
+          disk_state = 'Attached'
+          AND sub.subscription_id = disk.subscription_id;
+severity: low
+tags: {}

@@ -1,0 +1,52 @@
+id: aws_unrestricted_icmp_access
+title: Unrestricted ICMP Access
+description: Ensure no security group allows unrestricted inbound access to ICMP.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsIcmpTrustedIpRange
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT 
+          group_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE ('{{.awsIcmpTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%') 
+                AND ((p ->> 'IpProtocol') = 'icmp')
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE ('{{.awsIcmpTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%') 
+                AND ((p ->> 'IpProtocol') = 'icmp')
+            ) THEN group_name || ' has Unrestricted ICMP Access'
+            ELSE group_name || ' ICMP Access is secure'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_vpc_security_group
+        WHERE
+          EXISTS (SELECT 1 FROM jsonb_array_elements(ip_permissions) AS p WHERE (p ->> 'IpProtocol') = 'icmp')
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

@@ -1,0 +1,28 @@
+id: aws_foundational_security_cloudtrail_5
+title: 5 Ensure CloudTrail trails are integrated with Amazon CloudWatch Logs
+description: This control checks whether CloudTrail trails are configured to send logs to CloudWatch Logs. The control fails if the CloudWatchLogsLogGroupArn property of the trail is empty.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudtrail_trail
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN log_group_arn != 'null' AND (latest_delivery_time > current_date - 1) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN log_group_arn != 'null' AND (latest_delivery_time > current_date - 1) THEN title || ' integrated with CloudWatch logs.'
+            ELSE title || ' not integrated with CloudWatch logs.'
+          END AS reason
+        FROM
+          aws_cloudtrail_trail
+        WHERE
+          region = home_region;
+severity: low
+tags: {}

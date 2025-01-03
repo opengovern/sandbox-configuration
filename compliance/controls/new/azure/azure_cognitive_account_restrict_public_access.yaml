@@ -1,0 +1,47 @@
+id: azure_cognitive_account_restrict_public_access
+title: Cognitive Services accounts should restrict network access
+description: Network access to Cognitive Services accounts should be restricted. Configure network rules so only applications from allowed networks can access the Cognitive Services account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_cognitive_account
+    definition: |
+        WITH account_with_public_access_restricted AS (
+          SELECT
+            a.id
+          FROM
+            azure_cognitive_account AS a,
+            jsonb_array_elements(capabilities) AS c
+          WHERE
+            c ->> 'name' = 'VirtualNetworks'
+            AND network_acls ->> 'defaultAction' <> 'Deny'
+        )
+        SELECT
+          DISTINCT a.name AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.id IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.id IS NOT NULL THEN a.name || ' publicly accessible.'
+            ELSE a.name || ' publicly not accessible.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_cognitive_account AS a
+          LEFT JOIN account_with_public_access_restricted AS b
+            ON a.id = b.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/CognitiveServices

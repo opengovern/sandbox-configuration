@@ -1,0 +1,51 @@
+id: aws_efs_file_system_encrypted_with_cmk
+title: EFS file systems should be encrypted with CMK
+description: Ensure AWS Elastic File Systems (AWS EFS) are encrypted using CMK. The rule is non-compliant if the EFS File System is not encrypted using CMK.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_efs_file_system
+    definition: |
+        WITH encrypted_fs AS (
+          SELECT
+            fs.arn AS arn,
+            key_manager
+          FROM
+            aws_efs_file_system AS fs
+            LEFT JOIN aws_kms_key AS k ON fs.kms_key_id = k.arn
+          WHERE
+            enabled
+        )
+        SELECT
+          f.arn AS resource,
+          f.platform_integration_id AS platform_integration_id,
+          f.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT encrypted THEN 'alarm'
+            WHEN encrypted AND e.key_manager = 'CUSTOMER' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT encrypted THEN title || ' not encrypted.'
+            WHEN encrypted AND e.key_manager = 'CUSTOMER' THEN title || ' encrypted with CMK.'
+            ELSE title || ' not encrypted with CMK.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_efs_file_system AS f
+          LEFT JOIN encrypted_fs AS e ON f.arn = e.arn
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    other_checks:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/EFS

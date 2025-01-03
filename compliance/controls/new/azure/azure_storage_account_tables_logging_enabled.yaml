@@ -1,0 +1,37 @@
+id: azure_storage_account_tables_logging_enabled
+title: Storage account logging (Classic Diagnostic Setting) for tables should be enabled
+description: Storage Logging records details of requests (read, write, and delete operations) against your Azure tables. This policy identifies Azure storage accounts that do not have logging enabled for tables. As a best practice, enable logging for read, write, and delete request types on tables.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN LOWER(sa.sku_tier) = 'standard'
+            AND (table_logging_write AND table_logging_read AND table_logging_delete) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN LOWER(sa.sku_tier) = 'standard'
+            AND (table_logging_write AND table_logging_read AND table_logging_delete)
+              THEN sa.name || ' storage account logging for tables is enabled.'
+            ELSE sa.name || ' storage account logging for tables is disabled for ' ||
+              CONCAT_WS(', ',
+                CASE WHEN NOT table_logging_write THEN 'write' END,
+                CASE WHEN NOT table_logging_read THEN 'read' END,
+                CASE WHEN NOT table_logging_delete THEN 'delete' END
+              ) || ' requests.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

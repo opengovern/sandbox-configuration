@@ -1,0 +1,35 @@
+id: aws_enable_cross_zone_load_balancing
+title: Enable Cross-Zone Load Balancing
+description: Ensure fault tolerance for your Amazon Gateway Load Balancers by enabling Cross-Zone Load Balancing.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_gateway_load_balancer
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN lb ->> 'Value' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN lb ->> 'Value' = 'false' THEN a.title || ' deletion protection is not enabled.'
+            ELSE a.title || ' deletion protection is enabled.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_gateway_load_balancer a
+          CROSS JOIN jsonb_array_elements(load_balancer_attributes) AS lb
+        WHERE
+          lb ->> 'Key' = 'load_balancing.cross_zone.enabled'
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)

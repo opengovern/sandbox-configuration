@@ -1,0 +1,51 @@
+id: azure_cis_v210_6_1
+title: 6.1 Ensure that RDP access from the Internet is evaluated and restricted
+description: Network security groups should be periodically evaluated for port misconfigurations. Where certain ports and protocols may be exposed to the Internet, they should be evaluated for necessity and restricted wherever they are not explicitly required.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_security_group
+    definition: |
+        WITH network_sg AS (
+          SELECT
+            DISTINCT name AS sg_name
+          FROM
+            azure_network_security_group nsg,
+            jsonb_array_elements(security_rules) sg,
+            jsonb_array_elements_text(sg -> 'properties' -> 'destinationPortRanges' || (sg -> 'properties' -> 'destinationPortRange')::jsonb) AS dport,
+            jsonb_array_elements_text(sg -> 'properties' -> 'sourceAddressPrefixes' || (sg -> 'properties' -> 'sourceAddressPrefix')::jsonb) AS sip
+          WHERE
+            sg -> 'properties' ->> 'access' = 'Allow'
+            AND sg -> 'properties' ->> 'direction' = 'Inbound'
+            AND (sg -> 'properties' ->> 'protocol' ILIKE 'TCP' OR sg -> 'properties' ->> 'protocol' = '*')
+            AND sip IN ('*', '0.0.0.0', '0.0.0.0/0', 'Internet', 'any', '<nw>/0', '/0')
+            AND (
+              dport IN ('3389', '*')
+              OR (
+                dport LIKE '%-%'
+                AND split_part(dport, '-', 1)::INTEGER <= 3389
+                AND split_part(dport, '-', 2)::INTEGER >= 3389
+              )
+            )
+        )
+        SELECT
+          sg.id AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN nsg.sg_name IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN nsg.sg_name IS NULL
+              THEN sg.title || ' restricts RDP access from internet.'
+            ELSE sg.title || ' allows RDP access from internet.'
+          END AS reason
+        FROM
+          azure_network_security_group sg
+          LEFT JOIN network_sg nsg ON nsg.sg_name = sg.name
+          JOIN azure_subscription sub ON sub.subscription_id = sg.subscription_id;
+severity: low
+tags: {}

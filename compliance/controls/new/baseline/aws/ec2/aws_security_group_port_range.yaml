@@ -1,0 +1,48 @@
+id: aws_security_group_port_range
+title: Security Group Port Range
+description: Ensure no security group opens range of ports.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        WITH ingress_sg AS (
+          SELECT
+            group_id
+          FROM
+            aws_vpc_security_group_rule
+          WHERE
+            from_port = from_port
+            AND NOT is_egress
+          GROUP BY
+            group_id
+        )
+        SELECT
+          sg.group_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN isg.group_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN isg.group_id IS NULL THEN sg.group_id || ' does not allow unrestricted FTP access'
+            ELSE sg.group_id || ' allows unrestricted FTP access'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_security_group AS sg
+          LEFT JOIN ingress_sg AS isg ON sg.group_id = isg.group_id
+severity: very high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

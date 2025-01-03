@@ -1,0 +1,42 @@
+id: aws_ssm_document_prohibit_public_access
+title: SSM documents should not be public
+description: This control checks whether AWS Systems Manager documents that are owned by the account are public. This control fails if SSM documents with the owner Self are public.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ssm_document
+    definition: |
+        SELECT
+          'arn:' || partition || ':ssm:' || region || ':' || account_id || ':document/' || name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN account_ids :: jsonb ? 'all' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN account_ids :: jsonb ? 'all' THEN title || ' publicly accessible.'
+            ELSE title || ' not publicly accessible.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ssm_document
+        WHERE
+          owner_type = 'Self';
+severity: critical
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resources_not_publicly_accessible
+    foundational_security_item_id:
+      - ssm_4
+    plugin:
+      - aws
+    service:
+      - AWS/SSM

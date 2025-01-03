@@ -1,0 +1,37 @@
+id: aws_ec2_instance_virtualization_type_no_paravirtual
+title: Paravirtual EC2 instance types should not be used
+description: This control checks whether the virtualization type of an EC2 instance is paravirtual. The control fails if the virtualizationType of the EC2 instance is set to paravirtual.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN virtualization_type = 'paravirtual' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' virtualization type is ' || virtualization_type || '.' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - vulnerability_patch_and_version_management
+    foundational_security_item_id:
+      - ec2_24
+    plugin:
+      - aws
+    service:
+      - AWS/EC2

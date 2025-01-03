@@ -1,0 +1,31 @@
+id: azure_cis_v130_8_2
+title: 8.2 Ensure that the expiration date is set on all Secrets
+description: Ensure that all Secrets in the Azure Key Vault have an expiration time set.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault_secret
+    definition: |
+        SELECT
+          kvs.id AS resource,
+          kvs.platform_integration_id AS platform_integration_id,
+          kvs.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled AND expires_at IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          vault_name || ' secret ' || name ||
+          CASE
+            WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
+            WHEN NOT enabled THEN ' disabled.'
+            ELSE ' expiration date set to ' || TO_CHAR(expires_at, 'DD-Mon-YYYY') || '.'
+          END AS reason
+        FROM
+          azure_key_vault_secret AS kvs,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = kvs.subscription_id;
+severity: low
+tags: {}

@@ -1,0 +1,40 @@
+id: aws_elasticache_replication_group_auto_failover_enabled
+title: ElastiCache for Redis replication groups should have automatic failover enabled
+description: This control checks if ElastiCache for Redis replication groups have automatic failover enabled. This control fails if automatic failover isn't enabled for a Redis replication group.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticache_replication_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN automatic_failover = 'enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN automatic_failover = 'enabled' THEN title || ' automatic failover enabled.'
+            ELSE title || ' automatic failover disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_elasticache_replication_group;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - high_availability
+    foundational_security_item_id:
+      - elasticache_3
+    plugin:
+      - aws
+    service:
+      - AWS/ElastiCache

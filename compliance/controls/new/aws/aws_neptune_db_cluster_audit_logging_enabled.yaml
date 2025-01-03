@@ -1,0 +1,27 @@
+id: aws_neptune_db_cluster_audit_logging_enabled
+title: Neptune DB clusters should publish audit logs to CloudWatch Logs
+description: This control checks whether a Neptune DB cluster publishes audit logs to AWS CloudWatch Logs. The control fails if a Neptune DB cluster doesn't publish audit logs to CloudWatch Logs. EnableCloudWatchLogsExport should be set to Audit.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_neptune_db_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          engine,
+          CASE
+            WHEN enabled_cloudwatch_logs_exports @> '["audit"]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enabled_cloudwatch_logs_exports @> '["audit"]' THEN title || ' audit logging enabled.'
+            ELSE title || ' audit logging disabled.'
+          END AS reason
+        FROM
+          aws_neptune_db_cluster;
+severity: low
+tags: {}

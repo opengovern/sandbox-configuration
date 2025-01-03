@@ -1,0 +1,26 @@
+id: aws_codebuild_project_with_user_controlled_buildspec
+title: CodeBuild projects should not use an user controlled buildspec
+description: This control checks if buildspec.yml is used from a trusted source which user cant interfere with.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_codebuild_project
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN split_part(source ->> 'Buildspec', '.', -1) = 'yml' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN split_part(source ->> 'Buildspec', '.', -1) = 'yml' THEN title || ' uses a user controlled buildspec.'
+            ELSE title || ' does not use a user controlled buildspec.'
+          END AS reason
+        FROM
+          aws_codebuild_project;
+severity: low
+tags: {}

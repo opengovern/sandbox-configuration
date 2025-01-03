@@ -1,0 +1,23 @@
+id: aws_foundational_security_docdb_2
+title: 2 Amazon DocumentDB clusters should have an adequate backup retention period
+description: This control checks whether an Amazon DocumentDB cluster has a backup retention period greater than or equal to 7 days. The control fails if the backup retention period is less than 7 days.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_docdb_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN backup_retention_period >= 7 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' backup retention period is ' || backup_retention_period || ' day(s).' AS reason
+        FROM
+          aws_docdb_cluster;
+severity: medium
+tags: {}

@@ -1,0 +1,48 @@
+id: aws_iam_policy_custom_no_permissive_role_assumption
+title: IAM custom policy should not have overly permissive STS role assumption
+description: Ensure that no custom IAM policies exist which allow permissive role assumption.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH bad_policies AS (
+          SELECT
+            arn,
+            COUNT(*) AS num
+          FROM
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            NOT is_aws_managed
+            AND s ->> 'Effect' = 'Allow'
+            AND resource = '*'
+            AND (
+              action = '*'
+              OR action = 'sts:*'
+              OR action = 'sts:AssumeRole'
+            )
+          GROUP BY
+            arn
+        )
+        SELECT
+          p.arn AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.arn IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          p.name || ' contains ' || COALESCE(b.num, 0) ||
+              ' statements that allow overly permissive STS role assumption.' AS reason
+        FROM
+          aws_iam_policy AS p
+        LEFT JOIN bad_policies AS b ON p.arn = b.arn
+        WHERE
+          NOT is_aws_managed;
+severity: low
+tags: {}

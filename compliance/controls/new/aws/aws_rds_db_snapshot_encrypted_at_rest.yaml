@@ -1,0 +1,87 @@
+id: aws_rds_db_snapshot_encrypted_at_rest
+title: RDS DB snapshots should be encrypted at rest
+description: Ensure that encryption is enabled for your AWS Relational Database Service (AWS RDS) snapshots.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        (
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_rds_db_cluster_snapshot' AS platform_table_name,
+          CASE
+            WHEN storage_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_cluster_snapshot
+        )
+        UNION
+        (
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_rds_db_snapshot' AS platform_table_name,
+          CASE
+            WHEN encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_snapshot
+        );
+severity: high
+tags:
+    audit_manager_control_tower:
+      - 'true'
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/RDS
+    soc_2:
+      - 'true'

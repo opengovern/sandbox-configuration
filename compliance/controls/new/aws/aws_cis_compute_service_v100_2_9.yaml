@@ -1,0 +1,30 @@
+id: aws_cis_compute_service_v100_2_9
+title: 2.9 Ensure use of AWS Systems Manager to manage EC2 instances
+description: An inventory and management of Amazon Elastic Compute Cloud (Amazon EC2) instances is made possible with AWS Systems Manager.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          i.arn AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN i.instance_state = 'stopped' THEN 'info'
+            WHEN m.instance_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN i.instance_state = 'stopped' THEN i.title || ' is in stopped state.'
+            WHEN m.instance_id IS NULL THEN i.title || ' not managed by AWS SSM.'
+            ELSE i.title || ' managed by AWS SSM.'
+          END AS reason
+        FROM
+          aws_ec2_instance i
+        LEFT JOIN
+          aws_ssm_managed_instance m ON m.instance_id = i.instance_id;
+severity: low
+tags: {}

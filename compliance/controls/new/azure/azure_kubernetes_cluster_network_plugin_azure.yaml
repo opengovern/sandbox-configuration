@@ -1,0 +1,29 @@
+id: azure_kubernetes_cluster_network_plugin_azure
+title: Kubernetes clusters should have Azure network plugin
+description: This control checks if Azure CNI networking is enabled for Kubernetes cluster.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_profile ->> 'networkPlugin' = 'azure' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN network_profile ->> 'networkPlugin' = 'azure' THEN c.name || ' Azure CNI networking enabled.'
+            ELSE c.name || ' Azure CNI networking disabled.'
+          END AS reason
+        FROM
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

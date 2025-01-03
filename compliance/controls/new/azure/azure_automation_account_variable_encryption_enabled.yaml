@@ -1,0 +1,33 @@
+id: azure_automation_account_variable_encryption_enabled
+title: Automation account variables should be encrypted
+description: It is important to enable encryption of Automation account variable assets when storing sensitive data
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_automation_variable
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN is_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN is_encrypted THEN a.title || ' encryption enabled.'
+            ELSE a.title || ' encryption disabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_automation_variable AS a,
+          azure_subscription AS sub;
+severity: high
+tags:
+    pci_dss_v321:
+      - 'true'
+    service:
+      - Azure/Automation

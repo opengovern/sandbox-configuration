@@ -1,0 +1,40 @@
+id: azure_disk_encryption_for_boot_disk_volumes
+title: Azure Disk Encryption for Boot Disk Volumes
+description: Ensure that Azure Disk Encryption is enabled for Azure virtual machine boot volumes to protect data at rest.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.name AS resource,
+          vm.platform_resource_id,
+          vm.platform_integration_id,
+          CASE
+            WHEN encryption_settings_collection_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_settings_collection_enabled THEN vm.name || ' disk encryption for os disk is enabled.'
+            ELSE vm.name || ' disk encryption for os disk is not enabled.'
+          END AS reason,
+          vm.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm
+          LEFT JOIN azure_compute_disk AS d
+            ON d.name = vm.os_disk_name
+          LEFT JOIN azure_subscription AS sub
+            ON vm.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Unencrypted Storage

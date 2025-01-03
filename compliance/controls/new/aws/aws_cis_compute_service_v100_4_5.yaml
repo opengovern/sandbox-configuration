@@ -1,0 +1,20 @@
+id: aws_cis_compute_service_v100_4_5
+title: 4.5 Ensure every Lambda function has its own IAM Role
+description: Every Lambda function should have a one to one IAM execution role and the roles should not be shared between functions.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

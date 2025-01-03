@@ -1,0 +1,26 @@
+id: aws_foundational_security_backup_1
+title: 1 AWS Backup recovery points should be encrypted at rest
+description: This control checks if an AWS Backup recovery point is encrypted at rest. The control fails if the recovery point isn't encrypted at rest.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_backup_recovery_point
+    definition: |
+        SELECT
+          recovery_point_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN is_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN is_encrypted THEN recovery_point_arn || ' encryption enabled.'
+            ELSE recovery_point_arn || ' encryption disabled.'
+          END AS reason
+        FROM
+          aws_backup_recovery_point;
+severity: medium
+tags: {}

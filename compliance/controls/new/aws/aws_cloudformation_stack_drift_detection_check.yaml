@@ -1,0 +1,40 @@
+id: aws_cloudformation_stack_drift_detection_check
+title: CloudFormation stacks differ from the expected configuration
+description: Ensure that the actual configuration of a Cloud Formation stack differs, or has drifted, from the expected configuration, a stack is considered to have drifted if one or more of its resources differ from their expected configuration.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudformation_stack
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN stack_drift_status = 'IN_SYNC' THEN 'ok'
+            WHEN stack_drift_status = 'DRIFTED' THEN 'alarm'
+            ELSE 'skip'
+          END AS status,
+          CASE
+            WHEN stack_drift_status = 'IN_SYNC' THEN title || ' drift status is ' || stack_drift_status || '.'
+            WHEN stack_drift_status = 'DRIFTED' THEN title || ' drift status is ' || stack_drift_status || '.'
+            ELSE title || ' drift status is ' || stack_drift_status || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudformation_stack;
+severity: high
+tags:
+    category:
+      - Compliance
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/CloudFormation

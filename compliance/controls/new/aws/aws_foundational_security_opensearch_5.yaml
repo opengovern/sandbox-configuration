@@ -1,0 +1,26 @@
+id: aws_foundational_security_opensearch_5
+title: 5 OpenSearch domains should have audit logging enabled
+description: This control checks whether OpenSearch domains have audit logging enabled. This control fails if an OpenSearch domain does not have audit logging enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' THEN 'ok'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN log_publishing_options -> 'AUDIT_LOGS' ->> 'Enabled' = 'true' THEN title || ' audit logging enabled.'
+            ELSE title || ' audit logging disabled.'
+          END AS reason
+        FROM
+          aws_opensearch_domain;
+severity: medium
+tags: {}

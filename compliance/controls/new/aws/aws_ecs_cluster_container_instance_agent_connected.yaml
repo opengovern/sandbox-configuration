@@ -1,0 +1,41 @@
+id: aws_ecs_cluster_container_instance_agent_connected
+title: ECS cluster container instances should have connected agent
+description: This control checks if ECS cluster container instances have connected agent. This control fails if the agent is not connected.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_cluster
+    definition: |
+        WITH unconnected_agent_instance AS (
+          SELECT
+            DISTINCT cluster_arn
+          FROM
+            aws_ecs_container_instance
+          WHERE
+            agent_connected = FALSE 
+            AND status = 'ACTIVE'
+        )
+        SELECT
+          c.cluster_arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.registered_container_instances_count = 0 THEN 'skip'
+            WHEN i.cluster_arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.registered_container_instances_count = 0 THEN title || ' has no container instance registered.'
+            WHEN i.cluster_arn IS NULL THEN title || ' container instance has connected agent.'
+            ELSE title || ' container instance is either draining or has unconnected agents.'
+          END AS reason
+        FROM
+          aws_ecs_cluster AS c
+        LEFT JOIN
+          unconnected_agent_instance AS i 
+        ON
+          c.cluster_arn = i.cluster_arn;
+severity: low
+tags: {}

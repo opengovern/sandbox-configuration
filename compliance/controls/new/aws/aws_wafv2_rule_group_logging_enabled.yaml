@@ -1,0 +1,26 @@
+id: aws_wafv2_rule_group_logging_enabled
+title: AWS WAF rules should have CloudWatch metrics enabled
+description: This control checks whether an AWS WAF rule or rule group has Amazon CloudWatch metrics enabled. The control fails if the rule or rule group doesn't have CloudWatch metrics enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_wafv2_rule_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN title || ' logging enabled.'
+            ELSE title || ' logging disabled.'
+          END AS reason
+        FROM
+          aws_wafv2_rule_group;
+severity: low
+tags: {}

@@ -1,0 +1,51 @@
+id: azure_mysql_server_audit_logging_events_connection_set
+title: Ensure server parameter 'audit_log_events' has 'CONNECTION' set for MySQL Database Server
+description: Set audit_log_enabled to include CONNECTION on MySQL Servers.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_mysql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') = 'connection' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') = 'connection' THEN s.name || ' server parameter audit_log_events has connection set.'
+            ELSE s.name || ' server parameter audit_log_events connection not set.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_mysql_server AS s,
+          jsonb_array_elements(server_configurations) config,
+          azure_subscription sub
+        WHERE
+          config ->> 'Name' = 'audit_log_events'
+          AND sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.4.4
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '4.4'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/MySQL

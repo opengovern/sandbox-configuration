@@ -1,0 +1,32 @@
+id: aws_elb_cross_zone_load_balancing_enabled
+title: ELB Cross-Zone Load Balancing Enabled
+description: Ensure Cross-Zone Load Balancing is enabled for all load balancers. Also select at least two subnets in different availability zones to provide higher availability.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN platform_resource_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN platform_resource_description -> 'Attributes' -> 'CrossZoneLoadBalancing' ->> 'Enabled' = 'true' THEN a.title || ' Cross-Zone Load Balancing feature is enabled'
+            ELSE a.title || ' Cross-Zone Load Balancing feature is not enabled'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_classic_load_balancer a
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing (ELB)
+    score_service_name:
+      - AWS Elastic Load Balancing (ELB)

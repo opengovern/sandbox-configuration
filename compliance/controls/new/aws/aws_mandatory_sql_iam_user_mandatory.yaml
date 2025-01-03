@@ -1,0 +1,44 @@
+id: aws_mandatory_sql_iam_user_mandatory
+title: IAM users should have mandatory tags
+description: Check if IAM users have mandatory tags.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsMandatoryTags
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn,
+            title,
+            tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
+            TO_JSONB('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_iam_user
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          arn AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          analysis;
+severity: high
+tags: {}

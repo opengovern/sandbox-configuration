@@ -1,0 +1,58 @@
+id: aws_rds_db_instance_multiple_az_enabled
+title: RDS DB instance multiple az should be enabled
+description: Multi-AZ support in AWS Relational Database Service (AWS RDS) provides enhanced availability and durability for database instances.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT 
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN engine ILIKE ANY (ARRAY ['%aurora-mysql%', '%aurora-postgres%']) THEN 'skip'
+            WHEN multi_az THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN engine ILIKE ANY (ARRAY ['%aurora-mysql%', '%aurora-postgres%']) THEN title || ' cluster instance.'
+            WHEN multi_az THEN title || ' Multi-AZ enabled.'
+            ELSE title || ' Multi-AZ disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_rds_db_instance;
+severity: low
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

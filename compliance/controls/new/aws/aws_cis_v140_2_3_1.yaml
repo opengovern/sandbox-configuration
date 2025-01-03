@@ -1,0 +1,26 @@
+id: aws_cis_v140_2_3_1
+title: 2.3.1 Ensure that encryption is enabled for RDS Instances
+description: Amazon RDS encrypted DB instances use the industry standard AES-256 encryption algorithm to encrypt your data on the server that hosts your Amazon RDS DB instances. After your data is encrypted, Amazon RDS handles authentication of access and decryption of your data transparently with a minimal impact on performance.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN storage_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason
+        FROM
+          aws_rds_db_instance;
+severity: low
+tags: {}

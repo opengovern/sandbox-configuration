@@ -1,0 +1,26 @@
+id: aws_docdb_cluster_instance_encryption_at_rest_enabled
+title: DocumentDB instance should be encrypted at rest
+description: This control checks whether an DocumentDB instance is encrypted at rest. The control fails if an DocumentDB instance isn't encrypted at rest.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_docdb_cluster_instance
+    definition: |
+        SELECT
+          db_instance_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN storage_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason
+        FROM
+          aws_docdb_cluster_instance;
+severity: low
+tags: {}

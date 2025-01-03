@@ -1,0 +1,52 @@
+id: aws_lambda_function_dead_letter_queue_configured
+title: Lambda functions should be configured with a dead-letter queue
+description: Enable this rule to help notify the appropriate personnel through AWS Simple Queue Service (AWS SQS) or AWS Simple Notification Service (AWS SNS) when a function has failed.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_lambda_function
+    definition: |
+        SELECT 
+          arn AS resource, 
+          platform_integration_id AS platform_integration_id, 
+          platform_resource_id AS platform_resource_id, 
+          CASE 
+            WHEN dead_letter_config_target_arn IS NULL THEN 'alarm' 
+            ELSE 'ok' 
+          END AS status, 
+          CASE 
+            WHEN dead_letter_config_target_arn IS NULL THEN title || ' configured with dead-letter queue.' 
+            ELSE title || ' not configured with dead-letter queue.' 
+          END AS reason,
+          region, 
+          account_id
+        FROM 
+          aws_lambda_function;
+severity: medium
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/Lambda
+    soc_2:
+      - 'true'

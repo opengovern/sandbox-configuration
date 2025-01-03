@@ -1,0 +1,69 @@
+id: aws_rds_db_cluster_aurora_protected_by_backup_plan
+title: RDS Aurora clusters should be protected by backup plan
+description: Checks if AWS Aurora DB clusters are protected by a backup plan. The rule is non-compliant if the AWS Relational Database Service (AWS RDS) Database Cluster is not protected by a backup plan.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_cluster
+    definition: |
+        WITH backup_protected_cluster AS (
+          SELECT
+            resource_arn AS arn
+          FROM
+            aws_backup_protected_resource AS b
+          WHERE
+            resource_type = 'Aurora'
+        )
+        SELECT
+          c.arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.engine NOT LIKE '%aurora%' THEN 'skip'
+            WHEN b.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.engine NOT LIKE '%aurora%' THEN c.title || ' not Aurora resources.'
+            WHEN b.arn IS NOT NULL THEN c.title || ' is protected by backup plan.'
+            ELSE c.title || ' is not protected by backup plan.'
+          END AS reason,
+          c.region,
+          c.account_id
+        FROM
+          aws_rds_db_cluster AS c
+          LEFT JOIN backup_protected_cluster AS b ON c.arn = b.arn
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/RDS
+    soc_2:
+      - 'true'

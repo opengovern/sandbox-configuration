@@ -1,0 +1,41 @@
+id: aws_db_instance_generation
+title: DB Instance Generation
+description: Ensure you always use the latest generation of DB instances to get better performance with lower cost.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          db_instance_identifier AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          class,
+          CASE
+            WHEN ARRAY['db.m1.small', 'db.m1.medium', 'db.m1.large', 'db.m1.xlarge',
+                       'db.m3.medium', 'db.m3.large', 'db.m3.xlarge', 'db.m3.2xlarge',
+                       'db.m2.xlarge', 'db.m2.2xlarge', 'db.m2.4xlarge', 'db.r3.large',
+                       'db.r3.xlarge', 'db.r3.2xlarge', 'db.r3.4xlarge', 'db.r3.8xlarge'] 
+                 @> ARRAY[class] THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN ARRAY['db.m1.small', 'db.m1.medium', 'db.m1.large', 'db.m1.xlarge',
+                       'db.m3.medium', 'db.m3.large', 'db.m3.xlarge', 'db.m3.2xlarge',
+                       'db.m2.xlarge', 'db.m2.2xlarge', 'db.m2.4xlarge', 'db.r3.large',
+                       'db.r3.xlarge', 'db.r3.2xlarge', 'db.r3.4xlarge', 'db.r3.8xlarge'] 
+                 @> ARRAY[class] THEN title || ' RDS Instance is using previous generation class'
+            ELSE title || ' RDS Instance is using class of latest generation'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    score_service_name:
+      - AWS Relational Database Service (RDS)

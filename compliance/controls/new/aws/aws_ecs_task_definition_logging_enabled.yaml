@@ -1,0 +1,37 @@
+id: aws_ecs_task_definition_logging_enabled
+title: ECS task definitions should have logging enabled
+description: Ensure logging is enabled for task definitions so that you can access your containerized application logs for debugging and auditing purposes. On top of centralized logging, these log drivers often include additional capabilities that are useful for operation.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_task_definition
+    definition: |
+        WITH task_definitions_logging_enabled AS (
+          SELECT
+            DISTINCT task_definition_arn AS arn
+          FROM
+            aws_ecs_task_definition,
+            jsonb_array_elements(container_definitions) AS c
+          WHERE
+            c ->> 'LogConfiguration' IS NOT NULL
+        )
+        SELECT
+          a.task_definition_arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.arn IS NOT NULL THEN a.title || ' logging enabled.'
+            ELSE a.title || ' logging disabled.'
+          END AS reason
+        FROM
+          aws_ecs_task_definition AS a
+        LEFT JOIN task_definitions_logging_enabled AS b
+          ON a.task_definition_arn = b.arn;
+severity: low
+tags: {}

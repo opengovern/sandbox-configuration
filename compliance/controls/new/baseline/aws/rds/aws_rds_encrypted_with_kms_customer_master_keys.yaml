@@ -1,0 +1,37 @@
+id: aws_rds_encrypted_with_kms_customer_master_keys
+title: RDS Encrypted With KMS Customer Master Keys
+description: Ensure RDS instances are encrypted with CMKs to have full control over encrypting and decrypting data.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          db_instance_identifier AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN storage_encrypted = 'false' THEN 'alarm'
+            WHEN k.arn IS NULL THEN 'alarm'
+            WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted = 'false' THEN db_instance_identifier || ' is not encrypted'
+            WHEN k.arn IS NULL THEN db_instance_identifier || ' is not using a master key'
+            WHEN k.key_manager = 'CUSTOMER' THEN db_instance_identifier || ' is using a customer master key'
+            ELSE db_instance_identifier || ' is using a AWS-managed master key'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_rds_db_instance AS v
+          LEFT JOIN aws_kms_key AS k ON v.kms_key_id = k.arn
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    score_service_name:
+      - AWS Relational Database Service (RDS)

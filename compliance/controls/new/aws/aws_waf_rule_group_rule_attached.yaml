@@ -1,0 +1,40 @@
+id: aws_waf_rule_group_rule_attached
+title: WAF global rule group should have at least one rule
+description: This control checks whether WAF global rule group has at least one rule. The control fails if no rules are present within a rule group.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_waf_rule_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN activated_rules IS NULL OR jsonb_array_length(activated_rules) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN activated_rules IS NULL OR jsonb_array_length(activated_rules) = 0 THEN title || ' has no attached rules.'
+            ELSE title || ' has ' || jsonb_array_length(activated_rules) || ' rule(s) attached.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_waf_rule_group;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resource_configuration
+    foundational_security_item_id:
+      - waf_7
+    plugin:
+      - aws
+    service:
+      - AWS/WAF

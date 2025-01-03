@@ -1,0 +1,51 @@
+id: azure_keyvault_vault_private_link_used
+title: Azure Key Vaults should use private link
+description: Azure Private Link lets you connect your virtual networks to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to key vault, you can reduce data leakage risks.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' = 'Allow' THEN 'alarm'
+            WHEN private_endpoint_connections IS NULL THEN 'info'
+            WHEN private_endpoint_connections @> '[{"PrivateLinkServiceConnectionStateStatus": "Approved"}]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' = 'Allow' THEN a.name || ' using public networks.'
+            WHEN private_endpoint_connections IS NULL THEN a.name || ' no private link exists.'
+            WHEN private_endpoint_connections @> '[{"PrivateLinkServiceConnectionStateStatus": "Approved"}]' THEN a.name || ' using private link.'
+            ELSE a.name || ' private link not enabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault a,
+          azure_subscription sub;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '8.7'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '8'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/KeyVault

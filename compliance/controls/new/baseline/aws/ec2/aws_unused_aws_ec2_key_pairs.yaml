@@ -1,0 +1,37 @@
+id: aws_unused_aws_ec2_key_pairs
+title: Unused AWS EC2 Key Pairs
+description: Ensure unused AWS EC2 key pairs are decommissioned to follow AWS security best practices.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_key_pair
+    definition: |
+        SELECT
+          k.key_name AS resource,
+          k.platform_resource_id,
+          k.platform_integration_id,
+          CASE
+            WHEN i.arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN i.arn IS NULL THEN k.key_name || ' is unused.'
+            ELSE k.key_name || ' is used.'
+          END AS reason,
+          k.region,
+          k.account_id
+        FROM
+          aws_ec2_key_pair AS k
+          LEFT JOIN aws_ec2_instance AS i ON k.key_name = i.key_name
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Missing Tags
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Missing Tags

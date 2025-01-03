@@ -1,0 +1,40 @@
+id: aws_mfa_device_deactivated
+title: MFA Device Deactivated
+description: A Multi-Factor Authentication (MFA) device deactivation for an IAM user has been detected.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN mfa.serial_number IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN mfa.serial_number IS NULL THEN a.title || 'mfa device not activated.'
+            ELSE a.title || 'mfa device activated.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_iam_user AS a
+        LEFT JOIN
+          aws_iam_virtual_mfa_device AS mfa
+        ON
+          a.user_id = mfa.user_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

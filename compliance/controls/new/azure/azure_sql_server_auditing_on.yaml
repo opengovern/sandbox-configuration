@@ -1,0 +1,51 @@
+id: azure_sql_server_auditing_on
+title: Auditing on SQL server should be enabled
+description: Auditing on your SQL Server should be enabled to track database activities across all databases on the server and save them in an audit log.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN audit -> 'properties' ->> 'state' = 'Disabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN audit -> 'properties' ->> 'state' = 'Disabled' 
+              THEN name || ' auditing disabled.'
+            ELSE name || ' auditing enabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server s,
+          jsonb_array_elements(server_audit_policy) audit,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.1.1
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '4.1'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SQL

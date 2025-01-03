@@ -1,0 +1,40 @@
+id: azure_cis_v210_4_5_2
+title: 4.5.2 Ensure That Private Endpoints Are Used Where Possible
+description: Private endpoints limit network traffic to approved sources.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_cosmosdb_account
+    definition: |
+        WITH cosmosdb_private_connection AS (
+          SELECT
+            DISTINCT a.id
+          FROM
+            azure_cosmosdb_account AS a,
+            jsonb_array_elements(private_endpoint_connections) AS connection
+          WHERE
+            connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.id IS NULL THEN a.name || ' not uses private link.'
+            ELSE a.name || ' uses private link.'
+          END AS reason
+        FROM
+          azure_cosmosdb_account AS a
+        LEFT JOIN
+          cosmosdb_private_connection AS c ON c.id = a.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

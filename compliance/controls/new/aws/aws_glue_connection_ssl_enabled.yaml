@@ -1,0 +1,26 @@
+id: aws_glue_connection_ssl_enabled
+title: Glue connection SSL should be enabled
+description: Ensure Glue connection encryption SSL is enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_glue_connection
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN connection_properties ->> 'JDBC_ENFORCE_SSL' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN connection_properties ->> 'JDBC_ENFORCE_SSL' = 'true' THEN name || ' SSL enabled.'
+            ELSE name || ' SSL disabled.'
+          END AS reason
+        FROM
+          aws_glue_connection;
+severity: low
+tags: {}

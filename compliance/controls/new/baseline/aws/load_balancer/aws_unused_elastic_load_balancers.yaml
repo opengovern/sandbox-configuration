@@ -1,0 +1,36 @@
+id: aws_unused_elastic_load_balancers
+title: Unused Elastic Load Balancers
+description: Identify unused Elastic Load Balancers, and delete them to help lower the cost of your monthly AWS bill.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(instances) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(instances) > 0 THEN title || ' has registered instances.'
+            ELSE title || ' has no instances registered.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_classic_load_balancer AS lb
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Orphaned Resources
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Orphaned Resources

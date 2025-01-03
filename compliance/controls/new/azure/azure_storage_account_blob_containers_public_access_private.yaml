@@ -1,0 +1,49 @@
+id: azure_storage_account_blob_containers_public_access_private
+title: Ensure that 'Public access level' is set to Private for blob containers
+description: Disable anonymous access to blob containers and disallow blob public access on storage account.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          container.id AS resource,
+          container.platform_integration_id AS platform_integration_id,
+          container.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT account.allow_blob_public_access AND container.public_access = 'None' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT account.allow_blob_public_access AND container.public_access = 'None'
+              THEN account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+            ELSE account.name || ' container ' || container.name || ' allows anonymous access.'
+          END AS reason,
+          container.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_container container
+        JOIN azure_storage_account account ON container.account_name = account.name
+        JOIN azure_subscription sub ON sub.subscription_id = account.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.5'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

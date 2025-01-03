@@ -1,0 +1,30 @@
+id: aws_cloudtrail_trail_insight_selectors_and_logging_enabled
+title: CloudTrail trails should have insight selectors and logging enabled
+description: CloudTrail Insights provides a powerful way to search and analyze CloudTrail log data using pre-built queries and machine learning algorithms. This can help to identify potential security threats and suspicious activity in near real-time, such as unauthorized access attempts, policy changes, or resource modifications.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudtrail_trail
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT is_logging THEN 'alarm'
+            WHEN is_logging AND has_insight_selectors THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT is_logging THEN title || ' logging is disabled.'
+            WHEN is_logging AND has_insight_selectors THEN title || ' has insight selectors and logging enabled.'
+            ELSE title || ' does not have insight selectors enabled.'
+          END AS reason
+        FROM
+          aws_cloudtrail_trail
+        WHERE
+          region = home_region;
+severity: low
+tags: {}

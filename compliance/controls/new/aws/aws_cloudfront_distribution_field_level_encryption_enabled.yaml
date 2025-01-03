@@ -1,0 +1,26 @@
+id: aws_cloudfront_distribution_field_level_encryption_enabled
+title: CloudFront distributions should have field level encryption enabled
+description: This control checks whether an AWS CloudFront distribution has field-level encryption enabled. The control fails if CloudFront distribution field-level encryption is not enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudfront_distribution
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN default_cache_behavior ->> 'FieldLevelEncryptionId' = '' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN default_cache_behavior ->> 'FieldLevelEncryptionId' = '' THEN title || ' field level encryption disabled.'
+            ELSE title || ' field level encryption enabled.'
+          END AS reason
+        FROM
+          aws_cloudfront_distribution;
+severity: low
+tags: {}

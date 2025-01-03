@@ -1,0 +1,87 @@
+id: aws_config_enabled_all_regions
+title: AWS Config should be enabled
+description: This control checks whether AWS Config is enabled in the account for the local Region and is recording all resources.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH global_recorders AS (
+          SELECT
+            COUNT(*) AS global_config_recorders
+          FROM
+            aws_config_configuration_recorder
+          WHERE
+            recording_group -> 'IncludeGlobalResourceTypes' = 'true'
+            AND recording_group -> 'AllSupported' = 'true'
+            AND status ->> 'Recording' = 'true'
+            AND status ->> 'LastStatus' = 'SUCCESS'
+        ),
+        regions AS (
+          SELECT
+            'arn:aws::' || a.region || ':' || a.account_id AS resource,
+            a.platform_integration_id AS platform_integration_id,
+            a.platform_resource_id AS platform_resource_id,
+            CASE
+              WHEN
+                g.global_config_recorders >= 1
+                AND status ->> 'Recording' = 'true'
+                AND status ->> 'LastStatus' = 'SUCCESS'
+              THEN 0
+              WHEN a.opt_in_status = 'not-opted-in' THEN 1
+              ELSE 2
+            END AS status,
+            a.region, a.account_id
+          FROM
+            global_recorders AS g,
+            aws_region AS a
+            LEFT JOIN aws_config_configuration_recorder AS r ON r.account_id = a.account_id AND r.region = a.name
+        ),
+        results AS (
+          SELECT
+            account_id AS resource,
+            platform_integration_id AS platform_integration_id,
+            platform_integration_id AS platform_resource_id,
+            CASE
+              WHEN MAX(status) = 2 THEN 'alarm'
+              WHEN MAX(status) = 1 THEN 'skip'
+              WHEN MAX(status) = 0 THEN 'ok'
+            END AS status,
+            CASE
+              WHEN MAX(status) = 2 THEN 'AWS Config is not enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
+              WHEN MAX(status) = 1 THEN 'Account is not opted in regions: [' || STRING_AGG(region, ',') || ']'
+              WHEN MAX(status) = 0 THEN 'AWS Config is enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
+            END AS reason
+          FROM regions
+          GROUP BY account_id, platform_integration_id
+        )
+        SELECT
+          r.resource AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          r.status AS status,
+          r.reason AS reason
+        FROM results AS r
+        JOIN aws_account AS a ON r.platform_integration_id = a.platform_integration_id
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '2.5'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '2'
+    cis_type:
+      - scored
+    cis_version:
+      - v1.2.0
+    plugin:
+      - aws
+    service:
+      - AWS/Config

@@ -1,0 +1,28 @@
+id: aws_sagemaker_training_job_inter_container_traffic_encryption_enabled
+title: SageMaker training jobs should be enabled with inter-container traffic encryption
+description: Inter-container traffic encryption should be used to protect data that is transmitted between instances while performing distributed training. This control is compliant when inter-container traffic encryption is enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_training_job
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_inter_container_traffic_encryption THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_inter_container_traffic_encryption THEN 
+              title || ' inter-container traffic encryption enabled.'
+            ELSE 
+              title || ' inter-container traffic encryption disabled.'
+          END AS reason
+        FROM
+          aws_sagemaker_training_job;
+severity: low
+tags: {}

@@ -1,0 +1,45 @@
+id: aws_use_aws_backup_service_in_use_for_amazon_rds
+title: Use AWS Backup Service in Use for Amazon RDS
+description: Ensure that Amazon Backup service is used to manage AWS RDS database snapshots.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        WITH snapshots AS (
+          SELECT DISTINCT
+            db_instance_identifier
+          FROM
+            aws_rds_db_snapshot
+          WHERE
+            type = 'awsbackup'
+        )
+        SELECT
+          r.db_instance_identifier AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.db_instance_identifier IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.db_instance_identifier IS NOT NULL THEN r.title || ' has RDS database instance snapshots.'
+            ELSE r.title || ' has no RDS database instance snapshots.'
+          END AS reason,
+          r.region,
+          r.account_id
+        FROM
+          aws_rds_db_instance AS r
+        LEFT JOIN snapshots AS b ON r.db_instance_identifier = b.db_instance_identifier;
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    platform_score_use_case:
+      - Missing Backup
+    score_service_name:
+      - AWS Relational Database Service (RDS)
+    score_tags:
+      - Missing Backup

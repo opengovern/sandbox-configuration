@@ -1,0 +1,64 @@
+id: aws_acm_certificate_expires_30_days
+title: ACM certificates should not expire within 30 days
+description: Ensure network integrity is protected by ensuring X509 certificates are issued by AWS ACM.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_acm_certificate
+    definition: |
+        SELECT
+          certificate_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN renewal_eligibility = 'INELIGIBLE' THEN 'skip'
+            WHEN DATE(not_after) - DATE(current_date) >= 30 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN renewal_eligibility = 'INELIGIBLE' THEN title || ' not eligible for renewal.'
+            ELSE title || ' expires ' || TO_CHAR(not_after, 'DD-Mon-YYYY') ||
+            ' (' || EXTRACT(DAY FROM not_after - current_date) || ' days).'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_acm_certificate;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gdpr:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/ACM
+    soc_2:
+      - 'true'

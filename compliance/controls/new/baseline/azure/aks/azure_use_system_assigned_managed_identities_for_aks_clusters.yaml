@@ -1,0 +1,38 @@
+id: azure_use_system_assigned_managed_identities_for_aks_clusters
+title: Use System-Assigned Managed Identities for AKS Clusters
+description: Ensure that AKS clusters are using system-assigned managed identities.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.name AS resource,
+          c.platform_resource_id,
+          c.platform_integration_id,
+          kubernetes_version,
+          CASE
+            WHEN identity ->> 'type' = 'UserAssigned' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN identity ->> 'type' = 'UserAssigned' THEN c.name || ' is not using a system-assigned managed identity'
+            ELSE c.name || ' is using a system-assigned managed identity'
+          END AS reason,
+          c.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_kubernetes_cluster AS c
+          LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Kubernetes (AKS)
+    platform_score_use_case:
+      - Unencrypted Traffic
+    score_service_name:
+      - Azure Kubernetes (AKS)
+    score_tags:
+      - Unencrypted Traffic

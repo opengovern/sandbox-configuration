@@ -1,0 +1,26 @@
+id: aws_foundational_security_efs_4
+title: 4 EFS access points should enforce a user identity
+description: This control checks whether Amazon EFS access points are configured to enforce a user identity. This control fails if a POSIX user identity is not defined while creating the EFS access point.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_efs_access_point
+    definition: |
+        SELECT
+          access_point_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN posix_user IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN posix_user IS NULL THEN title || ' does not enforce a user identity.'
+            ELSE title || ' enforces a user identity.'
+          END AS reason
+        FROM
+          aws_efs_access_point;
+severity: medium
+tags: {}

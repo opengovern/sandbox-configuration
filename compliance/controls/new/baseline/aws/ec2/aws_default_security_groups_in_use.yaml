@@ -1,0 +1,44 @@
+id: aws_default_security_groups_in_use
+title: Default Security Groups In Use
+description: Ensure default security groups aren't in use. Instead create unique security groups to better adhere to the principle of least privilege.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          instance_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(security_groups) AS sg
+              WHERE sg ->> 'GroupName' = 'default'
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(security_groups) AS sg
+              WHERE sg ->> 'GroupName' = 'default'
+            ) THEN instance_id || ' is using default security group'
+            ELSE instance_id || ' is not using default security group'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

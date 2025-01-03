@@ -1,0 +1,37 @@
+id: azure_storage_account_encryption_using_customer_managed_keys
+title: Storage Account Encryption using Customer Managed Keys
+description: Use Customer Managed Keys (CMKs) to encrypt data within Azure Storage accounts.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          a.name AS resource,
+          a.platform_resource_id,
+          a.platform_integration_id,
+          CASE
+            WHEN encryption_key_source = 'Microsoft.Keyvault' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_key_source = 'Microsoft.Keyvault' THEN a.name || ' is encrypted using a Customer Managed Key.'
+            ELSE a.name || ' is not encrypted using a Customer Managed Key.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account AS a
+          LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - Azure Storage Accounts
+    score_tags:
+      - Unencrypted Storage

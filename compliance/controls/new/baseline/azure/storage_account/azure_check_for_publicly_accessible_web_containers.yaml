@@ -1,0 +1,42 @@
+id: azure_check_for_publicly_accessible_web_containers
+title: Check for Publicly Accessible Web Containers
+description: Ensure that Azure Storage containers aren't publicly accessible.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          container.id AS resource,
+          container.platform_resource_id,
+          container.platform_integration_id,
+          CASE
+            WHEN NOT account.allow_blob_public_access
+            AND container.public_access = 'None' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT account.allow_blob_public_access
+            AND container.public_access = 'None' THEN account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+            ELSE account.name || ' container ' || container.name || ' allows anonymous access.'
+          END AS reason,
+          container.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_container container
+        JOIN
+          azure_storage_account account ON container.account_name = account.name
+        JOIN
+          azure_subscription sub ON sub.subscription_id = account.subscription_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Azure Storage Accounts
+    score_tags:
+      - Exposed Endpoints

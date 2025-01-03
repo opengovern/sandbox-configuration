@@ -1,0 +1,39 @@
+id: azure_check_for_publicly_accessible_sql_servers
+title: Check for Publicly Accessible SQL Servers
+description: Ensure that Azure SQL database servers are accessible via private endpoints only.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          a.name AS resource,
+          a.platform_resource_id,
+          a.platform_integration_id,
+          CASE
+            WHEN public_network_access != 'Disabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN public_network_access != 'Disabled' THEN a.name || ' not uses private link.'
+            ELSE a.name || ' uses private link.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Managed SQL Service
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Azure Managed SQL Service
+    score_tags:
+      - Exposed Endpoints

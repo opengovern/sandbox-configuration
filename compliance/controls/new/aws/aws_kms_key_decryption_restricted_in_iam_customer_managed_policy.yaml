@@ -1,0 +1,55 @@
+id: aws_kms_key_decryption_restricted_in_iam_customer_managed_policy
+title: KMS key decryption should be restricted in IAM customer managed policy
+description: Checks whether the default version of IAM customer managed policies allow principals to use the AWS KMS decryption actions on all resources. This control uses Zelkova, an automated reasoning engine, to validate and warn you about policies that may grant broad access to your secrets across AWS accounts. This control fails if the kms:Decrypt or kms:ReEncryptFrom actions are allowed on all KMS keys. The control evaluates both attached and unattached customer managed policies. It does not check inline policies or AWS managed policies.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH policy_with_decrypt_grant AS (
+          SELECT 
+            DISTINCT arn
+          FROM 
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS statement
+          WHERE 
+            NOT is_aws_managed
+            AND statement ->> 'Effect' = 'Allow'
+            AND statement -> 'Resource' ?| ARRAY['*', 'arn:aws:kms:*:' || account_id || ':key/*', 'arn:aws:kms:*:' || account_id || ':alias/*']
+            AND statement -> 'Action' ?| ARRAY['*', 'kms:*', 'kms:decrypt', 'kms:reencryptfrom', 'kms:reencrypt*']
+        )
+        SELECT 
+          i.arn AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN d.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN d.arn IS NULL THEN i.title || ' doesn''t allow decryption actions on all keys.'
+            ELSE i.title || ' allows decryption actions on all keys.'
+          END AS reason,
+          i.account_id
+        FROM 
+          aws_iam_policy i
+        LEFT JOIN policy_with_decrypt_grant d
+          ON i.arn = d.arn
+        WHERE
+          NOT is_aws_managed
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - secure_access_management
+    foundational_security_item_id:
+      - kms_1
+    plugin:
+      - aws
+    service:
+      - AWS/KMS

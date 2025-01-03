@@ -1,0 +1,35 @@
+id: azure_cis_v130_3_3
+title: 3.3 Ensure Storage logging is enabled for Queue service for read, write, and delete requests
+description: 'The Storage Queue service stores messages that may be read by any client who has access to the storage account. A queue can contain an unlimited number of messages, each of which can be up to 64KB in size using version 2011-08-18 or newer. Storage Logging happens server-side and allows details for both successful and failed requests to be recorded in the storage account. These logs allow users to see the details of read, write, and delete operations against the queues. Storage Logging log entries contain the following information about individual requests: Timing information such as start time, end-to-end latency, and server latency, authentication details , concurrency information and the sizes of the request and response messages.'
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN queue_logging_read AND queue_logging_write AND queue_logging_delete THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN queue_logging_read AND queue_logging_write AND queue_logging_delete
+              THEN sa.name || ' queue service logging enabled for read, write, delete requests.'
+            ELSE sa.name || ' queue service logging not enabled for: ' ||
+              CONCAT_WS(', ',
+                CASE WHEN NOT queue_logging_write THEN 'write' END,
+                CASE WHEN NOT queue_logging_read THEN 'read' END,
+                CASE WHEN NOT queue_logging_delete THEN 'delete' END
+              ) || ' requests.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

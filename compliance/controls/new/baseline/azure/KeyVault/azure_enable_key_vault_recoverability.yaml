@@ -1,0 +1,37 @@
+id: azure_enable_key_vault_recoverability
+title: Enable Key Vault Recoverability
+description: Ensure that your Microsoft Azure Key Vault instances are recoverable.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          name AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN soft_delete_enabled AND purge_protection_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN soft_delete_enabled AND purge_protection_enabled THEN name || ' objects are recoverable'
+            ELSE name || ' objects are not recoverable'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS v
+        LEFT JOIN azure_subscription AS sub ON v.subscription_id = sub.subscription_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Problem Identities

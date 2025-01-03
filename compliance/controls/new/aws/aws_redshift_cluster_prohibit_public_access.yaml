@@ -1,0 +1,64 @@
+id: aws_redshift_cluster_prohibit_public_access
+title: Redshift clusters should prohibit public access
+description: Manage access to resources in the AWS Cloud by ensuring that AWS Redshift clusters are not public.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT
+          cluster_namespace_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN publicly_accessible THEN 'alarm'
+            ELSE 'ok'
+          END status,
+          CASE
+            WHEN publicly_accessible THEN title || ' publicly accessible.'
+            ELSE title || ' not publicly accessible.'
+          END reason,
+          region,
+          account_id
+        FROM
+          aws_redshift_cluster;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/Redshift
+    soc_2:
+      - 'true'

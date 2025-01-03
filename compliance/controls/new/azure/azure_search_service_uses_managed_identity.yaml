@@ -1,0 +1,29 @@
+id: azure_search_service_uses_managed_identity
+title: Cognitive Search services should use managed identity
+description: Cognitive Search services should use a managed identity for enhanced authentication security.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_search_service
+    definition: |
+        SELECT 
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN identity ->> 'type' = 'SystemAssigned' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN identity ->> 'type' = 'SystemAssigned' THEN name || ' use managed identity.'
+            ELSE name || ' not use managed identity.'
+          END AS reason
+        FROM 
+          azure_search_service AS s,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

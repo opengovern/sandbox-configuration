@@ -1,0 +1,56 @@
+id: aws_foundational_security_cloudtrail_1
+title: 1 CloudTrail should be enabled and configured with at least one multi-Region trail
+description: This control checks that there is at least one multi-Region CloudTrail trail.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH multi_region_trails AS (
+          SELECT
+            account_id,
+            COUNT(account_id) AS num_multregion_trails
+          FROM
+            aws_cloudtrail_trail
+          WHERE
+            is_multi_region_trail 
+            AND region = home_region
+            AND is_logging
+          GROUP BY
+            account_id,
+            is_multi_region_trail
+        ), organization_trails AS (
+          SELECT
+            is_organization_trail,
+            is_logging,
+            is_multi_region_trail,
+            account_id
+          FROM
+            aws_cloudtrail_trail
+          WHERE
+            is_organization_trail
+        )
+        SELECT
+          DISTINCT a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COALESCE(num_multregion_trails, 0) >= 1 THEN 'ok'
+            WHEN o.is_organization_trail AND o.is_logging AND o.is_multi_region_trail THEN 'ok'
+            WHEN o.is_organization_trail AND o.is_multi_region_trail AND o.is_logging IS NULL THEN 'info'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN COALESCE(num_multregion_trails, 0) >= 1 THEN a.title || ' has ' || COALESCE(num_multregion_trails, 0) || ' multi-region trail(s).'
+            WHEN o.is_organization_trail AND o.is_logging AND o.is_multi_region_trail THEN a.title || ' has multi-region trail(s).'
+            WHEN o.is_organization_trail AND o.is_multi_region_trail AND o.is_logging IS NULL THEN a.title || ' has organization trail, check organization account for cloudtrail logging status.'
+            ELSE a.title || ' does not have multi-region trail(s).'
+          END AS reason
+        FROM
+          aws_account AS a
+          LEFT JOIN multi_region_trails AS b ON a.account_id = b.account_id
+          LEFT JOIN organization_trails AS o ON a.account_id = o.account_id
+severity: high
+tags: {}

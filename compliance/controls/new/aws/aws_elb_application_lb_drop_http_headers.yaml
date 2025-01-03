@@ -1,0 +1,54 @@
+id: aws_elb_application_lb_drop_http_headers
+title: ELB application load balancers should drop HTTP headers
+description: Ensure that your Elastic Load Balancers (ELB) are configured to drop http headers.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        SELECT 
+          arn AS resource, 
+          platform_integration_id AS platform_integration_id, 
+          platform_resource_id AS platform_resource_id,
+          CASE 
+            WHEN load_balancer_attributes @> '[{"Key": "routing.http.drop_invalid_header_fields.enabled", "Value": "true"}]' THEN 'ok'
+            ELSE 'alarm' 
+          END AS status,
+          CASE 
+            WHEN load_balancer_attributes @> '[{"Key": "routing.http.drop_invalid_header_fields.enabled", "Value": "true"}]' THEN title || ' configured to drop http headers.'
+            ELSE title || ' not configured to drop http headers.'
+          END AS reason,
+          region, 
+          account_id
+        FROM 
+          aws_ec2_application_load_balancer;
+severity: medium
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    gdpr:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/ELB
+    soc_2:
+      - 'true'

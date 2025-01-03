@@ -1,0 +1,36 @@
+id: aws_iam_user_policies
+title: IAM User Policies
+description: Ensure AWS IAM policies are attached to groups instead of users as an IAM best practice.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          u.name AS resource,
+          u.platform_integration_id,
+          u.platform_resource_id,
+          CASE
+            WHEN attached_policy_arns IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN attached_policy_arns IS NULL THEN 'this user does not have any policies attached'
+            ELSE 'policies are better to be attached to only IAM groups'
+          END AS reason,
+          u.region,
+          u.account_id
+        FROM
+          aws_iam_user AS u
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

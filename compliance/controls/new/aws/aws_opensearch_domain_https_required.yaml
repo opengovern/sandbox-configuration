@@ -1,0 +1,46 @@
+id: aws_opensearch_domain_https_required
+title: OpenSearch domains should use HTTPS
+description: This control checks whether connections to OpenSearch domains are using HTTPS. The rule is non-compliant if the OpenSearch domain 'EnforceHTTPS' is not 'true' or is 'true' and 'TLSSecurityPolicy' is not in 'tlsPolicies'.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT 
+          arn AS resource, 
+          platform_integration_id AS platform_integration_id, 
+          platform_resource_id AS platform_resource_id, 
+          CASE 
+            WHEN (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') 
+              OR (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' 
+              AND domain_endpoint_options ->> 'TLSSecurityPolicy' NOT IN ('tlsPolicies')) 
+            THEN 'alarm' 
+            ELSE 'ok' 
+          END status, 
+          CASE 
+            WHEN (domain_endpoint_options ->> 'EnforceHTTPS' = 'false') 
+              OR (domain_endpoint_options ->> 'EnforceHTTPS' = 'true' 
+              AND domain_endpoint_options ->> 'TLSSecurityPolicy' NOT IN ('tlsPolicies')) 
+            THEN title || ' does not use HTTPS.'
+            ELSE title || ' uses HTTPS.' 
+          END AS reason, 
+          region, 
+          account_id 
+        FROM 
+          aws_opensearch_domain;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - encryption_of_data_in_transit
+    foundational_security_item_id:
+      - opensearch_8
+    plugin:
+      - aws
+    service:
+      - AWS/OpenSearch

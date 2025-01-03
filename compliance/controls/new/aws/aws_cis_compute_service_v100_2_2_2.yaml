@@ -1,0 +1,26 @@
+id: aws_cis_compute_service_v100_2_2_2
+title: 2.2.2 Ensure public access to EBS Snapshots is disabled
+description: To protect your data disable the public mode of EBS snapshots.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_snapshot
+    definition: |
+        SELECT
+          'arn:' || partition || ':ec2:' || region || ':' || account_id || ':snapshot/' || snapshot_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN create_volume_permissions @> '[{"Group": "all", "UserId": null}]' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN create_volume_permissions @> '[{"Group": "all", "UserId": null}]' THEN title || ' is publicly restorable.'
+            ELSE title || ' is not publicly restorable.'
+          END AS reason
+        FROM
+          aws_ebs_snapshot;
+severity: low
+tags: {}

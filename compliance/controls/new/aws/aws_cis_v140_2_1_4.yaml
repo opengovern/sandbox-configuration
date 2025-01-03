@@ -1,0 +1,40 @@
+id: aws_cis_v140_2_1_4
+title: 2.1.4 Ensure all data in Amazon S3 has been discovered, classified and secured when required
+description: Amazon S3 buckets can contain sensitive data, that for security purposes should be discovered, monitored, classified and protected. Macie along with other 3rd party tools can automatically provide an inventory of Amazon S3 buckets.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        WITH bucket_list AS (
+          SELECT
+            TRIM(b::TEXT, '"' ) AS bucket_name
+          FROM
+            aws_macie2_classification_job,
+            JSONB_ARRAY_ELEMENTS(s3_job_definition -> 'BucketDefinitions') AS d,
+            JSONB_ARRAY_ELEMENTS(d -> 'Buckets') AS b
+        )
+        SELECT
+          b.arn AS resource,
+          b.platform_integration_id AS platform_integration_id,
+          b.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.region = ANY(ARRAY['us-gov-east-1', 'us-gov-west-1']) THEN 'skip'
+            WHEN l.bucket_name IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.region = ANY(ARRAY['us-gov-east-1', 'us-gov-west-1']) THEN 
+              b.title || ' not protected by Macie as Macie is not supported in ' || b.region || '.'
+            WHEN l.bucket_name IS NOT NULL THEN 
+              b.title || ' protected by Macie.'
+            ELSE 
+              b.title || ' not protected by Macie.'
+          END AS reason
+        FROM
+          aws_s3_bucket AS b
+          LEFT JOIN bucket_list AS l ON b.name = l.bucket_name;
+severity: low
+tags: {}

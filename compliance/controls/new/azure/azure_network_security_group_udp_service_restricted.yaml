@@ -1,0 +1,90 @@
+id: azure_network_security_group_udp_service_restricted
+title: Ensure that UDP Services are restricted from the Internet
+description: Disable Internet exposed UDP ports on network security groups.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_security_group
+    definition: |
+        WITH network_sg AS (
+          SELECT
+            DISTINCT name sg_name
+          FROM
+            azure_network_security_group nsg,
+            jsonb_array_elements(security_rules) sg,
+            jsonb_array_elements_text(
+              CASE jsonb_typeof(
+                COALESCE(sg -> 'properties' -> 'destinationPortRanges', sg -> 'properties' -> 'destinationPortRange')::jsonb
+              )
+              WHEN 'array' THEN COALESCE(sg -> 'properties' -> 'destinationPortRanges', sg -> 'properties' -> 'destinationPortRange')::jsonb
+              ELSE ('[' || (COALESCE(sg -> 'properties' -> 'destinationPortRanges', sg -> 'properties' -> 'destinationPortRange')::jsonb::text) || ']')::jsonb 
+              END
+            ) dport,
+            jsonb_array_elements_text(
+              CASE jsonb_typeof(
+                COALESCE(sg -> 'properties' -> 'sourceAddressPrefixes', sg -> 'properties' -> 'sourceAddressPrefix')::jsonb
+              )
+              WHEN 'array' THEN COALESCE(sg -> 'properties' -> 'sourceAddressPrefixes', sg -> 'properties' -> 'sourceAddressPrefix')::jsonb
+              ELSE ('[' || (COALESCE(sg -> 'properties' -> 'sourceAddressPrefixes', sg -> 'properties' -> 'sourceAddressPrefix')::jsonb::text) || ']')::jsonb 
+              END
+            ) sip
+          WHERE
+            sg -> 'properties' ->> 'access' = 'Allow'
+            AND sg -> 'properties' ->> 'direction' = 'Inbound'
+            AND sg -> 'properties' ->> 'protocol' = 'UDP'
+            AND sip IN ('*', '0.0.0.0', '0.0.0.0/0', 'Internet', 'any', '<nw>/0', '/0')
+            AND (
+              dport = '*'
+              OR (
+                dport LIKE '%-%'
+                AND (
+                  53 BETWEEN split_part(dport, '-', 1)::integer AND split_part(dport, '-', 2)::integer
+                  OR 123 BETWEEN split_part(dport, '-', 1)::integer AND split_part(dport, '-', 2)::integer
+                  OR 161 BETWEEN split_part(dport, '-', 1)::integer AND split_part(dport, '-', 2)::integer
+                  OR 389 BETWEEN split_part(dport, '-', 1)::integer AND split_part(dport, '-', 2)::integer
+                  OR 1900 BETWEEN split_part(dport, '-', 1)::integer AND split_part(dport, '-', 2)::integer
+                )
+              )
+            )
+        )
+        SELECT
+          sg.id resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN nsg.sg_name IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN nsg.sg_name IS NULL
+              THEN sg.title || ' restricts UDP services from internet.'
+            ELSE sg.title || ' allows UDP services from internet.'
+          END AS reason,
+          sg.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_network_security_group sg
+        LEFT JOIN network_sg nsg ON nsg.sg_name = sg.name
+        JOIN azure_subscription sub ON sub.subscription_id = sg.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '6.6'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '6'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Network

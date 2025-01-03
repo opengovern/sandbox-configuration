@@ -1,0 +1,74 @@
+id: aws_iam_access_analyzer_enabled
+title: Ensure that IAM Access analyzer is enabled for all regions
+description: This control checks whether IAM Access analyzer is enabled for all regions. The control fails if IAM Access analyzer is not enabled for all regions.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH regions AS (
+          SELECT
+            'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+            r.platform_integration_id AS platform_integration_id,
+            r.platform_resource_id AS platform_resource_id,
+            CASE
+              WHEN r.opt_in_status = 'not-opted-in' THEN 1
+              WHEN aa.arn IS NOT NULL THEN 0
+              ELSE 2
+            END AS status,
+            r.region,
+            r.account_id
+          FROM
+            aws_region AS r
+            LEFT JOIN aws_accessanalyzer_analyzer AS aa 
+            ON r.account_id = aa.account_id AND r.region = aa.region
+        ),
+        results AS (
+          SELECT
+            account_id AS resource,
+            platform_integration_id AS platform_integration_id,
+            platform_integration_id AS platform_resource_id,
+            CASE
+              WHEN MAX(status) = 2 THEN 'alarm'
+              WHEN MAX(status) = 1 THEN 'skip'
+              WHEN MAX(status) = 0 THEN 'ok'
+            END AS status,
+            CASE
+              WHEN MAX(status) = 2 THEN 'IAM Access analyzer is not enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
+              WHEN MAX(status) = 1 THEN 'Account is not opted in regions: [' || STRING_AGG(region, ',') || ']'
+              WHEN MAX(status) = 0 THEN 'IAM Access analyzer is enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
+            END AS reason
+          FROM regions
+          GROUP BY account_id, platform_integration_id
+        )
+        SELECT 
+          r.resource AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          r.status AS status,
+          r.reason AS reason
+        FROM results AS r 
+        JOIN aws_account AS a 
+        ON r.platform_integration_id = a.platform_integration_id
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '1.21'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '1'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - aws
+    service:
+      - AWS/IAM

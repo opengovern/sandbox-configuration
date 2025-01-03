@@ -1,0 +1,80 @@
+id: aws_vpc_network_acl_remote_administration
+title: Network ACLs should not allow ingress from 0.0.0.0/0 to port 22 or port 3389
+description: This control checks if default ports for SSH/RDP ingress traffic for network access control lists (NACLs) is unrestricted. The rule fails if a NACL inbound entry allows a source CIDR block of '0.0.0.0/0' or '::/0' for ports 22 or 3389.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_network_acl
+    definition: |
+        WITH bad_rules AS (
+          SELECT
+            network_acl_id,
+            COUNT(*) AS num_bad_rules
+          FROM
+            aws_vpc_network_acl,
+            jsonb_array_elements(entries) AS att
+          WHERE
+            att ->> 'Egress' = 'false'
+            AND (
+              att ->> 'CidrBlock' = '0.0.0.0/0'
+              OR att ->> 'Ipv6CidrBlock' = '::/0'
+            )
+            AND att ->> 'RuleAction' = 'allow'
+            AND (
+              (
+                att ->> 'Protocol' = '-1'
+                AND att ->> 'PortRange' IS NULL
+              )
+              OR (
+                (att -> 'PortRange' ->> 'From')::int <= 22
+                AND (att -> 'PortRange' ->> 'To')::int >= 22
+                AND att ->> 'Protocol' IN('6', '17')
+              )
+              OR (
+                (att -> 'PortRange' ->> 'From')::int <= 3389
+                AND (att -> 'PortRange' ->> 'To')::int >= 3389
+                AND att ->> 'Protocol' IN('6', '17')
+              )
+            )
+          GROUP BY
+            network_acl_id
+        )
+        SELECT
+          'arn:' || acl.partition || ':ec2:' || acl.region || ':' || acl.account_id || ':network-acl/' || acl.network_acl_id AS resource,
+          acl.platform_integration_id AS platform_integration_id,
+          acl.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN bad_rules.network_acl_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN bad_rules.network_acl_id IS NULL THEN acl.network_acl_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+            ELSE acl.network_acl_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) allowing ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+          END AS reason,
+          acl.region,
+          acl.account_id
+        FROM
+          aws_vpc_network_acl AS acl
+          LEFT JOIN bad_rules ON bad_rules.network_acl_id = acl.network_acl_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '5.1'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '5'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - aws
+    service:
+      - AWS/VPC

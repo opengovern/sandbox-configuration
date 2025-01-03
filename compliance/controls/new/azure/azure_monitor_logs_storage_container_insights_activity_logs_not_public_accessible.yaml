@@ -1,0 +1,31 @@
+id: azure_monitor_logs_storage_container_insights_activity_logs_not_public_accessible
+title: Ensure the Storage Container Storing the Activity Logs is not Publicly Accessible
+description: The storage account container containing the activity log export should not be publicly accessible.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          sc.id AS resource,
+          sc.platform_integration_id AS platform_integration_id,
+          sc.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN public_access != 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN public_access != 'None'
+              THEN account_name || ' container insights-activity-logs storing activity logs publicly accessible.'
+            ELSE account_name || ' container insights-activity-logs storing activity logs not publicly accessible.'
+          END AS reason
+        FROM
+          azure_storage_container sc,
+          azure_subscription sub
+        WHERE
+          name = 'insights-activity-logs'
+          AND sub.subscription_id = sc.subscription_id;
+severity: low
+tags: {}

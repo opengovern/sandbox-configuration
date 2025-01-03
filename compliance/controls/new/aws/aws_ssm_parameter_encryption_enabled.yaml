@@ -1,0 +1,26 @@
+id: aws_ssm_parameter_encryption_enabled
+title: SSM parameters encryption should be enabled
+description: This control checks if SSM parameter has encryption enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ssm_parameter
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN type = 'SecureString' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN type = 'SecureString' THEN title || ' encryption enabled.'
+            ELSE title || ' encryption disabled.'
+          END AS reason
+        FROM
+          aws_ssm_parameter;
+severity: low
+tags: {}

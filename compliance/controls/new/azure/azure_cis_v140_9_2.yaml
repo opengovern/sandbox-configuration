@@ -1,0 +1,29 @@
+id: azure_cis_v140_9_2
+title: 9.2 Ensure web app redirects all HTTP traffic to HTTPS in Azure App Service
+description: Azure Web Apps allows sites to run under both HTTP and HTTPS by default. Web apps can be accessed by anyone using non-secure HTTP links by default. Non-secure HTTP requests can be restricted and all HTTP requests redirected to the secure HTTPS port. It is recommended to enforce HTTPS-only traffic.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        SELECT
+          app.id AS resource,
+          app.platform_integration_id AS platform_integration_id,
+          app.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT https_only THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT https_only THEN name || ' does not redirect all HTTP traffic to HTTPS.'
+            ELSE name || ' redirects all HTTP traffic to HTTPS.'
+          END AS reason
+        FROM
+          azure_app_service_web_app AS app,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = app.subscription_id;
+severity: low
+tags: {}

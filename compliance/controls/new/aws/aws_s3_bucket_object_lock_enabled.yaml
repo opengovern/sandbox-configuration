@@ -1,0 +1,52 @@
+id: aws_s3_bucket_object_lock_enabled
+title: S3 bucket object lock should be enabled
+description: Ensure that your AWS Simple Storage Service (AWS S3) bucket has lock enabled, by default.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        SELECT 
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN object_lock_configuration IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN object_lock_configuration IS NULL THEN title || ' object lock not enabled.'
+            ELSE title || ' object lock enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_s3_bucket;
+severity: high
+tags:
+    category:
+      - Compliance
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/S3
+    soc_2:
+      - 'true'

@@ -1,0 +1,29 @@
+id: azure_appservice_web_app_health_check_enabled
+title: Web apps should have health check enabled
+description: Health check increases your application's availability by rerouting requests away from unhealthy instances and replacing instances if they remain unhealthy.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN configuration -> 'properties' ->> 'healthCheckPath' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN configuration -> 'properties' ->> 'healthCheckPath' IS NOT NULL THEN a.name || ' health check enabled.'
+            ELSE a.name || ' health check disabled.'
+          END AS reason
+        FROM
+          azure_app_service_web_app AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

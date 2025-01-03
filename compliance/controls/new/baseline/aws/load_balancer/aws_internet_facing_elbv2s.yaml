@@ -1,0 +1,32 @@
+id: aws_internet_facing_elbv2s
+title: Internet Facing ELBv2s
+description: Ensure Amazon internet-facing ELBs/ALBs are regularly reviewed for security purposes.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN scheme = 'internet-facing' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN scheme = 'internet-facing' THEN a.title || ' is internet-facing and routes requests from clients over the Internet to the registered EC2 instances.'
+            ELSE a.title || ' is not internet-facing and routes requests from clients over the Internet to the registered EC2 instances.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_application_load_balancer a
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)

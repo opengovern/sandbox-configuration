@@ -1,0 +1,41 @@
+id: azure_check_for_encryption_for_web_tier_disk_volumes
+title: Check for Encryption for Web-Tier Disk Volumes
+description: Ensure that Azure virtual machine disk volumes created for the web tier are encrypted.
+integration_type:
+  - azure_subscription
+parameters:
+  - key: azureAppTierTags
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'StorageProfile' -> 'OSDisk' -> 'EncryptionSettings' ->> 'Enabled')::bool THEN 'OS disk encrypted'
+            ELSE 'OS disk not encrypted'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id
+          AND vm.tags::text LIKE '%' || REPLACE(REPLACE((
+              SELECT jsonb_object_agg(key, value)::text
+              FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
+            ), '{', ''), '}', '') || '%'
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

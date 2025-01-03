@@ -1,0 +1,26 @@
+id: aws_foundational_security_apigateway_9
+title: 9 Access logging should be configured for API Gateway V2 Stages
+description: This control checks if Amazon API Gateway V2 stages have access logging configured. This control fails if access log settings aren't defined.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gatewayv2_stage
+    definition: |
+        SELECT
+          'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN access_log_settings IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN access_log_settings IS NULL THEN title || ' access logging disabled.'
+            ELSE title || ' access logging enabled.'
+          END AS reason
+        FROM
+          aws_api_gatewayv2_stage;
+severity: medium
+tags: {}

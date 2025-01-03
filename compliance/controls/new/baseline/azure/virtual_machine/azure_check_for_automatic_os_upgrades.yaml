@@ -1,0 +1,35 @@
+id: azure_check_for_automatic_os_upgrades
+title: Check for Automatic OS Upgrades
+description: Ensure that Automatic OS Upgrades feature is enabled for your Azure virtual machine scale sets.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN upgrade_policy -> 'automaticOSUpgradePolicy' ->> 'enableAutomaticOSUpgrade' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN upgrade_policy -> 'automaticOSUpgradePolicy' ->> 'enableAutomaticOSUpgrade' = 'true' THEN 'Automatic OS Upgrades feature is enabled'
+            ELSE 'Automatic OS Upgrades feature is not currently enabled'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine_scale_set AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

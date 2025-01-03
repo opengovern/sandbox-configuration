@@ -1,0 +1,42 @@
+id: azure_cis_v200_8_1
+title: 8.1 Ensure that the Expiration Date is set for all Keys in RBAC Key Vaults
+description: Ensure that all Keys in Role Based Access Control (RBAC) Azure Key Vaults have an expiration date set.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault_key
+    definition: |
+        WITH rbac_vault AS (
+          SELECT
+            name
+          FROM
+            azure_key_vault
+          WHERE
+            enable_rbac_authorization
+        )
+        SELECT
+          kvk.id AS resource,
+          kvk.platform_integration_id AS platform_integration_id,
+          kvk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.name IS NULL THEN 'skip'
+            WHEN enabled AND expires_at IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          vault_name || ' key ' || kvk.name ||
+          CASE
+            WHEN v.name IS NULL THEN ' not RBAC enabled vault.'
+            WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
+            WHEN NOT enabled THEN ' disabled.'
+            ELSE ' expiration date set to ' || to_char(expires_at, 'DD-Mon-YYYY') || '.'
+          END AS reason
+        FROM
+          azure_key_vault_key kvk
+          LEFT JOIN rbac_vault AS v ON v.name = kvk.vault_name,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = kvk.subscription_id;
+severity: low
+tags: {}

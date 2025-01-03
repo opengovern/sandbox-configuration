@@ -1,0 +1,28 @@
+id: azure_network_sg_flowlog_enabled
+title: Flow logs should be configured for every network security group
+description: Audit for network security groups to verify if flow logs are configured. Enabling flow logs allows to log information about IP traffic flowing through network security group. It can be used for optimizing network flows, monitoring throughput, verifying compliance, detecting intrusions and more.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_security_group
+    definition: |
+        SELECT
+          sg.id AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sg.flow_logs IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN sg.flow_logs IS NOT NULL THEN sg.name || ' flowlog enabled.'
+            ELSE sg.name || ' flowlog disabled.'
+          END AS reason
+        FROM
+          azure_network_security_group AS sg
+        JOIN
+          azure_subscription sub ON sub.subscription_id = sg.subscription_id;
+severity: low
+tags: {}

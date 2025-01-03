@@ -1,0 +1,77 @@
+id: aws_rds_db_instance_and_cluster_enhanced_monitoring_enabled
+title: RDS DB instance and cluster enhanced monitoring should be enabled
+description: Enable AWS Relational Database Service (AWS RDS) to help monitor AWS RDS availability. This provides detailed visibility into the health of your AWS RDS database instances.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        (
+          SELECT
+            arn AS resource,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_rds_db_cluster' AS platform_table_name,
+            CASE
+              WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN 'ok'
+              ELSE 'alarm'
+            END AS status,
+            CASE
+              WHEN enabled_cloudwatch_logs_exports IS NOT NULL THEN title || ' enhanced monitoring enabled.'
+              ELSE title || ' enhanced monitoring not enabled.'
+            END AS reason,
+            region,
+            account_id
+          FROM
+            aws_rds_db_cluster
+        )
+        UNION
+        (
+          SELECT
+            arn AS resource,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_rds_db_instance' AS platform_table_name,
+            CASE
+              WHEN class = 'db.m1.small' THEN 'skip'
+              WHEN enhanced_monitoring_resource_arn IS NOT NULL THEN 'ok'
+              ELSE 'alarm'
+            END AS status,
+            CASE
+              WHEN class = 'db.m1.small' THEN title || ' enhanced monitoring not supported.'
+              WHEN enhanced_monitoring_resource_arn IS NOT NULL THEN title || ' enhanced monitoring enabled.'
+              ELSE title || ' enhanced monitoring not enabled.'
+            END AS reason,
+            region,
+            account_id
+          FROM
+            aws_rds_db_instance
+        );
+severity: low
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

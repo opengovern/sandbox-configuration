@@ -1,0 +1,27 @@
+id: azure_eventgrid_domain_restrict_public_access
+title: Event Grid domains should restrict public network access
+description: Ensure that Event Grid Domain public network access is disabled. This control is non-compliant if Event Grid domains have public network access enabled.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_eventgrid_domain
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN public_network_access = 'Enabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN public_network_access = 'Enabled' THEN a.name || ' publicly accessible.'
+            ELSE a.name || ' not publicly accessible.'
+          END AS reason
+        FROM
+          azure_eventgrid_domain a,
+          azure_subscription sub;
+severity: low
+tags: {}

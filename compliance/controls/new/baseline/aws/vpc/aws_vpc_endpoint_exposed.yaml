@@ -1,0 +1,39 @@
+id: aws_vpc_endpoint_exposed
+title: VPC Endpoint Exposed
+description: Ensure Amazon VPC endpoints aren't exposed to everyone.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        SELECT DISTINCT
+          arn AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN p ->> 'Principal' = '*' OR p ->> 'Principal' = '{"AWS": ["*"]}' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN p ->> 'Principal' = '*' OR p ->> 'Principal' = '{"AWS": ["*"]}' THEN v.vpc_id || ' endpoint is fully accessible.'
+            ELSE v.vpc_id || ' endpoint is not fully accessible.'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_vpc AS v
+        LEFT JOIN
+          aws_vpc_endpoint AS e ON v.vpc_id = e.vpc_id,
+          jsonb_array_elements(e.policy -> 'Statement') AS p
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Exposed Endpoints

@@ -1,0 +1,40 @@
+id: aws_opensearch_domain_encrypted_with_kms_cmks
+title: OpenSearch Domain Encrypted with KMS CMKs
+description: Ensure that OpenSearch domains are encrypted with KMS Customer Master Keys (CMKs).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          domain_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN kms.key_manager IS NULL THEN 'alarm'
+            WHEN kms.key_manager = 'AWS' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms.key_manager IS NULL THEN domain_name || ' encryption with kms key not enabled'
+            WHEN kms.key_manager = 'AWS' THEN domain_name || ' is not encrypted with CMK'
+            ELSE domain_name || ' is encrypted with CMK'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_opensearch_domain
+        LEFT JOIN (SELECT arn, key_manager FROM aws_kms_key) kms
+          ON (encryption_at_rest_options ->> 'KmsKeyId') = kms.arn
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS OpenSearch Service
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - AWS OpenSearch Service
+    score_tags:
+      - Unencrypted Storage

@@ -1,0 +1,66 @@
+id: aws_es_domain_node_to_node_encryption_enabled
+title: Elasticsearch domain node-to-node encryption should be enabled
+description: Ensure node-to-node encryption for AWS Elasticsearch Service is enabled. Node-to-node encryption enables TLS 1.2 encryption for all communications within the AWS Virtual Private Cloud (AWS VPC).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) THEN 'skip'
+            WHEN NOT enabled THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1']) THEN title || ' node-to-node encryption not supported in ' || region || '.'
+            WHEN NOT enabled THEN title || ' node-to-node encryption disabled.'
+            ELSE title || ' node-to-node encryption enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_elasticsearch_domain;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/ES
+    soc_2:
+      - 'true'

@@ -1,0 +1,26 @@
+id: aws_foundational_security_elasticache_4
+title: 4 ElastiCache for Redis replication groups should be encrypted at rest
+description: This control checks if ElastiCache for Redis replication groups are encrypted at rest. This control fails if an ElastiCache for Redis replication group isn't encrypted at rest.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticache_replication_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN at_rest_encryption_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN at_rest_encryption_enabled THEN title || ' encryption at rest enabled.'
+            ELSE title || ' encryption at rest disabled.'
+          END AS reason
+        FROM
+          aws_elasticache_replication_group;
+severity: medium
+tags: {}

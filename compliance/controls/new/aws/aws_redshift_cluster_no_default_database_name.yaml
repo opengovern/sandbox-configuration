@@ -1,0 +1,40 @@
+id: aws_redshift_cluster_no_default_database_name
+title: Redshift clusters should not use the default database name
+description: This control checks whether an AWS Redshift cluster has changed the database name from its default value. The control will fail if the database name for a Redshift cluster is set to dev.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT 
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN db_name = 'dev' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN db_name = 'dev' THEN title || ' using default database name.'
+            ELSE title || ' not using default database name.'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_redshift_cluster;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resource_configuration
+    foundational_security_item_id:
+      - redshift_9
+    plugin:
+      - aws
+    service:
+      - AWS/Redshift

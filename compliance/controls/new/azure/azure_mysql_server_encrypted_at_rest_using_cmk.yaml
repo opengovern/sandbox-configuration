@@ -1,0 +1,46 @@
+id: azure_mysql_server_encrypted_at_rest_using_cmk
+title: MySQL servers should use customer-managed keys to encrypt data at rest
+description: Use customer-managed keys to manage the encryption at rest of your MySQL servers. By default, the data is encrypted at rest with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_mysql_server
+    definition: |
+        WITH mysql_server_encrypted AS (
+          SELECT
+            DISTINCT i.id AS id
+          FROM
+            azure_mysql_server AS i,
+            jsonb_array_elements(server_keys) a
+          WHERE
+            a ->> 'serverKeyType' = 'AzureKeyVault'
+            AND a ->> 'uri' IS NOT NULL
+        )
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.id IS NOT NULL THEN s.title || ' encrypted with CMK.'
+            ELSE s.title || ' not encrypted with CMK.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_mysql_server AS s
+          LEFT JOIN mysql_server_encrypted AS a ON s.id = a.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/MySQL

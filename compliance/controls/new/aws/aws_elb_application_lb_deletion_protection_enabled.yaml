@@ -1,0 +1,56 @@
+id: aws_elb_application_lb_deletion_protection_enabled
+title: ELB application load balancer deletion protection should be enabled
+description: This rule ensures that Elastic Load Balancing has deletion protection enabled.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN load_balancer_attributes @> '[{"Key": "deletion_protection.enabled", "Value": "true"}]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN load_balancer_attributes @> '[{"Key": "deletion_protection.enabled", "Value": "true"}]' THEN title || ' deletion protection enabled.'
+            ELSE title || ' deletion protection disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_application_load_balancer;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/ELB

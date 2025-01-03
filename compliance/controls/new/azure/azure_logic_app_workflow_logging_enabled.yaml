@@ -1,0 +1,65 @@
+id: azure_logic_app_workflow_logging_enabled
+title: Resource logs in Logic Apps should be enabled
+description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_logic_app_workflow
+    definition: |
+        WITH logging_details AS (
+          SELECT
+            DISTINCT id AS workflow_id
+          FROM
+            azure_logic_app_workflow,
+            jsonb_array_elements(diagnostic_settings) setting,
+            jsonb_array_elements(setting -> 'properties' -> 'logs') log
+          WHERE
+            diagnostic_settings IS NOT NULL
+            AND (
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy' ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy')::JSONB ? 'days'
+              )
+              OR
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (
+                  log -> 'retentionPolicy' ->> 'enabled' <> 'true'
+                  OR setting -> 'properties' ->> 'storageAccountId' = ''
+                )
+              )
+            )
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.diagnostic_settings IS NULL THEN 'alarm'
+            WHEN l.workflow_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.diagnostic_settings IS NULL THEN a.name || ' logging disabled.'
+            WHEN l.workflow_id IS NOT NULL THEN a.name || ' logging enabled.'
+            ELSE a.name || ' logging disabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_logic_app_workflow AS a
+          LEFT JOIN logging_details AS l ON a.id = l.workflow_id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Logic

@@ -1,0 +1,29 @@
+id: azure_kubernetes_cluster_addon_azure_policy_enabled
+title: Kubernetes cluster addon Azure policy should be enabled
+description: Ensure that Kubernetes cluster uses Azure Policies Add-on.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN addon_profiles -> 'azurepolicy' ->> 'enabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN addon_profiles -> 'azurepolicy' ->> 'enabled' = 'true' THEN c.name || ' addon azure policy enabled.'
+            ELSE c.name || ' addon azure policy disabled.'
+          END AS reason
+        FROM
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

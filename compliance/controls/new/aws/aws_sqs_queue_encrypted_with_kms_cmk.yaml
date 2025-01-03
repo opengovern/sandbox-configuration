@@ -1,0 +1,28 @@
+id: aws_sqs_queue_encrypted_with_kms_cmk
+title: SQS queues should be encrypted with KMS CMK
+description: To help protect sensitive data at rest, ensure encryption is enabled for your AWS SQS queues with KMS CMK.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sqs_queue
+    definition: |
+        SELECT
+          queue_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN kms_master_key_id IS NULL THEN 'alarm'
+            WHEN kms_master_key_id IS NOT NULL AND kms_master_key_id = 'alias/aws/sqs' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms_master_key_id IS NULL THEN title || ' encryption at rest disabled.'
+            WHEN kms_master_key_id IS NOT NULL AND kms_master_key_id = 'alias/aws/sqs' THEN title || ' not encrypted with CMK.'
+            ELSE title || ' encrypted with CMK.'
+          END AS reason
+        FROM
+          aws_sqs_queue;
+severity: low
+tags: {}

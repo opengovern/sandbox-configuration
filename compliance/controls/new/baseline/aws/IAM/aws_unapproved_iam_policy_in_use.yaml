@@ -1,0 +1,39 @@
+id: aws_unapproved_iam_policy_in_use
+title: Unapproved IAM Policy in Use
+description: Ensure there are no unapproved AWS Identity and Access Management (IAM) policies in use.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsUnapprovedIamPolicies
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN attachment_count > 0 AND '{{.awsUnapprovedIamPolicies}}' LIKE '%' || name || '%' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN attachment_count > 0 AND '{{.awsUnapprovedIamPolicies}}' LIKE '%' || name || '%' THEN name || ' is an unapproved iam policy which is being used'
+            WHEN attachment_count > 0 THEN name || ' is not unapproved'
+            ELSE name || ' is not being used'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_policy
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

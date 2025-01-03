@@ -1,0 +1,38 @@
+id: aws_check_that_only_safelisted_iam_users_exist
+title: Check that only safelisted IAM Users exist
+description: Ensure that only safelisted IAM Users exist within your AWS account.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsApprovedIamUsers
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN '{{.awsApprovedIamUsers}}' LIKE '%' || name || '%' THEN name || ' user is approved'
+            ELSE name || ' user is not approved'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_user v
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

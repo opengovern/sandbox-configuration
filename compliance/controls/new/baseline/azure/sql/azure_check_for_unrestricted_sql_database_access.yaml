@@ -1,0 +1,43 @@
+id: azure_check_for_unrestricted_sql_database_access
+title: Check for Unrestricted SQL Database Access
+description: Ensure that no SQL databases allow unrestricted inbound access from 0.0.0.0/0 (any IP address).
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          name AS resource,
+          s.platform_resource_id,
+          s.platform_integration_id,
+          CASE
+            WHEN s.public_network_access = 'Enabled' 
+              AND (r -> 'properties' ->> 'startIpAddress' = '0.0.0.0') THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN s.public_network_access = 'Enabled' 
+              AND (r -> 'properties' ->> 'startIpAddress' = '0.0.0.0') THEN 
+              'allows unrestricted ingress/inbound access for all the SQL databases hosted on the server.'
+            ELSE 
+              'does not allow unrestricted ingress/inbound access for all the SQL databases hosted on the server.'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server AS s
+          LEFT JOIN azure_subscription AS sub 
+            ON s.subscription_id = sub.subscription_id,
+          jsonb_array_elements(firewall_rules) AS r
+severity: critical
+tags:
+    platform_score_cloud_service_name:
+      - Azure Managed SQL Service
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Azure Managed SQL Service
+    score_tags:
+      - Exposed Endpoints

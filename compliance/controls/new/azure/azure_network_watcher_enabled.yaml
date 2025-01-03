@@ -1,0 +1,50 @@
+id: azure_network_watcher_enabled
+title: Network Watcher should be enabled
+description: Network Watcher is a regional service that enables you to monitor and diagnose conditions at a network scenario level in, to, and from Azure. Scenario level monitoring enables you to diagnose problems at an end to end network level view. It is required to have a network watcher resource group to be created in every region where a virtual network is present. An alert is enabled if a network watcher resource group is not available in a particular region.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_location
+    definition: |
+        SELECT
+          loc.id AS resource,
+          loc.platform_integration_id AS platform_integration_id,
+          loc.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN watcher.id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN watcher.id IS NULL THEN 'Network watcher not enabled in ' || loc.name || '.'
+            ELSE 'Network watcher enabled in ' || loc.name || '.'
+          END AS reason,
+          loc.name,
+          sub.display_name AS subscription
+        FROM
+          azure_location loc
+        LEFT JOIN azure_network_watcher watcher 
+          ON watcher.region = loc.name
+        JOIN azure_subscription sub 
+          ON sub.subscription_id = loc.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '6.5'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '6'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Network

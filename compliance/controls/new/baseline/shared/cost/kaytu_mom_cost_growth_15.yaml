@@ -1,0 +1,81 @@
+id: platform_mom_cost_growth_15
+title: MoM growth for a service that is >$100 cannot grow more than 15%
+description: MoM growth for a service that is >$100 cannot grow more than 15%
+integration_type:
+  - aws_cloud_account
+  - azure_subscription
+parameters:
+  - key: platformMoMCostGrowthMinCost
+    value: ''
+  - key: platformMoMCostGrowthAllowedGrowth
+    value: ''
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        WITH last30 AS (
+          SELECT connection_id, metric_id, metric_name, SUM(cost_value) AS cost_value
+          FROM platform_cost
+          WHERE period_start::timestamp >= NOW() - INTERVAL '31 days' 
+            AND period_end::timestamp <= NOW()
+          GROUP BY connection_id, metric_id, metric_name
+        ),
+        last60to30 AS (
+          SELECT connection_id, metric_id, metric_name, SUM(cost_value) AS cost_value
+          FROM platform_cost
+          WHERE period_start::timestamp >= NOW() - INTERVAL '62 days' 
+            AND period_end::timestamp <= NOW() - INTERVAL '31 days'
+          GROUP BY connection_id, metric_id, metric_name
+        ),
+        last_valid_60 AS (
+          SELECT 
+            l.connection_id AS connection_id,
+            l.metric_id AS metric_id,
+            l.metric_name AS metric_name,
+            l.cost_value AS last30_cost_value,
+            s.cost_value AS last60to30_cost_value
+          FROM last30 AS l
+          JOIN last60to30 AS s 
+          ON (l.connection_id = s.connection_id AND l.metric_id = s.metric_id)
+          WHERE l.cost_value > {{.platformMoMCostGrowthMinCost}}
+        )
+        SELECT 
+          CASE 
+            WHEN aw.account_id IS NOT NULL THEN aw.account_id || ' - ' || l.metric_id
+            WHEN az.subscription_id IS NOT NULL THEN az.subscription_id || ' - ' || l.metric_id
+          END AS resource,
+          CASE
+            WHEN aw.platform_integration_id IS NOT NULL THEN aw.platform_integration_id
+            WHEN az.platform_integration_id IS NOT NULL THEN az.platform_integration_id
+          END AS platform_integration_id,
+          CASE
+            WHEN aw.platform_resource_id IS NOT NULL THEN aw.platform_resource_id
+            WHEN az.platform_resource_id IS NOT NULL THEN az.platform_resource_id
+          END AS platform_resource_id,
+          CASE
+            WHEN aw.account_id IS NOT NULL THEN 'aws_account'
+            WHEN az.subscription_id IS NOT NULL THEN 'azure_subscription'
+          END AS platform_table_name, 
+          CASE 
+            WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformMoMCostGrowthAllowedGrowth}} 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE 
+            WHEN (l.last30_cost_value - l.last60to30_cost_value) / l.last30_cost_value > {{.platformMoMCostGrowthAllowedGrowth}} 
+            THEN l.metric_name || ' cost grew from ' || l.last60to30_cost_value || ' to ' || l.last30_cost_value || ' which is more than allowed growth'
+            ELSE l.metric_name || ' did not have more than allowed growth'
+          END AS reason
+        FROM last_valid_60 AS l 
+        LEFT JOIN aws_account AS aw ON aw.platform_integration_id = l.connection_id
+        LEFT JOIN azure_subscription AS az ON az.platform_integration_id = l.connection_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - TODO
+    platform_score_use_case:
+      - TODO
+    score_service_name:
+      - TODO
+    score_tags:
+      - TODO

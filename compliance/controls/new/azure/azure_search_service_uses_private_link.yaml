@@ -1,0 +1,45 @@
+id: azure_search_service_uses_private_link
+title: Azure Cognitive Search services should use private link
+description: Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Azure Cognitive Search, data leakage risks are reduced.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_search_service
+    definition: |
+        WITH search_service_connection AS (
+          SELECT
+            DISTINCT a.id
+          FROM
+            azure_search_service AS a,
+            jsonb_array_elements(private_endpoint_connections) AS connection
+          WHERE
+            connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.id IS NULL THEN a.title || ' not uses private link.'
+            ELSE a.title || ' uses private link.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_search_service AS a
+          LEFT JOIN search_service_connection AS c ON c.id = a.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/CognitiveSearch

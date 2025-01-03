@@ -1,0 +1,55 @@
+id: aws_vpc_peering_connections_to_accounts_outside_aws_organization
+title: VPC Peering Connections To Accounts Outside AWS Organization
+description: Ensure VPC peering communication is only between AWS accounts, members of the same AWS Organization.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_peering_connection
+    definition: |
+        WITH account_org AS (
+          SELECT 
+            platform_integration_id,
+            organization_id
+          FROM
+            aws_account
+        ), vpc_org AS (
+          SELECT
+            vpc.vpc_id,
+            ao.organization_id AS org
+          FROM
+            aws_vpc AS vpc
+            LEFT JOIN account_org AS ao ON ao.platform_integration_id = vpc.platform_integration_id
+        )
+
+        SELECT 
+          c.id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN accepter_org.org = requester_org.org THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN accepter_org.org = requester_org.org THEN c.id || ' connections are ok'
+            ELSE c.id || ' connects to accounts outside organization'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_vpc_peering_connection AS c
+          LEFT JOIN vpc_org AS accepter_org ON c.accepter_vpc_id = accepter_org.vpc_id
+          LEFT JOIN vpc_org AS requester_org ON c.requester_vpc_id = accepter_org.vpc_id
+        WHERE
+          status_code = 'active'
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Exposed Endpoints

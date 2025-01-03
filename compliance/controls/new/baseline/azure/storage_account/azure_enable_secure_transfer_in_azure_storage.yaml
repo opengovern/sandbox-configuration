@@ -1,0 +1,36 @@
+id: azure_enable_secure_transfer_in_azure_storage
+title: Enable Secure Transfer in Azure Storage
+description: Ensure that "Secure transfer required" security feature is enabled within your Azure Storage account configuration.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN enable_https_traffic_only = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_https_traffic_only = 'true' THEN 'The data in transit between clients and the resources available in the selected Azure Storage account (i.e. files, blobs, queues, tables, and disks) is encrypted'
+            ELSE 'The data in transit between clients and the resources available in the selected Azure Storage account (i.e. files, blobs, queues, tables, and disks) is not encrypted'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa
+        JOIN
+          azure_subscription AS sub
+        ON
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

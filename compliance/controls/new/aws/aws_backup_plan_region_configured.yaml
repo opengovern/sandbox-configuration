@@ -1,0 +1,40 @@
+id: aws_backup_plan_region_configured
+title: Backup plan should exist in a region
+description: Ensure that there exists at least one backup plan in a region. The rule is non-compliant if there are no backup plans in a region.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_backup_plan
+    definition: |
+        WITH count_plans AS (
+          SELECT
+            region,
+            account_id,
+            COUNT(*) AS count
+          FROM
+            aws_backup_plan
+          GROUP BY
+            region,
+            account_id
+        )
+        SELECT
+          'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          r.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN cp.count > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN cp.count > 0 THEN cp.count || ' backup plan(s) exist in region ' || r.region || '.'
+            ELSE 'No backup plans exist in region ' || r.region || '.'
+          END AS reason
+        FROM
+          aws_region AS r
+          LEFT JOIN count_plans AS cp 
+            ON r.account_id = cp.account_id 
+            AND r.region = cp.region;
+severity: low
+tags: {}

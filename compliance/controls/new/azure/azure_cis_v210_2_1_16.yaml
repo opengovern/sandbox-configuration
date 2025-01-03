@@ -1,0 +1,30 @@
+id: azure_cis_v210_2_1_16
+title: 2.1.16 Ensure that Auto provisioning of 'Microsoft Defender for Containers components' is Set to 'On'
+description: Enable automatic provisioning of the Microsoft Defender for Containers components.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT 
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Containers.'
+            ELSE 'Azure Defender off for Containers.'
+          END AS reason
+        FROM 
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN 
+          azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE 
+          name = 'Containers';
+severity: low
+tags: {}

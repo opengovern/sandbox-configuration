@@ -1,0 +1,23 @@
+id: aws_eks_cluster_no_multiple_security_groups
+title: EKS clusters should not use multiple security groups
+description: This controls ensures that EKS clusters is not using multiple security groups.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') > 1 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(resources_vpc_config -> 'SecurityGroupIds') || ' security group(s).' AS reason
+        FROM
+          aws_eks_cluster;
+severity: low
+tags: {}

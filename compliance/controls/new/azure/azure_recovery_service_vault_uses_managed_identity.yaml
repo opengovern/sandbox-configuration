@@ -1,0 +1,29 @@
+id: azure_recovery_service_vault_uses_managed_identity
+title: Recovery Services vaults should use managed identity
+description: Recovery Services vaults should use a managed identity for enhanced authentication security.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_recovery_services_vault
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN identity IS NULL OR identity ->> 'type' = 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN identity IS NULL OR identity ->> 'type' = 'None' THEN name || ' not uses managed identity.'
+            ELSE name || ' uses managed identity.'
+          END AS reason
+        FROM
+          azure_recovery_services_vault AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

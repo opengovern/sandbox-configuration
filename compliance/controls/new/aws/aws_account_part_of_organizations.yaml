@@ -1,0 +1,42 @@
+id: aws_account_part_of_organizations
+title: AWS account should be part of AWS Organizations
+description: Ensure that an AWS account is part of AWS Organizations. The rule is non-compliant if an AWS account is not part of AWS Organizations, or AWS Organizations' master account ID does not match rule parameter MasterAccountId.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN organization_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN organization_id IS NOT NULL THEN title || ' is part of organization(s).'
+            ELSE title || ' is not part of organization.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_account;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/IAM

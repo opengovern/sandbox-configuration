@@ -1,0 +1,58 @@
+id: azure_check_for_azure_key_vault_keys_expiration_date
+title: Check for Azure Key Vault Keys Expiration Date
+description: Ensure that your Azure Key Vault encryption keys are renewed prior to their expiration date.
+integration_type:
+  - azure_subscription
+parameters:
+  - key: azureKeyVaultKeyExpirationDateDays
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_key_vault_key
+    definition: |
+        SELECT
+          name AS resource,
+          k.platform_resource_id,
+          k.platform_integration_id,
+          CASE
+            WHEN expires_at IS NULL THEN 'skip'
+            WHEN '{{.azureKeyVaultKeyExpirationDateDays}}' = '' THEN
+              CASE
+                WHEN expires_at - now() > '30 days'::interval THEN 'ok'
+                ELSE 'alarm'
+              END
+            ELSE
+              CASE
+                WHEN expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval THEN 'ok'
+                ELSE 'alarm'
+              END
+          END AS status,
+          CASE
+            WHEN expires_at IS NULL THEN 'expires at is not specified'
+            WHEN expires_at < now() THEN 'key has been expired'
+            WHEN '{{.azureKeyVaultKeyExpirationDateDays}}' = '' THEN
+              CASE
+                WHEN expires_at - now() > '30 days'::interval THEN 'key does not expire soon'
+                ELSE 'key expires soon'
+              END
+            ELSE
+              CASE
+                WHEN expires_at - now() > '{{.azureKeyVaultKeyExpirationDateDays}} days'::interval THEN 'key does not expire soon'
+                ELSE 'key expires soon'
+              END
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault_key AS k
+          LEFT JOIN azure_subscription AS sub ON k.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Problem Identities

@@ -1,0 +1,28 @@
+id: aws_foundational_security_ec2_3
+title: 3 Attached EBS volumes should be encrypted at rest
+description: This control checks whether the EBS volumes that are in an attached state are encrypted. To pass this check, EBS volumes must be in use and encrypted. If the EBS volume is not attached, then it is not subject to this check.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN state != 'in-use' THEN 'skip'
+            WHEN encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN state != 'in-use' THEN volume_id || ' not attached.'
+            WHEN encrypted THEN volume_id || ' encrypted.'
+            ELSE volume_id || ' not encrypted.'
+          END AS reason
+        FROM
+          aws_ebs_volume;
+severity: medium
+tags: {}

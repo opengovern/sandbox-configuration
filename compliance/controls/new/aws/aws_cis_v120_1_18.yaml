@@ -1,0 +1,50 @@
+id: aws_cis_v120_1_18
+title: Ensure alternate security contact is registered for the AWS Account
+description: Checks if the AWS Account has an alternate security contact registered. If the account is in GovCloud (aws-us-gov), manual verification is advised. Otherwise, if no security contact is set, an alarm is raised.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH alternate_security_contact AS (
+          SELECT
+            name,
+            account_id
+          FROM
+            aws_account_alternate_contact
+          WHERE
+            contact_type = 'SECURITY'
+        ),
+        account AS (
+          SELECT
+            arn,
+            partition,
+            title,
+            account_id,
+            _ctx,
+            platform_integration_id,
+            platform_resource_id
+          FROM
+            aws_account
+        )
+        SELECT
+          arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.partition = 'aws-us-gov' THEN 'info'
+            WHEN c.name IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.partition = 'aws-us-gov' THEN a.title || ' in GovCloud, manual verification required.'
+            WHEN c.name IS NOT NULL THEN a.title || ' has security contact ' || c.name || ' registered.'
+            ELSE a.title || ' security contact not registered.'
+          END AS reason
+        FROM
+          account AS a
+          JOIN alternate_security_contact AS c ON c.account_id = a.account_id;
+severity: low
+tags: {}

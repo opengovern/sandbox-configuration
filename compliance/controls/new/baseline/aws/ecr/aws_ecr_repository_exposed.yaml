@@ -1,0 +1,42 @@
+id: aws_ecr_repository_exposed
+title: ECR Repository Exposed
+description: Ensure that AWS Elastic Container Registry (ECR) repositories are not exposed to everyone.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        SELECT
+          repository_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(policy_std -> 'Statement') AS p
+              WHERE p ->> 'Effect' = 'Allow'
+              AND p ->> 'Principal' = '*'
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(policy_std -> 'Statement') AS p
+              WHERE p ->> 'Effect' = 'Allow'
+              AND p ->> 'Principal' = '*'
+            ) THEN repository_name || ' repository is exposed to everyone.'
+            ELSE repository_name || ' repository is not exposed to everyone.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecr_repository
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Registry (ECR)
+    score_service_name:
+      - Elastic Container Registry (ECR)

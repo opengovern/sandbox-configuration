@@ -1,0 +1,37 @@
+id: aws_ssl_tls_certificate_expiry_30_days
+title: SSL/TLS Certificate Expiry 30 Days
+description: Ensure SSL/TLS certificates are renewed before their expiration.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_server_certificate
+    definition: |
+        SELECT 
+          name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN expiration - '30 days'::interval < NOW() THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN expiration < NOW() THEN 'certificate has been expired'
+            WHEN expiration - '30 days'::interval < NOW() THEN 'certificate is about to expire in ' || expiration
+            ELSE 'certificate is not going to expire soon'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_iam_server_certificate
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

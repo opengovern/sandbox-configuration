@@ -1,0 +1,36 @@
+id: aws_opensearch_zone_awareness_enabled
+title: OpenSearch Zone Awareness Enabled
+description: Ensure high availability for your Amazon OpenSearch clusters by enabling the Zone Awareness feature.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          domain_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (cluster_config ->> 'ZoneAwarenessEnabled')::bool THEN domain_name || ' cross-zone replication is enabled'
+            ELSE domain_name || ' cross-zone replication is not enabled'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_opensearch_domain
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS OpenSearch Service
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS OpenSearch Service
+    score_tags:
+      - Lacking High Availability

@@ -1,0 +1,26 @@
+id: aws_foundational_security_appsync_2
+title: 2 AWS AppSync should have field-level logging enabled
+description: This control checks whether an AWS AppSync API has field-level logging turned on. The control fails if the field resolver log level is set to None. Unless you provide custom parameter values to indicate that a specific log type should be enabled, Security Hub produces a passed finding if the field resolver log level is either ERROR or ALL.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_appsync_graphql_api
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN log_config ->> 'FieldLogLevel' IN ('ERROR', 'ALL') THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN log_config ->> 'FieldLogLevel' IN ('ERROR', 'ALL') THEN title || ' field level logging enabled.'
+            ELSE name || ' field level logging disabled.'
+          END AS reason
+        FROM
+          aws_appsync_graphql_api;
+severity: medium
+tags: {}

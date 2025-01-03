@@ -1,0 +1,26 @@
+id: aws_cis_v200_5_6
+title: 5.6 Ensure that EC2 Metadata Service only allows IMDSv2
+description: When enabling the Metadata Service on AWS EC2 instances, users have the option of using either Instance Metadata Service Version 1 (IMDSv1; a request/response method) or Instance Metadata Service Version 2 (IMDSv2; a session-oriented method).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+            ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+          END AS reason
+        FROM
+          aws_ec2_instance;
+severity: low
+tags: {}

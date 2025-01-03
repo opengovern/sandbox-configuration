@@ -1,0 +1,33 @@
+id: aws_iam_users_with_console_access_are_required_to_have_MFA
+title: IAM Users with Console Access are required to have MFA
+description: IAM Users with Console Access are required to have MFA
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT 
+          user_arn AS resource,
+          CASE 
+            WHEN NOT(mfa_active::bool) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE 
+            WHEN NOT(mfa_active::bool) THEN 'MFA is not enabled for ' || user_name
+            ELSE user_name || ' has MFA'
+          END AS reason,
+          u.platform_resource_id,
+          u.platform_integration_id,
+          u.account_id
+        FROM 
+          aws_iam_credential_report cr 
+        INNER JOIN aws_iam_user u 
+          ON cr.user_arn = u.arn 
+        WHERE 
+          NOT(login_profile ->> 'UserName' IS NULL)
+severity: low
+tags:
+    score_service_name:
+      - AWS Identity and Access Management (IAM)

@@ -1,0 +1,23 @@
+id: azure_cis_v150_5_1_6
+title: 5.1.6 Ensure that Network Security Group Flow logs are captured and sent to Log Analytics
+description: Ensure that network flow logs are captured and fed into a central log analytics workspace.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

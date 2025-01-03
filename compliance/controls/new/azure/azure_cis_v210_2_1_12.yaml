@@ -1,0 +1,23 @@
+id: azure_cis_v210_2_1_12
+title: 2.1.12 Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'
+description: Ensure that the latest OS patches for all virtual machines are applied.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

@@ -1,0 +1,55 @@
+id: azure_compute_vm_secure_communication_protocols_configured
+title: Windows web servers should be configured to use secure communication protocols
+description: To protect the privacy of information communicated over the Internet, your web servers should use the latest version of the industry-standard cryptographic protocol, Transport Layer Security (TLS). TLS secures communications over a network by using security certificates to encrypt a connection between machines.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        WITH compute_machine AS (
+          SELECT
+            id,
+            name,
+            subscription_id,
+            resource_group,
+            c
+          FROM
+            azure_compute_virtual_machine,
+            jsonb_array_elements(guest_configuration_assignments) AS e,
+            jsonb_array_elements(e -> 'guestConfiguration' -> 'configurationParameter') AS c
+          WHERE
+            e ->> 'name' = 'AuditSecureProtocol'
+            AND e ->> 'complianceStatus' = 'Compliant'
+            AND c ->> 'name' = 'MinimumTLSVersion'
+            AND c ->> 'value' = '1.3'
+        )
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.os_type <> 'Windows' THEN 'skip'
+            WHEN m.id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.os_type <> 'Windows' THEN a.name || ' is of ' || a.os_type || ' operating system.'
+            WHEN m.id IS NOT NULL THEN a.name || ' configured to use secure communication protocols.'
+            ELSE a.name || ' not configured to use secure communication protocols.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS a
+          LEFT JOIN compute_machine AS m ON m.id = a.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Compute

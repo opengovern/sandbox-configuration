@@ -1,0 +1,36 @@
+id: azure_cis_v200_1_2_6
+title: 1.2.6 Ensure Multi-factor Authentication is Required for Azure Management
+description: For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_conditional_access_policy
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            DISTINCT tenant_id,
+            subscription_id,
+            _ctx
+          FROM
+            azure_tenant
+        )
+        SELECT
+          p.id AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.built_in_controls @> '["mfa"]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.built_in_controls @> '["mfa"]' THEN p.display_name || ' MFA enabled.'
+            ELSE p.display_name || ' MFA disabled.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          distinct_tenant AS t,
+          entraid_conditional_access_policy AS p;
+severity: low
+tags: {}

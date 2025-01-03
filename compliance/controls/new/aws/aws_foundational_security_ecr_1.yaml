@@ -1,0 +1,40 @@
+id: aws_foundational_security_ecr_1
+title: 1 ECR private repositories should have image scanning configured
+description: This control checks whether a private ECR repository has image scanning configured. This control fails if a private ECR repository doesn't have image scanning configured.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        WITH check_enhanced_scanning AS (
+          SELECT
+            registry_id,
+            region
+          FROM
+            aws_ecr_registry_scanning_configuration,
+            jsonb_array_elements(scanning_configuration -> 'Rules') AS r
+          WHERE
+            r ->> 'ScanFrequency' = 'CONTINUOUS_SCAN'
+            OR r ->> 'ScanFrequency' = 'SCAN_ON_PUSH'
+        )
+        SELECT
+          arn AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          r.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' OR s.registry_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' OR s.registry_id IS NOT NULL THEN title || ' scan on push enabled.'
+            ELSE title || ' scan on push disabled.'
+          END AS reason
+        FROM
+          aws_ecr_repository AS r
+          LEFT JOIN check_enhanced_scanning AS s 
+          ON s.registry_id = r.account_id 
+          AND s.region = r.region;
+severity: high
+tags: {}

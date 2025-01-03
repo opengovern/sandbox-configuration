@@ -1,0 +1,44 @@
+id: azure_check_for_usage_of_managed_disk_volumes_for_virtual_machines
+title: Check for usage of Managed Disk Volumes for Virtual Machines
+description: Ensure that your Microsoft Azure virtual machines are using managed disk volumes.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.name AS resource,
+          vm.platform_resource_id,
+          vm.platform_integration_id,
+          CASE
+            WHEN (vm.managed_disk_id IS NULL AND NOT EXISTS (
+              SELECT 1 FROM jsonb_array_elements(data_disks) AS d WHERE d->>'managedDisk' IS NOT NULL
+            )) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (vm.managed_disk_id IS NULL AND NOT EXISTS (
+              SELECT 1 FROM jsonb_array_elements(data_disks) AS d WHERE d->>'managedDisk' IS NOT NULL
+            )) THEN vm.name || ' is not using managed disks.'
+            ELSE vm.name || ' is using managed disks.'
+          END AS reason,
+          vm.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm
+        LEFT JOIN
+          azure_subscription AS sub
+        ON
+          vm.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Lacking High Availability

@@ -1,0 +1,34 @@
+id: aws_foundational_security_networkfirewall_3
+title: 3 Network Firewall policies should have at least one rule group associated
+description: This control checks whether a Network Firewall policy has any stateful or stateless rule groups associated. The control fails if stateless or stateful rule groups are not assigned.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_networkfirewall_firewall_policy
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN (firewall_policy ->> 'StatefulRuleGroupReferences' IS NULL 
+              OR jsonb_array_length(firewall_policy -> 'StatefulRuleGroupReferences') = 0)
+            AND (firewall_policy ->> 'StatelessRuleGroupReferences' IS NULL 
+              OR jsonb_array_length(firewall_policy -> 'StatelessRuleGroupReferences') = 0)
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (firewall_policy ->> 'StatefulRuleGroupReferences' IS NULL 
+              OR jsonb_array_length(firewall_policy -> 'StatefulRuleGroupReferences') = 0)
+            AND (firewall_policy ->> 'StatelessRuleGroupReferences' IS NULL 
+              OR jsonb_array_length(firewall_policy -> 'StatelessRuleGroupReferences') = 0)
+            THEN title || ' has no associated rule groups.'
+            ELSE title || ' has associated rule groups.'
+          END AS reason
+        FROM
+          aws_networkfirewall_firewall_policy;
+severity: medium
+tags: {}

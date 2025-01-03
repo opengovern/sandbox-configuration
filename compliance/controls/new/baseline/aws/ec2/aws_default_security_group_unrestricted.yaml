@@ -1,0 +1,54 @@
+id: aws_default_security_group_unrestricted
+title: Default Security Group Unrestricted
+description: Ensure the default security group of every VPC restricts all traffic.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT
+          group_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(ip_permissions) AS p
+              WHERE EXISTS (
+                SELECT 1 
+                FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) AS r
+                WHERE r ->> 'CidrIp' = '0.0.0.0/0'
+              )
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(ip_permissions) AS p
+              WHERE EXISTS (
+                SELECT 1 
+                FROM jsonb_array_elements((p -> 'IpRanges')::jsonb) AS r
+                WHERE r ->> 'CidrIp' = '0.0.0.0/0'
+              )
+            ) THEN group_id || ' is not secure and compliant'
+            ELSE group_id || ' is secure and compliant'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_vpc_security_group
+        WHERE
+          group_name = 'default'
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

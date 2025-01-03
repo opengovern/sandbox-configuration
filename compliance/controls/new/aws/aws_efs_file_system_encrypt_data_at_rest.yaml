@@ -1,0 +1,46 @@
+id: aws_efs_file_system_encrypt_data_at_rest
+title: EFS file system encryption at rest should be enabled
+description: Because sensitive data can exist and to help protect data at rest, ensure encryption is enabled for your AWS Elastic File System (EFS).
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_efs_file_system
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_efs_file_system;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 2.4.1
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '2.4'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - aws
+    service:
+      - AWS/EFS

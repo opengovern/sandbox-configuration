@@ -1,0 +1,30 @@
+id: aws_kms_cmk_unused
+title: KMS key should be in use
+description: This control checks whether there are any unused CMK (Customer Master Key) KMS (Key Management Service) keys.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_kms_key
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT enabled AND key_state = 'PendingDeletion' THEN 'ok'
+            WHEN NOT enabled AND key_state <> 'PendingDeletion' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT enabled AND key_state = 'PendingDeletion' THEN title || ' scheduled for deletion in ' || EXTRACT(DAY FROM deletion_date - CURRENT_TIMESTAMP) || ' day(s).'
+            WHEN NOT enabled AND key_state <> 'PendingDeletion' THEN title || ' is unused.'
+            ELSE title || ' is in use.'
+          END AS reason
+        FROM
+          aws_kms_key
+        WHERE
+          key_manager = 'CUSTOMER';
+severity: low
+tags: {}

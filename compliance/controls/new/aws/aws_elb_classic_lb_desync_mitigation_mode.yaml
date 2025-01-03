@@ -1,0 +1,50 @@
+id: aws_elb_classic_lb_desync_mitigation_mode
+title: ELB classic load balancers should be configured with defensive or strictest desync mitigation mode
+description: This control checks whether a Classic Load Balancer is configured with defensive or strictest desync mitigation mode. This control will fail if the Classic Load Balancer is not configured with defensive or strictest desync mitigation mode.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        WITH app_lb_desync_mitigation_mode AS (
+          SELECT
+            arn,
+            a ->> 'Key',
+            a ->> 'Value' AS v
+          FROM
+            aws_ec2_classic_load_balancer,
+            jsonb_array_elements(additional_attributes) AS a
+          WHERE
+            a ->> 'Key' = 'elb.http.desyncmitigationmode'
+        )
+        SELECT
+          c.arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN m.v = ANY(ARRAY['defensive', 'strictest']) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' has ' || m.v || ' desync mitigation mode.' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_classic_load_balancer AS c
+        LEFT JOIN app_lb_desync_mitigation_mode AS m
+        ON c.arn = m.arn;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - data_integrity
+    foundational_security_item_id:
+      - elb_14
+    plugin:
+      - aws
+    service:
+      - AWS/ELB

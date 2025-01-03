@@ -1,0 +1,57 @@
+id: aws_elb_network_lb_tls_listener_security_policy_configured
+title: ELB network load balancers should have TLS listener security policy configured
+description: Ensure that your Network Load Balancers (NLBs) are configured with a TLS listener security policy. Using insecure ciphers for your NLB Predefined or Custom Security Policy could make the TLS connection between the client and the load balancer vulnerable to exploits.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_network_load_balancer
+    definition: |
+        WITH tls_listeners AS (
+          SELECT
+            DISTINCT load_balancer_arn
+          FROM
+            aws_ec2_load_balancer_listener
+          WHERE
+            protocol = 'TLS'
+            AND ssl_policy NOT IN (
+              'ELBSecurityPolicy-2016-08',
+              'ELBSecurityPolicy-FS-2018-0',
+              'ELBSecurityPolicy-TLS13-1-2-Ext1-2021-06',
+              'ELBSecurityPolicy-TLS13-1-2-2021-06'
+            )
+          GROUP BY
+            load_balancer_arn
+        ), nwl_without_tls_listener AS (
+          SELECT
+            load_balancer_arn,
+            COUNT(*)
+          FROM
+            aws_ec2_load_balancer_listener
+          WHERE
+            protocol = 'TLS'
+          GROUP BY
+            load_balancer_arn
+        )
+        SELECT
+          lb.arn AS resource,
+          lb.platform_integration_id AS platform_integration_id,
+          lb.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN l.load_balancer_arn IS NOT NULL
+            AND lb.arn IN (SELECT load_balancer_arn FROM tls_listeners) THEN 'alarm'
+            WHEN l.load_balancer_arn IS NOT NULL THEN 'ok'
+            ELSE 'info'
+          END AS status,
+          CASE
+            WHEN l.load_balancer_arn IS NOT NULL
+            AND lb.arn IN (SELECT load_balancer_arn FROM tls_listeners) THEN lb.title || ' TLS listener security policy not updated.'
+            WHEN l.load_balancer_arn IS NOT NULL THEN lb.title || ' TLS listener security policy updated.'
+            ELSE lb.title || ' does not use TLS listener.'
+          END AS reason
+        FROM
+          aws_ec2_network_load_balancer AS lb
+        LEFT JOIN nwl_without_tls_listener AS l ON l.load_balancer_arn = lb.arn;
+severity: low
+tags: {}

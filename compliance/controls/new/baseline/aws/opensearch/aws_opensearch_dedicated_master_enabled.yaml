@@ -1,0 +1,36 @@
+id: aws_opensearch_dedicated_master_enabled
+title: OpenSearch Dedicated Master Enabled
+description: Ensure Amazon OpenSearch clusters are using dedicated master nodes to increase the production environment stability.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          domain_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (cluster_config ->> 'DedicatedMasterEnabled')::bool THEN domain_name || ' is configured to use dedicated master nodes.'
+            ELSE domain_name || ' is not configured to use dedicated master nodes'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_opensearch_domain
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS OpenSearch Service
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS OpenSearch Service
+    score_tags:
+      - Lacking High Availability

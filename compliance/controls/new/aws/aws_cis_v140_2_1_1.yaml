@@ -1,0 +1,26 @@
+id: aws_cis_v140_2_1_1
+title: 2.1.1 Ensure all S3 buckets employ encryption-at-rest
+description: Amazon S3 provides a variety of no, or low, cost encryption options to protect data at rest.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN server_side_encryption_configuration IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN server_side_encryption_configuration IS NOT NULL THEN name || ' default encryption enabled.'
+            ELSE name || ' default encryption disabled.'
+          END AS reason
+        FROM
+          aws_s3_bucket;
+severity: low
+tags: {}

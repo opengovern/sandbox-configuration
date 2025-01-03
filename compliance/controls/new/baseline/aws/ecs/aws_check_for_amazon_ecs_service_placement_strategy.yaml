@@ -1,0 +1,40 @@
+id: aws_check_for_amazon_ecs_service_placement_strategy
+title: Check for Amazon ECS Service Placement Strategy
+description: Ensure that your Amazon ECS cluster services are using optimal placement strategies.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_service
+    definition: |
+        SELECT
+          service_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN (SELECT ARRAY_AGG(ps ->> 'Type') 
+                  FROM jsonb_array_elements(placement_strategy) AS ps) = ARRAY['spread', 'binpack']
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (SELECT ARRAY_AGG(ps ->> 'Type') 
+                  FROM jsonb_array_elements(placement_strategy) AS ps) = ARRAY['spread', 'binpack']
+            THEN 'task placement strategy is compliant'
+            ELSE 'task placement strategy is not compliant'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecs_service
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Service (ECS)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Elastic Container Service (ECS)
+    score_tags:
+      - Exposed Endpoints

@@ -1,0 +1,40 @@
+id: aws_vpc_network_acl_unused
+title: VPC network access control lists (network ACLs) should be associated with a subnet.
+description: Ensure there are no unused network access control lists (network ACLs). The rule is compliant if each network ACL is associated with a subnet. The rule is non-compliant if a network ACL is not associated with a subnet.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_network_acl
+    definition: |
+        SELECT
+          network_acl_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(associations) >= 1 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(associations) >= 1 THEN title || ' associated with subnet.'
+            ELSE title || ' not associated with subnet.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_network_acl;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/VPC

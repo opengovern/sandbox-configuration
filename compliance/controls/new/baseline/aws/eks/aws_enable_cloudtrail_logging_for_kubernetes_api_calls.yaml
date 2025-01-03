@@ -1,0 +1,46 @@
+id: aws_enable_cloudtrail_logging_for_kubernetes_api_calls
+title: Enable CloudTrail Logging for Kubernetes API Calls
+description: Ensure that all Kubernetes API calls are logged using Amazon CloudTrail.
+integration_type:
+  - aws_cloud_account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          account_id AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM aws_cloudtrail_trail AS ct
+              WHERE ct.platform_integration_id = a.platform_integration_id 
+                AND ct.is_logging = 'true'
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM aws_cloudtrail_trail AS ct
+              WHERE ct.platform_integration_id = a.platform_integration_id 
+                AND ct.is_logging = 'true'
+            ) THEN 'There are active trails'
+            ELSE 'There are no active trails'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_account AS a
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

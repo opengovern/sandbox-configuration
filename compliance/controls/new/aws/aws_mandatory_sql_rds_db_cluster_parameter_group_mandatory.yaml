@@ -1,0 +1,44 @@
+id: aws_mandatory_sql_rds_db_cluster_parameter_group_mandatory
+title: RDS DB cluster parameter groups should have mandatory tags
+description: Check if RDS DB cluster parameter groups have mandatory tags.
+integration_type:
+  - aws_cloud_account
+parameters:
+  - key: awsMandatoryTags
+policy:
+    language: sql
+    primary_resource: aws_rds_db_cluster_parameter_group
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn,
+            title,
+            tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
+            to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_rds_db_cluster_parameter_group
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          arn AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          analysis;
+severity: high
+tags: {}

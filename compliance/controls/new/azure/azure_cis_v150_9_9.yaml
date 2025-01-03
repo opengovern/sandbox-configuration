@@ -1,0 +1,29 @@
+id: azure_cis_v150_9_9
+title: 9.9 Ensure that 'HTTP Version' is the latest, if used to run the web app
+description: Periodically, newer versions are released for HTTP either due to security flaws or to include additional functionality. Using the latest HTTP version for web apps to take advantage of security fixes, if any, and/or new functionalities of the newer version.
+integration_type:
+  - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        SELECT 
+          app.id AS resource,
+          app.platform_integration_id AS platform_integration_id,
+          app.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT (configuration -> 'properties' ->> 'http20Enabled')::boolean THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT (configuration -> 'properties' ->> 'http20Enabled')::boolean THEN name || ' HTTP version not latest.'
+            ELSE name || ' HTTP version is latest.'
+          END AS reason
+        FROM 
+          azure_app_service_web_app AS app,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = app.subscription_id;
+severity: low
+tags: {}
