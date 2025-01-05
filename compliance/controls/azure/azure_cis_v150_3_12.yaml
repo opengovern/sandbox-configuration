@@ -1,32 +1,29 @@
-Description: Enable sensitive data encryption at rest using Customer Managed Keys rather than Microsoft Managed keys.
-ID: azure_cis_v150_3_12
-IntegrationType:
+id: azure_cis_v150_3_12
+title: 3.12 Ensure Storage for Critical Data are Encrypted with Customer Managed Keys
+description: Enable sensitive data encryption at rest using Customer Managed Keys rather than Microsoft Managed keys.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN sa.name || ' not encrypted with CMK.'
-        ELSE sa.name || ' encrypted with CMK.'
-      END AS reason
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.12 Ensure Storage for Critical Data are Encrypted with Customer Managed Keys
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN sa.name || ' not encrypted with CMK.'
+            ELSE sa.name || ' encrypted with CMK.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

@@ -1,28 +1,26 @@
-Description: This control checks whether logging is enabled for an AWS Network Firewall firewall. The control fails if logging isn't enabled for at least one log type or if the logging destination doesn't exist.
-ID: aws_networkfirewall_firewall_logging_enabled
-IntegrationType:
+id: aws_networkfirewall_firewall_logging_enabled
+title: Network Firewall logging should be enabled
+description: This control checks whether logging is enabled for an AWS Network Firewall firewall. The control fails if logging isn't enabled for at least one log type or if the logging destination doesn't exist.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_networkfirewall_firewall
-  Parameters: []
-  PrimaryTable: aws_networkfirewall_firewall
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN jsonb_array_length(logging_configuration) > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN jsonb_array_length(logging_configuration) > 0 THEN title || ' logging enabled.'
-        ELSE title || ' logging disabled.'
-      END AS reason
-    FROM
-      aws_networkfirewall_firewall;
-Severity: low
-Tags: {}
-Title: Network Firewall logging should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_networkfirewall_firewall
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(logging_configuration) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(logging_configuration) > 0 THEN title || ' logging enabled.'
+            ELSE title || ' logging disabled.'
+          END AS reason
+        FROM
+          aws_networkfirewall_firewall;
+severity: low
+tags: {}

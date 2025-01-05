@@ -1,68 +1,65 @@
-Description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
-ID: azure_search_service_logging_enabled
-IntegrationType:
+id: azure_search_service_logging_enabled
+title: Resource logs in Search services should be enabled
+description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_search_service
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_search_service
-  QueryToExecute: |
-    WITH logging_details AS (
-      SELECT
-        DISTINCT name AS search_service_name
-      FROM
-        azure_search_service,
-        jsonb_array_elements(diagnostic_settings) setting,
-        jsonb_array_elements(setting -> 'properties' -> 'logs') log
-      WHERE
-        diagnostic_settings IS NOT NULL
-        AND (
-          (
-            (log ->> 'enabled')::BOOLEAN
-            AND (log -> 'retentionPolicy' ->> 'enabled')::BOOLEAN
-            AND (log -> 'retentionPolicy')::JSONB ? 'days'
-          )
-          OR
-          (
-            (log ->> 'enabled')::BOOLEAN
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_search_service
+    definition: |
+        WITH logging_details AS (
+          SELECT
+            DISTINCT name AS search_service_name
+          FROM
+            azure_search_service,
+            jsonb_array_elements(diagnostic_settings) setting,
+            jsonb_array_elements(setting -> 'properties' -> 'logs') log
+          WHERE
+            diagnostic_settings IS NOT NULL
             AND (
-              log -> 'retentionPolicy' ->> 'enabled' <> 'true'
-              OR setting -> 'properties' ->> 'storageAccountId' = ''
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy' ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy')::JSONB ? 'days'
+              )
+              OR
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (
+                  log -> 'retentionPolicy' ->> 'enabled' <> 'true'
+                  OR setting -> 'properties' ->> 'storageAccountId' = ''
+                )
+              )
             )
-          )
         )
-    )
-    SELECT
-      v.id AS resource,
-      v.platform_integration_id AS platform_integration_id,
-      v.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN v.diagnostic_settings IS NULL THEN 'alarm'
-        WHEN l.search_service_name IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN v.diagnostic_settings IS NULL THEN v.name || ' logging not enabled.'
-        WHEN l.search_service_name IS NULL THEN v.name || ' logging not enabled.'
-        ELSE v.name || ' logging enabled.'
-      END AS reason,
-      v.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_search_service AS v
-      LEFT JOIN logging_details AS l ON v.name = l.search_service_name,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = v.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/CognitiveSearch
-Title: Resource logs in Search services should be enabled
+        SELECT
+          v.id AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.diagnostic_settings IS NULL THEN 'alarm'
+            WHEN l.search_service_name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN v.diagnostic_settings IS NULL THEN v.name || ' logging not enabled.'
+            WHEN l.search_service_name IS NULL THEN v.name || ' logging not enabled.'
+            ELSE v.name || ' logging enabled.'
+          END AS reason,
+          v.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_search_service AS v
+          LEFT JOIN logging_details AS l ON v.name = l.search_service_name,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = v.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/CognitiveSearch

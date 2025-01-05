@@ -1,32 +1,29 @@
-Description: 'Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Azure Recovery Services vaults, data leakage risks are reduced. Learn more about private links at: https://aka.ms/AB-PrivateEndpoints.'
-ID: azure_recovery_service_vault_uses_private_link_for_backup
-IntegrationType:
+id: azure_recovery_service_vault_uses_private_link_for_backup
+title: Azure Recovery Services vaults should use private link for backup
+description: 'Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Azure Recovery Services vaults, data leakage risks are reduced. Learn more about private links at: https://aka.ms/AB-PrivateEndpoints.'
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_recovery_services_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_recovery_services_vault
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN private_endpoint_state_for_backup = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN private_endpoint_state_for_backup = 'Enabled' THEN 'Private link for backup is enabled.'
-        ELSE 'Private link for backup is disabled.'
-      END AS reason
-    FROM
-      azure_recovery_services_vault AS s,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: Azure Recovery Services vaults should use private link for backup
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_recovery_services_vault
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN private_endpoint_state_for_backup = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN private_endpoint_state_for_backup = 'Enabled' THEN 'Private link for backup is enabled.'
+            ELSE 'Private link for backup is disabled.'
+          END AS reason
+        FROM
+          azure_recovery_services_vault AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

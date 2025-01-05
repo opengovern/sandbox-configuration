@@ -1,38 +1,36 @@
-Description: Ensure that wildcard certificates issued by Amazon Certificate Manager (ACM) or imported to ACM are not in use.
-ID: aws_acm_certificates_with_wildcard_domain_names
-IntegrationType:
+id: aws_acm_certificates_with_wildcard_domain_names
+title: AWS ACM Certificates with Wildcard Domain Names
+description: Ensure that wildcard certificates issued by Amazon Certificate Manager (ACM) or imported to ACM are not in use.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_acm_certificate
-  Parameters: []
-  PrimaryTable: aws_acm_certificate
-  QueryToExecute: |
-    SELECT
-      certificate_arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN domain_name LIKE '*' THEN 'ALARM'
-        ELSE 'OK'
-      END AS status,
-      CASE
-        WHEN domain_name LIKE '*' THEN 'WILDCARD DOMAIN NAME CERTIFICATE IS USED'
-        ELSE 'SINGLE DOMAIN NAME CERTIFICATE IS USED'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_acm_certificate
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Certificate Manager
-  platform_score_use_case:
-    - Tolerate Failures
-  score_service_name:
-    - AWS Certificate Manager
-  score_tags:
-    - Tolerate Failures
-Title: AWS ACM Certificates with Wildcard Domain Names
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_acm_certificate
+    definition: |
+        SELECT
+          certificate_arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN domain_name LIKE '*' THEN 'ALARM'
+            ELSE 'OK'
+          END AS status,
+          CASE
+            WHEN domain_name LIKE '*' THEN 'WILDCARD DOMAIN NAME CERTIFICATE IS USED'
+            ELSE 'SINGLE DOMAIN NAME CERTIFICATE IS USED'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_acm_certificate
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Certificate Manager
+    platform_score_use_case:
+      - Tolerate Failures
+    score_service_name:
+      - AWS Certificate Manager
+    score_tags:
+      - Tolerate Failures

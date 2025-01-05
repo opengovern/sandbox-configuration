@@ -1,28 +1,26 @@
-Description: This control checks if Kinesis Data Streams are encrypted at rest with server-side encryption. This control fails if a Kinesis stream is not encrypted at rest with server-side encryption.
-ID: aws_foundational_security_kinesis_1
-IntegrationType:
+id: aws_foundational_security_kinesis_1
+title: 1 Kinesis Data Streams should be encrypted at rest
+description: This control checks if Kinesis Data Streams are encrypted at rest with server-side encryption. This control fails if a Kinesis stream is not encrypted at rest with server-side encryption.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_kinesis_stream
-  Parameters: []
-  PrimaryTable: aws_kinesis_stream
-  QueryToExecute: |
-    SELECT
-      stream_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN encryption_type = 'KMS' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN encryption_type = 'KMS' THEN title || ' server side encryption enabled.'
-        ELSE title || ' server side encryption disabled.'
-      END AS reason
-    FROM
-      aws_kinesis_stream;
-Severity: medium
-Tags: {}
-Title: 1 Kinesis Data Streams should be encrypted at rest
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_kinesis_stream
+    definition: |
+        SELECT
+          stream_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_type = 'KMS' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'KMS' THEN title || ' server side encryption enabled.'
+            ELSE title || ' server side encryption disabled.'
+          END AS reason
+        FROM
+          aws_kinesis_stream;
+severity: medium
+tags: {}

@@ -1,52 +1,47 @@
-Description: AzureAD Users should have MFA Enabled with Azure subscription role assignment
-ID: entraid_user_should_have_mfa_enabled_with_azure_subscription_role_assignment
-IntegrationType:
+id: entraid_user_should_have_mfa_enabled_with_azure_subscription_role_assignment
+title: AzureAD Users should have MFA Enabled with Azure subscription role assignment
+description: AzureAD Users should have MFA Enabled with Azure subscription role assignment
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_user_effective_access
-    - entraid_user
-    - entraid_user_registration_details
-  Parameters:
-    - Key: entraidAccountStatusInclude
-      Required: false
-      DefaultValue: ""
-  PrimaryTable: entraid_user
-  QueryToExecute: |
-    WITH users_with_roles AS (
-      SELECT DISTINCT
-        u.id AS id,
-        u.platform_integration_id AS platform_integration_id,
-        u.platform_resource_id AS platform_resource_id,
-        u.display_name AS display_name,
-        u.subscription_id AS subscription_id,
-        u.account_enabled AS account_enabled,
-        u.tenant_id AS tenant_id
-      FROM entraid_user AS u
-      JOIN azure_user_effective_access AS ea ON u.id = ea.principal_id
-    )
-    SELECT
-      u.id AS resource,
-      u.platform_integration_id AS platform_integration_id,
-      u.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COALESCE(NULLIF('{{.entraidAccountStatusInclude}}', ''), 'true,false,null') NOT LIKE ('%' || COALESCE(u.account_enabled::text, 'null') || '%') THEN 'skip'
-        WHEN rd.is_mfa_registered::bool = false OR rd.is_mfa_registered::bool IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN COALESCE(NULLIF('{{.entraidAccountStatusInclude}}', ''), 'true,false,null') NOT LIKE ('%' || COALESCE(u.account_enabled::text, 'null') || '%') THEN 'User is not included'
-        WHEN rd.is_mfa_registered::bool = false OR rd.is_mfa_registered::bool IS NULL THEN u.display_name || ' does not have MFA enabled'
-        ELSE u.display_name || ' has MFA'
-      END AS reason,
-      u.tenant_id
-    FROM
-      users_with_roles AS u
-    LEFT JOIN entraid_user_registration_details AS rd ON u.id = rd.id
-    WHERE EXISTS (SELECT 1 FROM azure_user_effective_access AS ea WHERE u.id = ea.principal_id)
-Severity: high
-Tags:
-  score_service_name:
-    - Azure Active Directory (Azure AD)
-Title: AzureAD Users should have MFA Enabled with Azure subscription role assignment
+parameters:
+  - key: entraidAccountStatusInclude
+    value: ''
+policy:
+    language: sql
+    primary_resource: entraid_user
+    definition: |
+        WITH users_with_roles AS (
+          SELECT DISTINCT
+            u.id AS id,
+            u.platform_integration_id AS platform_integration_id,
+            u.platform_resource_id AS platform_resource_id,
+            u.display_name AS display_name,
+            u.subscription_id AS subscription_id,
+            u.account_enabled AS account_enabled,
+            u.tenant_id AS tenant_id
+          FROM entraid_user AS u
+          JOIN azure_user_effective_access AS ea ON u.id = ea.principal_id
+        )
+        SELECT
+          u.id AS resource,
+          u.platform_integration_id AS platform_integration_id,
+          u.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COALESCE(NULLIF('{{.entraidAccountStatusInclude}}', ''), 'true,false,null') NOT LIKE ('%' || COALESCE(u.account_enabled::text, 'null') || '%') THEN 'skip'
+            WHEN rd.is_mfa_registered::bool = false OR rd.is_mfa_registered::bool IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN COALESCE(NULLIF('{{.entraidAccountStatusInclude}}', ''), 'true,false,null') NOT LIKE ('%' || COALESCE(u.account_enabled::text, 'null') || '%') THEN 'User is not included'
+            WHEN rd.is_mfa_registered::bool = false OR rd.is_mfa_registered::bool IS NULL THEN u.display_name || ' does not have MFA enabled'
+            ELSE u.display_name || ' has MFA'
+          END AS reason,
+          u.tenant_id
+        FROM
+          users_with_roles AS u
+        LEFT JOIN entraid_user_registration_details AS rd ON u.id = rd.id
+        WHERE EXISTS (SELECT 1 FROM azure_user_effective_access AS ea WHERE u.id = ea.principal_id)
+severity: high
+tags:
+    score_service_name:
+      - Azure Active Directory (Azure AD)

@@ -1,28 +1,26 @@
-Description: Ensure that detailed monitoring is enabled for your Amazon EC2 instances.
-ID: aws_cis_compute_service_v100_2_6
-IntegrationType:
+id: aws_cis_compute_service_v100_2_6
+title: 2.6 Ensure detailed monitoring is enable for production EC2 Instances
+description: Ensure that detailed monitoring is enabled for your Amazon EC2 instances.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_instance
-  Parameters: []
-  PrimaryTable: aws_ec2_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN monitoring_state = 'enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN monitoring_state = 'enabled' THEN instance_id || ' detailed monitoring enabled.'
-        ELSE instance_id || ' detailed monitoring disabled.'
-      END AS reason
-    FROM
-      aws_ec2_instance;
-Severity: low
-Tags: {}
-Title: 2.6 Ensure detailed monitoring is enable for production EC2 Instances
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN monitoring_state = 'enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN monitoring_state = 'enabled' THEN instance_id || ' detailed monitoring enabled.'
+            ELSE instance_id || ' detailed monitoring disabled.'
+          END AS reason
+        FROM
+          aws_ec2_instance;
+severity: low
+tags: {}

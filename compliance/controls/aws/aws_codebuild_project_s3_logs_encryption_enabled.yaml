@@ -1,42 +1,40 @@
-Description: This control checks if S3 logs for a CodeBuild project are encrypted. The control fails if encryption is deactivated for S3 logs for a CodeBuild project.
-ID: aws_codebuild_project_s3_logs_encryption_enabled
-IntegrationType:
+id: aws_codebuild_project_s3_logs_encryption_enabled
+title: CodeBuild project S3 logs should be encrypted
+description: This control checks if S3 logs for a CodeBuild project are encrypted. The control fails if encryption is deactivated for S3 logs for a CodeBuild project.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_codebuild_project
-  Parameters: []
-  PrimaryTable: aws_codebuild_project
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT (logs_config -> 'S3Logs' ->> 'EncryptionDisabled')::bool THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN NOT (logs_config -> 'S3Logs' ->> 'EncryptionDisabled')::bool THEN title || ' S3Logs encryption enabled.'
-        ELSE title || ' S3Logs encryption disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_codebuild_project;
-Severity: low
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - encryption_of_data_at_rest
-  foundational_security_item_id:
-    - codebuild_3
-  plugin:
-    - aws
-  service:
-    - AWS/CodeBuild
-Title: CodeBuild project S3 logs should be encrypted
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_codebuild_project
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT (logs_config -> 'S3Logs' ->> 'EncryptionDisabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT (logs_config -> 'S3Logs' ->> 'EncryptionDisabled')::bool THEN title || ' S3Logs encryption enabled.'
+            ELSE title || ' S3Logs encryption disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_codebuild_project;
+severity: low
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - encryption_of_data_at_rest
+    foundational_security_item_id:
+      - codebuild_3
+    plugin:
+      - aws
+    service:
+      - AWS/CodeBuild

@@ -1,43 +1,40 @@
-Description: Use private endpoints for your Azure Storage accounts to allow clients and services to securely access data located over a network via an encrypted Private Link. To do this, the private endpoint uses an IP address from the VNet for each service. Network traffic between disparate services securely traverses encrypted over the VNet.
-ID: azure_cis_v200_3_10
-IntegrationType:
+id: azure_cis_v200_3_10
+title: 3.10 Ensure Private Endpoints are used to access Storage Accounts
+description: Use private endpoints for your Azure Storage accounts to allow clients and services to securely access data located over a network via an encrypted Private Link. To do this, the private endpoint uses an IP address from the VNet for each service. Network traffic between disparate services securely traverses encrypted over the VNet.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    WITH storage_account_connection AS (
-      SELECT DISTINCT
-        a.id
-      FROM
-        azure_storage_account AS a,
-        jsonb_array_elements(private_endpoint_connections) AS connection
-      WHERE
-        connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
-    )
-    SELECT DISTINCT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN s.id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN s.id IS NULL THEN a.name || ' not uses private link.'
-        ELSE a.name || ' uses private link.'
-      END AS reason
-    FROM
-      azure_storage_account AS a
-    LEFT JOIN
-      storage_account_connection AS s ON a.id = s.id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.10 Ensure Private Endpoints are used to access Storage Accounts
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        WITH storage_account_connection AS (
+          SELECT DISTINCT
+            a.id
+          FROM
+            azure_storage_account AS a,
+            jsonb_array_elements(private_endpoint_connections) AS connection
+          WHERE
+            connection -> 'properties' -> 'privateLinkServiceConnectionState' ->> 'status' = 'Approved'
+        )
+        SELECT DISTINCT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN s.id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN s.id IS NULL THEN a.name || ' not uses private link.'
+            ELSE a.name || ' uses private link.'
+          END AS reason
+        FROM
+          azure_storage_account AS a
+        LEFT JOIN
+          storage_account_connection AS s ON a.id = s.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

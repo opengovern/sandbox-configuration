@@ -1,24 +1,23 @@
-Description: Requires that prerequisites are deployed to the policy assignment scope. Machines are non-compliant if the local Administrators group contains one or more of the members listed in the policy parameter.
-ID: azure_compute_vm_administrators_group_with_specified_members_windows
-IntegrationType:
+id: azure_compute_vm_administrators_group_with_specified_members_windows
+title: Audit Windows machines that have the specified members in the Administrators group
+description: Requires that prerequisites are deployed to the policy assignment scope. Machines are non-compliant if the local Administrators group contains one or more of the members listed in the policy parameter.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required. Check control description for more details.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: Audit Windows machines that have the specified members in the Administrators group
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required. Check control description for more details.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

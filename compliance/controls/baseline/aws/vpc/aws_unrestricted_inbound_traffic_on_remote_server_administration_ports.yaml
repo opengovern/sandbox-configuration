@@ -1,75 +1,72 @@
-Description: Ensure that no Network ACL (NACL) allows unrestricted inbound traffic on TCP ports 22 and 3389.
-ID: aws_unrestricted_inbound_traffic_on_remote_server_administration_ports
-IntegrationType:
+id: aws_unrestricted_inbound_traffic_on_remote_server_administration_ports
+title: Unrestricted Inbound Traffic on Remote Server Administration Ports
+description: Ensure that no Network ACL (NACL) allows unrestricted inbound traffic on TCP ports 22 and 3389.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_vpc
-    - aws_vpc_network_acl
-  Parameters: []
-  PrimaryTable: aws_vpc_network_acl
-  QueryToExecute: |
-    WITH bad_rules AS (
-      SELECT
-        network_acl_id,
-        COUNT(*) AS num_bad_rules
-      FROM
-        aws_vpc_network_acl,
-        jsonb_array_elements(entries) AS att
-      WHERE
-        att ->> 'Egress' = 'false'
-        AND (
-          att ->> 'CidrBlock' = '0.0.0.0/0'
-          OR att ->> 'Ipv6CidrBlock' = '::/0'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_network_acl
+    definition: |
+        WITH bad_rules AS (
+          SELECT
+            network_acl_id,
+            COUNT(*) AS num_bad_rules
+          FROM
+            aws_vpc_network_acl,
+            jsonb_array_elements(entries) AS att
+          WHERE
+            att ->> 'Egress' = 'false'
+            AND (
+              att ->> 'CidrBlock' = '0.0.0.0/0'
+              OR att ->> 'Ipv6CidrBlock' = '::/0'
+            )
+            AND att ->> 'RuleAction' = 'allow'
+            AND (
+              (
+                att ->> 'Protocol' = '-1'
+                AND att ->> 'PortRange' IS NULL
+              )
+              OR (
+                (att -> 'PortRange' ->> 'From')::int <= 22
+                AND (att -> 'PortRange' ->> 'To')::int >= 22
+                AND att ->> 'Protocol' IN('6', '17')
+              )
+              OR (
+                (att -> 'PortRange' ->> 'From')::int <= 3389
+                AND (att -> 'PortRange' ->> 'To')::int >= 3389
+                AND att ->> 'Protocol' IN('6', '17')
+              )
+            )
+          GROUP BY
+            network_acl_id
         )
-        AND att ->> 'RuleAction' = 'allow'
-        AND (
-          (
-            att ->> 'Protocol' = '-1'
-            AND att ->> 'PortRange' IS NULL
-          )
-          OR (
-            (att -> 'PortRange' ->> 'From')::int <= 22
-            AND (att -> 'PortRange' ->> 'To')::int >= 22
-            AND att ->> 'Protocol' IN('6', '17')
-          )
-          OR (
-            (att -> 'PortRange' ->> 'From')::int <= 3389
-            AND (att -> 'PortRange' ->> 'To')::int >= 3389
-            AND att ->> 'Protocol' IN('6', '17')
-          )
-        )
-      GROUP BY
-        network_acl_id
-    )
-    SELECT
-      'arn:' || acl.partition || ':ec2:' || acl.region || ':' || acl.account_id || ':network-acl/' || acl.network_acl_id AS resource,
-      acl.platform_resource_id,
-      acl.platform_integration_id,
-      CASE
-        WHEN bad_rules.network_acl_id IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN bad_rules.network_acl_id IS NULL THEN acl.network_acl_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-        ELSE acl.network_acl_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) allowing ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-      END AS reason,
-      acl.region,
-      acl.account_id
-    FROM
-      aws_vpc_network_acl AS acl
-      LEFT JOIN bad_rules ON bad_rules.network_acl_id = acl.network_acl_id
-      INNER JOIN aws_vpc vpc ON acl.vpc_id = vpc.vpc_id
-    WHERE jsonb_array_length(acl.associations) > 0 AND vpc.is_default = FALSE;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  score_tags:
-    - Exposed Endpoints
-Title: Unrestricted Inbound Traffic on Remote Server Administration Ports
+        SELECT
+          'arn:' || acl.partition || ':ec2:' || acl.region || ':' || acl.account_id || ':network-acl/' || acl.network_acl_id AS resource,
+          acl.platform_resource_id,
+          acl.platform_integration_id,
+          CASE
+            WHEN bad_rules.network_acl_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN bad_rules.network_acl_id IS NULL THEN acl.network_acl_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+            ELSE acl.network_acl_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) allowing ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+          END AS reason,
+          acl.region,
+          acl.account_id
+        FROM
+          aws_vpc_network_acl AS acl
+          LEFT JOIN bad_rules ON bad_rules.network_acl_id = acl.network_acl_id
+          INNER JOIN aws_vpc vpc ON acl.vpc_id = vpc.vpc_id
+        WHERE jsonb_array_length(acl.associations) > 0 AND vpc.is_default = FALSE;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Exposed Endpoints

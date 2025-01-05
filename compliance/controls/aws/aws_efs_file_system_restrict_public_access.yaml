@@ -1,46 +1,44 @@
-Description: Manage access to resources in the AWS Cloud by ensuring AWS EFS file systems cannot be publicly accessed.
-ID: aws_efs_file_system_restrict_public_access
-IntegrationType:
+id: aws_efs_file_system_restrict_public_access
+title: EFS file systems should restrict public access
+description: Manage access to resources in the AWS Cloud by ensuring AWS EFS file systems cannot be publicly accessed.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_efs_file_system
-  Parameters: []
-  PrimaryTable: aws_efs_file_system
-  QueryToExecute: |
-    WITH wildcard_action_policies AS (
-      SELECT
-        arn,
-        COUNT(*) AS statements_num
-      FROM
-        aws_efs_file_system,
-        jsonb_array_elements(policy_std -> 'Statement') AS s
-      WHERE
-        s ->> 'Effect' = 'Allow'
-        AND (
-          (s -> 'Principal' -> 'AWS') = '["*"]'
-          OR s ->> 'Principal' = '*'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_efs_file_system
+    definition: |
+        WITH wildcard_action_policies AS (
+          SELECT
+            arn,
+            COUNT(*) AS statements_num
+          FROM
+            aws_efs_file_system,
+            jsonb_array_elements(policy_std -> 'Statement') AS s
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND (
+              (s -> 'Principal' -> 'AWS') = '["*"]'
+              OR s ->> 'Principal' = '*'
+            )
+          GROUP BY
+            arn
         )
-      GROUP BY
-        arn
-    )
-    SELECT
-      f.arn AS resource,
-      f.platform_integration_id AS platform_integration_id,
-      f.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN p.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN p.arn IS NULL THEN title || ' does not allow public access.'
-        ELSE title || ' contains ' || COALESCE(p.statements_num, 0) ||
-        ' statements that allow public access.'
-      END AS reason
-    FROM
-      aws_efs_file_system AS f
-    LEFT JOIN wildcard_action_policies AS p ON p.arn = f.arn;
-Severity: low
-Tags: {}
-Title: EFS file systems should restrict public access
+        SELECT
+          f.arn AS resource,
+          f.platform_integration_id AS platform_integration_id,
+          f.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.arn IS NULL THEN title || ' does not allow public access.'
+            ELSE title || ' contains ' || COALESCE(p.statements_num, 0) ||
+            ' statements that allow public access.'
+          END AS reason
+        FROM
+          aws_efs_file_system AS f
+        LEFT JOIN wildcard_action_policies AS p ON p.arn = f.arn;
+severity: low
+tags: {}

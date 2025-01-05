@@ -1,38 +1,35 @@
-Description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
-ID: azure_network_public_ip_no_basic_sku
-IntegrationType:
+id: azure_network_public_ip_no_basic_sku
+title: Network public IPs should use standard SKUs as a minimum
+description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_public_ip
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_public_ip
-  QueryToExecute: |
-    SELECT
-      i.id AS resource,
-      i.platform_integration_id AS platform_integration_id,
-      i.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN i.sku_name = 'Basic' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN i.sku_name = 'Basic' THEN i.title || ' using basic SKU.'
-        ELSE i.title || ' using ' || sku_name || ' SKU.'
-      END AS reason,
-      i.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_public_ip AS i,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = i.subscription_id;
-Severity: low
-Tags:
-  cis:
-    - "true"
-  service:
-    - Azure/Network
-Title: Network public IPs should use standard SKUs as a minimum
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_public_ip
+    definition: |
+        SELECT
+          i.id AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN i.sku_name = 'Basic' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN i.sku_name = 'Basic' THEN i.title || ' using basic SKU.'
+            ELSE i.title || ' using ' || sku_name || ' SKU.'
+          END AS reason,
+          i.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_public_ip AS i,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = i.subscription_id;
+severity: low
+tags:
+    cis:
+      - 'true'
+    service:
+      - Azure/Network

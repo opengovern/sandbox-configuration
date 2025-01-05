@@ -1,76 +1,73 @@
-Description: The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.
-ID: azure_iam_no_custom_subscription_owner_roles_created
-IntegrationType:
+id: azure_iam_no_custom_subscription_owner_roles_created
+title: Ensure that no Custom Subscription Administrator roles exist
+description: The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_role_definition
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH owner_custom_roles AS (
-      SELECT
-        role_name,
-        role_type,
-        title,
-        action,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        _ctx,
-        subscription_id
-      FROM
-        azure_role_definition,
-        jsonb_array_elements(permissions) AS s,
-        jsonb_array_elements_text(s -> 'actions') AS action
-      WHERE
-        role_type = 'CustomRole'
-        AND action IN ('*', '*:*')
-    )
-    SELECT
-      cr.subscription_id AS resource,
-      cr.platform_integration_id AS platform_integration_id,
-      cr.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COUNT(*) > 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN COUNT(*) = 1 THEN 'There is one custom owner role.'
-        WHEN COUNT(*) > 1 THEN 'There are ' || COUNT(*) || ' custom owner roles.'
-        ELSE 'There are no custom owner roles.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      owner_custom_roles cr,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = cr.subscription_id
-    GROUP BY
-      cr.subscription_id,
-      cr.platform_integration_id,
-      cr.platform_resource_id,
-      cr._ctx,
-      sub.display_name
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "1.21"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "1"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/ActiveDirectory
-Title: Ensure that no Custom Subscription Administrator roles exist
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH owner_custom_roles AS (
+          SELECT
+            role_name,
+            role_type,
+            title,
+            action,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx,
+            subscription_id
+          FROM
+            azure_role_definition,
+            jsonb_array_elements(permissions) AS s,
+            jsonb_array_elements_text(s -> 'actions') AS action
+          WHERE
+            role_type = 'CustomRole'
+            AND action IN ('*', '*:*')
+        )
+        SELECT
+          cr.subscription_id AS resource,
+          cr.platform_integration_id AS platform_integration_id,
+          cr.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COUNT(*) > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN COUNT(*) = 1 THEN 'There is one custom owner role.'
+            WHEN COUNT(*) > 1 THEN 'There are ' || COUNT(*) || ' custom owner roles.'
+            ELSE 'There are no custom owner roles.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          owner_custom_roles cr,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = cr.subscription_id
+        GROUP BY
+          cr.subscription_id,
+          cr.platform_integration_id,
+          cr.platform_resource_id,
+          cr._ctx,
+          sub.display_name
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '1.21'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '1'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/ActiveDirectory

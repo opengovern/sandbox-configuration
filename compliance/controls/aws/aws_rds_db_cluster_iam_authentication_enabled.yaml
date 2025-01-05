@@ -1,42 +1,40 @@
-Description: Checks if an AWS RDS Cluster has AWS Identity and Access Management (IAM) authentication enabled. The rule is non-compliant if an RDS Cluster does not have IAM authentication enabled.
-ID: aws_rds_db_cluster_iam_authentication_enabled
-IntegrationType:
+id: aws_rds_db_cluster_iam_authentication_enabled
+title: IAM authentication should be configured for RDS clusters
+description: Checks if an AWS RDS Cluster has AWS Identity and Access Management (IAM) authentication enabled. The rule is non-compliant if an RDS Cluster does not have IAM authentication enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_cluster
-  Parameters: []
-  PrimaryTable: aws_rds_db_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN iam_database_authentication_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
-        ELSE title || ' IAM authentication not enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_cluster;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - passwordless_aauthentication
-  foundational_security_item_id:
-    - rds_12
-  plugin:
-    - aws
-  service:
-    - AWS/RDS
-Title: IAM authentication should be configured for RDS clusters
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN iam_database_authentication_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
+            ELSE title || ' IAM authentication not enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_cluster;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - passwordless_aauthentication
+    foundational_security_item_id:
+      - rds_12
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

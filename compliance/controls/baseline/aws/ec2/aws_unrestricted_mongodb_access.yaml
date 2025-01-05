@@ -1,62 +1,59 @@
-Description: Ensure no security group allows unrestricted ingress access to MongoDB port 27017
-ID: aws_unrestricted_mongodb_access
-IntegrationType:
+id: aws_unrestricted_mongodb_access
+title: Unrestricted MongoDB Access
+description: Ensure no security group allows unrestricted ingress access to MongoDB port 27017
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group
-  Parameters:
-    - Key: awsMongodbTrustedIpRange
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    SELECT
-      group_name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS p,
-               jsonb_array_elements(p -> 'IpRanges') AS r
-          WHERE '{{.awsMongodbTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
-            AND (p ->> 'FromPort') = '27017'
-            AND (p ->> 'ToPort') = '27017'
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS p,
-               jsonb_array_elements(p -> 'IpRanges') AS r
-          WHERE '{{.awsMongodbTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
-            AND (p ->> 'FromPort') = '27017'
-            AND (p ->> 'ToPort') = '27017'
-        ) THEN group_name || ' has Unrestricted MongoDb Access'
-        ELSE group_name || ' MongoDb Access is secure'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_vpc_security_group
-    WHERE
-      EXISTS (
-        SELECT 1
-        FROM jsonb_array_elements(ip_permissions) AS p
-        WHERE (p ->> 'FromPort') = '27017'
-          AND (p ->> 'ToPort') = '27017'
-      )
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Exposed Endpoints
-Title: Unrestricted MongoDB Access
+parameters:
+  - key: awsMongodbTrustedIpRange
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT
+          group_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+                   jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE '{{.awsMongodbTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+                AND (p ->> 'FromPort') = '27017'
+                AND (p ->> 'ToPort') = '27017'
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+                   jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE '{{.awsMongodbTrustedIpRange}}' NOT LIKE '%' || (r ->> 'CidrIp') || '%'
+                AND (p ->> 'FromPort') = '27017'
+                AND (p ->> 'ToPort') = '27017'
+            ) THEN group_name || ' has Unrestricted MongoDb Access'
+            ELSE group_name || ' MongoDb Access is secure'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_security_group
+        WHERE
+          EXISTS (
+            SELECT 1
+            FROM jsonb_array_elements(ip_permissions) AS p
+            WHERE (p ->> 'FromPort') = '27017'
+              AND (p ->> 'ToPort') = '27017'
+          )
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

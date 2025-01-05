@@ -1,43 +1,40 @@
-Description: Enable all types of threat detection for your Microsoft Azure SQL database servers.
-ID: azure_enable_all_types_of_threat_detection_on_sql_servers
-IntegrationType:
+id: azure_enable_all_types_of_threat_detection_on_sql_servers
+title: Enable All Types of Threat Detection on SQL Servers
+description: Enable all types of threat detection for your Microsoft Azure SQL database servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_sql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_sql_server
-  QueryToExecute: |
-    SELECT 
-      name AS resource,
-      s.platform_resource_id,
-      s.platform_integration_id,
-      CASE
-        WHEN alert_length = 1 AND disabled_alerts = '' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN alert_length = 1 AND disabled_alerts = '' THEN 'send notification alerts for all types of threats detected for the selected SQL server.'
-        ELSE 'does not send notification alerts for all types of threats detected for the selected SQL server.'
-      END AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM 
-      azure_sql_server AS s
-      LEFT JOIN azure_subscription AS sub ON s.subscription_id = sub.subscription_id,
-      jsonb_array_elements(server_security_alert_policy) AS security,
-      jsonb_array_elements_text(security -> 'properties' -> 'disabledAlerts') AS disabled_alerts,
-      jsonb_array_length(security -> 'properties' -> 'disabledAlerts') AS alert_length
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Managed SQL Service
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - Azure Managed SQL Service
-  score_tags:
-    - Problem Identities
-Title: Enable All Types of Threat Detection on SQL Servers
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT 
+          name AS resource,
+          s.platform_resource_id,
+          s.platform_integration_id,
+          CASE
+            WHEN alert_length = 1 AND disabled_alerts = '' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN alert_length = 1 AND disabled_alerts = '' THEN 'send notification alerts for all types of threats detected for the selected SQL server.'
+            ELSE 'does not send notification alerts for all types of threats detected for the selected SQL server.'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM 
+          azure_sql_server AS s
+          LEFT JOIN azure_subscription AS sub ON s.subscription_id = sub.subscription_id,
+          jsonb_array_elements(server_security_alert_policy) AS security,
+          jsonb_array_elements_text(security -> 'properties' -> 'disabledAlerts') AS disabled_alerts,
+          jsonb_array_length(security -> 'properties' -> 'disabledAlerts') AS alert_length
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Managed SQL Service
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - Azure Managed SQL Service
+    score_tags:
+      - Problem Identities

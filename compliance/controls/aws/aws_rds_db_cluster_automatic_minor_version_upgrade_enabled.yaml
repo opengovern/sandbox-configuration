@@ -1,28 +1,26 @@
-Description: This control checks if automatic minor version upgrade is enabled for an Amazon RDS database cluster. The control fails if automatic minor version upgrade isn't enabled for an RDS cluster.
-ID: aws_rds_db_cluster_automatic_minor_version_upgrade_enabled
-IntegrationType:
+id: aws_rds_db_cluster_automatic_minor_version_upgrade_enabled
+title: RDS DB clusters should have automatic minor version upgrade enabled
+description: This control checks if automatic minor version upgrade is enabled for an Amazon RDS database cluster. The control fails if automatic minor version upgrade isn't enabled for an RDS cluster.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_cluster
-  Parameters: []
-  PrimaryTable: aws_rds_db_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_minor_version_upgrade THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
-        ELSE title || ' automatic minor version upgrades disabled.'
-      END AS reason
-    FROM
-      aws_rds_db_cluster;
-Severity: low
-Tags: {}
-Title: RDS DB clusters should have automatic minor version upgrade enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_minor_version_upgrade THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
+            ELSE title || ' automatic minor version upgrades disabled.'
+          END AS reason
+        FROM
+          aws_rds_db_cluster;
+severity: low
+tags: {}

@@ -1,28 +1,26 @@
-Description: This control checks if a Neptune DB cluster has IAM database authentication enabled. The control fails if IAM database authentication isn't enabled for a Neptune DB cluster.
-ID: aws_neptune_db_cluster_iam_authentication_enabled
-IntegrationType:
+id: aws_neptune_db_cluster_iam_authentication_enabled
+title: Neptune DB clusters should have IAM database authentication enabled
+description: This control checks if a Neptune DB cluster has IAM database authentication enabled. The control fails if IAM database authentication isn't enabled for a Neptune DB cluster.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_neptune_db_cluster
-  Parameters: []
-  PrimaryTable: aws_neptune_db_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN iam_database_authentication_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
-        ELSE title || ' IAM authentication disabled.'
-      END AS reason
-    FROM
-      aws_neptune_db_cluster;
-Severity: low
-Tags: {}
-Title: Neptune DB clusters should have IAM database authentication enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_neptune_db_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN iam_database_authentication_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
+            ELSE title || ' IAM authentication disabled.'
+          END AS reason
+        FROM
+          aws_neptune_db_cluster;
+severity: low
+tags: {}

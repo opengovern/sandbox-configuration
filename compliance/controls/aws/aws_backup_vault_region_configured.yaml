@@ -1,41 +1,38 @@
-Description: Ensure that there exists at least one backup vault in a region. The rule is non-compliant if there are no backup vaults in a region.
-ID: aws_backup_vault_region_configured
-IntegrationType:
+id: aws_backup_vault_region_configured
+title: Backup vaults should exist in a region
+description: Ensure that there exists at least one backup vault in a region. The rule is non-compliant if there are no backup vaults in a region.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_backup_vault
-    - aws_region
-  Parameters: []
-  PrimaryTable: aws_backup_vault
-  QueryToExecute: |
-    WITH count_vaults AS (
-      SELECT
-        region,
-        account_id,
-        COUNT(*) AS count
-      FROM
-        aws_backup_vault
-      GROUP BY
-        region,
-        account_id
-    )
-    SELECT
-      'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
-      r.platform_integration_id AS platform_integration_id,
-      r.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN v.count > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN v.count > 0 THEN v.count || ' backup vault(s) exist in region ' || r.region || '.'
-        ELSE 'No backup vault exists in region ' || r.region || '.'
-      END AS reason
-    FROM
-      aws_region AS r
-    LEFT JOIN count_vaults AS v ON r.account_id = v.account_id AND r.region = v.region;
-Severity: low
-Tags: {}
-Title: Backup vaults should exist in a region
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_backup_vault
+    definition: |
+        WITH count_vaults AS (
+          SELECT
+            region,
+            account_id,
+            COUNT(*) AS count
+          FROM
+            aws_backup_vault
+          GROUP BY
+            region,
+            account_id
+        )
+        SELECT
+          'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          r.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.count > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN v.count > 0 THEN v.count || ' backup vault(s) exist in region ' || r.region || '.'
+            ELSE 'No backup vault exists in region ' || r.region || '.'
+          END AS reason
+        FROM
+          aws_region AS r
+        LEFT JOIN count_vaults AS v ON r.account_id = v.account_id AND r.region = v.region;
+severity: low
+tags: {}

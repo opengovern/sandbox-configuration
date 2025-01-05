@@ -1,59 +1,56 @@
-Description: This control ensures that EC2 instance IAM role does not allow new group creation with attached policy access.
-ID: aws_ec2_instance_no_iam_role_with_new_group_creation_with_attached_policy_access
-IntegrationType:
+id: aws_ec2_instance_no_iam_role_with_new_group_creation_with_attached_policy_access
+title: EC2 instance IAM role should not allow new group creation with attached policy access
+description: This control ensures that EC2 instance IAM role does not allow new group creation with attached policy access.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_role
-    - aws_ec2_instance
-  Parameters: []
-  PrimaryTable: aws_ec2_instance
-  QueryToExecute: |
-    WITH iam_roles AS (
-      SELECT
-        r.arn AS role_arn,
-        i.arn AS instance_arn
-      FROM
-        aws_iam_role AS r,
-        jsonb_array_elements_text(instance_profile_arns) AS p
-      LEFT JOIN aws_ec2_instance AS i 
-        ON p = i.iam_instance_profile_arn
-      WHERE
-        i.arn IS NOT NULL
-    ), iam_role_with_permission AS (
-      SELECT
-        arn
-      FROM
-        aws_iam_role,
-        jsonb_array_elements(assume_role_policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Principal' -> 'Service') AS service,
-        jsonb_array_elements_text(s -> 'Action') AS action
-      WHERE
-        arn IN (SELECT role_arn FROM iam_roles)
-        AND s ->> 'Effect' = 'Allow'
-        AND service = 'ec2.amazonaws.com'
-        AND action = 'iam:creategroup'
-        AND action = 'iam:attachgrouppolicy'
-    )
-    SELECT
-      i.arn AS resource,
-      i.platform_integration_id AS platform_integration_id,
-      i.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN p.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN p.arn IS NULL THEN title || ' has no new group creation access with attached policy.'
-        ELSE title || ' has new group creation access with attached policy.'
-      END AS reason
-    FROM
-      aws_ec2_instance AS i
-    LEFT JOIN iam_roles AS r 
-      ON r.instance_arn = i.arn
-    LEFT JOIN iam_role_with_permission AS p 
-      ON p.arn = r.role_arn;
-Severity: low
-Tags: {}
-Title: EC2 instance IAM role should not allow new group creation with attached policy access
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        WITH iam_roles AS (
+          SELECT
+            r.arn AS role_arn,
+            i.arn AS instance_arn
+          FROM
+            aws_iam_role AS r,
+            jsonb_array_elements_text(instance_profile_arns) AS p
+          LEFT JOIN aws_ec2_instance AS i 
+            ON p = i.iam_instance_profile_arn
+          WHERE
+            i.arn IS NOT NULL
+        ), iam_role_with_permission AS (
+          SELECT
+            arn
+          FROM
+            aws_iam_role,
+            jsonb_array_elements(assume_role_policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Principal' -> 'Service') AS service,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            arn IN (SELECT role_arn FROM iam_roles)
+            AND s ->> 'Effect' = 'Allow'
+            AND service = 'ec2.amazonaws.com'
+            AND action = 'iam:creategroup'
+            AND action = 'iam:attachgrouppolicy'
+        )
+        SELECT
+          i.arn AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.arn IS NULL THEN title || ' has no new group creation access with attached policy.'
+            ELSE title || ' has new group creation access with attached policy.'
+          END AS reason
+        FROM
+          aws_ec2_instance AS i
+        LEFT JOIN iam_roles AS r 
+          ON r.instance_arn = i.arn
+        LEFT JOIN iam_role_with_permission AS p 
+          ON p.arn = r.role_arn;
+severity: low
+tags: {}

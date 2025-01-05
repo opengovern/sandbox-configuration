@@ -1,28 +1,26 @@
-Description: Ensure SQS queue is configured with a dead-letter queue. Dead-letter queues are useful for debugging your application or messaging system because they let you isolate problematic messages to determine why their processing didn't succeed.
-ID: aws_sqs_queue_dead_letter_queue_configured
-IntegrationType:
+id: aws_sqs_queue_dead_letter_queue_configured
+title: SQS queues should be configured with a dead-letter queue.
+description: Ensure SQS queue is configured with a dead-letter queue. Dead-letter queues are useful for debugging your application or messaging system because they let you isolate problematic messages to determine why their processing didn't succeed.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_sqs_queue
-  Parameters: []
-  PrimaryTable: aws_sqs_queue
-  QueryToExecute: |
-    SELECT
-      queue_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN redrive_policy IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN redrive_policy IS NOT NULL THEN title || ' configured with dead-letter queue.'
-        ELSE title || ' not configured with dead-letter queue.'
-      END AS reason
-    FROM
-      aws_sqs_queue;
-Severity: low
-Tags: {}
-Title: SQS queues should be configured with a dead-letter queue.
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sqs_queue
+    definition: |
+        SELECT
+          queue_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN redrive_policy IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN redrive_policy IS NOT NULL THEN title || ' configured with dead-letter queue.'
+            ELSE title || ' not configured with dead-letter queue.'
+          END AS reason
+        FROM
+          aws_sqs_queue;
+severity: low
+tags: {}

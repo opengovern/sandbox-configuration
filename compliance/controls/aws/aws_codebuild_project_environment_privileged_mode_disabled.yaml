@@ -1,42 +1,40 @@
-Description: This control checks if an AWS CodeBuild project environment has privileged mode enabled. This control fails when an AWS CodeBuild project environment has privileged mode enabled.
-ID: aws_codebuild_project_environment_privileged_mode_disabled
-IntegrationType:
+id: aws_codebuild_project_environment_privileged_mode_disabled
+title: CodeBuild project environments should not have privileged mode enabled
+description: This control checks if an AWS CodeBuild project environment has privileged mode enabled. This control fails when an AWS CodeBuild project environment has privileged mode enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_codebuild_project
-  Parameters: []
-  PrimaryTable: aws_codebuild_project
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN environment ->> 'PrivilegedMode' = 'true' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN environment ->> 'PrivilegedMode' = 'true' THEN title || ' environment privileged mode enabled.'
-        ELSE title || ' environment privileged mode disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_codebuild_project;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/CodeBuild
-Title: CodeBuild project environments should not have privileged mode enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_codebuild_project
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN environment ->> 'PrivilegedMode' = 'true' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN environment ->> 'PrivilegedMode' = 'true' THEN title || ' environment privileged mode enabled.'
+            ELSE title || ' environment privileged mode disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_codebuild_project;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/CodeBuild

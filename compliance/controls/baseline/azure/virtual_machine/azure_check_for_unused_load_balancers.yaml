@@ -1,47 +1,44 @@
-Description: Identify and remove unused load balancers from your Microsoft Azure cloud account.
-ID: azure_check_for_unused_load_balancers
-IntegrationType:
+id: azure_check_for_unused_load_balancers
+title: Check for Unused Load Balancers
+description: Identify and remove unused load balancers from your Microsoft Azure cloud account.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_lb
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_lb
-  QueryToExecute: |
-    SELECT
-      lb.name AS resource,
-      lb.platform_resource_id,
-      lb.platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
-          WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
-        ) THEN lb.name || ' is used.'
-        ELSE lb.name || ' is unused.'
-      END AS reason,
-      lb.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_lb AS lb
-    LEFT JOIN azure_subscription AS sub
-      ON lb.subscription_id = sub.subscription_id
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Network
-  platform_score_use_case:
-    - Orphaned Resources
-  score_service_name:
-    - Azure Network
-  score_tags:
-    - Orphaned Resources
-Title: Check for Unused Load Balancers
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_lb
+    definition: |
+        SELECT
+          lb.name AS resource,
+          lb.platform_resource_id,
+          lb.platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
+              WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM jsonb_array_elements(backend_address_pools) AS p
+              WHERE p -> 'properties' ->> 'backendIPConfigurations' IS NOT NULL
+            ) THEN lb.name || ' is used.'
+            ELSE lb.name || ' is unused.'
+          END AS reason,
+          lb.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_lb AS lb
+        LEFT JOIN azure_subscription AS sub
+          ON lb.subscription_id = sub.subscription_id
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - Azure Network
+    platform_score_use_case:
+      - Orphaned Resources
+    score_service_name:
+      - Azure Network
+    score_tags:
+      - Orphaned Resources

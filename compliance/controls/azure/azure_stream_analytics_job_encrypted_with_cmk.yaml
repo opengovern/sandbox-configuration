@@ -1,24 +1,23 @@
-Description: Use customer-managed keys when you want to securely store any metadata and private data assets of your Stream Analytics jobs in your storage account. This gives you total control over how your Stream Analytics data is encrypted.
-ID: azure_stream_analytics_job_encrypted_with_cmk
-IntegrationType:
+id: azure_stream_analytics_job_encrypted_with_cmk
+title: Azure Stream Analytics jobs should use customer-managed keys to encrypt data
+description: Use customer-managed keys when you want to securely store any metadata and private data assets of your Stream Analytics jobs in your storage account. This gives you total control over how your Stream Analytics data is encrypted.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: Azure Stream Analytics jobs should use customer-managed keys to encrypt data
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

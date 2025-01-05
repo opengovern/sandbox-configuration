@@ -1,28 +1,26 @@
-Description: This control checks whether a Neptune DB cluster has automated backups enabled, and a backup retention period greater than or equal to 7 days. The control fails if backups aren't enabled for the Neptune DB cluster, or if the retention period is less than 7 days.
-ID: aws_neptune_db_cluster_automated_backup_enabled
-IntegrationType:
+id: aws_neptune_db_cluster_automated_backup_enabled
+title: Neptune DB clusters should have automated backups enabled
+description: This control checks whether a Neptune DB cluster has automated backups enabled, and a backup retention period greater than or equal to 7 days. The control fails if backups aren't enabled for the Neptune DB cluster, or if the retention period is less than 7 days.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_neptune_db_cluster
-  Parameters: []
-  PrimaryTable: aws_neptune_db_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN backup_retention_period >= 7 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN backup_retention_period >= 7 THEN title || ' automated backups enabled.'
-        ELSE title || ' automated backups disabled.'
-      END AS reason
-    FROM
-      aws_neptune_db_cluster;
-Severity: low
-Tags: {}
-Title: Neptune DB clusters should have automated backups enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_neptune_db_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN backup_retention_period >= 7 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN backup_retention_period >= 7 THEN title || ' automated backups enabled.'
+            ELSE title || ' automated backups disabled.'
+          END AS reason
+        FROM
+          aws_neptune_db_cluster;
+severity: low
+tags: {}

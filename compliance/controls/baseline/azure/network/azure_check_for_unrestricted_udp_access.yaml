@@ -1,48 +1,45 @@
-Description: Ensure that no network security groups allow unrestricted inbound access on UDP ports.
-ID: azure_check_for_unrestricted_udp_access
-IntegrationType:
+id: azure_check_for_unrestricted_udp_access
+title: Check for Unrestricted UDP Access
+description: Ensure that no network security groups allow unrestricted inbound access on UDP ports.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_network_security_group
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_network_security_group
-  QueryToExecute: |
-    SELECT
-      sg.id AS resource,
-      sg.platform_integration_id,
-      sg.platform_resource_id,
-      CASE
-        WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') 
-          OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') 
-          OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') 
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') 
-          OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') 
-          OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') 
-        THEN 'The UDP inbound access to the associated Microsoft Azure virtual machine(s) is not secured.'
-        ELSE 'The UDP inbound access to the associated Microsoft Azure virtual machine(s) is secured.'
-      END AS reason,
-      sg.resource_group,
-      display_name AS subscription
-    FROM
-      azure_network_security_group AS sg,
-      azure_subscription AS sub,
-      jsonb_array_elements(security_rules) AS sr
-    WHERE
-      sub.subscription_id = sg.subscription_id
-      AND sr -> 'properties' ->> 'access' = 'Allow'
-      AND sr -> 'properties' ->> 'protocol' = 'Udp'
-      AND sr -> 'properties' ->> 'direction' = 'Inbound'
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Network
-  score_service_name:
-    - Azure Network
-Title: Check for Unrestricted UDP Access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_security_group
+    definition: |
+        SELECT
+          sg.id AS resource,
+          sg.platform_integration_id,
+          sg.platform_resource_id,
+          CASE
+            WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') 
+              OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') 
+              OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (sr -> 'properties' ->> 'sourceAddressPrefix' = '*') 
+              OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'any') 
+              OR (sr -> 'properties' ->> 'sourceAddressPrefix' = 'internet') 
+            THEN 'The UDP inbound access to the associated Microsoft Azure virtual machine(s) is not secured.'
+            ELSE 'The UDP inbound access to the associated Microsoft Azure virtual machine(s) is secured.'
+          END AS reason,
+          sg.resource_group,
+          display_name AS subscription
+        FROM
+          azure_network_security_group AS sg,
+          azure_subscription AS sub,
+          jsonb_array_elements(security_rules) AS sr
+        WHERE
+          sub.subscription_id = sg.subscription_id
+          AND sr -> 'properties' ->> 'access' = 'Allow'
+          AND sr -> 'properties' ->> 'protocol' = 'Udp'
+          AND sr -> 'properties' ->> 'direction' = 'Inbound'
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Network
+    score_service_name:
+      - Azure Network

@@ -1,48 +1,46 @@
-Description: Ensure that your existing AMIs are encrypted to meet security and compliance requirements.
-ID: aws_ami_encryption
-IntegrationType:
+id: aws_ami_encryption
+title: AWS AMI Encryption
+description: Ensure that your existing AMIs are encrypted to meet security and compliance requirements.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_ami
-  Parameters: []
-  PrimaryTable: aws_ec2_ami
-  QueryToExecute: |
-    SELECT 
-      name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 
-          FROM jsonb_array_elements(block_device_mappings) AS b 
-          WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = FALSE
-        ) 
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1 
-          FROM jsonb_array_elements(block_device_mappings) AS b 
-          WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = FALSE
-        ) 
-        THEN name || ' has unencrypted data' 
-        ELSE name || ' data is encrypted'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_ec2_ami
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Unencrypted Storage
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Unencrypted Storage
-Title: AWS AMI Encryption
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_ami
+    definition: |
+        SELECT 
+          name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(block_device_mappings) AS b 
+              WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = FALSE
+            ) 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 
+              FROM jsonb_array_elements(block_device_mappings) AS b 
+              WHERE (b -> 'Ebs' ->> 'Encrypted')::bool = FALSE
+            ) 
+            THEN name || ' has unencrypted data' 
+            ELSE name || ' data is encrypted'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_ec2_ami
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Unencrypted Storage

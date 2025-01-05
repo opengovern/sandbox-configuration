@@ -1,54 +1,51 @@
-Description: In some cases, Azure Storage sets the minimum TLS version to be version 1.0 by default. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS version can be configured to be later protocols such as TLS 1.2.
-ID: azure_storage_account_min_tls_1_2
-IntegrationType:
+id: azure_storage_account_min_tls_1_2
+title: Ensure the 'Minimum TLS version' for storage accounts is set to 'Version 1.2'
+description: In some cases, Azure Storage sets the minimum TLS version to be version 1.0 by default. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS version can be configured to be later protocols such as TLS 1.2.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT 
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN minimum_tls_version = 'TLSEnforcementDisabled' THEN 'alarm'
-        WHEN minimum_tls_version = 'TLS1_2' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN minimum_tls_version = 'TLSEnforcementDisabled' THEN sa.name || ' TLS enforcement is disabled.'
-        WHEN minimum_tls_version = 'TLS1_2' THEN sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
-        ELSE sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
-      END AS reason,
-      sa.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM 
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE 
-      sub.subscription_id = sa.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "3.12"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "3"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.4.0
-  plugin:
-    - azure
-  service:
-    - Azure/Storage
-Title: Ensure the 'Minimum TLS version' for storage accounts is set to 'Version 1.2'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT 
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN minimum_tls_version = 'TLSEnforcementDisabled' THEN 'alarm'
+            WHEN minimum_tls_version = 'TLS1_2' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN minimum_tls_version = 'TLSEnforcementDisabled' THEN sa.name || ' TLS enforcement is disabled.'
+            WHEN minimum_tls_version = 'TLS1_2' THEN sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
+            ELSE sa.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
+          END AS reason,
+          sa.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM 
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE 
+          sub.subscription_id = sa.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.12'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.4.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

@@ -1,24 +1,23 @@
-Description: Servers which do not satisfy the configured baseline will be monitored by Azure Security Center as recommendations.
-ID: azure_compute_vm_security_configuration_vulnerabilities_remediated
-IntegrationType:
+id: azure_compute_vm_security_configuration_vulnerabilities_remediated
+title: Vulnerabilities in security configuration on your machines should be remediated
+description: Servers which do not satisfy the configured baseline will be monitored by Azure Security Center as recommendations.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required. Check control description for more details.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: Vulnerabilities in security configuration on your machines should be remediated
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required. Check control description for more details.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

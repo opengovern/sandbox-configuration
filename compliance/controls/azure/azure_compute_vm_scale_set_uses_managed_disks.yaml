@@ -1,32 +1,29 @@
-Description: This policy identifies Azure Virtual machine scale sets which are not utilising Managed Disks. Using Azure Managed disk over traditional BLOB storage based VHD's has more advantage features like Managed disks are by default encrypted, reduces cost over storage accounts and more resilient as Microsoft will manage the disk storage and move around if underlying hardware goes faulty. It is recommended to move BLOB based VHD's to Managed Disks.
-ID: azure_compute_vm_scale_set_uses_managed_disks
-IntegrationType:
+id: azure_compute_vm_scale_set_uses_managed_disks
+title: Virtual machine scale sets should use managed disks
+description: This policy identifies Azure Virtual machine scale sets which are not utilising Managed Disks. Using Azure Managed disk over traditional BLOB storage based VHD's has more advantage features like Managed disks are by default encrypted, reduces cost over storage accounts and more resilient as Microsoft will manage the disk storage and move around if underlying hardware goes faulty. It is recommended to move BLOB based VHD's to Managed Disks.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine_scale_set
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine_scale_set
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN virtual_machine_storage_profile -> 'osDisk' -> 'osType' -> 'vhdContainers' != NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN virtual_machine_storage_profile -> 'osDisk' -> 'osType' -> 'vhdContainers' != NULL THEN a.title || ' utilising managed disks.'
-        ELSE a.title || ' not utilising managed disks.'
-      END AS reason
-    FROM
-      azure_compute_virtual_machine_scale_set AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: Virtual machine scale sets should use managed disks
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN virtual_machine_storage_profile -> 'osDisk' -> 'osType' -> 'vhdContainers' != NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN virtual_machine_storage_profile -> 'osDisk' -> 'osType' -> 'vhdContainers' != NULL THEN a.title || ' utilising managed disks.'
+            ELSE a.title || ' not utilising managed disks.'
+          END AS reason
+        FROM
+          azure_compute_virtual_machine_scale_set AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

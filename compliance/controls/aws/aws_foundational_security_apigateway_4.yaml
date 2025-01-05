@@ -1,28 +1,26 @@
-Description: This control checks whether an API Gateway stage uses an AWS WAF web access control list (ACL). This control fails if an AWS WAF web ACL is not attached to a REST API Gateway stage.
-ID: aws_foundational_security_apigateway_4
-IntegrationType:
+id: aws_foundational_security_apigateway_4
+title: 4 API Gateway should be associated with an AWS WAF web ACL
+description: This control checks whether an API Gateway stage uses an AWS WAF web access control list (ACL). This control fails if an AWS WAF web ACL is not attached to a REST API Gateway stage.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_api_gateway_stage
-  Parameters: []
-  PrimaryTable: aws_api_gateway_stage
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN web_acl_arn IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN web_acl_arn IS NOT NULL THEN title || ' associated with WAF web ACL.'
-        ELSE title || ' not associated with WAF web ACL.'
-      END AS reason
-    FROM
-      aws_api_gateway_stage;
-Severity: medium
-Tags: {}
-Title: 4 API Gateway should be associated with an AWS WAF web ACL
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_stage
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN web_acl_arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN web_acl_arn IS NOT NULL THEN title || ' associated with WAF web ACL.'
+            ELSE title || ' not associated with WAF web ACL.'
+          END AS reason
+        FROM
+          aws_api_gateway_stage;
+severity: medium
+tags: {}

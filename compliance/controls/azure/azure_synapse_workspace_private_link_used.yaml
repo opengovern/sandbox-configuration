@@ -1,38 +1,35 @@
-Description: Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Azure Synapse workspace, data leakage risks are reduced.
-ID: azure_synapse_workspace_private_link_used
-IntegrationType:
+id: azure_synapse_workspace_private_link_used
+title: Azure Synapse workspaces should use private link
+description: Azure Private Link lets you connect your virtual network to Azure services without a public IP address at the source or destination. The Private Link platform handles the connectivity between the consumer and services over the Azure backbone network. By mapping private endpoints to Azure Synapse workspace, data leakage risks are reduced.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_synapse_workspace
-  Parameters: []
-  PrimaryTable: azure_synapse_workspace
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]' THEN a.name || ' uses private link.'
-        ELSE a.name || ' not uses private link.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_synapse_workspace AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/SynapseAnalytics
-Title: Azure Synapse workspaces should use private link
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_synapse_workspace
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionStateStatus": "Approved"}]' THEN a.name || ' uses private link.'
+            ELSE a.name || ' not uses private link.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_synapse_workspace AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/SynapseAnalytics

@@ -1,66 +1,62 @@
-Description: This policy audits any virtual machine connected to a virtual network that is not approved.
-ID: azure_compute_vm_attached_with_network
-IntegrationType:
+id: azure_compute_vm_attached_with_network
+title: Virtual machines should be connected to an approved virtual network
+description: This policy audits any virtual machine connected to a virtual network that is not approved.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_network_interface
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    WITH vm_with_network_interfaces AS (
-      SELECT
-        vm.id AS vm_id,
-        n ->> 'id' AS network_id
-      FROM
-        azure_compute_virtual_machine AS vm,
-        jsonb_array_elements(network_interfaces) AS n
-    ),
-    vm_with_approved_networks AS (
-      SELECT
-        vn.vm_id AS vm_id,
-        vn.network_id AS network_id,
-        t.title AS title
-      FROM
-        vm_with_network_interfaces AS vn
-        LEFT JOIN azure_network_interface AS t ON t.id = vn.network_id
-      WHERE EXISTS (
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        WITH vm_with_network_interfaces AS (
+          SELECT
+            vm.id AS vm_id,
+            n ->> 'id' AS network_id
+          FROM
+            azure_compute_virtual_machine AS vm,
+            jsonb_array_elements(network_interfaces) AS n
+        ),
+        vm_with_approved_networks AS (
+          SELECT
+            vn.vm_id AS vm_id,
+            vn.network_id AS network_id,
+            t.title AS title
+          FROM
+            vm_with_network_interfaces AS vn
+            LEFT JOIN azure_network_interface AS t ON t.id = vn.network_id
+          WHERE EXISTS (
+            SELECT
+              ip -> 'properties' -> 'subnet' ->> 'id' AS ip
+            FROM
+              azure_network_interface,
+              jsonb_array_elements(ip_configurations) AS ip
+            WHERE
+              ip -> 'properties' -> 'subnet' ->> 'id' IS NOT NULL
+          )
+        )
         SELECT
-          ip -> 'properties' -> 'subnet' ->> 'id' AS ip
+          a.vm_id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.vm_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.vm_id IS NULL THEN a.title || ' not attached with virtual network.'
+            ELSE a.name || ' attached with virtual network ' || b.title || '.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
         FROM
-          azure_network_interface,
-          jsonb_array_elements(ip_configurations) AS ip
+          azure_compute_virtual_machine AS a
+          LEFT JOIN vm_with_approved_networks AS b ON a.id = b.vm_id,
+          azure_subscription sub
         WHERE
-          ip -> 'properties' -> 'subnet' ->> 'id' IS NOT NULL
-      )
-    )
-    SELECT
-      a.vm_id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.vm_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN b.vm_id IS NULL THEN a.title || ' not attached with virtual network.'
-        ELSE a.name || ' attached with virtual network ' || b.title || '.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_compute_virtual_machine AS a
-      LEFT JOIN vm_with_approved_networks AS b ON a.id = b.vm_id,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = a.subscription_id
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  service:
-    - Azure/Compute
-Title: Virtual machines should be connected to an approved virtual network
+          sub.subscription_id = a.subscription_id
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/Compute

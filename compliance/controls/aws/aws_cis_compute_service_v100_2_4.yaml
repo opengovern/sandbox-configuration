@@ -1,22 +1,20 @@
-Description: A tag policy enables you to define tag compliance rules to help you maintain consistency in the tags attached to your organization's resources.
-ID: aws_cis_compute_service_v100_2_4
-IntegrationType:
+id: aws_cis_compute_service_v100_2_4
+title: 2.4 Ensure an Organizational EC2 Tag Policy has been created
+description: A tag policy enables you to define tag compliance rules to help you maintain consistency in the tags attached to your organization's resources.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 2.4 Ensure an Organizational EC2 Tag Policy has been created
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

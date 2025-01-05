@@ -1,28 +1,26 @@
-Description: This control checks whether an Amazon CloudFront distribution is configured with an origin group that has two or more origins. CloudFront origin failover can increase availability. Origin failover automatically redirects traffic to a secondary origin if the primary origin is unavailable or if it returns specific HTTP response status codes.
-ID: aws_foundational_security_cloudfront_4
-IntegrationType:
+id: aws_foundational_security_cloudfront_4
+title: 4 CloudFront distributions should have origin failover configured
+description: This control checks whether an Amazon CloudFront distribution is configured with an origin group that has two or more origins. CloudFront origin failover can increase availability. Origin failover automatically redirects traffic to a secondary origin if the primary origin is unavailable or if it returns specific HTTP response status codes.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudfront_distribution
-  Parameters: []
-  PrimaryTable: aws_cloudfront_distribution
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN origin_groups ->> 'Items' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN origin_groups ->> 'Items' IS NOT NULL THEN title || ' origin group is configured.'
-        ELSE title || ' origin group not configured.'
-      END AS reason
-    FROM
-      aws_cloudfront_distribution;
-Severity: low
-Tags: {}
-Title: 4 CloudFront distributions should have origin failover configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudfront_distribution
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN origin_groups ->> 'Items' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN origin_groups ->> 'Items' IS NOT NULL THEN title || ' origin group is configured.'
+            ELSE title || ' origin group not configured.'
+          END AS reason
+        FROM
+          aws_cloudfront_distribution;
+severity: low
+tags: {}

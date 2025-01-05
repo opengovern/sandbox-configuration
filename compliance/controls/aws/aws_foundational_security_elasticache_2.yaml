@@ -1,28 +1,26 @@
-Description: This control evaluates whether ElastiCache for Redis automatically applies minor version upgrades to cache clusters. This control fails if ElastiCache for Redis cache clusters do not have minor version upgrades automatically applied.
-ID: aws_foundational_security_elasticache_2
-IntegrationType:
+id: aws_foundational_security_elasticache_2
+title: 2 Minor version upgrades should be automatically applied to ElastiCache for Redis cache clusters
+description: This control evaluates whether ElastiCache for Redis automatically applies minor version upgrades to cache clusters. This control fails if ElastiCache for Redis cache clusters do not have minor version upgrades automatically applied.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticache_cluster
-  Parameters: []
-  PrimaryTable: aws_elasticache_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_minor_version_upgrade THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
-        ELSE title || ' automatic minor version upgrades disabled.'
-      END AS reason
-    FROM
-      aws_elasticache_cluster;
-Severity: high
-Tags: {}
-Title: 2 Minor version upgrades should be automatically applied to ElastiCache for Redis cache clusters
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticache_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_minor_version_upgrade THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
+            ELSE title || ' automatic minor version upgrades disabled.'
+          END AS reason
+        FROM
+          aws_elasticache_cluster;
+severity: high
+tags: {}

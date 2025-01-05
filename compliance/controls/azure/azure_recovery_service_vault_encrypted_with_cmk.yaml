@@ -1,24 +1,23 @@
-ID: azure_recovery_service_vault_encrypted_with_cmk
-Title: "Azure Recovery Services vaults should use customer-managed keys for encrypting backup data"
-Description: "Use customer-managed keys to manage the encryption at rest of your backup data. By default, customer data is encrypted with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management. Learn more at https://aka.ms/AB-CmkEncryption."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-  PrimaryTable: ""
-  ListOfTables: []
-  Parameters: []
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-IntegrationType:
+id: azure_recovery_service_vault_encrypted_with_cmk
+title: Azure Recovery Services vaults should use customer-managed keys for encrypting backup data
+description: Use customer-managed keys to manage the encryption at rest of your backup data. By default, customer data is encrypted with service-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management. Learn more at https://aka.ms/AB-CmkEncryption.
+integration_type:
   - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

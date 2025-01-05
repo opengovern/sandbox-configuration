@@ -1,34 +1,32 @@
-Description: Ensure ELB access logging is enabled for security, troubleshooting, and statistical analysis purposes
-ID: aws_elb_connection_draining_enabled
-IntegrationType:
+id: aws_elb_connection_draining_enabled
+title: ELB Connection Draining Enabled
+description: Ensure ELB access logging is enabled for security, troubleshooting, and statistical analysis purposes
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_classic_load_balancer
-  Parameters: []
-  PrimaryTable: aws_ec2_classic_load_balancer
-  QueryToExecute: |
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id,
-      a.platform_resource_id,
-      CASE
-        WHEN platform_resource_description -> 'Attributes' -> 'ConnectionDraining' ->> 'Enabled' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN platform_resource_description -> 'Attributes' -> 'ConnectionDraining' ->> 'Enabled' = 'true' THEN a.title || ' Connection Draining feature is enabled'
-        ELSE a.title || ' Connection Draining feature is not enabled'
-      END AS reason,
-      a.region,
-      a.account_id
-    FROM
-      aws_ec2_classic_load_balancer a
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Load Balancing (ELB)
-  score_service_name:
-    - AWS Elastic Load Balancing (ELB)
-Title: ELB Connection Draining Enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN platform_resource_description -> 'Attributes' -> 'ConnectionDraining' ->> 'Enabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN platform_resource_description -> 'Attributes' -> 'ConnectionDraining' ->> 'Enabled' = 'true' THEN a.title || ' Connection Draining feature is enabled'
+            ELSE a.title || ' Connection Draining feature is not enabled'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_classic_load_balancer a
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing (ELB)
+    score_service_name:
+      - AWS Elastic Load Balancing (ELB)

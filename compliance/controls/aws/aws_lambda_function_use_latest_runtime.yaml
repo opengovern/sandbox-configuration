@@ -1,44 +1,42 @@
-Description: 'This control checks that the Lambda function settings for runtimes match the expected values set for the latest runtimes for each supported language. This control checks for the following runtimes: nodejs20.x, nodejs18.x, nodejs16.x, python3.12, python3.11, python3.10, python3.9, python3.8, ruby3.3, ruby3.2, java21, java17, java11, java8.al2, dotnet8, dotnet6'
-ID: aws_lambda_function_use_latest_runtime
-IntegrationType:
+id: aws_lambda_function_use_latest_runtime
+title: Lambda functions should use latest runtimes
+description: 'This control checks that the Lambda function settings for runtimes match the expected values set for the latest runtimes for each supported language. This control checks for the following runtimes: nodejs20.x, nodejs18.x, nodejs16.x, python3.12, python3.11, python3.10, python3.9, python3.8, ruby3.3, ruby3.2, java21, java17, java11, java8.al2, dotnet8, dotnet6'
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_lambda_function
-  Parameters: []
-  PrimaryTable: aws_lambda_function
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN package_type <> 'Zip' THEN 'skip'
-        WHEN runtime IN ('nodejs16.x', 'nodejs14.x', 'nodejs12.x', 'nodejs10.x', 'python3.9', 'python3.8', 'python3.7', 'python3.6', 'ruby2.5', 'ruby2.7', 'java11', 'java8', 'java8.al2', 'go1.x', 'dotnetcore2.1', 'dotnetcore3.1', 'dotnet6') THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN package_type <> 'Zip' THEN title || ' package type is ' || package_type || '.'
-        WHEN runtime IN ('nodejs16.x', 'nodejs14.x', 'nodejs12.x', 'nodejs10.x', 'python3.9', 'python3.8', 'python3.7', 'python3.6', 'ruby2.5', 'ruby2.7', 'java11', 'java8', 'java8.al2', 'go1.x', 'dotnetcore2.1', 'dotnetcore3.1', 'dotnet6') THEN title || ' uses latest runtime - ' || runtime || '.'
-        ELSE title || ' uses ' || runtime || ' which is not the latest version.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_lambda_function;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - secure_development
-  foundational_security_item_id:
-    - lambda_2
-  plugin:
-    - aws
-  service:
-    - AWS/Lambda
-Title: Lambda functions should use latest runtimes
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_lambda_function
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN package_type <> 'Zip' THEN 'skip'
+            WHEN runtime IN ('nodejs16.x', 'nodejs14.x', 'nodejs12.x', 'nodejs10.x', 'python3.9', 'python3.8', 'python3.7', 'python3.6', 'ruby2.5', 'ruby2.7', 'java11', 'java8', 'java8.al2', 'go1.x', 'dotnetcore2.1', 'dotnetcore3.1', 'dotnet6') THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN package_type <> 'Zip' THEN title || ' package type is ' || package_type || '.'
+            WHEN runtime IN ('nodejs16.x', 'nodejs14.x', 'nodejs12.x', 'nodejs10.x', 'python3.9', 'python3.8', 'python3.7', 'python3.6', 'ruby2.5', 'ruby2.7', 'java11', 'java8', 'java8.al2', 'go1.x', 'dotnetcore2.1', 'dotnetcore3.1', 'dotnet6') THEN title || ' uses latest runtime - ' || runtime || '.'
+            ELSE title || ' uses ' || runtime || ' which is not the latest version.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_lambda_function;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - secure_development
+    foundational_security_item_id:
+      - lambda_2
+    plugin:
+      - aws
+    service:
+      - AWS/Lambda

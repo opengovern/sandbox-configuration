@@ -1,41 +1,38 @@
-Description: Ensure that your Amazon ECS cluster services are using the latest Fargate platform version.
-ID: aws_check_for_fargate_platform_version
-IntegrationType:
+id: aws_check_for_fargate_platform_version
+title: Check for Fargate Platform Version
+description: Ensure that your Amazon ECS cluster services are using the latest Fargate platform version.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_service
-  Parameters:
-    - Key: awsEcsServicePlatformVersion
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: aws_ecs_service
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN platform_version < '{{.awsEcsServicePlatformVersion}}' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN platform_version < '{{.awsEcsServicePlatformVersion}}' THEN 'Service is not using the latest supported version of platform'
-        ELSE 'Service is using the latest supported version of platform'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecs_service
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Service (ECS)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - Elastic Container Service (ECS)
-  score_tags:
-    - Exposed Endpoints
-Title: Check for Fargate Platform Version
+parameters:
+  - key: awsEcsServicePlatformVersion
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_ecs_service
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN platform_version < '{{.awsEcsServicePlatformVersion}}' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN platform_version < '{{.awsEcsServicePlatformVersion}}' THEN 'Service is not using the latest supported version of platform'
+            ELSE 'Service is using the latest supported version of platform'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecs_service
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Service (ECS)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Elastic Container Service (ECS)
+    score_tags:
+      - Exposed Endpoints

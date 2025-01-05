@@ -1,52 +1,49 @@
-Description: Ensure that EKS Cluster node groups are using appropriate permissions.
-ID: aws_eks_cluster_node_group_iam_role_policies
-IntegrationType:
+id: aws_eks_cluster_node_group_iam_role_policies
+title: EKS Cluster Node Group IAM Role Policies
+description: Ensure that EKS Cluster node groups are using appropriate permissions.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_node_group
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_eks_node_group
-  QueryToExecute: |
-    SELECT 
-      ng.nodegroup_name AS resource, 
-      ng.platform_integration_id, 
-      ng.platform_resource_id, 
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements_text(attached_policy_arns) AS p 
-          WHERE p <> 'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly' 
-            AND p <> 'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy'
-        ) THEN 'alarm'
-        WHEN r.inline_policies IS NOT NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements_text(attached_policy_arns) AS p 
-          WHERE p <> 'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly' 
-            AND p <> 'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy'
-        ) THEN 'permissions configured for IAM role are too permissive'
-        WHEN r.inline_policies IS NOT NULL THEN 'permissions configured for IAM role are too permissive'
-        ELSE 'permissions configured for IAM role are not too permissive'
-      END AS reason, 
-      ng.region, 
-      ng.account_id
-    FROM 
-      aws_eks_node_group AS ng 
-      LEFT JOIN aws_iam_role AS r ON r.arn = ng.node_role
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  score_tags:
-    - Lacking High Availability
-Title: EKS Cluster Node Group IAM Role Policies
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_node_group
+    definition: |
+        SELECT 
+          ng.nodegroup_name AS resource, 
+          ng.platform_integration_id, 
+          ng.platform_resource_id, 
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements_text(attached_policy_arns) AS p 
+              WHERE p <> 'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly' 
+                AND p <> 'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy'
+            ) THEN 'alarm'
+            WHEN r.inline_policies IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements_text(attached_policy_arns) AS p 
+              WHERE p <> 'arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly' 
+                AND p <> 'arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy'
+            ) THEN 'permissions configured for IAM role are too permissive'
+            WHEN r.inline_policies IS NOT NULL THEN 'permissions configured for IAM role are too permissive'
+            ELSE 'permissions configured for IAM role are not too permissive'
+          END AS reason, 
+          ng.region, 
+          ng.account_id
+        FROM 
+          aws_eks_node_group AS ng 
+          LEFT JOIN aws_iam_role AS r ON r.arn = ng.node_role
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

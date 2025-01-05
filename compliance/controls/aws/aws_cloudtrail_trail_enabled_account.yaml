@@ -1,42 +1,39 @@
-Description: Ensure that at least one CloudTrail trail is enabled in the AWS account.
-ID: aws_cloudtrail_trail_enabled_account
-IntegrationType:
+id: aws_cloudtrail_trail_enabled_account
+title: At least one CloudTrail trail should be enabled in the AWS account
+description: Ensure that at least one CloudTrail trail is enabled in the AWS account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudtrail_trail
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    WITH trails_enabled_account AS (
-      SELECT
-        account_id,
-        COUNT(*) AS num
-      FROM
-        aws_cloudtrail_trail
-      WHERE
-        home_region = region
-        AND is_logging
-      GROUP BY
-        account_id
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.num > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.num > 0 THEN a.title || ' has ' || b.num || ' trails enabled.'
-        ELSE a.title || ' has no trail enabled.'
-      END AS reason
-    FROM
-      aws_account AS a
-    LEFT JOIN trails_enabled_account b ON a.account_id = b.account_id;
-Severity: low
-Tags: {}
-Title: At least one CloudTrail trail should be enabled in the AWS account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH trails_enabled_account AS (
+          SELECT
+            account_id,
+            COUNT(*) AS num
+          FROM
+            aws_cloudtrail_trail
+          WHERE
+            home_region = region
+            AND is_logging
+          GROUP BY
+            account_id
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.num > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.num > 0 THEN a.title || ' has ' || b.num || ' trails enabled.'
+            ELSE a.title || ' has no trail enabled.'
+          END AS reason
+        FROM
+          aws_account AS a
+        LEFT JOIN trails_enabled_account b ON a.account_id = b.account_id;
+severity: low
+tags: {}

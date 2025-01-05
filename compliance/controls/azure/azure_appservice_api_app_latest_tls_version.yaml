@@ -1,59 +1,54 @@
-Description: Periodically, newer versions are released for TLS either due to security flaws, include 
-  additional functionality, and enhance speed. Upgrade to the latest TLS version for App Service apps 
-  to take advantage of security fixes, if any, and/or new functionalities of the latest version.
-ID: azure_appservice_api_app_latest_tls_version
-IntegrationType:
+id: azure_appservice_api_app_latest_tls_version
+title: App Service apps should use the latest TLS version
+description: Periodically, newer versions are released for TLS either due to security flaws, include additional functionality, and enhance speed. Upgrade to the latest TLS version for App Service apps to take advantage of security fixes, if any, and/or new functionalities of the latest version.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_web_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_service_web_app
-  QueryToExecute: |
-    WITH all_api_app AS (
-      SELECT
-        id
-      FROM
-        azure_app_service_web_app
-      WHERE
-        EXISTS (
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        WITH all_api_app AS (
           SELECT
+            id
           FROM
-            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+            azure_app_service_web_app
           WHERE
-            elem LIKE '%api'
+            EXISTS (
+              SELECT
+              FROM
+                UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+              WHERE
+                elem LIKE '%api'
+            )
         )
-    )
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.id IS NULL THEN 'skip'
-        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN b.id IS NULL THEN a.title || ' is ' || a.kind || ' kind.'
-        WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN a.name || ' not using the latest version of TLS encryption.'
-        ELSE a.name || ' using the latest version of TLS encryption.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_app_service_web_app AS a
-      LEFT JOIN all_api_app AS b ON a.id = b.id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/AppService
-Title: App Service apps should use the latest TLS version
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.id IS NULL THEN 'skip'
+            WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.id IS NULL THEN a.title || ' is ' || a.kind || ' kind.'
+            WHEN configuration -> 'properties' ->> 'minTlsVersion' < '1.2' THEN a.name || ' not using the latest version of TLS encryption.'
+            ELSE a.name || ' using the latest version of TLS encryption.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_app_service_web_app AS a
+          LEFT JOIN all_api_app AS b ON a.id = b.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/AppService

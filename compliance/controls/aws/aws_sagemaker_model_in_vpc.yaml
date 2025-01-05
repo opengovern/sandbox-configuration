@@ -1,28 +1,26 @@
-Description: Manage access to the AWS Cloud by ensuring SageMaker models are within an AWS Virtual Private Cloud (AWS VPC).
-ID: aws_sagemaker_model_in_vpc
-IntegrationType:
+id: aws_sagemaker_model_in_vpc
+title: SageMaker models should be in a VPC
+description: Manage access to the AWS Cloud by ensuring SageMaker models are within an AWS Virtual Private Cloud (AWS VPC).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_sagemaker_model
-  Parameters: []
-  PrimaryTable: aws_sagemaker_model
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN vpc_config IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN vpc_config IS NOT NULL THEN title || ' in VPC.'
-        ELSE title || ' not in VPC.'
-      END AS reason
-    FROM
-      aws_sagemaker_model;
-Severity: low
-Tags: {}
-Title: SageMaker models should be in a VPC
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_model
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN vpc_config IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN vpc_config IS NOT NULL THEN title || ' in VPC.'
+            ELSE title || ' not in VPC.'
+          END AS reason
+        FROM
+          aws_sagemaker_model;
+severity: low
+tags: {}

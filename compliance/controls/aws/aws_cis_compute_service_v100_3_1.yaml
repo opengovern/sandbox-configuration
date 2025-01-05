@@ -1,22 +1,20 @@
-Description: Amazon Lightsail is a virtual private server (VPS) provider and is the easiest way to get started with AWS for developers, small businesses, students, and other users who need a solution to build and host their applications on cloud.
-ID: aws_cis_compute_service_v100_3_1
-IntegrationType:
+id: aws_cis_compute_service_v100_3_1
+title: 3.1 Apply updates to any apps running in Lightsail
+description: Amazon Lightsail is a virtual private server (VPS) provider and is the easiest way to get started with AWS for developers, small businesses, students, and other users who need a solution to build and host their applications on cloud.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 3.1 Apply updates to any apps running in Lightsail
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

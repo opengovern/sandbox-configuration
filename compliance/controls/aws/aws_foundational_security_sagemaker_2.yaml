@@ -1,28 +1,26 @@
-Description: This control checks if an Amazon SageMaker notebook instance is launched within a custom virtual private cloud (VPC). This control fails if a SageMaker notebook instance is not launched within a custom VPC or if it is launched in the SageMaker service VPC.
-ID: aws_foundational_security_sagemaker_2
-IntegrationType:
+id: aws_foundational_security_sagemaker_2
+title: 2 SageMaker notebook instances should be launched in a custom VPC
+description: This control checks if an Amazon SageMaker notebook instance is launched within a custom virtual private cloud (VPC). This control fails if a SageMaker notebook instance is not launched within a custom VPC or if it is launched in the SageMaker service VPC.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_sagemaker_notebook_instance
-  Parameters: []
-  PrimaryTable: aws_sagemaker_notebook_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN subnet_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN subnet_id IS NOT NULL THEN title || ' in VPC.'
-        ELSE title || ' not in VPC.'
-      END AS reason
-    FROM
-      aws_sagemaker_notebook_instance;
-Severity: high
-Tags: {}
-Title: 2 SageMaker notebook instances should be launched in a custom VPC
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_notebook_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN subnet_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN subnet_id IS NOT NULL THEN title || ' in VPC.'
+            ELSE title || ' not in VPC.'
+          END AS reason
+        FROM
+          aws_sagemaker_notebook_instance;
+severity: high
+tags: {}

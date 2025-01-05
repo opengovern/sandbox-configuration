@@ -1,57 +1,54 @@
-Description: Security groups provide stateful filtering of ingress and egress network traffic to AWS resources. It is recommended that no security group allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389.
-ID: aws_cis_v130_5_2
-IntegrationType:
+id: aws_cis_v130_5_2
+title: 5.2 Ensure no security groups allow ingress from 0.0.0.0/0 to remote server administration ports
+description: Security groups provide stateful filtering of ingress and egress network traffic to AWS resources. It is recommended that no security group allows unrestricted ingress access to remote server administration ports, such as SSH to port 22 and RDP to port 3389.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group_rule
-    - aws_vpc_security_group
-  Parameters: []
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    WITH bad_rules AS (
-      SELECT
-        group_id,
-        COUNT(*) AS num_bad_rules
-      FROM
-        aws_vpc_security_group_rule
-      WHERE
-        type = 'ingress'
-        AND (
-          cidr_ipv4 = '0.0.0.0/0'
-          OR cidr_ipv6 = '::/0'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        WITH bad_rules AS (
+          SELECT
+            group_id,
+            COUNT(*) AS num_bad_rules
+          FROM
+            aws_vpc_security_group_rule
+          WHERE
+            type = 'ingress'
+            AND (
+              cidr_ipv4 = '0.0.0.0/0'
+              OR cidr_ipv6 = '::/0'
+            )
+            AND (
+              (ip_protocol = '-1' 
+              AND from_port IS NULL)
+              OR (
+                from_port >= 22
+                AND to_port <= 22
+              )
+              OR (
+                from_port >= 3389
+                AND to_port <= 3389
+              )
+            )
+          GROUP BY
+            group_id
         )
-        AND (
-          (ip_protocol = '-1' 
-          AND from_port IS NULL)
-          OR (
-            from_port >= 22
-            AND to_port <= 22
-          )
-          OR (
-            from_port >= 3389
-            AND to_port <= 3389
-          )
-        )
-      GROUP BY
-        group_id
-    )
-    SELECT
-      arn AS resource,
-      sg.platform_integration_id AS platform_integration_id,
-      sg.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN bad_rules.group_id IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN bad_rules.group_id IS NULL THEN sg.group_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-        ELSE sg.group_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) that allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
-      END AS reason
-    FROM
-      aws_vpc_security_group AS sg
-    LEFT JOIN bad_rules ON bad_rules.group_id = sg.group_id;
-Severity: low
-Tags: {}
-Title: 5.2 Ensure no security groups allow ingress from 0.0.0.0/0 to remote server administration ports
+        SELECT
+          arn AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN bad_rules.group_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN bad_rules.group_id IS NULL THEN sg.group_id || ' does not allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+            ELSE sg.group_id || ' contains ' || bad_rules.num_bad_rules || ' rule(s) that allow ingress to port 22 or 3389 from 0.0.0.0/0 or ::/0.'
+          END AS reason
+        FROM
+          aws_vpc_security_group AS sg
+        LEFT JOIN bad_rules ON bad_rules.group_id = sg.group_id;
+severity: low
+tags: {}

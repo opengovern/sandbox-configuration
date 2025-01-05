@@ -1,45 +1,40 @@
-Description: This recommendation ensures that users accessing Microsoft Admin Portals (i.e. Microsoft 365 Admin, Microsoft 365 Defender, Exchange Admin Center, Azure Portal, etc.) are required to use multifactor authentication (MFA) credentials when logging into an Admin Portal.
-ID: azure_cis_v210_1_2_7
-IntegrationType:
+id: azure_cis_v210_1_2_7
+title: 1.2.7 Ensure Multifactor Authentication is Required to access Microsoft Admin Portals
+description: This recommendation ensures that users accessing Microsoft Admin Portals (i.e. Microsoft 365 Admin, Microsoft 365 Defender, Exchange Admin Center, Azure Portal, etc.) are required to use multifactor authentication (MFA) credentials when logging into an Admin Portal.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - entraid_user
-    - azure_role_assignment
-    - azure_role_definition
-    - entraid_conditional_access_policy
-  Parameters: []
-  PrimaryTable: entraid_conditional_access_policy
-  QueryToExecute: |
-    WITH distinct_tenant AS (
-      SELECT
-        u.id,
-        tenant_id
-      FROM
-        entraid_user AS u
-        LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
-        LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
-      WHERE
-        role_type = 'BuiltInRole'
-        AND (role_name LIKE '%Administrator%' OR role_name = 'Owner')
-    )
-    SELECT
-      p.id AS resource,
-      p.platform_integration_id AS platform_integration_id,
-      p.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN p.built_in_controls @> '["mfa"]' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN p.built_in_controls @> '["mfa"]' THEN p.display_name || ' MFA enabled.'
-        ELSE p.display_name || ' MFA disabled.'
-      END AS reason,
-      t.tenant_id
-    FROM
-      distinct_tenant AS t,
-      entraid_conditional_access_policy AS p;
-Severity: low
-Tags: {}
-Title: 1.2.7 Ensure Multifactor Authentication is Required to access Microsoft Admin Portals
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_conditional_access_policy
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            u.id,
+            tenant_id
+          FROM
+            entraid_user AS u
+            LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
+            LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
+          WHERE
+            role_type = 'BuiltInRole'
+            AND (role_name LIKE '%Administrator%' OR role_name = 'Owner')
+        )
+        SELECT
+          p.id AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.built_in_controls @> '["mfa"]' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.built_in_controls @> '["mfa"]' THEN p.display_name || ' MFA enabled.'
+            ELSE p.display_name || ' MFA disabled.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          distinct_tenant AS t,
+          entraid_conditional_access_policy AS p;
+severity: low
+tags: {}

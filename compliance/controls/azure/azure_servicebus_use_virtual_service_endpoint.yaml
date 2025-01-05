@@ -1,54 +1,51 @@
-Description: Ensure that Service Bus uses virtual service endpoint. This control is non-compliant if service bus does not use a virtual service endpoint.
-ID: azure_servicebus_use_virtual_service_endpoint
-IntegrationType:
+id: azure_servicebus_use_virtual_service_endpoint
+title: Service Bus should use virtual service endpoint
+description: Ensure that Service Bus uses virtual service endpoint. This control is non-compliant if service bus does not use a virtual service endpoint.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_servicebus_namespace
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_servicebus_namespace
-  QueryToExecute: |
-    WITH service_bus AS (
-      SELECT
-        name,
-        region,
-        network_rule_set -> 'properties' -> 'virtualNetworkRules' AS virtual_network_rules
-      FROM
-        azure_servicebus_namespace
-      WHERE
-        sku_tier = 'Premium'
-        AND (
-          jsonb_array_length(network_rule_set -> 'properties' -> 'virtualNetworkRules') = 0
-          OR EXISTS (
-            SELECT
-              *
-            FROM
-              jsonb_array_elements(network_rule_set -> 'properties' -> 'virtualNetworkRules') AS t
-            WHERE
-              t -> 'subnet' ->> 'id' IS NULL
-          )
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_servicebus_namespace
+    definition: |
+        WITH service_bus AS (
+          SELECT
+            name,
+            region,
+            network_rule_set -> 'properties' -> 'virtualNetworkRules' AS virtual_network_rules
+          FROM
+            azure_servicebus_namespace
+          WHERE
+            sku_tier = 'Premium'
+            AND (
+              jsonb_array_length(network_rule_set -> 'properties' -> 'virtualNetworkRules') = 0
+              OR EXISTS (
+                SELECT
+                  *
+                FROM
+                  jsonb_array_elements(network_rule_set -> 'properties' -> 'virtualNetworkRules') AS t
+                WHERE
+                  t -> 'subnet' ->> 'id' IS NULL
+              )
+            )
         )
-    )
-    SELECT
-      bus.id AS resource,
-      bus.platform_integration_id AS platform_integration_id,
-      bus.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN bus.name != service_bus.name THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN bus.name != service_bus.name THEN bus.name || ' configured with virtual service endpoint.'
-        ELSE bus.name || ' not configured with virtual service endpoint.'
-      END AS reason
-    FROM
-      azure_servicebus_namespace AS bus,
-      azure_subscription AS sub
-      LEFT JOIN service_bus ON TRUE
-    WHERE
-      sub.subscription_id = bus.subscription_id;
-Severity: low
-Tags: {}
-Title: Service Bus should use virtual service endpoint
+        SELECT
+          bus.id AS resource,
+          bus.platform_integration_id AS platform_integration_id,
+          bus.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN bus.name != service_bus.name THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN bus.name != service_bus.name THEN bus.name || ' configured with virtual service endpoint.'
+            ELSE bus.name || ' not configured with virtual service endpoint.'
+          END AS reason
+        FROM
+          azure_servicebus_namespace AS bus,
+          azure_subscription AS sub
+          LEFT JOIN service_bus ON TRUE
+        WHERE
+          sub.subscription_id = bus.subscription_id;
+severity: low
+tags: {}

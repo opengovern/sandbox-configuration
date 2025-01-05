@@ -1,39 +1,36 @@
-Description: Ensure that in-transit encryption is enabled for your Azure MySQL database servers.
-ID: azure_enable_in_transit_encryption_for_mysql_servers
-IntegrationType:
+id: azure_enable_in_transit_encryption_for_mysql_servers
+title: Enable In-Transit Encryption for MySQL Servers
+description: Ensure that in-transit encryption is enabled for your Azure MySQL database servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_mysql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_mysql_server
-  QueryToExecute: |
-    SELECT
-      s.name AS resource,
-      s.platform_resource_id,
-      s.platform_integration_id,
-      CASE
-        WHEN ssl_enforcement = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ssl_enforcement = 'Enabled' THEN s.name || ' encryption in transit using Secure Sockets Layer (SSL) is enabled.'
-        ELSE s.name || ' encryption in transit using Secure Sockets Layer (SSL) is not enabled.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_mysql_server AS s
-    LEFT JOIN
-      azure_subscription AS sub
-    ON 
-      s.subscription_id = sub.subscription_id
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Database for MySQL
-  score_service_name:
-    - Azure Database for MySQL
-Title: Enable In-Transit Encryption for MySQL Servers
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_mysql_server
+    definition: |
+        SELECT
+          s.name AS resource,
+          s.platform_resource_id,
+          s.platform_integration_id,
+          CASE
+            WHEN ssl_enforcement = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ssl_enforcement = 'Enabled' THEN s.name || ' encryption in transit using Secure Sockets Layer (SSL) is enabled.'
+            ELSE s.name || ' encryption in transit using Secure Sockets Layer (SSL) is not enabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_mysql_server AS s
+        LEFT JOIN
+          azure_subscription AS sub
+        ON 
+          s.subscription_id = sub.subscription_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Database for MySQL
+    score_service_name:
+      - Azure Database for MySQL

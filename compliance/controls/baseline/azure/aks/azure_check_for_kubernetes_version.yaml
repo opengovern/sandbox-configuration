@@ -1,43 +1,39 @@
-Description: Ensure that AKS clusters are using the latest available version of Kubernetes software.
-ID: azure_check_for_kubernetes_version
-IntegrationType:
+id: azure_check_for_kubernetes_version
+title: Check for Kubernetes Version
+description: Ensure that AKS clusters are using the latest available version of Kubernetes software.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_kubernetes_cluster
-    - azure_subscription
-  Parameters:
-    - Key: azureAksLatestVersion
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: |
-    SELECT 
-      c.name AS resource,
-      c.platform_resource_id,
-      c.platform_integration_id,
-      CASE 
-        WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE 
-        WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN c.name || ' is not using the latest available version of Kubernetes software'
-        ELSE c.name || ' is using the latest available version of Kubernetes software'
-      END AS reason,
-      c.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM 
-      azure_kubernetes_cluster AS c
-      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Kubernetes (AKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - Azure Kubernetes (AKS)
-  score_tags:
-    - Lacking High Availability
-Title: Check for Kubernetes Version
+parameters:
+  - key: azureAksLatestVersion
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT 
+          c.name AS resource,
+          c.platform_resource_id,
+          c.platform_integration_id,
+          CASE 
+            WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE 
+            WHEN kubernetes_version < '{{.azureAksLatestVersion}}' THEN c.name || ' is not using the latest available version of Kubernetes software'
+            ELSE c.name || ' is using the latest available version of Kubernetes software'
+          END AS reason,
+          c.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM 
+          azure_kubernetes_cluster AS c
+          LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - Azure Kubernetes (AKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - Azure Kubernetes (AKS)
+    score_tags:
+      - Lacking High Availability

@@ -1,28 +1,26 @@
-Description: This control checks whether an AWS DMS endpoint uses an SSL connection. The control fails if the endpoint doesn't use SSL.
-ID: aws_foundational_security_dms_9
-IntegrationType:
+id: aws_foundational_security_dms_9
+title: 9 DMS endpoints should use SSL
+description: This control checks whether an AWS DMS endpoint uses an SSL connection. The control fails if the endpoint doesn't use SSL.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_dms_endpoint
-  Parameters: []
-  PrimaryTable: aws_dms_endpoint
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN ssl_mode = 'none' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN ssl_mode = 'none' THEN title || ' SSL not configured.'
-        ELSE title || ' SSL configured.'
-      END AS reason
-    FROM
-      aws_dms_endpoint;
-Severity: medium
-Tags: {}
-Title: 9 DMS endpoints should use SSL
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dms_endpoint
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ssl_mode = 'none' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN ssl_mode = 'none' THEN title || ' SSL not configured.'
+            ELSE title || ' SSL configured.'
+          END AS reason
+        FROM
+          aws_dms_endpoint;
+severity: medium
+tags: {}

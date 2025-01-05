@@ -1,43 +1,40 @@
-Description: Ensure that container instance container group uses secured environment variables. This control is non-compliant if container instance container group does not use secured environment variables.
-ID: azure_container_instance_container_group_secured_environment_variable
-IntegrationType:
+id: azure_container_instance_container_group_secured_environment_variable
+title: Container instance container groups should use secured environment variable
+description: Ensure that container instance container group uses secured environment variables. This control is non-compliant if container instance container group does not use secured environment variables.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_container_group
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_container_group
-  QueryToExecute: |
-    WITH not_secured_environment_variable_container_group AS (
-      SELECT
-        id
-      FROM
-        azure_container_group,
-        jsonb_array_elements(containers) AS c,
-        jsonb_array_elements(c -> 'properties' -> 'environmentVariables') AS v
-      WHERE
-        v -> 'value' IS NOT NULL
-    )
-    SELECT
-      cg.id AS resource,
-      cg.platform_integration_id AS platform_integration_id,
-      cg.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN g.id IS NOT NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN g.id IS NOT NULL THEN cg.name || ' have unsecured environment variable.'
-        ELSE cg.name || ' have secured environment variable.'
-      END AS reason
-    FROM
-      azure_container_group AS cg
-      LEFT JOIN not_secured_environment_variable_container_group AS g ON g.id = cg.id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = cg.subscription_id;
-Severity: low
-Tags: {}
-Title: Container instance container groups should use secured environment variable
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_container_group
+    definition: |
+        WITH not_secured_environment_variable_container_group AS (
+          SELECT
+            id
+          FROM
+            azure_container_group,
+            jsonb_array_elements(containers) AS c,
+            jsonb_array_elements(c -> 'properties' -> 'environmentVariables') AS v
+          WHERE
+            v -> 'value' IS NOT NULL
+        )
+        SELECT
+          cg.id AS resource,
+          cg.platform_integration_id AS platform_integration_id,
+          cg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN g.id IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN g.id IS NOT NULL THEN cg.name || ' have unsecured environment variable.'
+            ELSE cg.name || ' have secured environment variable.'
+          END AS reason
+        FROM
+          azure_container_group AS cg
+          LEFT JOIN not_secured_environment_variable_container_group AS g ON g.id = cg.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = cg.subscription_id;
+severity: low
+tags: {}

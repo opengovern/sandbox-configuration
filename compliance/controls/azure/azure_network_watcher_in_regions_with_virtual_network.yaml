@@ -1,40 +1,36 @@
-Description: This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.
-ID: azure_network_watcher_in_regions_with_virtual_network
-IntegrationType:
+id: azure_network_watcher_in_regions_with_virtual_network
+title: Deploy network watcher when virtual networks are created
+description: This policy creates a network watcher resource in regions with virtual networks. You need to ensure existence of a resource group named networkWatcherRG, which will be used to deploy network watcher instances.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_network_watcher
-    - azure_subscription
-    - azure_virtual_network
-  Parameters: []
-  PrimaryTable: azure_virtual_network
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.region IS NULL THEN 'alarm'
-        WHEN LOWER(b.resource_group) = 'networkwatcherrg' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.region IS NULL THEN 'Network watcher does not exist in region' || a.region || '.'
-        WHEN LOWER(b.resource_group) = 'networkwatcherrg' THEN b.name || ' exist in networkWatcherRG resource group.'
-        ELSE b.name || ' does not exist in networkWatcherRG resource group.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_virtual_network AS a
-    LEFT JOIN azure_network_watcher AS b ON a.region = b.region
-    JOIN azure_subscription sub ON sub.subscription_id = a.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  service:
-    - Azure/Network
-Title: Deploy network watcher when virtual networks are created
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_virtual_network
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.region IS NULL THEN 'alarm'
+            WHEN LOWER(b.resource_group) = 'networkwatcherrg' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.region IS NULL THEN 'Network watcher does not exist in region' || a.region || '.'
+            WHEN LOWER(b.resource_group) = 'networkwatcherrg' THEN b.name || ' exist in networkWatcherRG resource group.'
+            ELSE b.name || ' does not exist in networkWatcherRG resource group.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_virtual_network AS a
+        LEFT JOIN azure_network_watcher AS b ON a.region = b.region
+        JOIN azure_subscription sub ON sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/Network

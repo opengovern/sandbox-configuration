@@ -1,32 +1,29 @@
-Description: Azure Cosmos DB accounts should use Azure Active Directory (AAD) Client Authentication and Role-Based Access Control (RBAC) for access control.
-ID: azure_cosmosdb_account_uses_aad_and_rbac
-IntegrationType:
+id: azure_cosmosdb_account_uses_aad_and_rbac
+title: Cosmos DB account 'Access Control' should be configured to use Azure Active Directory (AAD) and Role-Based Access Control (RBAC)
+description: Azure Cosmos DB accounts should use Azure Active Directory (AAD) Client Authentication and Role-Based Access Control (RBAC) for access control.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_cosmosdb_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_cosmosdb_account
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN disable_local_auth THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN disable_local_auth THEN a.name || ' is using AAD and RBAC.'
-        ELSE a.name || ' is not using AAD and RBAC.'
-      END AS reason
-    FROM
-      azure_cosmosdb_account AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: Cosmos DB account 'Access Control' should be configured to use Azure Active Directory (AAD) and Role-Based Access Control (RBAC)
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_cosmosdb_account
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN disable_local_auth THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN disable_local_auth THEN a.name || ' is using AAD and RBAC.'
+            ELSE a.name || ' is not using AAD and RBAC.'
+          END AS reason
+        FROM
+          azure_cosmosdb_account AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

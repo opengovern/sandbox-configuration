@@ -1,44 +1,42 @@
-Description: This control checks whether CloudFront distributions are using the default SSL/TLS certificate CloudFront provides. This control passes if the CloudFront distribution uses a custom SSL/TLS certificate. This control fails if the CloudFront distribution uses the default SSL/TLS certificate.
-ID: aws_cloudfront_distribution_use_custom_ssl_certificate
-IntegrationType:
+id: aws_cloudfront_distribution_use_custom_ssl_certificate
+title: CloudFront distributions should use custom SSL/TLS certificates
+description: This control checks whether CloudFront distributions are using the default SSL/TLS certificate CloudFront provides. This control passes if the CloudFront distribution uses a custom SSL/TLS certificate. This control fails if the CloudFront distribution uses the default SSL/TLS certificate.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudfront_distribution
-  Parameters: []
-  PrimaryTable: aws_cloudfront_distribution
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL
-             AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL
-             AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN title || ' uses custom SSL certificate.'
-        ELSE title || ' does not use custom SSL certificate.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_cloudfront_distribution;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - encryption_of_data_in_transi
-  foundational_security_item_id:
-    - cloudfront_7
-  plugin:
-    - aws
-  service:
-    - AWS/CloudFront
-Title: CloudFront distributions should use custom SSL/TLS certificates
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudfront_distribution
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL
+                 AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN viewer_certificate ->> 'ACMCertificateArn' IS NOT NULL
+                 AND viewer_certificate ->> 'Certificate' IS NOT NULL THEN title || ' uses custom SSL certificate.'
+            ELSE title || ' does not use custom SSL certificate.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudfront_distribution;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - encryption_of_data_in_transi
+    foundational_security_item_id:
+      - cloudfront_7
+    plugin:
+      - aws
+    service:
+      - AWS/CloudFront

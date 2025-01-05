@@ -1,42 +1,40 @@
-Description: Ensure AWS Elastic Container Registry (ECR) repositories have image scanning enabled. The rule is non-compliant if image scanning is not enabled for the ECR repository.
-ID: aws_ecr_repository_image_scan_on_push_enabled
-IntegrationType:
+id: aws_ecr_repository_image_scan_on_push_enabled
+title: ECR repositories should have image scan on push enabled
+description: Ensure AWS Elastic Container Registry (ECR) repositories have image scanning enabled. The rule is non-compliant if image scanning is not enabled for the ECR repository.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecr_repository
-  Parameters: []
-  PrimaryTable: aws_ecr_repository
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN title || ' scan on push enabled.'
-        ELSE title || ' scan on push disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecr_repository;
-Severity: high
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - vulnerability_patch_and_version_management
-  foundational_security_item_id:
-    - ecr_1
-  plugin:
-    - aws
-  service:
-    - AWS/ECR
-Title: ECR repositories should have image scan on push enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN title || ' scan on push enabled.'
+            ELSE title || ' scan on push disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecr_repository;
+severity: high
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - vulnerability_patch_and_version_management
+    foundational_security_item_id:
+      - ecr_1
+    plugin:
+      - aws
+    service:
+      - AWS/ECR

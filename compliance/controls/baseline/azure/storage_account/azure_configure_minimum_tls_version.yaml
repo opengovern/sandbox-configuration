@@ -1,41 +1,37 @@
-Description: Ensure that the "Minimum TLS version" setting is set to "Version 1.2" for all Azure Storage accounts.
-ID: azure_configure_minimum_tls_version
-IntegrationType:
+id: azure_configure_minimum_tls_version
+title: Configure Minimum TLS Version
+description: Ensure that the "Minimum TLS version" setting is set to "Version 1.2" for all Azure Storage accounts.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters:
-    - Key: azureLatestTlsVersion
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      s.platform_resource_id,
-      s.platform_integration_id,
-      CASE
-        WHEN minimum_tls_version = '{{.azureLatestTlsVersion}}' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      name || ' tls version is set to ' || minimum_tls_version || '.' AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_storage_account AS s
-    LEFT JOIN
-      azure_subscription AS sub ON s.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  platform_score_use_case:
-    - Expiring Certificates
-  score_service_name:
-    - Azure Storage Accounts
-  score_tags:
-    - Expiring Certificates
-Title: Configure Minimum TLS Version
+parameters:
+  - key: azureLatestTlsVersion
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          name AS resource,
+          s.platform_resource_id,
+          s.platform_integration_id,
+          CASE
+            WHEN minimum_tls_version = '{{.azureLatestTlsVersion}}' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          name || ' tls version is set to ' || minimum_tls_version || '.' AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account AS s
+        LEFT JOIN
+          azure_subscription AS sub ON s.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    platform_score_use_case:
+      - Expiring Certificates
+    score_service_name:
+      - Azure Storage Accounts
+    score_tags:
+      - Expiring Certificates

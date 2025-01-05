@@ -1,28 +1,26 @@
-Description: This control checks whether an Amazon CloudFront distribution is configured to return a specific object that is the default root object. The control fails if the CloudFront distribution does not have a default root object configured.
-ID: aws_foundational_security_cloudfront_1
-IntegrationType:
+id: aws_foundational_security_cloudfront_1
+title: 1 CloudFront distributions should have a default root object configured
+description: This control checks whether an Amazon CloudFront distribution is configured to return a specific object that is the default root object. The control fails if the CloudFront distribution does not have a default root object configured.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudfront_distribution
-  Parameters: []
-  PrimaryTable: aws_cloudfront_distribution
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN default_root_object = '' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN default_root_object = '' THEN title || ' default root object not configured.'
-        ELSE title || ' default root object configured.'
-      END AS reason
-    FROM
-      aws_cloudfront_distribution;
-Severity: critical
-Tags: {}
-Title: 1 CloudFront distributions should have a default root object configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudfront_distribution
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN default_root_object = '' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN default_root_object = '' THEN title || ' default root object not configured.'
+            ELSE title || ' default root object configured.'
+          END AS reason
+        FROM
+          aws_cloudfront_distribution;
+severity: critical
+tags: {}

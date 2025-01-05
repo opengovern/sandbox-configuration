@@ -1,43 +1,40 @@
-Description: Ensure all EC2 instances are of a given instance type Optimal and Aligned with our Organization
-ID: aws_ec2_desired_instance_type
-IntegrationType:
+id: aws_ec2_desired_instance_type
+title: EC2 Instances types are Approved
+description: Ensure all EC2 instances are of a given instance type Optimal and Aligned with our Organization
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_instance
-  Parameters:
-    - Key: awsAllowedInstanceTypes
-      Required: false
-      DefaultValue: ""
-  PrimaryTable: aws_ec2_instance
-  QueryToExecute: |
-    SELECT 
-      instance_id AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'ok'
-        WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'allowed instance types not defined'
-        WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN instance_id || ' instance type is allowed by your organization'
-        ELSE instance_id || ' instance type is not allowed by your organization'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_ec2_instance
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Over Utilization
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Over Utilization
-Title: EC2 Instances types are Approved
+parameters:
+  - key: awsAllowedInstanceTypes
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT 
+          instance_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'ok'
+            WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN '{{.awsAllowedInstanceTypes}}' = '' THEN 'allowed instance types not defined'
+            WHEN '{{.awsAllowedInstanceTypes}}' LIKE '%' || instance_type || '%' THEN instance_id || ' instance type is allowed by your organization'
+            ELSE instance_id || ' instance type is not allowed by your organization'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_ec2_instance
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Over Utilization
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Over Utilization

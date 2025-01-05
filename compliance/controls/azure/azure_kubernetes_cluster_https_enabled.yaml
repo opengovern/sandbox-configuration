@@ -1,24 +1,23 @@
-Description: Use of HTTPS ensures authentication and protects data in transit from network layer eavesdropping attacks. This capability is currently generally available for Kubernetes Service (AKS), and in preview for Azure Arc enabled Kubernetes. For more info, visit https://aka.ms/kubepolicydoc
-ID: azure_kubernetes_cluster_https_enabled
-IntegrationType:
+id: azure_kubernetes_cluster_https_enabled
+title: Kubernetes clusters should be accessible only over HTTPS
+description: Use of HTTPS ensures authentication and protects data in transit from network layer eavesdropping attacks. This capability is currently generally available for Kubernetes Service (AKS), and in preview for Azure Arc enabled Kubernetes. For more info, visit https://aka.ms/kubepolicydoc
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: Kubernetes clusters should be accessible only over HTTPS
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

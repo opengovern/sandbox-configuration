@@ -1,25 +1,23 @@
-Description: Ensure session idle disconnect timeout is set to 10 minutes or less.
-ID: aws_appstream_fleet_idle_disconnect_timeout_600_seconds
-IntegrationType:
+id: aws_appstream_fleet_idle_disconnect_timeout_600_seconds
+title: AppStream fleet idle disconnect timeout should be set to less than or equal to 10 mins
+description: Ensure session idle disconnect timeout is set to 10 minutes or less.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_appstream_fleet
-  Parameters: []
-  PrimaryTable: aws_appstream_fleet
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN idle_disconnect_timeout_in_seconds <= 600 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      title || ' idle disconnect timeout in seconds is set to ' || idle_disconnect_timeout_in_seconds || ' seconds.' AS reason
-    FROM
-      aws_appstream_fleet;
-Severity: low
-Tags: {}
-Title: AppStream fleet idle disconnect timeout should be set to less than or equal to 10 mins
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_appstream_fleet
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN idle_disconnect_timeout_in_seconds <= 600 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' idle disconnect timeout in seconds is set to ' || idle_disconnect_timeout_in_seconds || ' seconds.' AS reason
+        FROM
+          aws_appstream_fleet;
+severity: low
+tags: {}

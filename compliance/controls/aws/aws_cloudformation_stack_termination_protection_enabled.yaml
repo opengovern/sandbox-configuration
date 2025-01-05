@@ -1,28 +1,26 @@
-Description: Ensure that AWS CloudFormation stacks have termination protection feature enabled in order to protect them from being accidentally deleted. The safety feature can be enabled when you create the CloudFormation stack or for existing stacks using the AWS API (UpdateTerminationProtection command).
-ID: aws_cloudformation_stack_termination_protection_enabled
-IntegrationType:
+id: aws_cloudformation_stack_termination_protection_enabled
+title: Cloudformation stacks termination protection should be enabled
+description: Ensure that AWS CloudFormation stacks have termination protection feature enabled in order to protect them from being accidentally deleted. The safety feature can be enabled when you create the CloudFormation stack or for existing stacks using the AWS API (UpdateTerminationProtection command).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudformation_stack
-  Parameters: []
-  PrimaryTable: aws_cloudformation_stack
-  QueryToExecute: |
-    SELECT 
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enable_termination_protection THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enable_termination_protection THEN title || ' termination protection enabled.'
-        ELSE title || ' termination protection disabled.'
-      END AS reason
-    FROM 
-      aws_cloudformation_stack;
-Severity: low
-Tags: {}
-Title: Cloudformation stacks termination protection should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudformation_stack
+    definition: |
+        SELECT 
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_termination_protection THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_termination_protection THEN title || ' termination protection enabled.'
+            ELSE title || ' termination protection disabled.'
+          END AS reason
+        FROM 
+          aws_cloudformation_stack;
+severity: low
+tags: {}

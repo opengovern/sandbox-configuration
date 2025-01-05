@@ -1,28 +1,26 @@
-Description: As you can set your own environmental variables for Lambda it is important to also encrypt them for in transit protection.
-ID: aws_cis_compute_service_v100_4_12
-IntegrationType:
+id: aws_cis_compute_service_v100_4_12
+title: 4.12 Ensure encryption in transit is enabled for Lambda environment variables
+description: As you can set your own environmental variables for Lambda it is important to also encrypt them for in transit protection.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_lambda_function
-  Parameters: []
-  PrimaryTable: aws_lambda_function
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN kms_key_arn IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN kms_key_arn IS NULL THEN title || ' encryption is disabled.'
-        ELSE title || ' encryption is enabled.'
-      END AS reason
-    FROM
-      aws_lambda_function;
-Severity: low
-Tags: {}
-Title: 4.12 Ensure encryption in transit is enabled for Lambda environment variables
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_lambda_function
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN kms_key_arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms_key_arn IS NULL THEN title || ' encryption is disabled.'
+            ELSE title || ' encryption is enabled.'
+          END AS reason
+        FROM
+          aws_lambda_function;
+severity: low
+tags: {}

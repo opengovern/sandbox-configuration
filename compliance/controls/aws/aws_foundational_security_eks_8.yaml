@@ -1,44 +1,42 @@
-Description: This control checks whether an Amazon EKS cluster has audit logging enabled. The control fails if audit logging isn't enabled for the cluster.
-ID: aws_foundational_security_eks_8
-IntegrationType:
+id: aws_foundational_security_eks_8
+title: 8 EKS clusters should have audit logging enabled
+description: This control checks whether an Amazon EKS cluster has audit logging enabled. The control fails if audit logging isn't enabled for the cluster.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_cluster
-  Parameters: []
-  PrimaryTable: aws_eks_cluster
-  QueryToExecute: |
-    WITH control_panel_audit_logging AS (
-      SELECT
-        DISTINCT arn,
-        log -> 'Types' AS log_type
-      FROM
-        aws_eks_cluster,
-        jsonb_array_elements(logging -> 'ClusterLogging') AS log
-      WHERE
-        log ->> 'Enabled' = 'true'
-        AND (log -> 'Types') @> '["api", "audit", "authenticator", "controllerManager", "scheduler"]'
-    )
-    SELECT
-      c.arn AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN l.arn IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN l.arn IS NOT NULL THEN c.title || ' control plane audit logging enabled for all log types.'
-        ELSE
-          CASE 
-            WHEN logging -> 'ClusterLogging' @> '[{"Enabled": true}]' THEN c.title || ' control plane audit logging not enabled for all log types.'
-            ELSE c.title || ' control plane audit logging not enabled.'
-          END
-      END AS reason
-    FROM
-      aws_eks_cluster AS c
-      LEFT JOIN control_panel_audit_logging AS l ON l.arn = c.arn;
-Severity: medium
-Tags: {}
-Title: 8 EKS clusters should have audit logging enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        WITH control_panel_audit_logging AS (
+          SELECT
+            DISTINCT arn,
+            log -> 'Types' AS log_type
+          FROM
+            aws_eks_cluster,
+            jsonb_array_elements(logging -> 'ClusterLogging') AS log
+          WHERE
+            log ->> 'Enabled' = 'true'
+            AND (log -> 'Types') @> '["api", "audit", "authenticator", "controllerManager", "scheduler"]'
+        )
+        SELECT
+          c.arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN l.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN l.arn IS NOT NULL THEN c.title || ' control plane audit logging enabled for all log types.'
+            ELSE
+              CASE 
+                WHEN logging -> 'ClusterLogging' @> '[{"Enabled": true}]' THEN c.title || ' control plane audit logging not enabled for all log types.'
+                ELSE c.title || ' control plane audit logging not enabled.'
+              END
+          END AS reason
+        FROM
+          aws_eks_cluster AS c
+          LEFT JOIN control_panel_audit_logging AS l ON l.arn = c.arn;
+severity: medium
+tags: {}

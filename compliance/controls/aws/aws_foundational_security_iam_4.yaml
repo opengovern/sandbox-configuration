@@ -1,28 +1,26 @@
-Description: This control checks whether the root user access key is present. The root account is the most privileged user in an AWS account. AWS access keys provide programmatic access to a given account.
-ID: aws_foundational_security_iam_4
-IntegrationType:
+id: aws_foundational_security_iam_4
+title: 4 IAM root user access key should not exist
+description: This control checks whether the root user access key is present. The root account is the most privileged user in an AWS account. AWS access keys provide programmatic access to a given account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_account_summary
-  Parameters: []
-  PrimaryTable: aws_iam_account_summary
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN account_access_keys_present > 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN account_access_keys_present > 0 THEN 'Root user access keys exist.'
-        ELSE 'No root user access keys exist.'
-      END AS reason
-    FROM
-      aws_iam_account_summary;
-Severity: critical
-Tags: {}
-Title: 4 IAM root user access key should not exist
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_account_summary
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN account_access_keys_present > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN account_access_keys_present > 0 THEN 'Root user access keys exist.'
+            ELSE 'No root user access keys exist.'
+          END AS reason
+        FROM
+          aws_iam_account_summary;
+severity: critical
+tags: {}

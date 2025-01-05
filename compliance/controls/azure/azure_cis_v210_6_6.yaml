@@ -1,35 +1,31 @@
-Description: Enable Network Watcher for Azure subscriptions.
-ID: azure_cis_v210_6_6
-IntegrationType:
+id: azure_cis_v210_6_6
+title: 6.6 Ensure that Network Watcher is 'Enabled'
+description: Enable Network Watcher for Azure subscriptions.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_location
-    - azure_network_watcher
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_location
-  QueryToExecute: |
-    SELECT
-      loc.id AS resource,
-      loc.platform_integration_id AS platform_integration_id,
-      loc.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN watcher.id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN watcher.id IS NULL THEN 'Network watcher not enabled in ' || loc.name || '.'
-        ELSE 'Network watcher enabled in ' || loc.name || '.'
-      END AS reason,
-      loc.name
-    FROM
-      azure_location loc
-    LEFT JOIN
-      azure_network_watcher watcher ON watcher.region = loc.name
-    JOIN
-      azure_subscription sub ON sub.subscription_id = loc.subscription_id;
-Severity: low
-Tags: {}
-Title: 6.6 Ensure that Network Watcher is 'Enabled'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_location
+    definition: |
+        SELECT
+          loc.id AS resource,
+          loc.platform_integration_id AS platform_integration_id,
+          loc.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN watcher.id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN watcher.id IS NULL THEN 'Network watcher not enabled in ' || loc.name || '.'
+            ELSE 'Network watcher enabled in ' || loc.name || '.'
+          END AS reason,
+          loc.name
+        FROM
+          azure_location loc
+        LEFT JOIN
+          azure_network_watcher watcher ON watcher.region = loc.name
+        JOIN
+          azure_subscription sub ON sub.subscription_id = loc.subscription_id;
+severity: low
+tags: {}

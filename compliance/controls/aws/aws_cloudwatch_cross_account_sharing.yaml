@@ -1,42 +1,39 @@
-Description: Ensure that your AWS CloudWatch is configured to allow access only to friendly AWS accounts in order to prevent unauthorized users from sharing their CloudWatch events.
-ID: aws_cloudwatch_cross_account_sharing
-IntegrationType:
+id: aws_cloudwatch_cross_account_sharing
+title: CloudWatch should not allow cross-account sharing
+description: Ensure that your AWS CloudWatch is configured to allow access only to friendly AWS accounts in order to prevent unauthorized users from sharing their CloudWatch events.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    WITH iam_role_cross_account_sharing_count AS (
-      SELECT
-        arn,
-        REPLACE(REPLACE(REPLACE((a -> 'Principal' ->> 'AWS'), '[', ''), ']', ''), '"', '') AS cross_account_details,
-        account_id
-      FROM
-        aws_iam_role,
-        JSONB_ARRAY_ELEMENTS(assume_role_policy_std -> 'Statement') AS a
-      WHERE
-        name = 'CloudWatch-CrossAccountSharingRole'
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN c.arn IS NULL THEN 'ok'
-        ELSE 'info'
-      END AS status,
-      CASE
-        WHEN c.arn IS NULL THEN 'CloudWatch does not allow cross-account sharing.'
-        ELSE 'CloudWatch allows cross-account sharing with ' || cross_account_details || '.'
-      END AS reason
-    FROM
-      aws_account AS a
-    LEFT JOIN iam_role_cross_account_sharing_count AS c
-      ON c.account_id = a.account_id;
-Severity: low
-Tags: {}
-Title: CloudWatch should not allow cross-account sharing
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH iam_role_cross_account_sharing_count AS (
+          SELECT
+            arn,
+            REPLACE(REPLACE(REPLACE((a -> 'Principal' ->> 'AWS'), '[', ''), ']', ''), '"', '') AS cross_account_details,
+            account_id
+          FROM
+            aws_iam_role,
+            JSONB_ARRAY_ELEMENTS(assume_role_policy_std -> 'Statement') AS a
+          WHERE
+            name = 'CloudWatch-CrossAccountSharingRole'
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.arn IS NULL THEN 'ok'
+            ELSE 'info'
+          END AS status,
+          CASE
+            WHEN c.arn IS NULL THEN 'CloudWatch does not allow cross-account sharing.'
+            ELSE 'CloudWatch allows cross-account sharing with ' || cross_account_details || '.'
+          END AS reason
+        FROM
+          aws_account AS a
+        LEFT JOIN iam_role_cross_account_sharing_count AS c
+          ON c.account_id = a.account_id;
+severity: low
+tags: {}

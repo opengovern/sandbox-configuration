@@ -1,38 +1,35 @@
-Description: Deleting a key vault without soft delete enabled permanently deletes all secrets, keys, and certificates stored in the key vault. Accidental deletion of a key vault can lead to permanent data loss. Soft delete allows you to recover an accidentally deleted key vault for a configurable retention period.
-ID: azure_keyvault_soft_delete_enabled
-IntegrationType:
+id: azure_keyvault_soft_delete_enabled
+title: Key vaults should have soft delete enabled
+description: Deleting a key vault without soft delete enabled permanently deletes all secrets, keys, and certificates stored in the key vault. Accidental deletion of a key vault can lead to permanent data loss. Soft delete allows you to recover an accidentally deleted key vault for a configurable retention period.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    SELECT
-      kv.id AS resource,
-      kv.platform_integration_id AS platform_integration_id,
-      kv.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN soft_delete_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN soft_delete_enabled THEN name || ' soft delete enabled.'
-        ELSE name || ' soft delete disabled.'
-      END AS reason,
-      kv.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault AS kv,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = kv.subscription_id;
-Severity: critical
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/KeyVault
-Title: Key vaults should have soft delete enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          kv.id AS resource,
+          kv.platform_integration_id AS platform_integration_id,
+          kv.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN soft_delete_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN soft_delete_enabled THEN name || ' soft delete enabled.'
+            ELSE name || ' soft delete disabled.'
+          END AS reason,
+          kv.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS kv,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = kv.subscription_id;
+severity: critical
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/KeyVault

@@ -1,38 +1,35 @@
-Description: Ensure that Azure Linux-based virtual machines (VMs) are configured to use SSH keys.
-ID: azure_check_for_ssh_authentication_type
-IntegrationType:
+id: azure_check_for_ssh_authentication_type
+title: Check for SSH Authentication Type
+description: Ensure that Azure Linux-based virtual machines (VMs) are configured to use SSH keys.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    SELECT
-      vm.id AS resource,
-      vm.platform_integration_id,
-      vm.platform_resource_id,
-      CASE
-        WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'SSH authentication type for the selected Microsoft Azure virtual machine is password-based and is not secured'
-        ELSE 'SSH authentication type for the selected Microsoft Azure virtual machine is secured'
-      END AS reason,
-      vm.resource_group,
-      display_name AS subscription
-    FROM
-      azure_compute_virtual_machine AS vm,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = vm.subscription_id
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  score_service_name:
-    - Azure Virtual Machines
-Title: Check for SSH Authentication Type
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'OSProfile' -> 'LinuxConfiguration' ->> 'DisablePasswordAuthentication' = 'false' THEN 'SSH authentication type for the selected Microsoft Azure virtual machine is password-based and is not secured'
+            ELSE 'SSH authentication type for the selected Microsoft Azure virtual machine is secured'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

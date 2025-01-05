@@ -1,54 +1,51 @@
-Description: Ensure that logging for Azure KeyVault is 'Enabled'
-ID: azure_enable_auditevent_logging_for_azure_key_vaults
-IntegrationType:
+id: azure_enable_auditevent_logging_for_azure_key_vaults
+title: Enable AuditEvent Logging for Azure Key Vaults
+description: Ensure that logging for Azure KeyVault is 'Enabled'
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      v.platform_resource_id,
-      v.platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM 
-            jsonb_array_elements(diagnostic_settings) AS ds,
-            jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
-          WHERE
-            (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM 
-            jsonb_array_elements(diagnostic_settings) AS ds,
-            jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
-          WHERE
-            (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
-        ) THEN 'subscription has an app-tier cmk'
-        ELSE 'subscription does not have any app-tier cmk'
-      END AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault AS v
-      LEFT JOIN azure_subscription AS sub ON v.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Exposed Endpoints
-Title: Enable AuditEvent Logging for Azure Key Vaults
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          name AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM 
+                jsonb_array_elements(diagnostic_settings) AS ds,
+                jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
+              WHERE
+                (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM 
+                jsonb_array_elements(diagnostic_settings) AS ds,
+                jsonb_array_elements(ds -> 'properties' -> 'logs') AS l
+              WHERE
+                (l ->> 'category' = 'AuditEvent') AND (l ->> 'enabled' = 'true')
+            ) THEN 'subscription has an app-tier cmk'
+            ELSE 'subscription does not have any app-tier cmk'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS v
+          LEFT JOIN azure_subscription AS sub ON v.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Exposed Endpoints

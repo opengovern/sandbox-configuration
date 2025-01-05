@@ -1,76 +1,73 @@
-Description: Ensure AWS RDS SQL Server and Postgre instances have Transport Encryption feature enabled.
-ID: aws_enable_aws_rds_transport_encryption
-IntegrationType:
+id: aws_enable_aws_rds_transport_encryption
+title: Enable AWS RDS Transport Encryption
+description: Ensure AWS RDS SQL Server and Postgre instances have Transport Encryption feature enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-    - aws_rds_db_parameter_group
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    WITH instance_pg AS (
-      SELECT
-        g ->> 'DBParameterGroupName' AS pg_name,
-        i.platform_integration_id,
-        i.platform_resource_id,
-        i.engine,
-        i.title,
-        i.arn,
-        i.tags,
-        i.region,
-        i.account_id,
-        i._ctx
-      FROM
-        aws_rds_db_instance AS i,
-        jsonb_array_elements(db_parameter_groups) AS g
-    ),
-    pg_with_ssl_enabled AS (
-      SELECT
-        g.name
-      FROM
-        instance_pg AS i,
-        aws_rds_db_parameter_group AS g,
-        jsonb_array_elements(parameters) AS p
-      WHERE
-        i.pg_name = g.name
-        AND g.account_id = i.account_id
-        AND g.region = i.region
-        AND p ->> 'ParameterName' = 'rds.force_ssl'
-        AND p ->> 'ParameterValue' = '1'
-    )
-    SELECT
-      i.arn AS resource,
-      i.engine,
-      i.platform_integration_id,
-      i.platform_resource_id,
-      CASE
-        WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN 'skip'
-        WHEN p.name IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN title || ' has ' || engine || ' engine type.'
-        WHEN p.name IS NOT NULL THEN title || ' connections are SSL encrypted.'
-        ELSE title || ' connections are not SSL encrypted.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      instance_pg AS i
-    LEFT JOIN
-      pg_with_ssl_enabled AS p
-    ON
-      p.name = i.pg_name
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Relational Database Service (RDS)
-  platform_score_use_case:
-    - Unencrypted Traffic
-  score_service_name:
-    - AWS Relational Database Service (RDS)
-  score_tags:
-    - Unencrypted Traffic
-Title: Enable AWS RDS Transport Encryption
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        WITH instance_pg AS (
+          SELECT
+            g ->> 'DBParameterGroupName' AS pg_name,
+            i.platform_integration_id,
+            i.platform_resource_id,
+            i.engine,
+            i.title,
+            i.arn,
+            i.tags,
+            i.region,
+            i.account_id,
+            i._ctx
+          FROM
+            aws_rds_db_instance AS i,
+            jsonb_array_elements(db_parameter_groups) AS g
+        ),
+        pg_with_ssl_enabled AS (
+          SELECT
+            g.name
+          FROM
+            instance_pg AS i,
+            aws_rds_db_parameter_group AS g,
+            jsonb_array_elements(parameters) AS p
+          WHERE
+            i.pg_name = g.name
+            AND g.account_id = i.account_id
+            AND g.region = i.region
+            AND p ->> 'ParameterName' = 'rds.force_ssl'
+            AND p ->> 'ParameterValue' = '1'
+        )
+        SELECT
+          i.arn AS resource,
+          i.engine,
+          i.platform_integration_id,
+          i.platform_resource_id,
+          CASE
+            WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN 'skip'
+            WHEN p.name IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN i.engine NOT IN ('sqlserver', 'postgres') THEN title || ' has ' || engine || ' engine type.'
+            WHEN p.name IS NOT NULL THEN title || ' connections are SSL encrypted.'
+            ELSE title || ' connections are not SSL encrypted.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          instance_pg AS i
+        LEFT JOIN
+          pg_with_ssl_enabled AS p
+        ON
+          p.name = i.pg_name
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    platform_score_use_case:
+      - Unencrypted Traffic
+    score_service_name:
+      - AWS Relational Database Service (RDS)
+    score_tags:
+      - Unencrypted Traffic

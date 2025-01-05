@@ -1,48 +1,46 @@
-Description: Ensure that Cross-Region Replication feature is enabled for your Amazon ECR container images.
-ID: aws_enable_cross_region_replication
-IntegrationType:
+id: aws_enable_cross_region_replication
+title: Enable Cross-Region Replication
+description: Ensure that Cross-Region Replication feature is enabled for your Amazon ECR container images.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecr_registry
-  Parameters: []
-  PrimaryTable: aws_ecr_registry
-  QueryToExecute: |
-    SELECT
-      account_id || ' backup region setting in ' || region AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN rules::text = '[]' THEN 'alarm'
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(rules) AS r,
-               jsonb_array_elements(r -> 'Destinations') AS d
-          WHERE
-            d ->> 'RegistryId' = registry_id
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN rules::text = '[]' THEN 'Cross-Region Replication feature is not enabled'
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(rules) AS r,
-               jsonb_array_elements(r -> 'Destinations') AS d
-          WHERE
-            d ->> 'RegistryId' = registry_id
-        ) THEN 'Cross-Region Replication feature is enabled'
-        ELSE 'Cross-Region Replication feature is not enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecr_registry
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Registry (ECR)
-  score_service_name:
-    - Elastic Container Registry (ECR)
-Title: Enable Cross-Region Replication
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_registry
+    definition: |
+        SELECT
+          account_id || ' backup region setting in ' || region AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN rules::text = '[]' THEN 'alarm'
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(rules) AS r,
+                   jsonb_array_elements(r -> 'Destinations') AS d
+              WHERE
+                d ->> 'RegistryId' = registry_id
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN rules::text = '[]' THEN 'Cross-Region Replication feature is not enabled'
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(rules) AS r,
+                   jsonb_array_elements(r -> 'Destinations') AS d
+              WHERE
+                d ->> 'RegistryId' = registry_id
+            ) THEN 'Cross-Region Replication feature is enabled'
+            ELSE 'Cross-Region Replication feature is not enabled'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecr_registry
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Registry (ECR)
+    score_service_name:
+      - Elastic Container Registry (ECR)

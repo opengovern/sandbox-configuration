@@ -1,38 +1,35 @@
-Description: This policy identifies Azure Service bus namespaces configured with overly permissive network access. By default, Service Bus namespaces are accessible from the internet as long as the request comes with valid authentication and authorization. With an IP firewall, you can restrict it further to only a set of IPv4 addresses or IPv4 address ranges. With Virtual Networks, the network traffic path is secured on both ends. It is recommended to configure the Service bus namespace with an IP firewall or by Virtual Network; so that the Service bus namespace is accessible only to restricted entities.
-ID: azure_servicebus_namespace_no_overly_permissive_network_access
-IntegrationType:
+id: azure_servicebus_namespace_no_overly_permissive_network_access
+title: Service bus namespace should not be configured with overly permissive network access
+description: This policy identifies Azure Service bus namespaces configured with overly permissive network access. By default, Service Bus namespaces are accessible from the internet as long as the request comes with valid authentication and authorization. With an IP firewall, you can restrict it further to only a set of IPv4 addresses or IPv4 address ranges. With Virtual Networks, the network traffic path is secured on both ends. It is recommended to configure the Service bus namespace with an IP firewall or by Virtual Network; so that the Service bus namespace is accessible only to restricted entities.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_servicebus_namespace
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_servicebus_namespace
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN status = 'Active'
-        AND sku_tier = 'Premium'
-        AND network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
-        AND network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled'
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status = 'Active'
-        AND sku_tier = 'Premium'
-        AND network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
-        AND network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled'
-        THEN a.name || ' namespace configured with overly permissive network access.'
-        ELSE a.name || ' namespace not configured with overly permissive network access.'
-      END AS reason
-    FROM
-      azure_servicebus_namespace a,
-      azure_subscription sub;
-Severity: low
-Tags: {}
-Title: Service bus namespace should not be configured with overly permissive network access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_servicebus_namespace
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN status = 'Active'
+            AND sku_tier = 'Premium'
+            AND network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
+            AND network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled'
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN status = 'Active'
+            AND sku_tier = 'Premium'
+            AND network_rule_set -> 'properties' ->> 'defaultAction' = 'Allow'
+            AND network_rule_set -> 'properties' ->> 'publicNetworkAccess' = 'Enabled'
+            THEN a.name || ' namespace configured with overly permissive network access.'
+            ELSE a.name || ' namespace not configured with overly permissive network access.'
+          END AS reason
+        FROM
+          azure_servicebus_namespace a,
+          azure_subscription sub;
+severity: low
+tags: {}

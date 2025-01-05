@@ -1,34 +1,31 @@
-Description: This control checks whether virtual machine scale sets have SSH key authentication enabled. This control is only applicable for Linux-type operating systems.
-ID: azure_compute_vm_scale_set_ssh_key_authentication_linux
-IntegrationType:
+id: azure_compute_vm_scale_set_ssh_key_authentication_linux
+title: Compute virtual machine scale sets with linux OS should have SSH key authentication enabled
+description: This control checks whether virtual machine scale sets have SSH key authentication enabled. This control is only applicable for Linux-type operating systems.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine_scale_set
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine_scale_set
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' THEN 'skip'
-        WHEN virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' THEN a.title || ' is using windows OS.'
-        WHEN virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' THEN a.title || ' has SSH key authentication enabled.'
-        ELSE a.title || ' has password authentication enabled.'
-      END AS reason
-    FROM
-      azure_compute_virtual_machine_scale_set AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: Compute virtual machine scale sets with linux OS should have SSH key authentication enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' THEN 'skip'
+            WHEN virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN virtual_machine_storage_profile -> 'osDisk' ->> 'osType' = 'Windows' THEN a.title || ' is using windows OS.'
+            WHEN virtual_machine_os_profile -> 'linuxConfiguration' ->> 'disablePasswordAuthentication' = 'true' THEN a.title || ' has SSH key authentication enabled.'
+            ELSE a.title || ' has password authentication enabled.'
+          END AS reason
+        FROM
+          azure_compute_virtual_machine_scale_set AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

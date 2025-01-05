@@ -1,46 +1,42 @@
-Description: Ensure there is a sufficient period configured for the SSL certificates auto-renewal.
-ID: azure_check_for_sufficient_certificate_auto_renewal_period
-IntegrationType:
+id: azure_check_for_sufficient_certificate_auto_renewal_period
+title: Check for Sufficient Certificate Auto-Renewal Period
+description: Ensure there is a sufficient period configured for the SSL certificates auto-renewal.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault_certificate
-    - azure_subscription
-  Parameters:
-    - Key: azureSufficientDaysBeforeCertificateExpiry
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_key_vault_certificate
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_resource_id,
-      c.platform_integration_id,
-      CASE
-        WHEN (la -> 'Trigger' ->> 'DaysBeforeExpiry')::int < '{{.azureSufficientDaysBeforeCertificateExpiry}}'::int THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (la -> 'Trigger' ->> 'DaysBeforeExpiry')::int < '{{.azureSufficientDaysBeforeCertificateExpiry}}'::int THEN
-          'SSL certificate does not have a sufficient period of time before expiration to trigger the auto-renewal process, configured for the issuance policy.'
-        ELSE
-          'SSL certificate has a sufficient period of time before expiration to trigger the auto-renewal process, configured for the issuance policy.'
-      END AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault_certificate AS c
-      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id,
-      jsonb_array_elements(lifetime_actions) AS la
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Insecure Keys
-Title: Check for Sufficient Certificate Auto-Renewal Period
+parameters:
+  - key: azureSufficientDaysBeforeCertificateExpiry
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_key_vault_certificate
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_resource_id,
+          c.platform_integration_id,
+          CASE
+            WHEN (la -> 'Trigger' ->> 'DaysBeforeExpiry')::int < '{{.azureSufficientDaysBeforeCertificateExpiry}}'::int THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (la -> 'Trigger' ->> 'DaysBeforeExpiry')::int < '{{.azureSufficientDaysBeforeCertificateExpiry}}'::int THEN
+              'SSL certificate does not have a sufficient period of time before expiration to trigger the auto-renewal process, configured for the issuance policy.'
+            ELSE
+              'SSL certificate has a sufficient period of time before expiration to trigger the auto-renewal process, configured for the issuance policy.'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault_certificate AS c
+          LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id,
+          jsonb_array_elements(lifetime_actions) AS la
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Insecure Keys

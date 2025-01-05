@@ -1,22 +1,20 @@
-Description: AWS access from within AWS instances can be done by either encoding AWS keys into AWS API calls or by assigning the instance to a role which has an appropriate permissions policy for the required access. "AWS Access" means accessing the APIs of AWS in order to access AWS resources or manage AWS account resources.
-ID: aws_cis_v300_1_18
-IntegrationType:
+id: aws_cis_v300_1_18
+title: 1.18 Ensure IAM instance roles are used for AWS resource access from instances
+description: AWS access from within AWS instances can be done by either encoding AWS keys into AWS API calls or by assigning the instance to a role which has an appropriate permissions policy for the required access. "AWS Access" means accessing the APIs of AWS in order to access AWS resources or manage AWS account resources.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 1.18 Ensure IAM instance roles are used for AWS resource access from instances
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

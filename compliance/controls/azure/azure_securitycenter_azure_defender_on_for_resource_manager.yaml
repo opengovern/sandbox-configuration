@@ -1,52 +1,49 @@
-Description: Azure Defender for Resource Manager automatically monitors the resource management operations in your organization. Azure Defender detects threats and alerts you about suspicious activity.
-ID: azure_securitycenter_azure_defender_on_for_resource_manager
-IntegrationType:
+id: azure_securitycenter_azure_defender_on_for_resource_manager
+title: Azure Defender for Resource Manager should be enabled
+description: Azure Defender for Resource Manager automatically monitors the resource management operations in your organization. Azure Defender detects threats and alerts you about suspicious activity.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_security_center_subscription_pricing
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_security_center_subscription_pricing
-  QueryToExecute: |
-    SELECT
-      sub_pricing.id AS resource,
-      sub_pricing.platform_integration_id AS platform_integration_id,
-      sub_pricing.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN pricing_tier = 'Standard' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Resource Manager.'
-        ELSE 'Azure Defender off for Resource Manager.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_security_center_subscription_pricing sub_pricing
-    RIGHT JOIN
-      azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
-    WHERE
-      name = 'Arm';
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 2.1.13
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "2.1"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.5.0
-  plugin:
-    - azure
-  service:
-    - Azure/SecurityCenter
-Title: Azure Defender for Resource Manager should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Resource Manager.'
+            ELSE 'Azure Defender off for Resource Manager.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN
+          azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE
+          name = 'Arm';
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 2.1.13
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '2.1'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/SecurityCenter

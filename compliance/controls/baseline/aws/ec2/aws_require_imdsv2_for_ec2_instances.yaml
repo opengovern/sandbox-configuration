@@ -1,38 +1,36 @@
-Description: Ensure that all the Amazon EC2 instances require the use of Instance Metadata Service Version 2 (IMDSv2).
-ID: aws_require_imdsv2_for_ec2_instances
-IntegrationType:
+id: aws_require_imdsv2_for_ec2_instances
+title: Require IMDSv2 for EC2 Instances
+description: Ensure that all the Amazon EC2 instances require the use of Instance Metadata Service Version 2 (IMDSv2).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_instance
-  Parameters: []
-  PrimaryTable: aws_ec2_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
-        ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ec2_instance;
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Exposed Endpoints
-Title: Require IMDSv2 for EC2 Instances
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN metadata_options ->> 'HttpTokens' = 'optional' THEN title || ' not configured to use Instance Metadata Service Version 2 (IMDSv2).'
+            ELSE title || ' configured to use Instance Metadata Service Version 2 (IMDSv2).'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

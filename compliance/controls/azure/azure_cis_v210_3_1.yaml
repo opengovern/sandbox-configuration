@@ -1,32 +1,29 @@
-Description: Enable data encryption in transit.
-ID: azure_cis_v210_3_1
-IntegrationType:
+id: azure_cis_v210_3_1
+title: 3.1 Ensure that 'Secure transfer required' is set to 'Enabled'
+description: Enable data encryption in transit.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT enable_https_traffic_only THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT enable_https_traffic_only THEN sa.name || ' encryption in transit not enabled.'
-        ELSE sa.name || ' encryption in transit enabled.'
-      END AS reason
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.1 Ensure that 'Secure transfer required' is set to 'Enabled'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT enable_https_traffic_only THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT enable_https_traffic_only THEN sa.name || ' encryption in transit not enabled.'
+            ELSE sa.name || ' encryption in transit enabled.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

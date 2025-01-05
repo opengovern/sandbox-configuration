@@ -1,32 +1,29 @@
-Description: Audit enabling of only connections via SSL to Azure Cache for Redis. Use of secure connections ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking.
-ID: azure_redis_cache_ssl_enabled
-IntegrationType:
+id: azure_redis_cache_ssl_enabled
+title: Only secure connections to your Azure Cache for Redis should be enabled
+description: Audit enabling of only connections via SSL to Azure Cache for Redis. Use of secure connections ensures authentication between the server and the service and protects data in transit from network layer attacks such as man-in-the-middle, eavesdropping, and session-hijacking.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_redis_cache
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_redis_cache
-  QueryToExecute: |
-    SELECT
-      redis.id AS resource,
-      redis.platform_integration_id AS platform_integration_id,
-      redis.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enable_non_ssl_port THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN enable_non_ssl_port THEN redis.name || ' secure connections disabled.'
-        ELSE redis.name || ' secure connections enabled.'
-      END AS reason
-    FROM
-      azure_redis_cache AS redis,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = redis.subscription_id;
-Severity: low
-Tags: {}
-Title: Only secure connections to your Azure Cache for Redis should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_redis_cache
+    definition: |
+        SELECT
+          redis.id AS resource,
+          redis.platform_integration_id AS platform_integration_id,
+          redis.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_non_ssl_port THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN enable_non_ssl_port THEN redis.name || ' secure connections disabled.'
+            ELSE redis.name || ' secure connections enabled.'
+          END AS reason
+        FROM
+          azure_redis_cache AS redis,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = redis.subscription_id;
+severity: low
+tags: {}

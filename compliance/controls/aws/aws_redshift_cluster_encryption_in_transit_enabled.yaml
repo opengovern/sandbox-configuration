@@ -1,80 +1,77 @@
-Description: Ensure that your AWS Redshift clusters require TLS/SSL encryption to connect to SQL clients.
-ID: aws_redshift_cluster_encryption_in_transit_enabled
-IntegrationType:
+id: aws_redshift_cluster_encryption_in_transit_enabled
+title: Redshift cluster encryption in transit should be enabled
+description: Ensure that your AWS Redshift clusters require TLS/SSL encryption to connect to SQL clients.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_redshift_cluster
-    - aws_redshift_parameter_group
-  Parameters: []
-  PrimaryTable: aws_redshift_cluster
-  QueryToExecute: |
-    WITH pg_with_ssl AS (
-      SELECT
-        name AS pg_name,
-        p ->> 'ParameterName' AS parameter_name,
-        p ->> 'ParameterValue' AS parameter_value
-      FROM
-        aws_redshift_parameter_group,
-        jsonb_array_elements(parameters) AS p
-      WHERE
-        p ->> 'ParameterName' = 'require_ssl'
-        AND p ->> 'ParameterValue' = 'true'
-    )
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN title || ' encryption in transit enabled.'
-        ELSE title || ' encryption in transit disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_redshift_cluster,
-      jsonb_array_elements(cluster_parameter_groups) AS cpg;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gdpr:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/Redshift
-  soc_2:
-    - "true"
-Title: Redshift cluster encryption in transit should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        WITH pg_with_ssl AS (
+          SELECT
+            name AS pg_name,
+            p ->> 'ParameterName' AS parameter_name,
+            p ->> 'ParameterValue' AS parameter_value
+          FROM
+            aws_redshift_parameter_group,
+            jsonb_array_elements(parameters) AS p
+          WHERE
+            p ->> 'ParameterName' = 'require_ssl'
+            AND p ->> 'ParameterValue' = 'true'
+        )
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN cpg ->> 'ParameterGroupName' IN (SELECT pg_name FROM pg_with_ssl) THEN title || ' encryption in transit enabled.'
+            ELSE title || ' encryption in transit disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_redshift_cluster,
+          jsonb_array_elements(cluster_parameter_groups) AS cpg;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/Redshift
+    soc_2:
+      - 'true'

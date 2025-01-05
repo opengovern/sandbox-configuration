@@ -1,24 +1,23 @@
-Description: Disable access from Azure services to PostgreSQL Database Server.
-ID: azure_cis_v150_4_3_7
-IntegrationType:
+id: azure_cis_v150_4_3_7
+title: 4.3.7 Ensure 'Allow access to Azure services' for PostgreSQL Database Server is disabled
+description: Disable access from Azure services to PostgreSQL Database Server.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: 4.3.7 Ensure 'Allow access to Azure services' for PostgreSQL Database Server is disabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

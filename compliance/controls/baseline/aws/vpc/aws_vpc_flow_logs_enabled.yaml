@@ -1,45 +1,42 @@
-Description: Ensure VPC flow logging is enabled in all VPCs.
-ID: aws_vpc_flow_logs_enabled
-IntegrationType:
+id: aws_vpc_flow_logs_enabled
+title: VPC Flow Logs Enabled
+description: Ensure VPC flow logging is enabled in all VPCs.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_vpc
-    - aws_vpc_flow_log
-  Parameters: []
-  PrimaryTable: aws_vpc
-  QueryToExecute: |
-    SELECT
-      DISTINCT arn AS resource,
-      v.platform_resource_id,
-      v.platform_integration_id,
-      CASE
-        WHEN v.account_id <> v.owner_id THEN 'skip'
-        WHEN f.resource_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN v.account_id <> v.owner_id THEN vpc_id || ' is a shared VPC.'
-        WHEN f.resource_id IS NOT NULL THEN vpc_id || ' flow logging enabled.'
-        ELSE vpc_id || ' flow logging disabled.'
-      END AS reason,
-      v.region,
-      v.account_id
-    FROM
-      aws_vpc AS v
-    LEFT JOIN
-      aws_vpc_flow_log AS f
-    ON
-      v.vpc_id = f.resource_id;
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  platform_score_use_case:
-    - Unencrypted Traffic
-  score_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  score_tags:
-    - Unencrypted Traffic
-Title: VPC Flow Logs Enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        SELECT
+          DISTINCT arn AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN 'skip'
+            WHEN f.resource_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN vpc_id || ' is a shared VPC.'
+            WHEN f.resource_id IS NOT NULL THEN vpc_id || ' flow logging enabled.'
+            ELSE vpc_id || ' flow logging disabled.'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_vpc AS v
+        LEFT JOIN
+          aws_vpc_flow_log AS f
+        ON
+          v.vpc_id = f.resource_id;
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Unencrypted Traffic
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Unencrypted Traffic

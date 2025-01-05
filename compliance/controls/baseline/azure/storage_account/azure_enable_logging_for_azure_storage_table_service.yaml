@@ -1,38 +1,35 @@
-Description: Ensure that storage logging is enabled for the Azure Storage Table service.
-ID: azure_enable_logging_for_azure_storage_table_service
-IntegrationType:
+id: azure_enable_logging_for_azure_storage_table_service
+title: Enable Logging for Azure Storage Table Service
+description: Ensure that storage logging is enabled for the Azure Storage Table service.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id,
-      sa.platform_resource_id,
-      CASE
-        WHEN (table_logging_read = 'false' AND table_logging_write = 'false' AND table_logging_delete = 'false') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (table_logging_read = 'false' AND table_logging_write = 'false' AND table_logging_delete = 'false') THEN 'The storage logging is not enabled for the Azure Storage Table service'
-        ELSE 'The storage logging is enabled for the Azure Storage Table service'
-      END AS reason,
-      sa.resource_group,
-      display_name AS subscription
-    FROM
-      azure_storage_account AS sa,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = sa.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  score_service_name:
-    - Azure Storage Accounts
-Title: Enable Logging for Azure Storage Table Service
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN (table_logging_read = 'false' AND table_logging_write = 'false' AND table_logging_delete = 'false') THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (table_logging_read = 'false' AND table_logging_write = 'false' AND table_logging_delete = 'false') THEN 'The storage logging is not enabled for the Azure Storage Table service'
+            ELSE 'The storage logging is enabled for the Azure Storage Table service'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

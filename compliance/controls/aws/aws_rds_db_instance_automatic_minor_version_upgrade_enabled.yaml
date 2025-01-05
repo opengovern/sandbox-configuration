@@ -1,48 +1,46 @@
-Description: Ensure that AWS Relational Database Service (RDS) database instances are configured for automatic minor version upgrades. The rule is non-compliant if the value of 'autoMinorVersionUpgrade' is false.
-ID: aws_rds_db_instance_automatic_minor_version_upgrade_enabled
-IntegrationType:
+id: aws_rds_db_instance_automatic_minor_version_upgrade_enabled
+title: RDS DB instance automatic minor version upgrade should be enabled
+description: Ensure that AWS Relational Database Service (RDS) database instances are configured for automatic minor version upgrades. The rule is non-compliant if the value of 'autoMinorVersionUpgrade' is false.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_minor_version_upgrade THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
-        ELSE title || ' automatic minor version upgrades not enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_instance;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 2.3.2
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "2.3"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.5.0
-  plugin:
-    - aws
-  service:
-    - AWS/RDS
-Title: RDS DB instance automatic minor version upgrade should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_minor_version_upgrade THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
+            ELSE title || ' automatic minor version upgrades not enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 2.3.2
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '2.3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.5.0
+    plugin:
+      - aws
+    service:
+      - AWS/RDS

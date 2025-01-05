@@ -1,54 +1,51 @@
-Description: Cryptographic keys should have a defined expiration date and not be permanent. Keys that are valid forever provide a potential attacker with more time to compromise the key. It is a recommended security practice to set expiration dates on cryptographic keys.
-ID: azure_keyvault_key_expiration_set
-IntegrationType:
+id: azure_keyvault_key_expiration_set
+title: Key Vault keys should have an expiration date
+description: Cryptographic keys should have a defined expiration date and not be permanent. Keys that are valid forever provide a potential attacker with more time to compromise the key. It is a recommended security practice to set expiration dates on cryptographic keys.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault_key
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault_key
-  QueryToExecute: |
-    SELECT
-      kvk.id AS resource,
-      kvk.platform_integration_id AS platform_integration_id,
-      kvk.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enabled AND expires_at IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      vault_name || ' key ' || name || 
-      CASE 
-        WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
-        WHEN NOT enabled THEN ' disabled.'
-        ELSE ' expiration date set to ' || TO_CHAR(expires_at, 'DD-Mon-YYYY') || '.'
-      END AS reason,
-      kvk.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault_key kvk,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = kvk.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "8.1"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "8"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/KeyVault
-Title: Key Vault keys should have an expiration date
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault_key
+    definition: |
+        SELECT
+          kvk.id AS resource,
+          kvk.platform_integration_id AS platform_integration_id,
+          kvk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled AND expires_at IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          vault_name || ' key ' || name || 
+          CASE 
+            WHEN enabled AND expires_at IS NULL THEN ' expiration date not set.'
+            WHEN NOT enabled THEN ' disabled.'
+            ELSE ' expiration date set to ' || TO_CHAR(expires_at, 'DD-Mon-YYYY') || '.'
+          END AS reason,
+          kvk.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault_key kvk,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = kvk.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '8.1'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '8'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/KeyVault

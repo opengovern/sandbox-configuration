@@ -1,55 +1,51 @@
-Description: Ensure that a Customer-Managed Key is created for your Microsoft Azure cloud web tier.
-ID: azure_web_tier_customer_managed_key_in_use
-IntegrationType:
+id: azure_web_tier_customer_managed_key_in_use
+title: Web Tier Customer-Managed Key In Use
+description: Ensure that a Customer-Managed Key is created for your Microsoft Azure cloud web tier.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault_key
-    - azure_subscription
-  Parameters:
-    - Key: azureWebTierTags
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH web_tier_keys AS (
-      SELECT
-        name, subscription_id
-      FROM
-        azure_key_vault_key
-      WHERE
-        tags::text LIKE '%' || REPLACE(REPLACE((
-          SELECT jsonb_object_agg(key, value)::text
-          FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
-        ), '{', ''), '}', '') || '%'
-    )
-    
-    SELECT
-      sub.display_name AS resource,
-      sub.platform_resource_id,
-      sub.platform_integration_id,
-      CASE
-        WHEN wtk.name IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN wtk.name IS NULL THEN 'there is no web tier key in the subscription.'
-        ELSE 'subscription has web tier keys.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription AS sub
-    LEFT JOIN web_tier_keys AS wtk
-      ON sub.subscription_id = wtk.subscription_id
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Insecure Keys
-Title: Web Tier Customer-Managed Key In Use
+parameters:
+  - key: azureWebTierTags
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH web_tier_keys AS (
+          SELECT
+            name, subscription_id
+          FROM
+            azure_key_vault_key
+          WHERE
+            tags::text LIKE '%' || REPLACE(REPLACE((
+              SELECT jsonb_object_agg(key, value)::text
+              FROM jsonb_each_text('{{.azureWebTierTags}}'::jsonb)
+            ), '{', ''), '}', '') || '%'
+        )
+
+        SELECT
+          sub.display_name AS resource,
+          sub.platform_resource_id,
+          sub.platform_integration_id,
+          CASE
+            WHEN wtk.name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN wtk.name IS NULL THEN 'there is no web tier key in the subscription.'
+            ELSE 'subscription has web tier keys.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription AS sub
+        LEFT JOIN web_tier_keys AS wtk
+          ON sub.subscription_id = wtk.subscription_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Insecure Keys

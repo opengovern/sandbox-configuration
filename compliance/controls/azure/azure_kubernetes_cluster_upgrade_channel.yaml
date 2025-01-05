@@ -1,32 +1,29 @@
-Description: Ensure Kubernetes clusters upgrade channel is configured. This control is non-compliant if Kubernetes clusters upgrade channel is set to none.
-ID: azure_kubernetes_cluster_upgrade_channel
-IntegrationType:
+id: azure_kubernetes_cluster_upgrade_channel
+title: Kubernetes clusters upgrade channel should be configured
+description: Ensure Kubernetes clusters upgrade channel is configured. This control is non-compliant if Kubernetes clusters upgrade channel is set to none.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_kubernetes_cluster
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN c.name || ' upgrade channel not configured.'
-        ELSE c.name || ' upgrade channel configured.'
-      END AS reason
-    FROM
-      azure_kubernetes_cluster c,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = c.subscription_id;
-Severity: low
-Tags: {}
-Title: Kubernetes clusters upgrade channel should be configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN auto_upgrade_profile ->> 'upgradeChannel' = 'none' THEN c.name || ' upgrade channel not configured.'
+            ELSE c.name || ' upgrade channel configured.'
+          END AS reason
+        FROM
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

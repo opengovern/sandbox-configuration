@@ -1,52 +1,49 @@
-Description: Secure your storage account with greater flexibility using customer-managed keys. When you specify a customer-managed key, that key is used to protect and control access to the key that encrypts your data. Using customer-managed keys provides additional capabilities to control rotation of the key encryption key or cryptographically erase data.
-ID: azure_storage_account_encryption_at_rest_using_cmk
-IntegrationType:
+id: azure_storage_account_encryption_at_rest_using_cmk
+title: Storage accounts should use customer-managed key for encryption
+description: Secure your storage account with greater flexibility using customer-managed keys. When you specify a customer-managed key, that key is used to protect and control access to the key that encrypts your data. Using customer-managed keys provides additional capabilities to control rotation of the key encryption key or cryptographically erase data.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN sa.name || ' not encrypted with CMK.'
-        ELSE sa.name || ' encrypted with CMK.'
-      END AS reason,
-      sa.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "3.9"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "3"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Storage
-Title: Storage accounts should use customer-managed key for encryption
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN sa.encryption_key_source = 'Microsoft.Storage' THEN sa.name || ' not encrypted with CMK.'
+            ELSE sa.name || ' encrypted with CMK.'
+          END AS reason,
+          sa.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.9'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

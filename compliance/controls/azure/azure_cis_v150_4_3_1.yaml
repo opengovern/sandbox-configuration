@@ -1,32 +1,29 @@
-Description: Enable SSL connection on PostgreSQL Servers.
-ID: azure_cis_v150_4_3_1
-IntegrationType:
+id: azure_cis_v150_4_3_1
+title: 4.3.1 Ensure 'Enforce SSL connection' is set to 'ENABLED' for PostgreSQL Database Server
+description: Enable SSL connection on PostgreSQL Servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN ssl_enforcement = 'Disabled' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN ssl_enforcement = 'Disabled' THEN name || ' SSL connection disabled.'
-        ELSE name || ' SSL connection enabled.'
-      END AS reason
-    FROM
-      azure_postgresql_server s,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: 4.3.1 Ensure 'Enforce SSL connection' is set to 'ENABLED' for PostgreSQL Database Server
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ssl_enforcement = 'Disabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN ssl_enforcement = 'Disabled' THEN name || ' SSL connection disabled.'
+            ELSE name || ' SSL connection enabled.'
+          END AS reason
+        FROM
+          azure_postgresql_server s,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

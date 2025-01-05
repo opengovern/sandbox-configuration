@@ -1,43 +1,39 @@
-Description: Ensure there is a sufficient retention period configured for Azure Blob Storage soft deleted data.
-ID: azure_check_for_sufficient_soft_deleted_data_retention_period
-IntegrationType:
+id: azure_check_for_sufficient_soft_deleted_data_retention_period
+title: Check for Sufficient Soft Deleted Data Retention Period
+description: Ensure there is a sufficient retention period configured for Azure Blob Storage soft deleted data.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters:
-    - Key: azureStorageBlobSoftDeleteSufficientDays
-      Required: true
-      DefaultValue: "1"
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id,
-      sa.platform_resource_id,
-      CASE
-        WHEN blob_soft_delete_retention_days IS NULL THEN 'alarm'
-        WHEN blob_soft_delete_retention_days <> '{{.azureStorageBlobSoftDeleteSufficientDays}}'::int THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN blob_soft_delete_retention_days IS NULL THEN 'Blob soft delete not enabled'
-        WHEN blob_soft_delete_retention_days <> '{{.azureStorageBlobSoftDeleteSufficientDays}}'::int THEN 'Blob soft delete retention days is not sufficient'
-        ELSE 'Blob soft delete retention days is sufficient'
-      END AS reason,
-      sa.resource_group,
-      display_name AS subscription
-    FROM
-      azure_storage_account AS sa,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = sa.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  score_service_name:
-    - Azure Storage Accounts
-Title: Check for Sufficient Soft Deleted Data Retention Period
+parameters:
+  - key: azureStorageBlobSoftDeleteSufficientDays
+    value: '1'
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN blob_soft_delete_retention_days IS NULL THEN 'alarm'
+            WHEN blob_soft_delete_retention_days <> '{{.azureStorageBlobSoftDeleteSufficientDays}}'::int THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN blob_soft_delete_retention_days IS NULL THEN 'Blob soft delete not enabled'
+            WHEN blob_soft_delete_retention_days <> '{{.azureStorageBlobSoftDeleteSufficientDays}}'::int THEN 'Blob soft delete retention days is not sufficient'
+            ELSE 'Blob soft delete retention days is sufficient'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

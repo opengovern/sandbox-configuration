@@ -1,46 +1,44 @@
-Description: Ensure that EKS control plane logging is enabled for your Amazon EKS clusters.
-ID: aws_kubernetes_cluster_logging
-IntegrationType:
+id: aws_kubernetes_cluster_logging
+title: Kubernetes Cluster Logging
+description: Ensure that EKS control plane logging is enabled for your Amazon EKS clusters.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_cluster
-  Parameters: []
-  PrimaryTable: aws_eks_cluster
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(logging -> 'ClusterLogging') AS cl
-          WHERE cl ->> 'Enabled' = 'true'
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(logging -> 'ClusterLogging') AS cl
-          WHERE cl ->> 'Enabled' = 'true'
-        ) THEN name || ' EKS control plane logging is enabled'
-        ELSE name || ' EKS control plane logging is not enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_eks_cluster;
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  score_tags:
-    - Lacking High Availability
-Title: Kubernetes Cluster Logging
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(logging -> 'ClusterLogging') AS cl
+              WHERE cl ->> 'Enabled' = 'true'
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(logging -> 'ClusterLogging') AS cl
+              WHERE cl ->> 'Enabled' = 'true'
+            ) THEN name || ' EKS control plane logging is enabled'
+            ELSE name || ' EKS control plane logging is not enabled'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_eks_cluster;
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

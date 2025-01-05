@@ -1,32 +1,29 @@
-Description: Migrate blob-based VHDs to Managed Disks on Virtual Machines to exploit the default features of this configuration.
-ID: azure_cis_v200_7_2
-IntegrationType:
+id: azure_cis_v200_7_2
+title: 7.2 Ensure Virtual Machines are utilizing Managed Disks
+description: Migrate blob-based VHDs to Managed Disks on Virtual Machines to exploit the default features of this configuration.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    SELECT
-      vm.id AS resource,
-      vm.platform_integration_id AS platform_integration_id,
-      vm.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN managed_disk_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN managed_disk_id IS NULL THEN vm.name || ' VM not utilizing managed disks.'
-        ELSE vm.name || ' VM utilizing managed disks.'
-      END AS reason
-    FROM
-      azure_compute_virtual_machine AS vm,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = vm.subscription_id;
-Severity: low
-Tags: {}
-Title: 7.2 Ensure Virtual Machines are utilizing Managed Disks
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id AS platform_integration_id,
+          vm.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN managed_disk_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN managed_disk_id IS NULL THEN vm.name || ' VM not utilizing managed disks.'
+            ELSE vm.name || ' VM utilizing managed disks.'
+          END AS reason
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id;
+severity: low
+tags: {}

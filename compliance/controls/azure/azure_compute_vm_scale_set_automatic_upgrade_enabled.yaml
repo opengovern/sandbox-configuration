@@ -1,34 +1,31 @@
-Description: This control checks whether virtual machine scale sets have automatic OS image patching enabled.
-ID: azure_compute_vm_scale_set_automatic_upgrade_enabled
-IntegrationType:
+id: azure_compute_vm_scale_set_automatic_upgrade_enabled
+title: Compute virtual machine scale sets should have automatic OS image patching enabled
+description: This control checks whether virtual machine scale sets have automatic OS image patching enabled.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine_scale_set
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine_scale_set
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN upgrade_policy IS NULL THEN 'skip'
-        WHEN upgrade_policy ->> 'mode' = 'Automatic' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN upgrade_policy IS NULL THEN a.title || ' upgrade policy not applicable.'
-        WHEN upgrade_policy ->> 'mode' = 'Automatic' THEN a.title || ' automatic update enabled.'
-        ELSE a.title || ' automatic update disabled.'
-      END AS reason
-    FROM
-      azure_compute_virtual_machine_scale_set AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: Compute virtual machine scale sets should have automatic OS image patching enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN upgrade_policy IS NULL THEN 'skip'
+            WHEN upgrade_policy ->> 'mode' = 'Automatic' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN upgrade_policy IS NULL THEN a.title || ' upgrade policy not applicable.'
+            WHEN upgrade_policy ->> 'mode' = 'Automatic' THEN a.title || ' automatic update enabled.'
+            ELSE a.title || ' automatic update disabled.'
+          END AS reason
+        FROM
+          azure_compute_virtual_machine_scale_set AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

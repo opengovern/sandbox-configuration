@@ -1,69 +1,67 @@
-Description: This control checks whether an AWS EC2 Auto Scaling group uses multiple instance types. The control fails if the Auto Scaling group has only one instance type defined.
-ID: aws_autoscaling_use_multiple_instance_types_in_multiple_az
-IntegrationType:
+id: aws_autoscaling_use_multiple_instance_types_in_multiple_az
+title: EC2 auto scaling groups should use multiple instance types in multiple availability zones
+description: This control checks whether an AWS EC2 Auto Scaling group uses multiple instance types. The control fails if the Auto Scaling group has only one instance type defined.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_autoscaling_group
-  Parameters: []
-  PrimaryTable: aws_ec2_autoscaling_group
-  QueryToExecute: |
-    WITH autoscaling_groups AS (
-      SELECT
-        autoscaling_group_arn,
-        title,
-        mixed_instances_policy_launch_template_overrides,
-        region,
-        tags,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        _ctx,
-        account_id
-      FROM
-        aws_ec2_autoscaling_group
-    ),
-    distinct_instance_types_count AS (
-      SELECT
-        autoscaling_group_arn,
-        COUNT(DISTINCT(e -> 'InstanceType')) AS distinct_instance_types
-      FROM
-        autoscaling_groups,
-        jsonb_array_elements(mixed_instances_policy_launch_template_overrides) AS e
-      GROUP BY
-        autoscaling_group_arn,
-        title,
-        mixed_instances_policy_launch_template_overrides
-    )
-    SELECT
-      a.autoscaling_group_arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.distinct_instance_types > 1 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.distinct_instance_types > 1 THEN title || ' uses ' || b.distinct_instance_types || ' instance types.'
-        ELSE title || ' does not use multiple instance types.'
-      END AS reason,
-      a.region,
-      a.account_id
-    FROM
-      autoscaling_groups AS a
-    LEFT JOIN distinct_instance_types_count AS b ON a.autoscaling_group_arn = b.autoscaling_group_arn;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - high_availability
-  foundational_security_item_id:
-    - autoscaling_6
-  plugin:
-    - aws
-  service:
-    - AWS/AutoScaling
-Title: EC2 auto scaling groups should use multiple instance types in multiple availability zones
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_autoscaling_group
+    definition: |
+        WITH autoscaling_groups AS (
+          SELECT
+            autoscaling_group_arn,
+            title,
+            mixed_instances_policy_launch_template_overrides,
+            region,
+            tags,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx,
+            account_id
+          FROM
+            aws_ec2_autoscaling_group
+        ),
+        distinct_instance_types_count AS (
+          SELECT
+            autoscaling_group_arn,
+            COUNT(DISTINCT(e -> 'InstanceType')) AS distinct_instance_types
+          FROM
+            autoscaling_groups,
+            jsonb_array_elements(mixed_instances_policy_launch_template_overrides) AS e
+          GROUP BY
+            autoscaling_group_arn,
+            title,
+            mixed_instances_policy_launch_template_overrides
+        )
+        SELECT
+          a.autoscaling_group_arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.distinct_instance_types > 1 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.distinct_instance_types > 1 THEN title || ' uses ' || b.distinct_instance_types || ' instance types.'
+            ELSE title || ' does not use multiple instance types.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          autoscaling_groups AS a
+        LEFT JOIN distinct_instance_types_count AS b ON a.autoscaling_group_arn = b.autoscaling_group_arn;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - high_availability
+    foundational_security_item_id:
+      - autoscaling_6
+    plugin:
+      - aws
+    service:
+      - AWS/AutoScaling

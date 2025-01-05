@@ -1,22 +1,20 @@
-Description: Ensure contact email and telephone details for AWS accounts are current and map to more than one individual in your organization. An AWS account supports a number of contact details, and AWS will use these to contact the account owner if activity judged to be in breach of Acceptable Use Policy or indicative of likely security compromise is observed by the AWS Abuse team. Contact details should not be for a single individual, as circumstances may arise where that individual is unavailable.
-ID: aws_cis_v120_1_17
-IntegrationType:
+id: aws_cis_v120_1_17
+title: 1.17 Maintain current contact details
+description: Ensure contact email and telephone details for AWS accounts are current and map to more than one individual in your organization. An AWS account supports a number of contact details, and AWS will use these to contact the account owner if activity judged to be in breach of Acceptable Use Policy or indicative of likely security compromise is observed by the AWS Abuse team. Contact details should not be for a single individual, as circumstances may arise where that individual is unavailable.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 1.17 Maintain current contact details
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

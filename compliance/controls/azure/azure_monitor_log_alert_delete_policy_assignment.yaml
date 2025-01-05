@@ -1,74 +1,71 @@
-Description: Create an activity log alert for the Delete Policy Assignment event.
-ID: azure_monitor_log_alert_delete_policy_assignment
-IntegrationType:
+id: azure_monitor_log_alert_delete_policy_assignment
+title: Ensure that Activity Log Alert exists for Delete Policy Assignment
+description: Create an activity log alert for the Delete Policy Assignment event.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_log_alert
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH alert_rule AS (
-      SELECT
-        alert.id AS alert_id,
-        alert.name AS alert_name,
-        alert.enabled,
-        alert.location,
-        alert.subscription_id
-      FROM
-        azure_log_alert AS alert,
-        jsonb_array_elements_text(scopes) AS sc
-      WHERE
-        alert.location = 'Global'
-        AND alert.enabled
-        AND sc = '/subscriptions/' || alert.subscription_id
-        AND alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
-        AND alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.authorization/policyassignments"}]'
-        AND alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Authorization/policyAssignments/delete"}]'
-      LIMIT 1
-    )
-    SELECT
-      sub.subscription_id AS resource,
-      sub.platform_integration_id AS platform_integration_id,
-      sub.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN COUNT(a.subscription_id) > 0 THEN 'Activity log alert exists for delete policy assignment event.'
-        ELSE 'Activity log alert does not exist for delete policy assignment event.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription sub
-    LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
-    GROUP BY
-      sub.platform_integration_id,
-      sub.platform_resource_id,
-      sub._ctx,
-      sub.subscription_id,
-      sub.display_name
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 5.2.2
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "5.2"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Monitor
-Title: Ensure that Activity Log Alert exists for Delete Policy Assignment
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH alert_rule AS (
+          SELECT
+            alert.id AS alert_id,
+            alert.name AS alert_name,
+            alert.enabled,
+            alert.location,
+            alert.subscription_id
+          FROM
+            azure_log_alert AS alert,
+            jsonb_array_elements_text(scopes) AS sc
+          WHERE
+            alert.location = 'Global'
+            AND alert.enabled
+            AND sc = '/subscriptions/' || alert.subscription_id
+            AND alert.condition -> 'allOf' @> '[{"equals":"Administrative","field":"category"}]'
+            AND alert.condition -> 'allOf' @> '[{"field": "resourceType", "equals": "microsoft.authorization/policyassignments"}]'
+            AND alert.condition -> 'allOf' @> '[{"field": "operationName", "equals": "Microsoft.Authorization/policyAssignments/delete"}]'
+          LIMIT 1
+        )
+        SELECT
+          sub.subscription_id AS resource,
+          sub.platform_integration_id AS platform_integration_id,
+          sub.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COUNT(a.subscription_id) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN COUNT(a.subscription_id) > 0 THEN 'Activity log alert exists for delete policy assignment event.'
+            ELSE 'Activity log alert does not exist for delete policy assignment event.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription sub
+        LEFT JOIN alert_rule a ON sub.subscription_id = a.subscription_id
+        GROUP BY
+          sub.platform_integration_id,
+          sub.platform_resource_id,
+          sub._ctx,
+          sub.subscription_id,
+          sub.display_name
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 5.2.2
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '5.2'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Monitor

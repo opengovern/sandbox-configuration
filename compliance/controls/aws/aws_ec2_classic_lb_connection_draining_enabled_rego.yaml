@@ -1,59 +1,25 @@
-Description: This control checks whether Classic Load Balancers have connection draining enabled.
-ID: aws_ec2_classic_lb_connection_draining_enabled_rego
-IntegrationType:
+id: aws_ec2_classic_lb_connection_draining_enabled_rego
+title: Classic Load Balancers should have connection draining enabled
+description: This control checks whether Classic Load Balancers have connection draining enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: cloudql-rego
-  ListOfTables:
-    - aws_ec2_classic_load_balancer
-  Parameters: []
-  PrimaryTable: aws_ec2_classic_load_balancer
-  RegoPolicies:
-    - |
-      package aws_ec2_classic_lb_connection_draining_enabled_rego
-      import future.keywords.in
-  
-      status(lb) = "ok" {
-        lb.connection_draining_enabled == true
-      }
-      status(lb) = "alarm" {
-        lb.connection_draining_enabled == false
-      }
-
-      reason(lb) = sprintf("%s connection draining enabled.", [lb.title]) {
-        lb.connection_draining_enabled == true
-      }
-      reason(lb) = sprintf("%s connection draining disabled.", [lb.title]) {
-        lb.connection_draining_enabled == false
-      }
-
-      result[obj] {
-        some lb in opencomply.aws_ec2_classic_load_balancer({})
-  
-        obj = {
-          "resource": lb.arn,
-          "platform_integration_id": lb.platform_integration_id,
-          "platform_resource_id": lb.platform_resource_id,
-          "status": status(lb),
-          "reason": reason(lb),
-          "region": lb.region,
-          "account_id": lb.account_id,
-        }
-      }
-  QueryToExecute: |
-    data.aws_ec2_classic_lb_connection_draining_enabled_rego.result
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - resilience
-  foundational_security_item_id:
-    - elb_7
-  plugin:
-    - aws
-  service:
-    - AWS/ELB
-Title: Classic Load Balancers should have connection draining enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        data.aws_ec2_classic_lb_connection_draining_enabled_rego.result
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resilience
+    foundational_security_item_id:
+      - elb_7
+    plugin:
+      - aws
+    service:
+      - AWS/ELB

@@ -1,32 +1,30 @@
-Description: This control checks whether Elasticsearch domains have audit logging enabled. This control fails if an Elasticsearch domain does not have audit logging enabled.
-ID: aws_foundational_security_es_5
-IntegrationType:
+id: aws_foundational_security_es_5
+title: 5 Elasticsearch domains should have audit logging enabled
+description: This control checks whether Elasticsearch domains have audit logging enabled. This control fails if an Elasticsearch domain does not have audit logging enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticsearch_domain
-  Parameters: []
-  PrimaryTable: aws_elasticsearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN
-          log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true'
-          AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN
-          log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true'
-          AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN title || ' audit logging enabled.'
-        ELSE title || ' audit logging disabled.'
-      END AS reason
-    FROM
-      aws_elasticsearch_domain;
-Severity: medium
-Tags: {}
-Title: 5 Elasticsearch domains should have audit logging enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true'
+              AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN
+              log_publishing_options -> 'AUDIT_LOGS' -> 'Enabled' = 'true'
+              AND log_publishing_options -> 'AUDIT_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN title || ' audit logging enabled.'
+            ELSE title || ' audit logging disabled.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: medium
+tags: {}

@@ -1,32 +1,29 @@
-Description: Restricting default network access helps to provide a new layer of security, since storage accounts accept connections from clients on any network. To limit access to selected networks, the default action must be changed.
-ID: azure_cis_v210_3_8
-IntegrationType:
+id: azure_cis_v210_3_8
+title: 3.8 Ensure Default Network Access Rule for Storage Accounts is Set to Deny
+description: Restricting default network access helps to provide a new layer of security, since storage accounts accept connections from clients on any network. To limit access to selected networks, the default action must be changed.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
-        ELSE name || ' allows traffic from specific networks.'
-      END AS reason
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.8 Ensure Default Network Access Rule for Storage Accounts is Set to Deny
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
+            ELSE name || ' allows traffic from specific networks.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

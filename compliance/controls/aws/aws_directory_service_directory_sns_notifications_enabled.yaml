@@ -1,28 +1,26 @@
-Description: This control verifies whether SNS messaging has been set up to receive email or text notifications for any changes in the directory's status.
-ID: aws_directory_service_directory_sns_notifications_enabled
-IntegrationType:
+id: aws_directory_service_directory_sns_notifications_enabled
+title: Directory Service directories should have SNS notification enabled
+description: This control verifies whether SNS messaging has been set up to receive email or text notifications for any changes in the directory's status.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_directory_service_directory
-  Parameters: []
-  PrimaryTable: aws_directory_service_directory
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN jsonb_array_length(event_topics) > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN jsonb_array_length(event_topics) > 0 THEN title || ' SNS notifications enabled.'
-        ELSE title || ' SNS notifications disabled.'
-      END AS reason
-    FROM
-      aws_directory_service_directory;
-Severity: low
-Tags: {}
-Title: Directory Service directories should have SNS notification enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_directory_service_directory
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(event_topics) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(event_topics) > 0 THEN title || ' SNS notifications enabled.'
+            ELSE title || ' SNS notifications disabled.'
+          END AS reason
+        FROM
+          aws_directory_service_directory;
+severity: low
+tags: {}

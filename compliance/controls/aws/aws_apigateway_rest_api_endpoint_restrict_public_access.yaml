@@ -1,28 +1,26 @@
-Description: This control checks whether API Gateway endpoint is public or private. This rule is non-compliant if API Gateway endpoint is public.
-ID: aws_apigateway_rest_api_endpoint_restrict_public_access
-IntegrationType:
+id: aws_apigateway_rest_api_endpoint_restrict_public_access
+title: API Gateway REST API endpoint type should be configured to private
+description: This control checks whether API Gateway endpoint is public or private. This rule is non-compliant if API Gateway endpoint is public.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_api_gateway_rest_api
-  Parameters: []
-  PrimaryTable: aws_api_gateway_rest_api
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN endpoint_configuration_types ? 'PRIVATE' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN endpoint_configuration_types ? 'PRIVATE' THEN name || ' not publicly accessible.'
-        ELSE name || ' publicly accessible.'
-      END AS reason
-    FROM
-      aws_api_gateway_rest_api;
-Severity: low
-Tags: {}
-Title: API Gateway REST API endpoint type should be configured to private
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_rest_api
+    definition: |
+        SELECT
+          'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN endpoint_configuration_types ? 'PRIVATE' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN endpoint_configuration_types ? 'PRIVATE' THEN name || ' not publicly accessible.'
+            ELSE name || ' publicly accessible.'
+          END AS reason
+        FROM
+          aws_api_gateway_rest_api;
+severity: low
+tags: {}

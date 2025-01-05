@@ -1,45 +1,43 @@
-Description: This control checks that both VPN tunnels provided by AWS Site-to-Site VPN are in UP status. The control fails if one or both tunnels are in DOWN status.
-ID: aws_foundational_security_ec2_20
-IntegrationType:
+id: aws_foundational_security_ec2_20
+title: 20 Both VPN tunnels for an AWS Site-to-Site VPN connection should be up
+description: This control checks that both VPN tunnels provided by AWS Site-to-Site VPN are in UP status. The control fails if one or both tunnels are in DOWN status.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_vpn_connection
-  Parameters: []
-  PrimaryTable: aws_vpc_vpn_connection
-  QueryToExecute: |
-    WITH filter_data AS (
-      SELECT
-        arn,
-        COUNT(t ->> 'Status')
-      FROM
-        aws_vpc_vpn_connection,
-        jsonb_array_elements(vgw_telemetry) AS t
-      WHERE
-        t ->> 'Status' = 'UP'
-      GROUP BY
-        arn
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.count IS NULL OR b.count < 2 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN b.count IS NULL THEN a.title || ' has both tunnels offline.'
-        WHEN b.count = 1 THEN a.title || ' has one tunnel offline.'
-        ELSE a.title || ' has both tunnels online.'
-      END AS reason
-    FROM
-      aws_vpc_vpn_connection AS a
-    LEFT JOIN
-      filter_data AS b
-    ON
-      a.arn = b.arn;
-Severity: medium
-Tags: {}
-Title: 20 Both VPN tunnels for an AWS Site-to-Site VPN connection should be up
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_vpn_connection
+    definition: |
+        WITH filter_data AS (
+          SELECT
+            arn,
+            COUNT(t ->> 'Status')
+          FROM
+            aws_vpc_vpn_connection,
+            jsonb_array_elements(vgw_telemetry) AS t
+          WHERE
+            t ->> 'Status' = 'UP'
+          GROUP BY
+            arn
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.count IS NULL OR b.count < 2 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN b.count IS NULL THEN a.title || ' has both tunnels offline.'
+            WHEN b.count = 1 THEN a.title || ' has one tunnel offline.'
+            ELSE a.title || ' has both tunnels online.'
+          END AS reason
+        FROM
+          aws_vpc_vpn_connection AS a
+        LEFT JOIN
+          filter_data AS b
+        ON
+          a.arn = b.arn;
+severity: medium
+tags: {}

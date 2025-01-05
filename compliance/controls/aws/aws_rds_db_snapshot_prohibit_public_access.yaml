@@ -1,94 +1,91 @@
-Description: Manage access to resources in the AWS Cloud by ensuring that AWS Relational Database Service (AWS RDS) instances are not public.
-ID: aws_rds_db_snapshot_prohibit_public_access
-IntegrationType:
+id: aws_rds_db_snapshot_prohibit_public_access
+title: RDS snapshots should prohibit public access
+description: Manage access to resources in the AWS Cloud by ensuring that AWS Relational Database Service (AWS RDS) instances are not public.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_cluster_snapshot
-    - aws_rds_db_snapshot
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    (
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'aws_rds_db_cluster_snapshot' AS platform_table_name,
-      CASE
-        WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
-        ELSE title || ' not publicly restorable.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_cluster_snapshot,
-      jsonb_array_elements(db_cluster_snapshot_attributes) AS cluster_snapshot
-    )
-    UNION
-    (
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'aws_rds_db_snapshot' AS platform_table_name,
-      CASE
-        WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
-        ELSE title || ' not publicly restorable.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_snapshot,
-      jsonb_array_elements(db_snapshot_attributes) AS database_snapshot
-    );
-Severity: high
-Tags:
-  audit_manager_control_tower:
-    - "true"
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/RDS
-  soc_2:
-    - "true"
-Title: RDS snapshots should prohibit public access
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        (
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_rds_db_cluster_snapshot' AS platform_table_name,
+          CASE
+            WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN cluster_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
+            ELSE title || ' not publicly restorable.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_cluster_snapshot,
+          jsonb_array_elements(db_cluster_snapshot_attributes) AS cluster_snapshot
+        )
+        UNION
+        (
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'aws_rds_db_snapshot' AS platform_table_name,
+          CASE
+            WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN database_snapshot -> 'AttributeValues' = '["all"]' THEN title || ' publicly restorable.'
+            ELSE title || ' not publicly restorable.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_snapshot,
+          jsonb_array_elements(db_snapshot_attributes) AS database_snapshot
+        );
+severity: high
+tags:
+    audit_manager_control_tower:
+      - 'true'
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/RDS
+    soc_2:
+      - 'true'

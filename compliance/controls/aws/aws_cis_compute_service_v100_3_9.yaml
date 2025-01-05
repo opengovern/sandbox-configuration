@@ -1,22 +1,20 @@
-Description: You can make all objects private, public (read-only) or private while making individual objects public (read-only). By default when creating a bucket the permissions are set to 'All objects are private'.
-ID: aws_cis_compute_service_v100_3_9
-IntegrationType:
+id: aws_cis_compute_service_v100_3_9
+title: 3.9 Ensure that your Lightsail buckets are not publicly accessible
+description: You can make all objects private, public (read-only) or private while making individual objects public (read-only). By default when creating a bucket the permissions are set to 'All objects are private'.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 3.9 Ensure that your Lightsail buckets are not publicly accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

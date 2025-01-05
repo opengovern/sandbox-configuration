@@ -1,28 +1,26 @@
-Description: This control checks if ElastiCache clusters are configured with a custom subnet group. The control fails for an ElastiCache cluster if CacheSubnetGroupName has the value default.
-ID: aws_foundational_security_elasticache_7
-IntegrationType:
+id: aws_foundational_security_elasticache_7
+title: 7 ElastiCache clusters should not use the default subnet group
+description: This control checks if ElastiCache clusters are configured with a custom subnet group. The control fails for an ElastiCache cluster if CacheSubnetGroupName has the value default.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticache_cluster
-  Parameters: []
-  PrimaryTable: aws_elasticache_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN cache_subnet_group_name = 'default' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN cache_subnet_group_name = 'default' THEN title || ' not configured with a custom subnet group.'
-        ELSE title || ' configured with a custom subnet group.'
-      END AS reason
-    FROM
-      aws_elasticache_cluster;
-Severity: high
-Tags: {}
-Title: 7 ElastiCache clusters should not use the default subnet group
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticache_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN cache_subnet_group_name = 'default' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN cache_subnet_group_name = 'default' THEN title || ' not configured with a custom subnet group.'
+            ELSE title || ' configured with a custom subnet group.'
+          END AS reason
+        FROM
+          aws_elasticache_cluster;
+severity: high
+tags: {}

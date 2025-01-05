@@ -1,38 +1,36 @@
-Description: Ensure all IAM groups have at least one user.
-ID: aws_unused_iam_group
-IntegrationType:
+id: aws_unused_iam_group
+title: Unused IAM Group
+description: Ensure all IAM groups have at least one user.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_group
-  Parameters: []
-  PrimaryTable: aws_iam_group
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN users IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN users IS NULL THEN name || ' group is unused and should be removed'
-        ELSE name || ' group is being used'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_group
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Problem Identities
-Title: Unused IAM Group
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_group
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN users IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN users IS NULL THEN name || ' group is unused and should be removed'
+            ELSE name || ' group is being used'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_group
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

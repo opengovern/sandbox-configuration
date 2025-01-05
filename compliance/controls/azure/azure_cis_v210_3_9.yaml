@@ -1,32 +1,29 @@
-Description: Some Azure services that interact with storage accounts operate from networks that can't be granted access through network rules. To help this type of service work as intended, allow the set of trusted Azure services to bypass the network rules. These services will then use strong authentication to access the storage account.
-ID: azure_cis_v210_3_9
-IntegrationType:
+id: azure_cis_v210_3_9
+title: 3.9 Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access
+description: Some Azure services that interact with storage accounts operate from networks that can't be granted access through network rules. To help this type of service work as intended, allow the set of trusted Azure services to bypass the network rules. These services will then use strong authentication to access the storage account.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN sa.name || ' trusted Microsoft services not enabled.'
-        ELSE sa.name || ' trusted Microsoft services enabled.'
-      END AS reason
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.9 Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_rule_bypass NOT LIKE '%AzureServices%' THEN sa.name || ' trusted Microsoft services not enabled.'
+            ELSE sa.name || ' trusted Microsoft services enabled.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

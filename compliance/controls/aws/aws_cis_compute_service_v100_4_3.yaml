@@ -1,22 +1,20 @@
-Description: Lambda functions often have to access a database or other services within your environment.
-ID: aws_cis_compute_service_v100_4_3
-IntegrationType:
+id: aws_cis_compute_service_v100_4_3
+title: 4.3 Ensure AWS Secrets manager is configured and being used by Lambda for databases
+description: Lambda functions often have to access a database or other services within your environment.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 4.3 Ensure AWS Secrets manager is configured and being used by Lambda for databases
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

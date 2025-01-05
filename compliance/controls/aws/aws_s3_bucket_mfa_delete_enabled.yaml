@@ -1,48 +1,46 @@
-Description: Once MFA Delete is enabled on your sensitive and classified S3 bucket it requires the user to have two forms of authentication.
-ID: aws_s3_bucket_mfa_delete_enabled
-IntegrationType:
+id: aws_s3_bucket_mfa_delete_enabled
+title: Ensure MFA Delete is enabled on S3 buckets
+description: Once MFA Delete is enabled on your sensitive and classified S3 bucket it requires the user to have two forms of authentication.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN versioning_mfa_delete THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN versioning_mfa_delete THEN name || ' MFA delete enabled.'
-        ELSE name || ' MFA delete disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_s3_bucket;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 2.1.3
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "2.1"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.4.0
-  plugin:
-    - aws
-  service:
-    - AWS/S3
-Title: Ensure MFA Delete is enabled on S3 buckets
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN versioning_mfa_delete THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN versioning_mfa_delete THEN name || ' MFA delete enabled.'
+            ELSE name || ' MFA delete disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_s3_bucket;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 2.1.3
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '2.1'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.4.0
+    plugin:
+      - aws
+    service:
+      - AWS/S3

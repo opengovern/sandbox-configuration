@@ -1,41 +1,38 @@
-Description: This policy identifies the disks which are unattached and are encrypted with default encryption instead of ADE/CMK. Azure encrypts disks by default Server-Side Encryption (SSE) with platform-managed keys [SSE with PMK]. It is recommended to use either SSE with Azure Disk Encryption [SSE with PMK+ADE] or Customer Managed Key [SSE with CMK] which improves on platform-managed keys by giving you control of the encryption keys to meet your compliance need.
-ID: azure_compute_disk_unattached_encrypted_with_cmk
-IntegrationType:
+id: azure_compute_disk_unattached_encrypted_with_cmk
+title: Unattached Compute disks should be encrypted with ADE/CMK
+description: This policy identifies the disks which are unattached and are encrypted with default encryption instead of ADE/CMK. Azure encrypts disks by default Server-Side Encryption (SSE) with platform-managed keys [SSE with PMK]. It is recommended to use either SSE with Azure Disk Encryption [SSE with PMK+ADE] or Customer Managed Key [SSE with CMK] which improves on platform-managed keys by giving you control of the encryption keys to meet your compliance need.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_disk
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_disk
-  QueryToExecute: |
-    SELECT
-      disk.id AS resource,
-      disk.platform_integration_id AS platform_integration_id,
-      disk.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN managed_by IS NOT NULL
-          OR managed_by != ''
-          OR encryption_type = 'EncryptionAtRestWithCustomerKey'
-          OR encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys'
-        THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN managed_by IS NOT NULL
-          OR managed_by != ''
-          OR encryption_type = 'EncryptionAtRestWithCustomerKey'
-          OR encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys'
-        THEN disk.name || ' attached and encrypted with ADE/CMK.'
-        ELSE disk.name || ' unattached and encrypted with default encryption key.'
-      END AS reason
-    FROM
-      azure_compute_disk disk,
-      azure_subscription sub
-    WHERE
-      disk_state != 'Attached'
-      AND sub.subscription_id = disk.subscription_id;
-Severity: low
-Tags: {}
-Title: Unattached Compute disks should be encrypted with ADE/CMK
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id AS platform_integration_id,
+          disk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN managed_by IS NOT NULL
+              OR managed_by != ''
+              OR encryption_type = 'EncryptionAtRestWithCustomerKey'
+              OR encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys'
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN managed_by IS NOT NULL
+              OR managed_by != ''
+              OR encryption_type = 'EncryptionAtRestWithCustomerKey'
+              OR encryption_type = 'EncryptionAtRestWithPlatformAndCustomerKeys'
+            THEN disk.name || ' attached and encrypted with ADE/CMK.'
+            ELSE disk.name || ' unattached and encrypted with default encryption key.'
+          END AS reason
+        FROM
+          azure_compute_disk disk,
+          azure_subscription sub
+        WHERE
+          disk_state != 'Attached'
+          AND sub.subscription_id = disk.subscription_id;
+severity: low
+tags: {}

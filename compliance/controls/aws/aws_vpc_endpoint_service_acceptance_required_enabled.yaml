@@ -1,28 +1,26 @@
-Description: Ensure VPC endpoints connection requests to the service are accepted by the service owner.
-ID: aws_vpc_endpoint_service_acceptance_required_enabled
-IntegrationType:
+id: aws_vpc_endpoint_service_acceptance_required_enabled
+title: VPC endpoint services should have acceptance required enabled
+description: Ensure VPC endpoints connection requests to the service are accepted by the service owner.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_endpoint_service
-  Parameters: []
-  PrimaryTable: aws_vpc_endpoint_service
-  QueryToExecute: |
-    SELECT
-      service_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN acceptance_required THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN acceptance_required THEN title || ' acceptance_required enabled.'
-        ELSE title || ' acceptance_required disabled.'
-      END AS reason
-    FROM
-      aws_vpc_endpoint_service;
-Severity: low
-Tags: {}
-Title: VPC endpoint services should have acceptance required enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_endpoint_service
+    definition: |
+        SELECT
+          service_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN acceptance_required THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN acceptance_required THEN title || ' acceptance_required enabled.'
+            ELSE title || ' acceptance_required disabled.'
+          END AS reason
+        FROM
+          aws_vpc_endpoint_service;
+severity: low
+tags: {}

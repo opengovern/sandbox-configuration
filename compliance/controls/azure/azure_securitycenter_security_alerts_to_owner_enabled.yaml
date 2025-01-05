@@ -1,60 +1,57 @@
-Description: To ensure your subscription owners are notified when there is a potential security breach in their subscription, set email notifications to subscription owners for high severity alerts in Security Center.
-ID: azure_securitycenter_security_alerts_to_owner_enabled
-IntegrationType:
+id: azure_securitycenter_security_alerts_to_owner_enabled
+title: Email notification to subscription owner for high severity alerts should be enabled
+description: To ensure your subscription owners are notified when there is a potential security breach in their subscription, set email notifications to subscription owners for high severity alerts in Security Center.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_security_center_contact
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH contact_info AS (
-      SELECT
-        COUNT(*) FILTER (WHERE alerts_to_admins = 'On') AS admin_alert_count,
-        subscription_id
-      FROM
-        azure_security_center_contact
-      GROUP BY
-        subscription_id
-      LIMIT 1
-    )
-    SELECT
-      sub.subscription_id AS resource,
-      sub.platform_integration_id AS platform_integration_id,
-      sub.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN admin_alert_count > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN admin_alert_count > 0 THEN '"All users with the following roles" set to Owner'
-        ELSE '"All users with the following roles" not set to Owner.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription sub
-    LEFT JOIN contact_info ci
-      ON sub.subscription_id = ci.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "2.15"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "2"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/SecurityCenter
-Title: Email notification to subscription owner for high severity alerts should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH contact_info AS (
+          SELECT
+            COUNT(*) FILTER (WHERE alerts_to_admins = 'On') AS admin_alert_count,
+            subscription_id
+          FROM
+            azure_security_center_contact
+          GROUP BY
+            subscription_id
+          LIMIT 1
+        )
+        SELECT
+          sub.subscription_id AS resource,
+          sub.platform_integration_id AS platform_integration_id,
+          sub.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN admin_alert_count > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN admin_alert_count > 0 THEN '"All users with the following roles" set to Owner'
+            ELSE '"All users with the following roles" not set to Owner.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription sub
+        LEFT JOIN contact_info ci
+          ON sub.subscription_id = ci.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '2.15'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '2'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SecurityCenter

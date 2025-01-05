@@ -1,38 +1,35 @@
-Description: Use virtual network service endpoints to restrict access to your app from selected subnets from an Azure virtual network. To learn more about App Service service endpoints, visit https://aks.ms/appservice-vnet-service-endpoint.
-ID: azure_appservice_web_app_use_virtual_service_endpoint
-IntegrationType:
+id: azure_appservice_web_app_use_virtual_service_endpoint
+title: App Service apps should use a virtual network service endpoint
+description: Use virtual network service endpoints to restrict access to your app from selected subnets from an Azure virtual network. To learn more about App Service service endpoints, visit https://aks.ms/appservice-vnet-service-endpoint.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_web_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_service_web_app
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN vnet_connection -> 'properties' -> 'vnetResourceId' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN vnet_connection -> 'properties' -> 'vnetResourceId' IS NOT NULL THEN a.name || ' configured with virtual network service endpoint.'
-        ELSE a.name || ' not configured with virtual network service endpoint.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_app_service_web_app AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  service:
-    - Azure/AppService
-Title: App Service apps should use a virtual network service endpoint
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN vnet_connection -> 'properties' -> 'vnetResourceId' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN vnet_connection -> 'properties' -> 'vnetResourceId' IS NOT NULL THEN a.name || ' configured with virtual network service endpoint.'
+            ELSE a.name || ' not configured with virtual network service endpoint.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_app_service_web_app AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/AppService

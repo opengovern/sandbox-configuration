@@ -1,28 +1,26 @@
-Description: Ensure Elasticsearch domains have internal user database enabled. This control is non-compliant if a domain's internal user database is not enabled.
-ID: aws_es_domain_internal_user_database_enabled
-IntegrationType:
+id: aws_es_domain_internal_user_database_enabled
+title: Elasticsearch domains should have internal user database enabled
+description: Ensure Elasticsearch domains have internal user database enabled. This control is non-compliant if a domain's internal user database is not enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticsearch_domain
-  Parameters: []
-  PrimaryTable: aws_elasticsearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN advanced_security_options ->> 'InternalUserDatabaseEnabled' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN advanced_security_options ->> 'InternalUserDatabaseEnabled' = 'true' THEN title || ' internal user database enabled.'
-        ELSE title || ' internal user database disabled.'
-      END AS reason
-    FROM
-      aws_elasticsearch_domain;
-Severity: low
-Tags: {}
-Title: Elasticsearch domains should have internal user database enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN advanced_security_options ->> 'InternalUserDatabaseEnabled' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN advanced_security_options ->> 'InternalUserDatabaseEnabled' = 'true' THEN title || ' internal user database enabled.'
+            ELSE title || ' internal user database disabled.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: low
+tags: {}

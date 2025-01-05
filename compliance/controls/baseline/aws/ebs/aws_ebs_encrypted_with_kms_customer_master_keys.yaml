@@ -1,44 +1,41 @@
-Description: Ensure EBS volumes are encrypted with CMKs to have full control over encrypting and decrypting data.
-ID: aws_ebs_encrypted_with_kms_customer_master_keys
-IntegrationType:
+id: aws_ebs_encrypted_with_kms_customer_master_keys
+title: EBS Encrypted With KMS Customer Master Keys
+description: Ensure EBS volumes are encrypted with CMKs to have full control over encrypting and decrypting data.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ebs_volume
-    - aws_kms_key
-  Parameters: []
-  PrimaryTable: aws_ebs_volume
-  QueryToExecute: |
-    SELECT 
-      volume_id AS resource,
-      v.platform_resource_id,
-      v.platform_integration_id,
-      CASE
-        WHEN kms_key_id IS NULL THEN 'alarm'
-        WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN kms_key_id IS NULL THEN volume_id || ' is not using a master key'
-        WHEN k.key_manager = 'CUSTOMER' THEN volume_id || ' is using a customer master key'
-        ELSE volume_id || ' is using an AWS-managed master key'
-      END AS reason,
-      v.region,
-      v.account_id
-    FROM 
-      aws_ebs_volume AS v
-    LEFT JOIN 
-      aws_kms_key AS k 
-      ON v.kms_key_id = k.arn
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Block Store (EBS)
-  platform_score_use_case:
-    - Unencrypted Storage
-  score_service_name:
-    - AWS Elastic Block Store (EBS)
-  score_tags:
-    - Unencrypted Storage
-Title: EBS Encrypted With KMS Customer Master Keys
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        SELECT 
+          volume_id AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN kms_key_id IS NULL THEN 'alarm'
+            WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN kms_key_id IS NULL THEN volume_id || ' is not using a master key'
+            WHEN k.key_manager = 'CUSTOMER' THEN volume_id || ' is using a customer master key'
+            ELSE volume_id || ' is using an AWS-managed master key'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM 
+          aws_ebs_volume AS v
+        LEFT JOIN 
+          aws_kms_key AS k 
+          ON v.kms_key_id = k.arn
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Block Store (EBS)
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - AWS Elastic Block Store (EBS)
+    score_tags:
+      - Unencrypted Storage

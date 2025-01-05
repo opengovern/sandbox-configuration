@@ -1,42 +1,39 @@
-Description: Allow trusted Microsoft services to access your Azure Key Vault resources (i.e. encryption keys, secrets and certificates).
-ID: azure_enable_trusted_microsoft_services_for_key_vault_access
-IntegrationType:
+id: azure_enable_trusted_microsoft_services_for_key_vault_access
+title: Enable Trusted Microsoft Services for Key Vault Access
+description: Allow trusted Microsoft services to access your Azure Key Vault resources (i.e. encryption keys, secrets and certificates).
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    SELECT
-      c.name AS resource,
-      c.platform_resource_id,
-      c.platform_integration_id,
-      CASE
-        WHEN network_acls IS NULL THEN 'alarm'
-        WHEN network_acls ->> 'bypass' = 'None' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN network_acls IS NULL THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-        WHEN network_acls ->> 'bypass' = 'None' THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-        ELSE 'trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
-      END AS reason,
-      c.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault AS c
-      LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Insecure Keys
-Title: Enable Trusted Microsoft Services for Key Vault Access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          c.name AS resource,
+          c.platform_resource_id,
+          c.platform_integration_id,
+          CASE
+            WHEN network_acls IS NULL THEN 'alarm'
+            WHEN network_acls ->> 'bypass' = 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_acls IS NULL THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+            WHEN network_acls ->> 'bypass' = 'None' THEN 'no trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+            ELSE 'trusted Microsoft Azure cloud services are allowed to access the resources (keys, secrets and certificates) available in the Azure Key Vault'
+          END AS reason,
+          c.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS c
+          LEFT JOIN azure_subscription AS sub ON c.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Insecure Keys

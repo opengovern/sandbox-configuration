@@ -1,67 +1,64 @@
-Description: CloudTrail logs a record of every API call made in your AWS account. These logs files are stored in an S3 bucket. It is recommended that the bucket policy or access control list (ACL) applied to the S3 bucket that CloudTrail logs to prevent public access to the CloudTrail logs.
-ID: aws_cis_v150_3_3
-IntegrationType:
+id: aws_cis_v150_3_3
+title: 3.3 Ensure the S3 bucket used to store CloudTrail logs is not publicly accessible
+description: CloudTrail logs a record of every API call made in your AWS account. These logs files are stored in an S3 bucket. It is recommended that the bucket policy or access control list (ACL) applied to the S3 bucket that CloudTrail logs to prevent public access to the CloudTrail logs.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudtrail_trail
-    - aws_s3_bucket
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    WITH public_bucket_data AS (
-      SELECT
-        t.s3_bucket_name AS name,
-        b.arn,
-        t.region,
-        t.account_id,
-        t.tags,
-        t._ctx,
-        COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AllUsers') AS all_user_grants,
-        COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AuthenticatedUsers') AS auth_user_grants,
-        COUNT(s) FILTER (WHERE s ->> 'Effect' = 'Allow' AND p = '*' ) AS anon_statements,
-        t.platform_integration_id AS platform_integration_id,
-        t.platform_resource_id AS platform_resource_id
-      FROM
-        aws_cloudtrail_trail AS t
-      LEFT JOIN aws_s3_bucket AS b ON t.s3_bucket_name = b.name
-      LEFT JOIN jsonb_array_elements(acl -> 'Grants') AS acl_grant ON TRUE
-      LEFT JOIN jsonb_array_elements(policy_std -> 'Statement') AS s ON TRUE
-      LEFT JOIN jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p ON TRUE
-      GROUP BY
-        t.s3_bucket_name,
-        b.arn,
-        t.region,
-        t.account_id,
-        t.tags,
-        t._ctx,
-        t.platform_integration_id,
-        t.platform_resource_id
-    )
-    SELECT
-      CASE
-        WHEN arn IS NULL THEN 'arn:aws:s3::' || name
-        ELSE arn
-      END AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN arn IS NULL THEN 'skip'
-        WHEN all_user_grants > 0 THEN 'alarm'
-        WHEN auth_user_grants > 0 THEN 'alarm'
-        WHEN anon_statements > 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN arn IS NULL THEN name || ' not found in account ' || account_id || '.'
-        WHEN all_user_grants > 0 THEN name || ' grants access to AllUsers in ACL.'
-        WHEN auth_user_grants > 0 THEN name || ' grants access to AuthenticatedUsers in ACL.'
-        WHEN anon_statements > 0 THEN name || ' grants access to AWS:*" in bucket policy.'
-        ELSE name || ' does not grant anonymous access in ACL or bucket policy.'
-      END AS reason
-    FROM
-      public_bucket_data;
-Severity: low
-Tags: {}
-Title: 3.3 Ensure the S3 bucket used to store CloudTrail logs is not publicly accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        WITH public_bucket_data AS (
+          SELECT
+            t.s3_bucket_name AS name,
+            b.arn,
+            t.region,
+            t.account_id,
+            t.tags,
+            t._ctx,
+            COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AllUsers') AS all_user_grants,
+            COUNT(acl_grant) FILTER (WHERE acl_grant -> 'Grantee' ->> 'URI' LIKE '%acs.amazonaws.com/groups/global/AuthenticatedUsers') AS auth_user_grants,
+            COUNT(s) FILTER (WHERE s ->> 'Effect' = 'Allow' AND p = '*' ) AS anon_statements,
+            t.platform_integration_id AS platform_integration_id,
+            t.platform_resource_id AS platform_resource_id
+          FROM
+            aws_cloudtrail_trail AS t
+          LEFT JOIN aws_s3_bucket AS b ON t.s3_bucket_name = b.name
+          LEFT JOIN jsonb_array_elements(acl -> 'Grants') AS acl_grant ON TRUE
+          LEFT JOIN jsonb_array_elements(policy_std -> 'Statement') AS s ON TRUE
+          LEFT JOIN jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p ON TRUE
+          GROUP BY
+            t.s3_bucket_name,
+            b.arn,
+            t.region,
+            t.account_id,
+            t.tags,
+            t._ctx,
+            t.platform_integration_id,
+            t.platform_resource_id
+        )
+        SELECT
+          CASE
+            WHEN arn IS NULL THEN 'arn:aws:s3::' || name
+            ELSE arn
+          END AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN arn IS NULL THEN 'skip'
+            WHEN all_user_grants > 0 THEN 'alarm'
+            WHEN auth_user_grants > 0 THEN 'alarm'
+            WHEN anon_statements > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN arn IS NULL THEN name || ' not found in account ' || account_id || '.'
+            WHEN all_user_grants > 0 THEN name || ' grants access to AllUsers in ACL.'
+            WHEN auth_user_grants > 0 THEN name || ' grants access to AuthenticatedUsers in ACL.'
+            WHEN anon_statements > 0 THEN name || ' grants access to AWS:*" in bucket policy.'
+            ELSE name || ' does not grant anonymous access in ACL or bucket policy.'
+          END AS reason
+        FROM
+          public_bucket_data;
+severity: low
+tags: {}

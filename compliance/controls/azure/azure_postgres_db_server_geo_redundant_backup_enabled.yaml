@@ -1,40 +1,37 @@
-Description: Azure Database for PostgreSQL allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create.
-ID: azure_postgres_db_server_geo_redundant_backup_enabled
-IntegrationType:
+id: azure_postgres_db_server_geo_redundant_backup_enabled
+title: Geo-redundant backup should be enabled for Azure Database for PostgreSQL
+description: Azure Database for PostgreSQL allows you to choose the redundancy option for your database server. It can be set to a geo-redundant backup storage in which the data is not only stored within the region in which your server is hosted, but is also replicated to a paired region to provide recovery option in case of a region failure. Configuring geo-redundant storage for backup is only allowed during server create.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN geo_redundant_backup = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN geo_redundant_backup = 'Enabled' THEN name || ' Geo-redundant backup enabled.'
-        ELSE name || ' Geo-redundant backup disabled.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_postgresql_server AS s,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/PostgreSQL
-Title: Geo-redundant backup should be enabled for Azure Database for PostgreSQL
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN geo_redundant_backup = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN geo_redundant_backup = 'Enabled' THEN name || ' Geo-redundant backup enabled.'
+            ELSE name || ' Geo-redundant backup disabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_postgresql_server AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/PostgreSQL

@@ -1,28 +1,26 @@
-Description: This control checks if an Athena workgroup is encrypted at rest. The control fails if an Athena workgroup isn't encrypted at rest.
-ID: aws_athena_workgroup_encryption_at_rest_enabled
-IntegrationType:
+id: aws_athena_workgroup_encryption_at_rest_enabled
+title: Athena workgroups should be encrypted at rest
+description: This control checks if an Athena workgroup is encrypted at rest. The control fails if an Athena workgroup isn't encrypted at rest.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_athena_workgroup
-  Parameters: []
-  PrimaryTable: aws_athena_workgroup
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN encryption_option IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN encryption_option IS NOT NULL THEN name || ' encryption at rest enabled.'
-        ELSE name || ' encryption at rest disabled.'
-      END AS reason
-    FROM
-      aws_athena_workgroup;
-Severity: low
-Tags: {}
-Title: Athena workgroups should be encrypted at rest
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_athena_workgroup
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_option IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_option IS NOT NULL THEN name || ' encryption at rest enabled.'
+            ELSE name || ' encryption at rest disabled.'
+          END AS reason
+        FROM
+          aws_athena_workgroup;
+severity: low
+tags: {}

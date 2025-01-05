@@ -1,42 +1,40 @@
-Description: This control checks whether WAF global web ACL contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
-ID: aws_waf_web_acl_rule_attached
-IntegrationType:
+id: aws_waf_web_acl_rule_attached
+title: WAF global web ACL should have at least one rule or rule group
+description: This control checks whether WAF global web ACL contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_waf_web_acl
-  Parameters: []
-  PrimaryTable: aws_waf_web_acl
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN title || ' has no attached rules.'
-        ELSE title || ' has ' || jsonb_array_length(rules) || ' rule(s) attached.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_waf_web_acl;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - resource_configuration
-  foundational_security_item_id:
-    - waf_8
-  plugin:
-    - aws
-  service:
-    - AWS/WAF
-Title: WAF global web ACL should have at least one rule or rule group
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_waf_web_acl
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN title || ' has no attached rules.'
+            ELSE title || ' has ' || jsonb_array_length(rules) || ' rule(s) attached.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_waf_web_acl;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resource_configuration
+    foundational_security_item_id:
+      - waf_8
+    plugin:
+      - aws
+    service:
+      - AWS/WAF

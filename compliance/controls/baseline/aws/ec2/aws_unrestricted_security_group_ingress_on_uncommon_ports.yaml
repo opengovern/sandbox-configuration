@@ -1,48 +1,46 @@
-Description: Ensure no security group contains any 0.0.0.0/0 ingress rules.
-ID: aws_unrestricted_security_group_ingress_on_uncommon_ports
-IntegrationType:
+id: aws_unrestricted_security_group_ingress_on_uncommon_ports
+title: Unrestricted Security Group Ingress on Uncommon Ports
+description: Ensure no security group contains any 0.0.0.0/0 ingress rules.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group
-  Parameters: []
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    SELECT
-      group_name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS p,
-          jsonb_array_elements(p -> 'IpRanges') AS r
-          WHERE ((p ->> 'IpRanges') LIKE '%0.0.0.0/0%' OR (p ->> 'IpRanges' LIKE '%::/0%'))
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS p,
-          jsonb_array_elements(p -> 'IpRanges') AS r
-          WHERE ((p ->> 'IpRanges') LIKE '%0.0.0.0/0%' OR (p ->> 'IpRanges' LIKE '%::/0%'))
-        ) THEN group_name || ' has Unrestricted Access'
-        ELSE group_name || ' Access is secure'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_vpc_security_group
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Exposed Endpoints
-Title: Unrestricted Security Group Ingress on Uncommon Ports
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT
+          group_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE ((p ->> 'IpRanges') LIKE '%0.0.0.0/0%' OR (p ->> 'IpRanges' LIKE '%::/0%'))
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS p,
+              jsonb_array_elements(p -> 'IpRanges') AS r
+              WHERE ((p ->> 'IpRanges') LIKE '%0.0.0.0/0%' OR (p ->> 'IpRanges' LIKE '%::/0%'))
+            ) THEN group_name || ' has Unrestricted Access'
+            ELSE group_name || ' Access is secure'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_security_group
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Exposed Endpoints

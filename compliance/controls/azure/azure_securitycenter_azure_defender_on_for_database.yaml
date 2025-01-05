@@ -1,74 +1,67 @@
-Description: Turning on Microsoft Defender for Databases enables threat detection for the instances running
-  your database software. This provides threat intelligence, anomaly detection, and behavior
-  analytics in the Azure Microsoft Defender for Cloud. Instead of being enabled on services
-  like Platform as a Service (PaaS), this implementation will run within your instances as
-  Infrastructure as a Service (IaaS) on the Operating Systems hosting your databases.
-ID: azure_securitycenter_azure_defender_on_for_database
-IntegrationType:
+id: azure_securitycenter_azure_defender_on_for_database
+title: Ensure That Microsoft Defender for Databases is set to 'On'
+description: Turning on Microsoft Defender for Databases enables threat detection for the instances running your database software. This provides threat intelligence, anomaly detection, and behavior analytics in the Azure Microsoft Defender for Cloud. Instead of being enabled on services like Platform as a Service (PaaS), this implementation will run within your instances as Infrastructure as a Service (IaaS) on the Operating Systems hosting your databases.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_security_center_subscription_pricing
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH defender_list AS (
-      SELECT
-        JSON_OBJECT_AGG(name, pricing_tier) AS data,
-        subscription_id
-      FROM
-        azure_security_center_subscription_pricing
-      WHERE
-        title = ANY(ARRAY ['CosmosDbs', 'OpenSourceRelationalDatabases', 'SqlServerVirtualMachines', 'SqlServers'])
-      GROUP BY
-        subscription_id
-    )
-    SELECT
-      sub.id AS resource,
-      sub.platform_integration_id AS platform_integration_id,
-      sub.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN
-          data ->> 'CosmosDbs' = 'Standard'
-          AND data ->> 'OpenSourceRelationalDatabases' = 'Standard'
-          AND data ->> 'SqlServerVirtualMachines' = 'Standard'
-          AND data ->> 'SqlServers' = 'Standard'
-        THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN
-          data ->> 'CosmosDbs' = 'Standard'
-          AND data ->> 'OpenSourceRelationalDatabases' = 'Standard'
-          AND data ->> 'SqlServerVirtualMachines' = 'Standard'
-          AND data ->> 'SqlServers' = 'Standard'
-        THEN 'Azure Defender on for Databases.'
-        ELSE 'Azure Defender off for Databases.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription AS sub
-    LEFT JOIN defender_list AS l ON l.subscription_id = sub.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 2.1.3
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "2.1"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.5.0
-  plugin:
-    - azure
-  service:
-    - Azure/SecurityCenter
-Title: Ensure That Microsoft Defender for Databases is set to 'On'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH defender_list AS (
+          SELECT
+            JSON_OBJECT_AGG(name, pricing_tier) AS data,
+            subscription_id
+          FROM
+            azure_security_center_subscription_pricing
+          WHERE
+            title = ANY(ARRAY ['CosmosDbs', 'OpenSourceRelationalDatabases', 'SqlServerVirtualMachines', 'SqlServers'])
+          GROUP BY
+            subscription_id
+        )
+        SELECT
+          sub.id AS resource,
+          sub.platform_integration_id AS platform_integration_id,
+          sub.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              data ->> 'CosmosDbs' = 'Standard'
+              AND data ->> 'OpenSourceRelationalDatabases' = 'Standard'
+              AND data ->> 'SqlServerVirtualMachines' = 'Standard'
+              AND data ->> 'SqlServers' = 'Standard'
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN
+              data ->> 'CosmosDbs' = 'Standard'
+              AND data ->> 'OpenSourceRelationalDatabases' = 'Standard'
+              AND data ->> 'SqlServerVirtualMachines' = 'Standard'
+              AND data ->> 'SqlServers' = 'Standard'
+            THEN 'Azure Defender on for Databases.'
+            ELSE 'Azure Defender off for Databases.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription AS sub
+        LEFT JOIN defender_list AS l ON l.subscription_id = sub.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 2.1.3
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '2.1'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/SecurityCenter

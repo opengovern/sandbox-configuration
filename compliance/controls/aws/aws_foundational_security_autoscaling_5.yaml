@@ -1,28 +1,26 @@
-Description: This control checks whether an Auto Scaling groups associated launch configuration assigns a public IP address to the group's instances.
-ID: aws_foundational_security_autoscaling_5
-IntegrationType:
+id: aws_foundational_security_autoscaling_5
+title: 5 Amazon EC2 instances launched using Auto Scaling group launch configurations should not have Public IP addresses
+description: This control checks whether an Auto Scaling groups associated launch configuration assigns a public IP address to the group's instances.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_launch_configuration
-  Parameters: []
-  PrimaryTable: aws_ec2_launch_configuration
-  QueryToExecute: |
-    SELECT
-      launch_configuration_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN associate_public_ip_address THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN associate_public_ip_address THEN title || ' public IP enabled.'
-        ELSE title || ' public IP disabled.'
-      END AS reason
-    FROM
-      aws_ec2_launch_configuration;
-Severity: high
-Tags: {}
-Title: 5 Amazon EC2 instances launched using Auto Scaling group launch configurations should not have Public IP addresses
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_launch_configuration
+    definition: |
+        SELECT
+          launch_configuration_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN associate_public_ip_address THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN associate_public_ip_address THEN title || ' public IP enabled.'
+            ELSE title || ' public IP disabled.'
+          END AS reason
+        FROM
+          aws_ec2_launch_configuration;
+severity: high
+tags: {}

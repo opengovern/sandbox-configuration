@@ -1,42 +1,39 @@
-Description: Remove any unattached Azure virtual machine (VM) disk volumes to improve security and reduce costs
-ID: azure_check_for_unattached_virtual_machine_disk_volumes
-IntegrationType:
+id: azure_check_for_unattached_virtual_machine_disk_volumes
+title: Check for Unattached Virtual Machine Disk Volumes
+description: Remove any unattached Azure virtual machine (VM) disk volumes to improve security and reduce costs
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_disk
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_disk
-  QueryToExecute: |
-    SELECT
-      disk.id AS resource,
-      disk.platform_integration_id,
-      disk.platform_resource_id,
-      CASE
-        WHEN disk.disk_state = 'Unattached' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN disk.disk_state = 'Unattached' THEN disk.title || ' has no attachments.'
-        ELSE disk.title || ' has attachments.'
-      END AS reason,
-      disk.resource_group,
-      display_name AS subscription
-    FROM
-      azure_compute_disk AS disk,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = disk.subscription_id;
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  platform_score_use_case:
-    - Orphaned Resources
-  score_service_name:
-    - Azure Virtual Machines
-  score_tags:
-    - Orphaned Resources
-Title: Check for Unattached Virtual Machine Disk Volumes
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id,
+          disk.platform_resource_id,
+          CASE
+            WHEN disk.disk_state = 'Unattached' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN disk.disk_state = 'Unattached' THEN disk.title || ' has no attachments.'
+            ELSE disk.title || ' has attachments.'
+          END AS reason,
+          disk.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_disk AS disk,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = disk.subscription_id;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Orphaned Resources
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Orphaned Resources

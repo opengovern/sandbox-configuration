@@ -1,29 +1,27 @@
-Description: Multi-Factor Authentication (MFA) adds an extra layer of authentication assurance beyond traditional credentials. With MFA enabled, when a user signs in to the AWS Console, they will be prompted for their user name and password as well as for an authentication code from their physical or virtual MFA token. It is recommended that MFA be enabled for all accounts that have a console password.
-ID: aws_cis_v130_1_10
-IntegrationType:
+id: aws_cis_v130_1_10
+title: 1.10 Ensure multi-factor authentication (MFA) is enabled for all IAM users that have a console password
+description: Multi-Factor Authentication (MFA) adds an extra layer of authentication assurance beyond traditional credentials. With MFA enabled, when a user signs in to the AWS Console, they will be prompted for their user name and password as well as for an authentication code from their physical or virtual MFA token. It is recommended that MFA be enabled for all accounts that have a console password.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_credential_report
-  Parameters: []
-  PrimaryTable: aws_iam_credential_report
-  QueryToExecute: |
-    SELECT
-      user_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN password_enabled AND NOT mfa_active THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT password_enabled THEN user_name || ' password login disabled.'
-        WHEN password_enabled AND NOT mfa_active THEN user_name || ' password login enabled but no MFA device configured.'
-        ELSE user_name || ' password login enabled and MFA device configured.'
-      END AS reason
-    FROM
-      aws_iam_credential_report;
-Severity: low
-Tags: {}
-Title: 1.10 Ensure multi-factor authentication (MFA) is enabled for all IAM users that have a console password
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN password_enabled AND NOT mfa_active THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT password_enabled THEN user_name || ' password login disabled.'
+            WHEN password_enabled AND NOT mfa_active THEN user_name || ' password login enabled but no MFA device configured.'
+            ELSE user_name || ' password login enabled and MFA device configured.'
+          END AS reason
+        FROM
+          aws_iam_credential_report;
+severity: low
+tags: {}

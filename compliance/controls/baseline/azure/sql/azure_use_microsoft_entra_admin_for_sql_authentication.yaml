@@ -1,41 +1,37 @@
-Description: Ensure that an Microsoft Entra admin is configured for SQL authentication.
-ID: azure_use_microsoft_entra_admin_for_sql_authentication
-IntegrationType:
+id: azure_use_microsoft_entra_admin_for_sql_authentication
+title: Use Microsoft Entra Admin for SQL Authentication
+description: Ensure that an Microsoft Entra admin is configured for SQL authentication.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_ad_administrator
-    - azure_sql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_sql_server
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      s.platform_resource_id,
-      s.platform_integration_id,
-      CASE
-        WHEN server_azure_ad_administrator IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN server_azure_ad_administrator IS NULL 
-        THEN 'There is no Microsoft Entra administrator configured for SQL authentication'
-        ELSE 'There is Microsoft Entra administrator configured for SQL authentication'
-      END AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_sql_server AS s
-    LEFT JOIN
-      azure_subscription AS sub 
-    ON 
-      s.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Managed SQL Service
-  score_service_name:
-    - Azure Managed SQL Service
-Title: Use Microsoft Entra Admin for SQL Authentication
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          name AS resource,
+          s.platform_resource_id,
+          s.platform_integration_id,
+          CASE
+            WHEN server_azure_ad_administrator IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN server_azure_ad_administrator IS NULL 
+            THEN 'There is no Microsoft Entra administrator configured for SQL authentication'
+            ELSE 'There is Microsoft Entra administrator configured for SQL authentication'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server AS s
+        LEFT JOIN
+          azure_subscription AS sub 
+        ON 
+          s.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Managed SQL Service
+    score_service_name:
+      - Azure Managed SQL Service

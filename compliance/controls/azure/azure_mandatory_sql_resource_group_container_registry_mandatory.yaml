@@ -1,45 +1,42 @@
-Description: Check if Container registries have mandatory tags.
-ID: azure_mandatory_sql_resource_group_container_registry_mandatory
-IntegrationType:
+id: azure_mandatory_sql_resource_group_container_registry_mandatory
+title: Container registries should have mandatory tags
+description: Check if Container registries have mandatory tags.
+integration_type:
   - azure_subscription
-Query:
-  Engine: steampipe-v0.5
-  ListOfTables:
-    - azure_container_registry
-  Parameters:
-    - key: azureMandatoryTags
-      required: true
-  PrimaryTable: azure_container_registry
-  QueryToExecute: |
-    WITH analysis AS (
-      SELECT
-        platform_integration_id,
-        platform_resource_id,
-        id,
-        title,
-        tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
-        to_jsonb('{{.azureMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
-        resource_group,
-        subscription_id
-      FROM
-        azure_container_registry
-    )
-    SELECT
-      platform_integration_id,
-      platform_resource_id,
-      id AS resource,
-      CASE
-        WHEN has_mandatory_tags THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
-        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      END AS reason,
-      resource_group,
-      subscription_id
-    FROM
-      analysis;
-Severity: high
-Tags: {}
-Title: Container registries should have mandatory tags
+parameters:
+  - key: azureMandatoryTags
+policy:
+    language: sql
+    primary_resource: azure_container_registry
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            id,
+            title,
+            tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
+            to_jsonb('{{.azureMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            resource_group,
+            subscription_id
+          FROM
+            azure_container_registry
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          id AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          resource_group,
+          subscription_id
+        FROM
+          analysis;
+severity: high
+tags: {}

@@ -1,49 +1,46 @@
-Description: Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available.
-ID: azure_cis_v150_5_1_5
-IntegrationType:
+id: azure_cis_v150_5_1_5
+title: 5.1.5 Ensure that logging for Azure KeyVault is 'Enabled'
+description: Enable AuditEvent logging for key vault instances to ensure interactions with key vaults are logged and available.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    WITH logging_details AS (
-      SELECT
-        name AS key_vault_name
-      FROM
-        azure_key_vault,
-        jsonb_array_elements(diagnostic_settings) setting,
-        jsonb_array_elements(setting -> 'properties' -> 'logs') log
-      WHERE
-        diagnostic_settings IS NOT NULL
-        AND setting -> 'properties' ->> 'storageAccountId' <> ''
-        AND (log ->> 'enabled')::boolean
-        AND log ->> 'category' = 'AuditEvent'
-        AND (log -> 'retentionPolicy')::JSONB ? 'days'
-    )
-    SELECT
-      v.id AS resource,
-      v.platform_integration_id AS platform_integration_id,
-      v.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN v.diagnostic_settings IS NULL THEN 'alarm'
-        WHEN l.key_vault_name NOT LIKE CONCAT('%', v.name, '%') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN v.diagnostic_settings IS NULL THEN v.name || ' logging not enabled.'
-        WHEN l.key_vault_name NOT LIKE CONCAT('%', v.name, '%') THEN v.name || ' logging not enabled.'
-        ELSE v.name || ' logging enabled.'
-      END AS reason
-    FROM
-      azure_key_vault v,
-      logging_details l,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = v.subscription_id;
-Severity: low
-Tags: {}
-Title: 5.1.5 Ensure that logging for Azure KeyVault is 'Enabled'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        WITH logging_details AS (
+          SELECT
+            name AS key_vault_name
+          FROM
+            azure_key_vault,
+            jsonb_array_elements(diagnostic_settings) setting,
+            jsonb_array_elements(setting -> 'properties' -> 'logs') log
+          WHERE
+            diagnostic_settings IS NOT NULL
+            AND setting -> 'properties' ->> 'storageAccountId' <> ''
+            AND (log ->> 'enabled')::boolean
+            AND log ->> 'category' = 'AuditEvent'
+            AND (log -> 'retentionPolicy')::JSONB ? 'days'
+        )
+        SELECT
+          v.id AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.diagnostic_settings IS NULL THEN 'alarm'
+            WHEN l.key_vault_name NOT LIKE CONCAT('%', v.name, '%') THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN v.diagnostic_settings IS NULL THEN v.name || ' logging not enabled.'
+            WHEN l.key_vault_name NOT LIKE CONCAT('%', v.name, '%') THEN v.name || ' logging not enabled.'
+            ELSE v.name || ' logging enabled.'
+          END AS reason
+        FROM
+          azure_key_vault v,
+          logging_details l,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = v.subscription_id;
+severity: low
+tags: {}

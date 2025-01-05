@@ -1,28 +1,26 @@
-Description: This control checks whether an AWS WAF Regional rule has at least one condition. The control fails if no conditions are present within a rule.
-ID: aws_foundational_security_waf_2
-IntegrationType:
+id: aws_foundational_security_waf_2
+title: 2 AWS WAF Classic Regional rules should have at least one condition
+description: This control checks whether an AWS WAF Regional rule has at least one condition. The control fails if no conditions are present within a rule.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_wafregional_rule
-  Parameters: []
-  PrimaryTable: aws_wafregional_rule
-  QueryToExecute: |
-    SELECT
-      rule_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
-        ELSE title || ' has ' || jsonb_array_length(predicates) || ' condition(s) attached.'
-      END AS reason
-    FROM
-      aws_wafregional_rule;
-Severity: medium
-Tags: {}
-Title: 2 AWS WAF Classic Regional rules should have at least one condition
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_wafregional_rule
+    definition: |
+        SELECT
+          rule_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
+            ELSE title || ' has ' || jsonb_array_length(predicates) || ' condition(s) attached.'
+          END AS reason
+        FROM
+          aws_wafregional_rule;
+severity: medium
+tags: {}

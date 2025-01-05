@@ -1,54 +1,51 @@
-Description: This setting enables Microsoft Defender for Cloud Apps (MCAS) integration with Microsoft Defender for Cloud.
-ID: azure_securitycenter_mcas_integration
-IntegrationType:
+id: azure_securitycenter_mcas_integration
+title: Ensure that Microsoft Defender for Cloud Apps (MCAS) Integration with Microsoft Defender for Cloud is selected
+description: This setting enables Microsoft Defender for Cloud Apps (MCAS) integration with Microsoft Defender for Cloud.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_security_center_setting
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_security_center_setting
-  QueryToExecute: |
-    SELECT
-      sc_sett.id AS resource,
-      sc_sett.platform_integration_id AS platform_integration_id,
-      sc_sett.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enabled THEN 'Windows Defender ATP (WDATP) integrated with Security Center.'
-        ELSE 'Windows Defender ATP (WDATP) not integrated with Security Center.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_security_center_setting sc_sett
-    RIGHT JOIN
-      azure_subscription sub
-    ON
-      sc_sett.subscription_id = sub.subscription_id
-    WHERE
-      name = 'MCAS';
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "2.10"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "2"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/SecurityCenter
-Title: Ensure that Microsoft Defender for Cloud Apps (MCAS) Integration with Microsoft Defender for Cloud is selected
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_setting
+    definition: |
+        SELECT
+          sc_sett.id AS resource,
+          sc_sett.platform_integration_id AS platform_integration_id,
+          sc_sett.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enabled THEN 'Windows Defender ATP (WDATP) integrated with Security Center.'
+            ELSE 'Windows Defender ATP (WDATP) not integrated with Security Center.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_security_center_setting sc_sett
+        RIGHT JOIN
+          azure_subscription sub
+        ON
+          sc_sett.subscription_id = sub.subscription_id
+        WHERE
+          name = 'MCAS';
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '2.10'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '2'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SecurityCenter

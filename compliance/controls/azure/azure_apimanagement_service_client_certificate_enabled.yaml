@@ -1,30 +1,27 @@
-Description: Ensure API Management client certificate is enabled. This control is non-compliant if API Management client certificate is disabled.
-ID: azure_apimanagement_service_client_certificate_enabled
-IntegrationType:
+id: azure_apimanagement_service_client_certificate_enabled
+title: API Management client certificate should be enabled
+description: Ensure API Management client certificate is enabled. This control is non-compliant if API Management client certificate is disabled.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_api_management
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_api_management
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enable_client_certificate THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enable_client_certificate THEN a.name || ' client certificate enabled.'
-        ELSE a.name || ' client certificate disabled.'
-      END AS reason
-    FROM
-      azure_api_management a,
-      azure_subscription sub;
-Severity: low
-Tags: {}
-Title: API Management client certificate should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_api_management
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_client_certificate THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_client_certificate THEN a.name || ' client certificate enabled.'
+            ELSE a.name || ' client certificate disabled.'
+          END AS reason
+        FROM
+          azure_api_management a,
+          azure_subscription sub;
+severity: low
+tags: {}

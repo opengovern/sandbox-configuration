@@ -1,47 +1,44 @@
-Description: Check if Elastic beanstalk applications have mandatory tags.
-ID: aws_mandatory_sql_elastic_beanstalk_application_mandatory
-IntegrationType:
+id: aws_mandatory_sql_elastic_beanstalk_application_mandatory
+title: Elastic beanstalk applications should have mandatory tags
+description: Check if Elastic beanstalk applications have mandatory tags.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: steampipe-v0.5
-  ListOfTables:
-    - aws_elastic_beanstalk_application
-  Parameters:
-    - key: awsMandatoryTags
-      required: true
-  PrimaryTable: aws_elastic_beanstalk_application
-  QueryToExecute: |
-    WITH analysis AS (
-      SELECT
-        platform_integration_id,
-        platform_resource_id,
-        arn,
-        title,
-        tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
-        to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
-        region,
-        account_id,
-        tags,
-        _ctx
-      FROM
-        aws_elastic_beanstalk_application
-    )
-    SELECT
-      platform_integration_id,
-      platform_resource_id,
-      arn AS resource,
-      CASE
-        WHEN has_mandatory_tags THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
-        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      analysis;
-Severity: high
-Tags: {}
-Title: Elastic beanstalk applications should have mandatory tags
+parameters:
+  - key: awsMandatoryTags
+policy:
+    language: sql
+    primary_resource: aws_elastic_beanstalk_application
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn,
+            title,
+            tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
+            to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_elastic_beanstalk_application
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          arn AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          analysis;
+severity: high
+tags: {}

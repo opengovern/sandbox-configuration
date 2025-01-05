@@ -1,28 +1,26 @@
-Description: This control checks whether Amazon Elasticsearch Service domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access. You should ensure that Amazon ES domains are not attached to public subnets.
-ID: aws_foundational_security_es_2
-IntegrationType:
+id: aws_foundational_security_es_2
+title: 2 Elasticsearch domains should not be publicly accessible
+description: This control checks whether Amazon Elasticsearch Service domains are in a VPC. It does not evaluate the VPC subnet routing configuration to determine public access. You should ensure that Amazon ES domains are not attached to public subnets.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticsearch_domain
-  Parameters: []
-  PrimaryTable: aws_elasticsearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN vpc_options ->> 'VPCId' IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN vpc_options ->> 'VPCId' IS NULL THEN title || ' not in VPC.'
-        ELSE title || ' in VPC ' || (vpc_options ->> 'VPCId') || '.'
-      END AS reason
-    FROM
-      aws_elasticsearch_domain;
-Severity: critical
-Tags: {}
-Title: 2 Elasticsearch domains should not be publicly accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN vpc_options ->> 'VPCId' IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN vpc_options ->> 'VPCId' IS NULL THEN title || ' not in VPC.'
+            ELSE title || ' in VPC ' || (vpc_options ->> 'VPCId') || '.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: critical
+tags: {}

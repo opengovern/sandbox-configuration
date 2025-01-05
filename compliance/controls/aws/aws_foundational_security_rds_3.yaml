@@ -1,28 +1,26 @@
-Description: This control checks whether storage encryption is enabled for your Amazon RDS DB instances. This control is intended for RDS DB instances. However, it can also generate findings for Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters. If these findings are not useful, then you can suppress them.
-ID: aws_foundational_security_rds_3
-IntegrationType:
+id: aws_foundational_security_rds_3
+title: 3 RDS DB instances should have encryption at rest enabled
+description: This control checks whether storage encryption is enabled for your Amazon RDS DB instances. This control is intended for RDS DB instances. However, it can also generate findings for Aurora DB instances, Neptune DB instances, and Amazon DocumentDB clusters. If these findings are not useful, then you can suppress them.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN storage_encrypted THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN storage_encrypted THEN title || ' encrypted at rest.'
-        ELSE title || ' not encrypted at rest.'
-      END AS reason
-    FROM
-      aws_rds_db_instance;
-Severity: medium
-Tags: {}
-Title: 3 RDS DB instances should have encryption at rest enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN storage_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason
+        FROM
+          aws_rds_db_instance;
+severity: medium
+tags: {}

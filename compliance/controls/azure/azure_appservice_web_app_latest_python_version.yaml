@@ -1,65 +1,62 @@
-Description: Periodically, newer versions are released for Python software either due to security flaws or to include additional functionality. Using the latest Python version for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the latest version. Currently, this policy only applies to Linux web apps.
-ID: azure_appservice_web_app_latest_python_version
-IntegrationType:
+id: azure_appservice_web_app_latest_python_version
+title: Ensure that 'Python version' is the latest, if used as a part of the Web app
+description: Periodically, newer versions are released for Python software either due to security flaws or to include additional functionality. Using the latest Python version for web apps is recommended in order to take advantage of security fixes, if any, and/or new functionalities of the latest version. Currently, this policy only applies to Linux web apps.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_web_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_service_web_app
-  QueryToExecute: |
-    WITH all_web_app AS (
-      SELECT
-        id
-      FROM
-        azure_app_service_web_app
-      WHERE
-        EXISTS (
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        WITH all_web_app AS (
           SELECT
+            id
           FROM
-            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+            azure_app_service_web_app
           WHERE
-            elem LIKE 'app%'
+            EXISTS (
+              SELECT
+              FROM
+                UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+              WHERE
+                elem LIKE 'app%'
+            )
+            AND
+            EXISTS (
+              SELECT
+              FROM
+                UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
+              WHERE
+                elem = 'linux'
+            )
         )
-        AND
-        EXISTS (
-          SELECT
-          FROM
-            UNNEST(REGEXP_SPLIT_TO_ARRAY(kind, ',')) elem
-          WHERE
-            elem = 'linux'
-        )
-    )
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.id IS NULL THEN 'skip'
-        WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'PYTHON%' THEN 'ok'
-        WHEN configuration -> 'properties' ->> 'linuxFxVersion' = 'PYTHON|3.9' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.id IS NULL THEN a.title || ' is not of linux kind.'
-        WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'PYTHON%' THEN a.name || ' not using python version.'
-        WHEN configuration -> 'properties' ->> 'linuxFxVersion' = 'PYTHON|3.9' THEN a.name || ' using the latest python version.'
-        ELSE a.name || ' not using latest python version.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_app_service_web_app AS a
-      LEFT JOIN all_web_app AS b ON a.id = b.id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: medium
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/AppService
-Title: Ensure that 'Python version' is the latest, if used as a part of the Web app
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.id IS NULL THEN 'skip'
+            WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'PYTHON%' THEN 'ok'
+            WHEN configuration -> 'properties' ->> 'linuxFxVersion' = 'PYTHON|3.9' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.id IS NULL THEN a.title || ' is not of linux kind.'
+            WHEN configuration -> 'properties' ->> 'linuxFxVersion' NOT LIKE 'PYTHON%' THEN a.name || ' not using python version.'
+            WHEN configuration -> 'properties' ->> 'linuxFxVersion' = 'PYTHON|3.9' THEN a.name || ' using the latest python version.'
+            ELSE a.name || ' not using latest python version.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_app_service_web_app AS a
+          LEFT JOIN all_web_app AS b ON a.id = b.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/AppService

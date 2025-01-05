@@ -1,36 +1,33 @@
-Description: This control checks if OMS agent is enabled for Kubernetes cluster.
-ID: azure_kubernetes_cluster_logging_enabled
-IntegrationType:
+id: azure_kubernetes_cluster_logging_enabled
+title: Kubernetes clusters should have logging enabled
+description: This control checks if OMS agent is enabled for Kubernetes cluster.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_kubernetes_cluster
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
-             AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
-          THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
-             AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
-          THEN c.name || ' logging enabled.'
-        ELSE c.name || ' logging disabled.'
-      END AS reason
-    FROM
-      azure_kubernetes_cluster c,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = c.subscription_id;
-Severity: low
-Tags: {}
-Title: Kubernetes clusters should have logging enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
+                 AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
+              THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN addon_profiles -> 'omsAgent' ->> 'enabled' = 'true' 
+                 AND addon_profiles -> 'omsAgent' ->> 'config' IS NOT NULL 
+              THEN c.name || ' logging enabled.'
+            ELSE c.name || ' logging disabled.'
+          END AS reason
+        FROM
+          azure_kubernetes_cluster c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

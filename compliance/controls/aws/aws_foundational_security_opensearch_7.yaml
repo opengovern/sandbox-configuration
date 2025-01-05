@@ -1,32 +1,30 @@
-Description: This control checks whether OpenSearch domains have fine-grained access control enabled. The control fails if the fine-grained access control is not enabled. Fine-grained access control requires advanced-security-options in the OpenSearch parameter update-domain-config to be enabled.
-ID: aws_foundational_security_opensearch_7
-IntegrationType:
+id: aws_foundational_security_opensearch_7
+title: 7 OpenSearch domains should have fine-grained access control enabled
+description: This control checks whether OpenSearch domains have fine-grained access control enabled. The control fails if the fine-grained access control is not enabled. Fine-grained access control requires advanced-security-options in the OpenSearch parameter update-domain-config to be enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_opensearch_domain
-  Parameters: []
-  PrimaryTable: aws_opensearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN advanced_security_options IS NULL 
-             OR NOT (advanced_security_options -> 'Enabled')::boolean 
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN advanced_security_options IS NULL 
-             OR NOT (advanced_security_options -> 'Enabled')::boolean 
-        THEN title || ' has fine-grained access control disabled.'
-        ELSE title || ' has fine-grained access control enabled.'
-      END AS reason
-    FROM
-      aws_opensearch_domain;
-Severity: high
-Tags: {}
-Title: 7 OpenSearch domains should have fine-grained access control enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN advanced_security_options IS NULL 
+                 OR NOT (advanced_security_options -> 'Enabled')::boolean 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN advanced_security_options IS NULL 
+                 OR NOT (advanced_security_options -> 'Enabled')::boolean 
+            THEN title || ' has fine-grained access control disabled.'
+            ELSE title || ' has fine-grained access control enabled.'
+          END AS reason
+        FROM
+          aws_opensearch_domain;
+severity: high
+tags: {}

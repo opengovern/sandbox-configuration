@@ -1,43 +1,40 @@
-Description: Ensure that your backups are encrypted at rest using KMS Customer Master Keys (CMKs).
-ID: aws_use_kms_customer_master_keys_for_aws_backup
-IntegrationType:
+id: aws_use_kms_customer_master_keys_for_aws_backup
+title: Use KMS Customer Master Keys for AWS Backup
+description: Ensure that your backups are encrypted at rest using KMS Customer Master Keys (CMKs).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_backup_vault
-    - aws_kms_key
-  Parameters: []
-  PrimaryTable: aws_backup_vault
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      v.platform_resource_id,
-      v.platform_integration_id,
-      CASE
-        WHEN k.arn IS NULL THEN 'alarm'
-        WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN k.arn IS NULL THEN name || ' is not using a master key'
-        WHEN k.key_manager = 'CUSTOMER' THEN name || ' is using a customer master key'
-        ELSE name || ' is using an AWS-managed master key'
-      END AS reason,
-      v.region,
-      v.account_id
-    FROM
-      aws_backup_vault AS v
-    LEFT JOIN
-      aws_kms_key AS k ON v.encryption_key_arn = k.arn
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Backup
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS Backup
-  score_tags:
-    - Exposed Endpoints
-Title: Use KMS Customer Master Keys for AWS Backup
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_backup_vault
+    definition: |
+        SELECT
+          name AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN k.arn IS NULL THEN 'alarm'
+            WHEN k.key_manager = 'CUSTOMER' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN k.arn IS NULL THEN name || ' is not using a master key'
+            WHEN k.key_manager = 'CUSTOMER' THEN name || ' is using a customer master key'
+            ELSE name || ' is using an AWS-managed master key'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_backup_vault AS v
+        LEFT JOIN
+          aws_kms_key AS k ON v.encryption_key_arn = k.arn
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Backup
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Backup
+    score_tags:
+      - Exposed Endpoints

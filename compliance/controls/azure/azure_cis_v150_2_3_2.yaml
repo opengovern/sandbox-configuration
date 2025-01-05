@@ -1,44 +1,41 @@
-Description: Microsoft Defender for Cloud emails the subscription owners whenever a high-severity alert is triggered for their subscription. You should provide a security contact email address as an additional email address.
-ID: azure_cis_v150_2_3_2
-IntegrationType:
+id: azure_cis_v150_2_3_2
+title: 2.3.2 Ensure 'Additional email addresses' is Configured with a Security Contact Email
+description: Microsoft Defender for Cloud emails the subscription owners whenever a high-severity alert is triggered for their subscription. You should provide a security contact email address as an additional email address.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_security_center_contact
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH contact_info AS (
-      SELECT
-        JSONB_AGG(email) FILTER (WHERE name = 'default' AND email != '') AS default_email,
-        COUNT(*) FILTER (WHERE name != 'default') AS non_default_count,
-        COUNT(*) FILTER (WHERE name = 'default') AS default_count,
-        subscription_id
-      FROM
-        azure_security_center_contact
-      GROUP BY
-        subscription_id
-      LIMIT 1
-    )
-    SELECT
-      sub.subscription_id AS resource,
-      sub.platform_integration_id AS platform_integration_id,
-      sub.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN non_default_count > 0 THEN 'ok'
-        WHEN default_count = 1 AND JSONB_ARRAY_LENGTH(default_email) != 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN non_default_count > 0 THEN 'Additional email addresses configured.'
-        WHEN default_count = 1 AND default_email IS NOT NULL THEN 'Additional email addresses configured.'
-        ELSE 'Additional email addresses not configured.'
-      END AS reason
-    FROM
-      azure_subscription sub
-      LEFT JOIN contact_info ci ON sub.subscription_id = ci.subscription_id;
-Severity: low
-Tags: {}
-Title: 2.3.2 Ensure 'Additional email addresses' is Configured with a Security Contact Email
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH contact_info AS (
+          SELECT
+            JSONB_AGG(email) FILTER (WHERE name = 'default' AND email != '') AS default_email,
+            COUNT(*) FILTER (WHERE name != 'default') AS non_default_count,
+            COUNT(*) FILTER (WHERE name = 'default') AS default_count,
+            subscription_id
+          FROM
+            azure_security_center_contact
+          GROUP BY
+            subscription_id
+          LIMIT 1
+        )
+        SELECT
+          sub.subscription_id AS resource,
+          sub.platform_integration_id AS platform_integration_id,
+          sub.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN non_default_count > 0 THEN 'ok'
+            WHEN default_count = 1 AND JSONB_ARRAY_LENGTH(default_email) != 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN non_default_count > 0 THEN 'Additional email addresses configured.'
+            WHEN default_count = 1 AND default_email IS NOT NULL THEN 'Additional email addresses configured.'
+            ELSE 'Additional email addresses not configured.'
+          END AS reason
+        FROM
+          azure_subscription sub
+          LEFT JOIN contact_info ci ON sub.subscription_id = ci.subscription_id;
+severity: low
+tags: {}

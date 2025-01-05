@@ -1,51 +1,48 @@
-Description: This policy audits any Key Vault not configured to use a virtual network service endpoint.
-ID: azure_keyvault_vault_use_virtual_service_endpoint
-IntegrationType:
+id: azure_keyvault_vault_use_virtual_service_endpoint
+title: Key Vault should use a virtual network service endpoint
+description: This policy audits any Key Vault not configured to use a virtual network service endpoint.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    WITH keyvault_vault_subnet AS (
-      SELECT
-        DISTINCT a.name,
-        rule ->> 'id' AS id
-      FROM
-        azure_key_vault AS a,
-        jsonb_array_elements(network_acls -> 'virtualNetworkRules') AS rule
-      WHERE
-        rule ->> 'id' IS NOT NULL
-    )
-    SELECT
-      DISTINCT a.name AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN network_acls ->> 'defaultAction' <> 'Deny' THEN 'alarm'
-        WHEN s.name IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN network_acls ->> 'defaultAction' <> 'Deny' THEN a.name || ' not configured with virtual service endpoint.'
-        WHEN s.name IS NULL THEN a.name || ' not configured with virtual service endpoint.'
-        ELSE a.name || ' configured with virtual service endpoint.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault AS a
-      LEFT JOIN keyvault_vault_subnet AS s ON a.name = s.name,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  service:
-    - Azure/KeyVault
-Title: Key Vault should use a virtual network service endpoint
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        WITH keyvault_vault_subnet AS (
+          SELECT
+            DISTINCT a.name,
+            rule ->> 'id' AS id
+          FROM
+            azure_key_vault AS a,
+            jsonb_array_elements(network_acls -> 'virtualNetworkRules') AS rule
+          WHERE
+            rule ->> 'id' IS NOT NULL
+        )
+        SELECT
+          DISTINCT a.name AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_acls ->> 'defaultAction' <> 'Deny' THEN 'alarm'
+            WHEN s.name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_acls ->> 'defaultAction' <> 'Deny' THEN a.name || ' not configured with virtual service endpoint.'
+            WHEN s.name IS NULL THEN a.name || ' not configured with virtual service endpoint.'
+            ELSE a.name || ' configured with virtual service endpoint.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS a
+          LEFT JOIN keyvault_vault_subnet AS s ON a.name = s.name,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    service:
+      - Azure/KeyVault

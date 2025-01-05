@@ -1,28 +1,26 @@
-Description: This control checks whether an RDS DB instance has IAM database authentication enabled. IAM database authentication allows authentication to database instances with an authentication token instead of a password. Network traffic to and from the database is encrypted using SSL.
-ID: aws_foundational_security_rds_10
-IntegrationType:
+id: aws_foundational_security_rds_10
+title: 10 IAM authentication should be configured for RDS instances
+description: This control checks whether an RDS DB instance has IAM database authentication enabled. IAM database authentication allows authentication to database instances with an authentication token instead of a password. Network traffic to and from the database is encrypted using SSL.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN iam_database_authentication_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
-        ELSE title || ' IAM authentication not enabled.'
-      END AS reason
-    FROM
-      aws_rds_db_instance;
-Severity: medium
-Tags: {}
-Title: 10 IAM authentication should be configured for RDS instances
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN iam_database_authentication_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN iam_database_authentication_enabled THEN title || ' IAM authentication enabled.'
+            ELSE title || ' IAM authentication not enabled.'
+          END AS reason
+        FROM
+          aws_rds_db_instance;
+severity: medium
+tags: {}

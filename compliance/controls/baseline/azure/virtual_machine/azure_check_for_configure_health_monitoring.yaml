@@ -1,47 +1,44 @@
-Description: Ensure that the health of your Microsoft Azure scale set instances is being monitored.
-ID: azure_check_for_configure_health_monitoring
-IntegrationType:
+id: azure_check_for_configure_health_monitoring
+title: Check for Configure Health Monitoring
+description: Ensure that the health of your Microsoft Azure scale set instances is being monitored.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine_scale_set
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine_scale_set
-  QueryToExecute: |
-    SELECT
-      vmss.id AS resource,
-      vmss.platform_integration_id,
-      vmss.platform_resource_id,
-      CASE
-        WHEN EXISTS(
-          SELECT 1 
-          FROM jsonb_array_elements(vmss.extensions) AS ex
-          WHERE ('ApplicationHealthLinux' = (ex ->> 'name')) 
-            OR ('healthRepairExtension' = (ex ->> 'name'))
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS(
-          SELECT 1 
-          FROM jsonb_array_elements(vmss.extensions) AS ex
-          WHERE ('ApplicationHealthLinux' = (ex ->> 'name')) 
-            OR ('healthRepairExtension' = (ex ->> 'name'))
-        ) THEN 'Azure virtual machine scaleset has application health monitoring enabled'
-        ELSE 'Azure virtual machine scaleset does not have application health monitoring enabled'
-      END AS reason,
-      vmss.resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_compute_virtual_machine_scale_set AS vmss
-    LEFT JOIN azure_subscription AS sub 
-      ON sub.subscription_id = vmss.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  score_service_name:
-    - Azure Virtual Machines
-Title: Check for Configure Health Monitoring
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT
+          vmss.id AS resource,
+          vmss.platform_integration_id,
+          vmss.platform_resource_id,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 
+              FROM jsonb_array_elements(vmss.extensions) AS ex
+              WHERE ('ApplicationHealthLinux' = (ex ->> 'name')) 
+                OR ('healthRepairExtension' = (ex ->> 'name'))
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 
+              FROM jsonb_array_elements(vmss.extensions) AS ex
+              WHERE ('ApplicationHealthLinux' = (ex ->> 'name')) 
+                OR ('healthRepairExtension' = (ex ->> 'name'))
+            ) THEN 'Azure virtual machine scaleset has application health monitoring enabled'
+            ELSE 'Azure virtual machine scaleset does not have application health monitoring enabled'
+          END AS reason,
+          vmss.resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_virtual_machine_scale_set AS vmss
+        LEFT JOIN azure_subscription AS sub 
+          ON sub.subscription_id = vmss.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

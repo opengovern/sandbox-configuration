@@ -1,48 +1,46 @@
-Description: Ensure Amazon RDS database instances aren't using the default ports.
-ID: aws_rds_default_port
-IntegrationType:
+id: aws_rds_default_port
+title: RDS Default Port
+description: Ensure Amazon RDS database instances aren't using the default ports.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      db_instance_identifier AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN
-          endpoint_port = 3306 AND engine IN ('mysql', 'mariadb', 'aurora-mysql') OR
-          endpoint_port = 5431 AND engine IN ('postres', 'postgres-ee', 'aurora-postgresql') OR
-          endpoint_port = 1433 AND engine LIKE 'sqlserver%' OR
-          endpoint_port = 1521 AND engine = 'oracle-ee'
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN
-          endpoint_port = 3306 AND engine IN ('mysql', 'mariadb', 'aurora-mysql') OR
-          endpoint_port = 5431 AND engine IN ('postres', 'postgres-ee', 'aurora-postgresql') OR
-          endpoint_port = 1433 AND engine LIKE 'sqlserver%' OR
-          endpoint_port = 1521 AND engine = 'oracle-ee'
-        THEN title || ' port is set to default'
-        ELSE title || ' port is not set to default'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_instance
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Relational Database Service (RDS)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS Relational Database Service (RDS)
-  score_tags:
-    - Exposed Endpoints
-Title: RDS Default Port
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          db_instance_identifier AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              endpoint_port = 3306 AND engine IN ('mysql', 'mariadb', 'aurora-mysql') OR
+              endpoint_port = 5431 AND engine IN ('postres', 'postgres-ee', 'aurora-postgresql') OR
+              endpoint_port = 1433 AND engine LIKE 'sqlserver%' OR
+              endpoint_port = 1521 AND engine = 'oracle-ee'
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN
+              endpoint_port = 3306 AND engine IN ('mysql', 'mariadb', 'aurora-mysql') OR
+              endpoint_port = 5431 AND engine IN ('postres', 'postgres-ee', 'aurora-postgresql') OR
+              endpoint_port = 1433 AND engine LIKE 'sqlserver%' OR
+              endpoint_port = 1521 AND engine = 'oracle-ee'
+            THEN title || ' port is set to default'
+            ELSE title || ' port is not set to default'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Relational Database Service (RDS)
+    score_tags:
+      - Exposed Endpoints

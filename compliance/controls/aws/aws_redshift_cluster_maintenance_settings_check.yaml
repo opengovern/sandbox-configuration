@@ -1,52 +1,50 @@
-Description: Ensure whether AWS Redshift clusters have the specified maintenance settings. Redshift clusters `allowVersionUpgrade` should be set to `true` and `automatedSnapshotRetentionPeriod` should be greater than 7.
-ID: aws_redshift_cluster_maintenance_settings_check
-IntegrationType:
+id: aws_redshift_cluster_maintenance_settings_check
+title: AWS Redshift should have required maintenance settings
+description: Ensure whether AWS Redshift clusters have the specified maintenance settings. Redshift clusters `allowVersionUpgrade` should be set to `true` and `automatedSnapshotRetentionPeriod` should be greater than 7.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_redshift_cluster
-  Parameters: []
-  PrimaryTable: aws_redshift_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN allow_version_upgrade AND automated_snapshot_retention_period >= 7 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN allow_version_upgrade AND automated_snapshot_retention_period >= 7 THEN title || ' has the required maintenance settings.'
-        ELSE title || ' does not have required maintenance settings.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_redshift_cluster;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  ffiec:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/Redshift
-Title: AWS Redshift should have required maintenance settings
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN allow_version_upgrade AND automated_snapshot_retention_period >= 7 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN allow_version_upgrade AND automated_snapshot_retention_period >= 7 THEN title || ' has the required maintenance settings.'
+            ELSE title || ' does not have required maintenance settings.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_redshift_cluster;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    ffiec:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/Redshift

@@ -1,38 +1,35 @@
-Description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
-ID: azure_network_virtual_network_gateway_no_basic_sku
-IntegrationType:
+id: azure_network_virtual_network_gateway_no_basic_sku
+title: Virtual network gateways should use standard SKUs as a minimum
+description: The use of Basic or Free SKUs in Azure whilst cost effective have significant limitations in terms of what can be monitored and what support can be realized from Microsoft. Typically, these SKU’s do not have a service SLA and Microsoft will usually refuse to provide support for them. Consequently Basic/Free SKUs should never be used for production workloads.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_subscription
-    - azure_virtual_network_gateway
-  Parameters: []
-  PrimaryTable: azure_virtual_network_gateway
-  QueryToExecute: |
-    SELECT
-      g.id AS resource,
-      g.platform_integration_id AS platform_integration_id,
-      g.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN g.sku_name = 'Basic' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN g.sku_name = 'Basic' THEN g.title || ' using basic SKU.'
-        ELSE g.title || ' using ' || sku_name || ' SKU.'
-      END AS reason,
-      g.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_virtual_network_gateway AS g,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = g.subscription_id;
-Severity: medium
-Tags:
-  cis:
-    - "true"
-  service:
-    - Azure/Network
-Title: Virtual network gateways should use standard SKUs as a minimum
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_virtual_network_gateway
+    definition: |
+        SELECT
+          g.id AS resource,
+          g.platform_integration_id AS platform_integration_id,
+          g.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN g.sku_name = 'Basic' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN g.sku_name = 'Basic' THEN g.title || ' using basic SKU.'
+            ELSE g.title || ' using ' || sku_name || ' SKU.'
+          END AS reason,
+          g.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_virtual_network_gateway AS g,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = g.subscription_id;
+severity: medium
+tags:
+    cis:
+      - 'true'
+    service:
+      - Azure/Network

@@ -1,61 +1,59 @@
-Description: 'AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, restricting policies from containing ''Effect'': ''Allow'' with ''Action'': ''*'' over ''Resource'': ''*''.'
-ID: aws_iam_policy_no_star_star
-IntegrationType:
+id: aws_iam_policy_no_star_star
+title: IAM policy should not have statements with admin access
+description: "AWS Identity and Access Management (IAM) can help you incorporate the principles of least privilege and separation of duties with access permissions and authorizations, restricting policies from containing 'Effect': 'Allow' with 'Action': '*' over 'Resource': '*'."
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_policy
-  Parameters: []
-  PrimaryTable: aws_iam_policy
-  QueryToExecute: |
-    WITH bad_policies AS (
-      SELECT
-        arn,
-        COUNT(*) AS num_bad_statements
-      FROM
-        aws_iam_policy,
-        jsonb_array_elements(policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Resource') AS resource,
-        jsonb_array_elements_text(s -> 'Action') AS action
-      WHERE
-        s ->> 'Effect' = 'Allow'
-        AND resource = '*'
-        AND (
-          action = '*'
-          OR action = '*:*'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH bad_policies AS (
+          SELECT
+            arn,
+            COUNT(*) AS num_bad_statements
+          FROM
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND resource = '*'
+            AND (
+              action = '*'
+              OR action = '*:*'
+            )
+          GROUP BY
+            arn
         )
-      GROUP BY
-        arn
-    )
-    SELECT
-      p.arn AS resource,
-      p.platform_integration_id AS platform_integration_id,
-      p.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN bad.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      p.name || ' contains ' || COALESCE(bad.num_bad_statements, 0) ||
-         ' statements that allow action "*" on resource "*".' AS reason,
-      p.account_id
-    FROM
-      aws_iam_policy AS p
-      LEFT JOIN bad_policies AS bad ON p.arn = bad.arn
-    WHERE
-      p.arn NOT LIKE 'arn:aws:iam::aws:policy%'
-Severity: low
-Tags:
-  pci:
-    - "true"
-  pci_item_id:
-    - iam_3
-  pci_requirements:
-    - 7.2.1
-  pci_version:
-    - v3.2.1
-  plugin:
-    - aws
-  service:
-    - iam
-Title: IAM policy should not have statements with admin access
+        SELECT
+          p.arn AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN bad.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          p.name || ' contains ' || COALESCE(bad.num_bad_statements, 0) ||
+             ' statements that allow action "*" on resource "*".' AS reason,
+          p.account_id
+        FROM
+          aws_iam_policy AS p
+          LEFT JOIN bad_policies AS bad ON p.arn = bad.arn
+        WHERE
+          p.arn NOT LIKE 'arn:aws:iam::aws:policy%'
+severity: low
+tags:
+    pci:
+      - 'true'
+    pci_item_id:
+      - iam_3
+    pci_requirements:
+      - 7.2.1
+    pci_version:
+      - v3.2.1
+    plugin:
+      - aws
+    service:
+      - iam

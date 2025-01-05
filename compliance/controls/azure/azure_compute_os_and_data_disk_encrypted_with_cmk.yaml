@@ -1,53 +1,50 @@
-Description: Use customer-managed keys to manage the encryption at rest of the contents of your managed disks. By default, the data is encrypted at rest with platform-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management. Learn more at https://aka.ms/disks-cmk.
-ID: azure_compute_os_and_data_disk_encrypted_with_cmk
-IntegrationType:
+id: azure_compute_os_and_data_disk_encrypted_with_cmk
+title: OS and data disks should be encrypted with a customer-managed key
+description: Use customer-managed keys to manage the encryption at rest of the contents of your managed disks. By default, the data is encrypted at rest with platform-managed keys, but customer-managed keys are commonly required to meet regulatory compliance standards. Customer-managed keys enable the data to be encrypted with an Azure Key Vault key created and owned by you. You have full control and responsibility for the key lifecycle, including rotation and management. Learn more at https://aka.ms/disks-cmk.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_disk
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_disk
-  QueryToExecute: |
-    SELECT
-      disk.id AS resource,
-      disk.platform_integration_id AS platform_integration_id,
-      disk.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN disk.name || ' encrypted with CMK.'
-        ELSE disk.name || ' not encrypted with CMK.'
-      END AS reason,
-      disk.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_compute_disk disk,
-      azure_subscription sub
-    WHERE
-      disk_state = 'Attached'
-      AND sub.subscription_id = disk.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "7.2"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "7"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Compute
-Title: OS and data disks should be encrypted with a customer-managed key
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_disk
+    definition: |
+        SELECT
+          disk.id AS resource,
+          disk.platform_integration_id AS platform_integration_id,
+          disk.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encryption_type = 'EncryptionAtRestWithCustomerKey' THEN disk.name || ' encrypted with CMK.'
+            ELSE disk.name || ' not encrypted with CMK.'
+          END AS reason,
+          disk.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_compute_disk disk,
+          azure_subscription sub
+        WHERE
+          disk_state = 'Attached'
+          AND sub.subscription_id = disk.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '7.2'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '7'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Compute

@@ -1,41 +1,38 @@
-Description: Ensure there is at least one IAM user used to access your AWS cloud account.
-ID: aws_check_for_individual_iam_users
-IntegrationType:
+id: aws_check_for_individual_iam_users
+title: Check for Individual IAM Users
+description: Ensure there is at least one IAM user used to access your AWS cloud account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      a.account_id AS resource,
-      a.platform_integration_id,
-      a.platform_resource_id,
-      CASE
-        WHEN user_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN u.user_id IS NULL THEN a.account_id || ' account has no user'
-        ELSE a.account_id || ' account has user'
-      END AS reason,
-      a.region, 
-      a.account_id
-    FROM
-      aws_account AS a
-    LEFT JOIN aws_iam_user AS u 
-      ON a.account_id = u.account_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Problem Identities
-Title: Check for Individual IAM Users
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          a.account_id AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN user_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN u.user_id IS NULL THEN a.account_id || ' account has no user'
+            ELSE a.account_id || ' account has user'
+          END AS reason,
+          a.region, 
+          a.account_id
+        FROM
+          aws_account AS a
+        LEFT JOIN aws_iam_user AS u 
+          ON a.account_id = u.account_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

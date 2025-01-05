@@ -1,46 +1,43 @@
-Description: Amazon S3 provides Block public access (bucket settings) and Block public access (account settings) to help you manage public access to Amazon S3 resources. By default, S3 buckets and objects are created with public access disabled. However, an IAM principle with sufficient S3 permissions can enable public access at the bucket and/or object level. While enabled, Block public access (bucket settings) prevents an individual bucket, and its contained objects, from becoming publicly accessible. Similarly, Block public access (account settings) prevents all buckets, and contained objects, from becoming publicly accessible across the entire account.
-ID: aws_cis_v200_2_1_4
-IntegrationType:
+id: aws_cis_v200_2_1_4
+title: 2.1.4 Ensure that S3 Buckets are configured with 'Block public access (bucket settings)'
+description: Amazon S3 provides Block public access (bucket settings) and Block public access (account settings) to help you manage public access to Amazon S3 resources. By default, S3 buckets and objects are created with public access disabled. However, an IAM principle with sufficient S3 permissions can enable public access at the bucket and/or object level. While enabled, Block public access (bucket settings) prevents an individual bucket, and its contained objects, from becoming publicly accessible. Similarly, Block public access (account settings) prevents all buckets, and contained objects, from becoming publicly accessible across the entire account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_s3_bucket
-    - aws_s3_account_settings
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      bucket.platform_integration_id AS platform_integration_id,
-      bucket.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN (bucket.block_public_acls OR s3account.block_public_acls)
-          AND (bucket.block_public_policy OR s3account.block_public_policy)
-          AND (bucket.ignore_public_acls OR s3account.ignore_public_acls)
-          AND (bucket.restrict_public_buckets OR s3account.restrict_public_buckets)
-          THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (bucket.block_public_acls OR s3account.block_public_acls)
-          AND (bucket.block_public_policy OR s3account.block_public_policy)
-          AND (bucket.ignore_public_acls OR s3account.ignore_public_acls)
-          AND (bucket.restrict_public_buckets OR s3account.restrict_public_buckets)
-          THEN name || ' all public access blocks enabled.'
-        ELSE name || ' not enabled for: ' ||
-          CONCAT_WS(', ',
-            CASE WHEN NOT (bucket.block_public_acls OR s3account.block_public_acls) THEN 'block_public_acls' END,
-            CASE WHEN NOT (bucket.block_public_policy OR s3account.block_public_policy) THEN 'block_public_policy' END,
-            CASE WHEN NOT (bucket.ignore_public_acls OR s3account.ignore_public_acls) THEN 'ignore_public_acls' END,
-            CASE WHEN NOT (bucket.restrict_public_buckets OR s3account.restrict_public_buckets) THEN 'restrict_public_buckets' END
-          ) || '.'
-      END AS reason
-    FROM
-      aws_s3_bucket AS bucket,
-      aws_s3_account_settings AS s3account
-    WHERE
-      s3account.account_id = bucket.account_id;
-Severity: low
-Tags: {}
-Title: 2.1.4 Ensure that S3 Buckets are configured with 'Block public access (bucket settings)'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        SELECT
+          arn AS resource,
+          bucket.platform_integration_id AS platform_integration_id,
+          bucket.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN (bucket.block_public_acls OR s3account.block_public_acls)
+              AND (bucket.block_public_policy OR s3account.block_public_policy)
+              AND (bucket.ignore_public_acls OR s3account.ignore_public_acls)
+              AND (bucket.restrict_public_buckets OR s3account.restrict_public_buckets)
+              THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (bucket.block_public_acls OR s3account.block_public_acls)
+              AND (bucket.block_public_policy OR s3account.block_public_policy)
+              AND (bucket.ignore_public_acls OR s3account.ignore_public_acls)
+              AND (bucket.restrict_public_buckets OR s3account.restrict_public_buckets)
+              THEN name || ' all public access blocks enabled.'
+            ELSE name || ' not enabled for: ' ||
+              CONCAT_WS(', ',
+                CASE WHEN NOT (bucket.block_public_acls OR s3account.block_public_acls) THEN 'block_public_acls' END,
+                CASE WHEN NOT (bucket.block_public_policy OR s3account.block_public_policy) THEN 'block_public_policy' END,
+                CASE WHEN NOT (bucket.ignore_public_acls OR s3account.ignore_public_acls) THEN 'ignore_public_acls' END,
+                CASE WHEN NOT (bucket.restrict_public_buckets OR s3account.restrict_public_buckets) THEN 'restrict_public_buckets' END
+              ) || '.'
+          END AS reason
+        FROM
+          aws_s3_bucket AS bucket,
+          aws_s3_account_settings AS s3account
+        WHERE
+          s3account.account_id = bucket.account_id;
+severity: low
+tags: {}

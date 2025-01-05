@@ -1,57 +1,54 @@
-Description: Audit built-in roles such as 'Owner, Contributor, Reader' instead of custom RBAC roles, which are error prone. Using custom roles is treated as an exception and requires a rigorous review and threat modeling.
-ID: azure_iam_no_custom_role
-IntegrationType:
+id: azure_iam_no_custom_role
+title: Audit usage of custom RBAC roles
+description: Audit built-in roles such as 'Owner, Contributor, Reader' instead of custom RBAC roles, which are error prone. Using custom roles is treated as an exception and requires a rigorous review and threat modeling.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_role_definition
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    WITH custom_roles AS (
-      SELECT
-        role_name,
-        role_type,
-        subscription_id,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        _ctx
-      FROM
-        azure_role_definition
-      WHERE
-        role_type = 'CustomRole'
-    )
-    SELECT
-      cr.subscription_id AS resource,
-      cr.platform_integration_id AS platform_integration_id,
-      cr.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COUNT(*) > 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      'There are ' || COUNT(*) || ' custom roles.' AS reason,
-      sub.display_name AS subscription
-    FROM
-      custom_roles AS cr,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = cr.subscription_id
-    GROUP BY
-      cr.subscription_id,
-      cr._ctx,
-      sub.display_name,
-      cr.platform_integration_id,
-      cr.platform_resource_id
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  service:
-    - Azure/ActiveDirectory
-Title: Audit usage of custom RBAC roles
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        WITH custom_roles AS (
+          SELECT
+            role_name,
+            role_type,
+            subscription_id,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx
+          FROM
+            azure_role_definition
+          WHERE
+            role_type = 'CustomRole'
+        )
+        SELECT
+          cr.subscription_id AS resource,
+          cr.platform_integration_id AS platform_integration_id,
+          cr.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COUNT(*) > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          'There are ' || COUNT(*) || ' custom roles.' AS reason,
+          sub.display_name AS subscription
+        FROM
+          custom_roles AS cr,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = cr.subscription_id
+        GROUP BY
+          cr.subscription_id,
+          cr._ctx,
+          sub.display_name,
+          cr.platform_integration_id,
+          cr.platform_resource_id
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    service:
+      - Azure/ActiveDirectory

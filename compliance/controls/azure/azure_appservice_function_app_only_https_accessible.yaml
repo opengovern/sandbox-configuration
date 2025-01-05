@@ -1,42 +1,39 @@
-Description: Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks.
-ID: azure_appservice_function_app_only_https_accessible
-IntegrationType:
+id: azure_appservice_function_app_only_https_accessible
+title: Function apps should only be accessible over HTTPS
+description: Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_function_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_service_function_app
-  QueryToExecute: |
-    SELECT
-      app.id AS resource,
-      app.platform_integration_id AS platform_integration_id,
-      app.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN https_only THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN https_only THEN name || ' https-only accessible enabled.'
-        ELSE name || ' https-only accessible disabled.'
-      END AS reason,
-      app.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_app_service_function_app AS app,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = app.subscription_id;
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  service:
-    - Azure/AppService
-Title: Function apps should only be accessible over HTTPS
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_function_app
+    definition: |
+        SELECT
+          app.id AS resource,
+          app.platform_integration_id AS platform_integration_id,
+          app.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN https_only THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN https_only THEN name || ' https-only accessible enabled.'
+            ELSE name || ' https-only accessible disabled.'
+          END AS reason,
+          app.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_app_service_function_app AS app,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = app.subscription_id;
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    service:
+      - Azure/AppService

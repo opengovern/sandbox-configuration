@@ -1,70 +1,67 @@
-Description: Configure 'Send scan reports to' with email ids of concerned data owners/stakeholders for a critical SQL servers.
-ID: azure_sql_server_va_setting_scan_reports_configured
-IntegrationType:
+id: azure_sql_server_va_setting_scan_reports_configured
+title: Ensure that VA setting 'Send scan reports to' is configured for a SQL server
+description: Configure 'Send scan reports to' with email ids of concerned data owners/stakeholders for a critical SQL servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_sql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_sql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN
-          security -> 'properties' ->> 'state' = 'Disabled'
-          OR
-          (
-            security -> 'properties' ->> 'state' = 'Enabled'
-            AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
-            AND assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
-          )
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN
-          security -> 'properties' ->> 'state' = 'Disabled'
-          OR
-          (
-            security -> 'properties' ->> 'state' = 'Enabled'
-            AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
-            AND assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
-          )
-        THEN s.name || ' VA scan reports and alerts not configured send email.'
-        ELSE s.name || ' VA scan reports and alerts configured to send email.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_sql_server s,
-      jsonb_array_elements(server_security_alert_policy) security,
-      jsonb_array_elements(server_vulnerability_assessment) assessment,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 4.2.4
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "4.2"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/SQL
-Title: Ensure that VA setting 'Send scan reports to' is configured for a SQL server
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              security -> 'properties' ->> 'state' = 'Disabled'
+              OR
+              (
+                security -> 'properties' ->> 'state' = 'Enabled'
+                AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+                AND assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
+              )
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN
+              security -> 'properties' ->> 'state' = 'Disabled'
+              OR
+              (
+                security -> 'properties' ->> 'state' = 'Enabled'
+                AND assessment -> 'properties' ->> 'storageContainerPath' IS NOT NULL
+                AND assessment -> 'properties' -> 'recurringScans' ->> 'emails' = '[]'
+              )
+            THEN s.name || ' VA scan reports and alerts not configured send email.'
+            ELSE s.name || ' VA scan reports and alerts configured to send email.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server s,
+          jsonb_array_elements(server_security_alert_policy) security,
+          jsonb_array_elements(server_vulnerability_assessment) assessment,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.2.4
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '4.2'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SQL

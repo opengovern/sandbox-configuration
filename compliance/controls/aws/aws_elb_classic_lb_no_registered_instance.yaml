@@ -1,25 +1,23 @@
-Description: This control checks whether an ELB classic load balancer has registered instances. The control fails if an ELB classic load balancer has zero instances registered.
-ID: aws_elb_classic_lb_no_registered_instance
-IntegrationType:
+id: aws_elb_classic_lb_no_registered_instance
+title: ELB classic load balancers should have at least one registered instance
+description: This control checks whether an ELB classic load balancer has registered instances. The control fails if an ELB classic load balancer has zero instances registered.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_classic_load_balancer
-  Parameters: []
-  PrimaryTable: aws_ec2_classic_load_balancer
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN jsonb_array_length(instances) = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      title || ' has ' || jsonb_array_length(instances) || ' instance(s) registered.' AS reason
-    FROM
-      aws_ec2_classic_load_balancer;
-Severity: low
-Tags: {}
-Title: ELB classic load balancers should have at least one registered instance
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(instances) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          title || ' has ' || jsonb_array_length(instances) || ' instance(s) registered.' AS reason
+        FROM
+          aws_ec2_classic_load_balancer;
+severity: low
+tags: {}

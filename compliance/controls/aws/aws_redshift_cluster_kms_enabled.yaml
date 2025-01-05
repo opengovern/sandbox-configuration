@@ -1,56 +1,54 @@
-Description: Ensure that AWS Redshift clusters are using a specified AWS Key Management Service (AWS KMS) key for encryption. The rule is compliant if encryption is enabled and the cluster is encrypted with the key provided in the kmsKeyArn parameter. The rule is non-compliant if the cluster is not encrypted or encrypted with another key.
-ID: aws_redshift_cluster_kms_enabled
-IntegrationType:
+id: aws_redshift_cluster_kms_enabled
+title: AWS Redshift clusters should be encrypted with KMS
+description: Ensure that AWS Redshift clusters are using a specified AWS Key Management Service (AWS KMS) key for encryption. The rule is compliant if encryption is enabled and the cluster is encrypted with the key provided in the kmsKeyArn parameter. The rule is non-compliant if the cluster is not encrypted or encrypted with another key.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_redshift_cluster
-  Parameters: []
-  PrimaryTable: aws_redshift_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN encrypted AND kms_key_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN encrypted AND kms_key_id IS NOT NULL THEN title || ' encrypted with KMS.'
-        ELSE title || ' not encrypted with KMS.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_redshift_cluster;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/Redshift
-Title: AWS Redshift clusters should be encrypted with KMS
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encrypted AND kms_key_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN encrypted AND kms_key_id IS NOT NULL THEN title || ' encrypted with KMS.'
+            ELSE title || ' not encrypted with KMS.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_redshift_cluster;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/Redshift

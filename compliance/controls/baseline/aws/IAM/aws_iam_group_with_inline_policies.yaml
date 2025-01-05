@@ -1,38 +1,36 @@
-Description: Ensure IAM groups don't have inline policies attached.
-ID: aws_iam_group_with_inline_policies
-IntegrationType:
+id: aws_iam_group_with_inline_policies
+title: IAM Group With Inline Policies
+description: Ensure IAM groups don't have inline policies attached.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_group
-  Parameters: []
-  PrimaryTable: aws_iam_group
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN inline_policies IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN inline_policies IS NULL THEN name || ' is not using inline policies'
-        ELSE name || ' is using inline policies'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_group
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Problem Identities
-Title: IAM Group With Inline Policies
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_group
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN inline_policies IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN inline_policies IS NULL THEN name || ' is not using inline policies'
+            ELSE name || ' is using inline policies'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_group
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

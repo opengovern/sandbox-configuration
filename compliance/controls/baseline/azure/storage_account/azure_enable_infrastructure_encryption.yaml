@@ -1,40 +1,37 @@
-Description: Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts.
-ID: azure_enable_infrastructure_encryption
-IntegrationType:
+id: azure_enable_infrastructure_encryption
+title: Enable Infrastructure Encryption
+description: Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      a.name AS resource,
-      a.platform_resource_id,
-      a.platform_integration_id,
-      CASE
-        WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN a.name || ' Infrastructure Encryption feature is not enabled.'
-        ELSE a.name || ' Infrastructure Encryption feature is enabled.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_storage_account AS a
-      LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  platform_score_use_case:
-    - Unencrypted Storage
-  score_service_name:
-    - Azure Storage Accounts
-  score_tags:
-    - Unencrypted Storage
-Title: Enable Infrastructure Encryption
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          a.name AS resource,
+          a.platform_resource_id,
+          a.platform_integration_id,
+          CASE
+            WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN require_infrastructure_encryption IS NULL OR require_infrastructure_encryption = 'false' THEN a.name || ' Infrastructure Encryption feature is not enabled.'
+            ELSE a.name || ' Infrastructure Encryption feature is enabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account AS a
+          LEFT JOIN azure_subscription AS sub ON a.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - Azure Storage Accounts
+    score_tags:
+      - Unencrypted Storage

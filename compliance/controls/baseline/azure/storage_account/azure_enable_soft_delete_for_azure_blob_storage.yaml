@@ -1,38 +1,35 @@
-Description: Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts.
-ID: azure_enable_soft_delete_for_azure_blob_storage
-IntegrationType:
+id: azure_enable_soft_delete_for_azure_blob_storage
+title: Enable Soft Delete for Azure Blob Storage
+description: Ensure that infrastructure encryption is enabled for Microsoft Azure Storage accounts.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id,
-      sa.platform_resource_id,
-      CASE
-        WHEN blob_container_soft_delete_enabled = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN blob_container_soft_delete_enabled = 'true' THEN 'Soft Delete feature is enabled'
-        ELSE 'Soft Delete feature is not enabled'
-      END AS reason,
-      sa.resource_group,
-      display_name AS subscription
-    FROM
-      azure_storage_account AS sa,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = sa.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  score_service_name:
-    - Azure Storage Accounts
-Title: Enable Soft Delete for Azure Blob Storage
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id,
+          sa.platform_resource_id,
+          CASE
+            WHEN blob_container_soft_delete_enabled = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN blob_container_soft_delete_enabled = 'true' THEN 'Soft Delete feature is enabled'
+            ELSE 'Soft Delete feature is not enabled'
+          END AS reason,
+          sa.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_account AS sa,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sa.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

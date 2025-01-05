@@ -1,56 +1,51 @@
-Description: External accounts with read privileges should be removed from your subscription in order to prevent unmonitored access.
-ID: azure_iam_external_user_with_read_permission
-IntegrationType:
+id: azure_iam_external_user_with_read_permission
+title: Guest accounts with read permissions on Azure resources should be removed
+description: External accounts with read privileges should be removed from your subscription in order to prevent unmonitored access.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_role_assignment
-    - azure_role_definition
-    - azure_tenant
-    - entraid_user
-  Parameters: []
-  PrimaryTable: entraid_user
-  QueryToExecute: |
-    WITH all_write_permission_users AS (
-      SELECT DISTINCT
-        u.display_name,
-        d.role_name,
-        u.account_enabled,
-        u.user_principal_name,
-        d.subscription_id,
-        u.platform_integration_id AS platform_integration_id,
-        u.platform_resource_id AS platform_resource_id
-      FROM
-        entraid_user AS u
-      LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
-      LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
-      WHERE d.role_name = 'Reader'
-    )
-    SELECT
-      a.user_principal_name AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN a.user_principal_name LIKE '%EXT%' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN a.user_principal_name LIKE '%EXT%' THEN a.display_name || ' is external user with ' || a.role_name || ' role.'
-        ELSE a.display_name || ' is domain user with ' || a.role_name || ' role.'
-      END AS reason,
-      t.tenant_id
-    FROM
-      azure_tenant AS t,
-      all_write_permission_users AS a;
-Severity: high
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  service:
-    - Azure/ActiveDirectory
-Title: Guest accounts with read permissions on Azure resources should be removed
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_user
+    definition: |
+        WITH all_write_permission_users AS (
+          SELECT DISTINCT
+            u.display_name,
+            d.role_name,
+            u.account_enabled,
+            u.user_principal_name,
+            d.subscription_id,
+            u.platform_integration_id AS platform_integration_id,
+            u.platform_resource_id AS platform_resource_id
+          FROM
+            entraid_user AS u
+          LEFT JOIN azure_role_assignment AS a ON a.principal_id = u.id
+          LEFT JOIN azure_role_definition AS d ON d.id = a.role_definition_id
+          WHERE d.role_name = 'Reader'
+        )
+        SELECT
+          a.user_principal_name AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.user_principal_name LIKE '%EXT%' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN a.user_principal_name LIKE '%EXT%' THEN a.display_name || ' is external user with ' || a.role_name || ' role.'
+            ELSE a.display_name || ' is domain user with ' || a.role_name || ' role.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          azure_tenant AS t,
+          all_write_permission_users AS a;
+severity: high
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    service:
+      - Azure/ActiveDirectory

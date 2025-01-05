@@ -1,88 +1,85 @@
-Description: AWS Elastic Compute Cloud (AWS EC2) Security Groups can help manage network access by providing stateful filtering of ingress and egress network traffic to AWS resources.
-ID: aws_vpc_security_group_restrict_ingress_ssh_all
-IntegrationType:
+id: aws_vpc_security_group_restrict_ingress_ssh_all
+title: VPC security groups should restrict ingress SSH access from 0.0.0.0/0
+description: AWS Elastic Compute Cloud (AWS EC2) Security Groups can help manage network access by providing stateful filtering of ingress and egress network traffic to AWS resources.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group
-    - aws_vpc_security_group_rule
-  Parameters: []
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    WITH ingress_ssh_rules AS (
-      SELECT
-        group_id,
-        COUNT(*) AS num_ssh_rules
-      FROM
-        aws_vpc_security_group_rule
-      WHERE
-        type = 'ingress'
-        AND cidr_ipv4 = '0.0.0.0/0'
-        AND (
-          (ip_protocol = '-1' AND from_port IS NULL)
-          OR (from_port >= 22 AND to_port <= 22)
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        WITH ingress_ssh_rules AS (
+          SELECT
+            group_id,
+            COUNT(*) AS num_ssh_rules
+          FROM
+            aws_vpc_security_group_rule
+          WHERE
+            type = 'ingress'
+            AND cidr_ipv4 = '0.0.0.0/0'
+            AND (
+              (ip_protocol = '-1' AND from_port IS NULL)
+              OR (from_port >= 22 AND to_port <= 22)
+            )
+          GROUP BY
+            group_id
         )
-      GROUP BY
-        group_id
-    )
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ingress_ssh_rules.group_id IS NULL 
-          THEN sg.group_id || ' ingress restricted for SSH from 0.0.0.0/0.'
-        ELSE 
-          sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing SSH from 0.0.0.0/0.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_vpc_security_group AS sg
-      LEFT JOIN ingress_ssh_rules ON ingress_ssh_rules.group_id = sg.group_id
-Severity: high
-Tags:
-  audit_manager_control_tower:
-    - "true"
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/VPC
-  soc_2:
-    - "true"
-Title: VPC security groups should restrict ingress SSH access from 0.0.0.0/0
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ingress_ssh_rules.group_id IS NULL 
+              THEN sg.group_id || ' ingress restricted for SSH from 0.0.0.0/0.'
+            ELSE 
+              sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing SSH from 0.0.0.0/0.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_security_group AS sg
+          LEFT JOIN ingress_ssh_rules ON ingress_ssh_rules.group_id = sg.group_id
+severity: high
+tags:
+    audit_manager_control_tower:
+      - 'true'
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/VPC
+    soc_2:
+      - 'true'

@@ -1,38 +1,35 @@
-Description: Ensure that Microsoft Entra ID integration is enabled for Azure Kubernetes clusters.
-ID: azure_use_microsoft_entra_id_integration_for_aks_clusters
-IntegrationType:
+id: azure_use_microsoft_entra_id_integration_for_aks_clusters
+title: Use Microsoft Entra ID Integration for AKS Clusters
+description: Ensure that Microsoft Entra ID integration is enabled for Azure Kubernetes clusters.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_kubernetes_cluster
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: |
-    SELECT
-      kc.id AS resource,
-      kc.platform_integration_id,
-      kc.platform_resource_id,
-      CASE
-        WHEN network_profile ->> 'networkPlugin' = 'kubenet' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN network_profile ->> 'networkPlugin' = 'kubenet' THEN 'not configured to use the Azure Container Networking Interface (CNI) add-on for managing network resources.'
-        ELSE 'configured to use the Azure Container Networking Interface (CNI) add-on for managing network resources.'
-      END AS reason,
-      kc.resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_kubernetes_cluster AS kc,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = kc.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Kubernetes (AKS)
-  score_service_name:
-    - Azure Kubernetes (AKS)
-Title: Use Microsoft Entra ID Integration for AKS Clusters
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          kc.id AS resource,
+          kc.platform_integration_id,
+          kc.platform_resource_id,
+          CASE
+            WHEN network_profile ->> 'networkPlugin' = 'kubenet' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_profile ->> 'networkPlugin' = 'kubenet' THEN 'not configured to use the Azure Container Networking Interface (CNI) add-on for managing network resources.'
+            ELSE 'configured to use the Azure Container Networking Interface (CNI) add-on for managing network resources.'
+          END AS reason,
+          kc.resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_kubernetes_cluster AS kc,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = kc.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Kubernetes (AKS)
+    score_service_name:
+      - Azure Kubernetes (AKS)

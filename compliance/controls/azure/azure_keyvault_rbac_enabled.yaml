@@ -1,52 +1,49 @@
-Description: Role assignments disappear when a Key Vault has been deleted (soft- delete) and recovered. Afterwards it will be required to recreate all role assignments. This is a limitation of the soft-delete feature across all Azure services.
-ID: azure_keyvault_rbac_enabled
-IntegrationType:
+id: azure_keyvault_rbac_enabled
+title: Enable Role Based Access Control for Azure Key Vault
+description: Role assignments disappear when a Key Vault has been deleted (soft- delete) and recovered. Afterwards it will be required to recreate all role assignments. This is a limitation of the soft-delete feature across all Azure services.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    SELECT
-      kv.id AS resource,
-      kv.platform_integration_id AS platform_integration_id,
-      kv.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enable_rbac_authorization THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enable_rbac_authorization THEN name || ' has RBAC enabled.'
-        ELSE name || ' have RBAC disabled.'
-      END AS reason,
-      kv.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault AS kv,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = kv.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "8.6"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "8"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.5.0
-  plugin:
-    - azure
-  service:
-    - Azure/KeyVault
-Title: Enable Role Based Access Control for Azure Key Vault
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          kv.id AS resource,
+          kv.platform_integration_id AS platform_integration_id,
+          kv.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_rbac_authorization THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_rbac_authorization THEN name || ' has RBAC enabled.'
+            ELSE name || ' have RBAC disabled.'
+          END AS reason,
+          kv.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault AS kv,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = kv.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '8.6'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '8'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/KeyVault

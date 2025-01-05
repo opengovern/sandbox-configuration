@@ -1,54 +1,51 @@
-Description: This control checks whether all stages of an Amazon API Gateway REST or WebSocket API have logging enabled. The control fails if logging is not enabled for all methods of a stage or if loggingLevel is neither ERROR nor INFO.
-ID: aws_foundational_security_apigateway_1
-IntegrationType:
+id: aws_foundational_security_apigateway_1
+title: 1 API Gateway REST and WebSocket API logging should be enabled
+description: This control checks whether all stages of an Amazon API Gateway REST or WebSocket API have logging enabled. The control fails if logging is not enabled for all methods of a stage or if loggingLevel is neither ERROR nor INFO.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_api_gateway_stage
-    - aws_api_gatewayv2_stage
-  Parameters: []
-  PrimaryTable: aws_api_gateway_stage
-  QueryToExecute: |
-    WITH all_stages AS (
-      SELECT
-        name AS stage_name,
-        'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS arn,
-        method_settings -> '*/*' ->> 'LoggingLevel' AS log_level,
-        title,
-        region,
-        account_id,
-        tags,
-        _ctx
-      FROM
-        aws_api_gateway_stage
-      UNION
-      SELECT
-        stage_name,
-        'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS arn,
-        default_route_logging_level AS log_level,
-        title,
-        region,
-        account_id,
-        tags,
-        _ctx
-      FROM
-        aws_api_gatewayv2_stage
-    )
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN title || ' logging not enabled.'
-        ELSE title || ' logging enabled.'
-      END AS reason
-    FROM
-      all_stages;
-Severity: medium
-Tags: {}
-Title: 1 API Gateway REST and WebSocket API logging should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_stage
+    definition: |
+        WITH all_stages AS (
+          SELECT
+            name AS stage_name,
+            'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS arn,
+            method_settings -> '*/*' ->> 'LoggingLevel' AS log_level,
+            title,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_api_gateway_stage
+          UNION
+          SELECT
+            stage_name,
+            'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS arn,
+            default_route_logging_level AS log_level,
+            title,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_api_gatewayv2_stage
+        )
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN title || ' logging not enabled.'
+            ELSE title || ' logging enabled.'
+          END AS reason
+        FROM
+          all_stages;
+severity: medium
+tags: {}

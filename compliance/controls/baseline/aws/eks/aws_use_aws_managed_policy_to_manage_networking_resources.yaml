@@ -1,41 +1,38 @@
-Description: Ensure that EKS cluster node groups implement the "AmazonEKS_CNI_Policy" managed policy.
-ID: aws_use_aws_managed_policy_to_manage_networking_resources
-IntegrationType:
+id: aws_use_aws_managed_policy_to_manage_networking_resources
+title: Use AWS-managed policy to Manage Networking Resources
+description: Ensure that EKS cluster node groups implement the "AmazonEKS_CNI_Policy" managed policy.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_node_group
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_eks_node_group
-  QueryToExecute: |
-    SELECT 
-      ng.nodegroup_name AS resource,
-      ng.platform_integration_id,
-      ng.platform_resource_id,
-      CASE
-        WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'node group policies contains AmazonEKS_CNI_Policy'
-        ELSE 'node group policies does not contain AmazonEKS_CNI_Policy'
-      END AS reason,
-      ng.region,
-      ng.account_id
-    FROM 
-      aws_eks_node_group AS ng
-    LEFT JOIN aws_iam_role AS r 
-      ON r.arn = ng.node_role
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  score_tags:
-    - Lacking High Availability
-Title: Use AWS-managed policy to Manage Networking Resources
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_node_group
+    definition: |
+        SELECT 
+          ng.nodegroup_name AS resource,
+          ng.platform_integration_id,
+          ng.platform_resource_id,
+          CASE
+            WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN attached_policy_arns::TEXT LIKE '%arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy%' THEN 'node group policies contains AmazonEKS_CNI_Policy'
+            ELSE 'node group policies does not contain AmazonEKS_CNI_Policy'
+          END AS reason,
+          ng.region,
+          ng.account_id
+        FROM 
+          aws_eks_node_group AS ng
+        LEFT JOIN aws_iam_role AS r 
+          ON r.arn = ng.node_role
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

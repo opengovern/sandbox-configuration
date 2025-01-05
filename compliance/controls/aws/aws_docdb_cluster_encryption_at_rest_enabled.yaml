@@ -1,28 +1,26 @@
-Description: This control checks whether an AWS DocumentDB cluster is encrypted at rest. The control fails if an AWS DocumentDB cluster isn't encrypted at rest.
-ID: aws_docdb_cluster_encryption_at_rest_enabled
-IntegrationType:
+id: aws_docdb_cluster_encryption_at_rest_enabled
+title: AWS DocumentDB clusters should be encrypted at rest
+description: This control checks whether an AWS DocumentDB cluster is encrypted at rest. The control fails if an AWS DocumentDB cluster isn't encrypted at rest.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_docdb_cluster
-  Parameters: []
-  PrimaryTable: aws_docdb_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN storage_encrypted THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN storage_encrypted THEN title || ' encrypted at rest.'
-        ELSE title || ' not encrypted at rest.'
-      END AS reason
-    FROM
-      aws_docdb_cluster;
-Severity: low
-Tags: {}
-Title: AWS DocumentDB clusters should be encrypted at rest
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_docdb_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN storage_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN storage_encrypted THEN title || ' encrypted at rest.'
+            ELSE title || ' not encrypted at rest.'
+          END AS reason
+        FROM
+          aws_docdb_cluster;
+severity: low
+tags: {}

@@ -1,37 +1,34 @@
-Description: Ensure fewer Amazon RDS instances than the established limit in your AWS account.
-ID: aws_rds_desired_instance_type
-IntegrationType:
+id: aws_rds_desired_instance_type
+title: RDS Desired Instance Type
+description: Ensure fewer Amazon RDS instances than the established limit in your AWS account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters:
-    - Key: awsRdsInstanceDesiredClasses
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      db_instance_identifier AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN '{{.awsRdsInstanceDesiredClasses}}' LIKE '%' || class || '%' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN '{{.awsRdsInstanceDesiredClasses}}' LIKE '%' || class || '%' THEN title || ' RDS Instance is using desired class'
-        ELSE title || ' RDS Instance is not using desired class'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_instance
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Relational Database Service (RDS)
-  score_service_name:
-    - AWS Relational Database Service (RDS)
-Title: RDS Desired Instance Type
+parameters:
+  - key: awsRdsInstanceDesiredClasses
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          db_instance_identifier AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN '{{.awsRdsInstanceDesiredClasses}}' LIKE '%' || class || '%' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN '{{.awsRdsInstanceDesiredClasses}}' LIKE '%' || class || '%' THEN title || ' RDS Instance is using desired class'
+            ELSE title || ' RDS Instance is not using desired class'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    score_service_name:
+      - AWS Relational Database Service (RDS)

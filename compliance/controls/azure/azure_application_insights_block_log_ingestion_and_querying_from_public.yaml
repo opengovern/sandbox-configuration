@@ -1,34 +1,31 @@
-Description: Improve Application Insights security by blocking log ingestion and querying from public networks. Only private-link connected networks will be able to ingest and query logs of this component. Learn more at https://aka.ms/AzMonPrivateLink#configure-application-insights.
-ID: azure_application_insights_block_log_ingestion_and_querying_from_public
-IntegrationType:
+id: azure_application_insights_block_log_ingestion_and_querying_from_public
+title: Application Insights components should block log ingestion and querying from public networks
+description: Improve Application Insights security by blocking log ingestion and querying from public networks. Only private-link connected networks will be able to ingest and query logs of this component. Learn more at https://aka.ms/AzMonPrivateLink#configure-application-insights.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_application_insight
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_application_insight
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN type = 'microsoft.insights/components'
-        AND public_network_access_for_ingestion = 'Enabled'
-        AND public_network_access_for_query = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN type = 'microsoft.insights/components'
-        AND public_network_access_for_ingestion = 'Enabled'
-        AND public_network_access_for_query = 'Enabled' THEN a.name || ' allows log ingestion and querying from public network.'
-        ELSE a.name || ' does not allow log ingestion and querying from public network.'
-      END AS reason
-    FROM
-      azure_application_insight AS a
-    LEFT JOIN azure_subscription sub ON sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: Application Insights components should block log ingestion and querying from public networks
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_application_insight
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN type = 'microsoft.insights/components'
+            AND public_network_access_for_ingestion = 'Enabled'
+            AND public_network_access_for_query = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN type = 'microsoft.insights/components'
+            AND public_network_access_for_ingestion = 'Enabled'
+            AND public_network_access_for_query = 'Enabled' THEN a.name || ' allows log ingestion and querying from public network.'
+            ELSE a.name || ' does not allow log ingestion and querying from public network.'
+          END AS reason
+        FROM
+          azure_application_insight AS a
+        LEFT JOIN azure_subscription sub ON sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

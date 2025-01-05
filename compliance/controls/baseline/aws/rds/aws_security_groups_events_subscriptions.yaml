@@ -1,42 +1,39 @@
-Description: Enable Event Subscriptions for DB Security Groups Events.
-ID: aws_security_groups_events_subscriptions
-IntegrationType:
+id: aws_security_groups_events_subscriptions
+title: Security Groups Events Subscriptions
+description: Enable Event Subscriptions for DB Security Groups Events.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_rds_db_event_subscription
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT DISTINCT
-      a.platform_integration_id,
-      a.platform_resource_id,
-      CASE
-        WHEN s.arn IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN s.arn IS NULL THEN 'Event subscription is not enabled for database security groups'
-        ELSE 'Event subscription is enabled for database security groups'
-      END AS reason,
-      a.account_id
-    FROM
-      aws_account a
-    LEFT JOIN (
-      SELECT * FROM aws_rds_db_event_subscription
-      WHERE source_type = 'db-security-group'
-    ) s 
-    ON s.platform_integration_id = a.platform_integration_id
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Relational Database Service (RDS)
-  platform_score_use_case:
-    - General Efficiency
-  score_service_name:
-    - AWS Relational Database Service (RDS)
-  score_tags:
-    - General Efficiency
-Title: Security Groups Events Subscriptions
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT DISTINCT
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN s.arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN s.arn IS NULL THEN 'Event subscription is not enabled for database security groups'
+            ELSE 'Event subscription is enabled for database security groups'
+          END AS reason,
+          a.account_id
+        FROM
+          aws_account a
+        LEFT JOIN (
+          SELECT * FROM aws_rds_db_event_subscription
+          WHERE source_type = 'db-security-group'
+        ) s 
+        ON s.platform_integration_id = a.platform_integration_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Relational Database Service (RDS)
+    platform_score_use_case:
+      - General Efficiency
+    score_service_name:
+      - AWS Relational Database Service (RDS)
+    score_tags:
+      - General Efficiency

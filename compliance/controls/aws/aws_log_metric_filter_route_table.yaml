@@ -1,81 +1,75 @@
-Description: You can do real-time monitoring of API calls by directing CloudTrail logs to CloudWatch Logs and establishing corresponding metric filters and alarms. Routing tables route network traffic between subnets and to network gateways. Security Hub recommends that you create a metric filter and alarm for changes to route tables. Monitoring these changes helps ensure that all VPC traffic flows through an expected path.
-ID: aws_log_metric_filter_route_table
-IntegrationType:
+id: aws_log_metric_filter_route_table
+title: Ensure a log metric filter and alarm exist for route table changes
+description: You can do real-time monitoring of API calls by directing CloudTrail logs to CloudWatch Logs and establishing corresponding metric filters and alarms. Routing tables route network traffic between subnets and to network gateways. Security Hub recommends that you create a metric filter and alarm for changes to route tables. Monitoring these changes helps ensure that all VPC traffic flows through an expected path.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_cloudtrail_trail
-    - aws_cloudwatch_alarm
-    - aws_cloudwatch_log_metric_filter
-    - aws_sns_topic_subscription
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    WITH filter_data AS (
-      SELECT
-        trail.account_id,
-        trail.name AS trail_name,
-        trail.is_logging,
-        split_part(trail.log_group_arn, ':', 7) AS log_group_name,
-        filter.name AS filter_name,
-        action_arn AS topic_arn,
-        alarm.metric_name,
-        alarm.name AS alarm_name,
-        subscription.subscription_arn,
-        filter.filter_pattern
-      FROM
-        aws_cloudtrail_trail AS trail,
-        jsonb_array_elements(trail.event_selectors) AS se,
-        aws_cloudwatch_log_metric_filter AS filter,
-        aws_cloudwatch_alarm AS alarm,
-        jsonb_array_elements_text(alarm.alarm_actions) AS action_arn,
-        aws_sns_topic_subscription AS subscription
-      WHERE
-        trail.is_multi_region_trail IS TRUE
-        AND trail.is_logging
-        AND se ->> 'ReadWriteType' = 'All'
-        AND trail.log_group_arn IS NOT NULL
-        AND filter.log_group_name = split_part(trail.log_group_arn, ':', 7)
-        AND filter.filter_pattern ~ '\s*\$\.eventName\s*=\s*CreateRoute.+\$\.eventName\s*=\s*CreateRouteTable.+\$\.eventName\s*=\s*ReplaceRoute.+\$\.eventName\s*=\s*ReplaceRouteTableAssociation.+\$\.eventName\s*=\s*DeleteRouteTable.+\$\.eventName\s*=\s*DeleteRoute.+\$\.eventName\s*=\s*DisassociateRouteTable'
-        AND alarm.metric_name LIKE filter.metric_transformation_name
-        AND subscription.topic_arn = action_arn
-    )
-    SELECT
-      DISTINCT 'arn:' || a.partition || ':::' || a.account_id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN f.trail_name IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN f.trail_name IS NULL THEN 'No log metric filter and alarm exist for route table changes.'
-        ELSE filter_name || ' forwards events for route table changes.'
-      END AS reason,
-      a.account_id
-    FROM
-      aws_account AS a
-      LEFT JOIN filter_data AS f ON a.account_id = f.account_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "3.13"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "3"
-  cis_type:
-    - scored
-  cis_version:
-    - v1.2.0
-  plugin:
-    - aws
-  service:
-    - AWS/CloudWatch
-Title: Ensure a log metric filter and alarm exist for route table changes
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH filter_data AS (
+          SELECT
+            trail.account_id,
+            trail.name AS trail_name,
+            trail.is_logging,
+            split_part(trail.log_group_arn, ':', 7) AS log_group_name,
+            filter.name AS filter_name,
+            action_arn AS topic_arn,
+            alarm.metric_name,
+            alarm.name AS alarm_name,
+            subscription.subscription_arn,
+            filter.filter_pattern
+          FROM
+            aws_cloudtrail_trail AS trail,
+            jsonb_array_elements(trail.event_selectors) AS se,
+            aws_cloudwatch_log_metric_filter AS filter,
+            aws_cloudwatch_alarm AS alarm,
+            jsonb_array_elements_text(alarm.alarm_actions) AS action_arn,
+            aws_sns_topic_subscription AS subscription
+          WHERE
+            trail.is_multi_region_trail IS TRUE
+            AND trail.is_logging
+            AND se ->> 'ReadWriteType' = 'All'
+            AND trail.log_group_arn IS NOT NULL
+            AND filter.log_group_name = split_part(trail.log_group_arn, ':', 7)
+            AND filter.filter_pattern ~ '\s*\$\.eventName\s*=\s*CreateRoute.+\$\.eventName\s*=\s*CreateRouteTable.+\$\.eventName\s*=\s*ReplaceRoute.+\$\.eventName\s*=\s*ReplaceRouteTableAssociation.+\$\.eventName\s*=\s*DeleteRouteTable.+\$\.eventName\s*=\s*DeleteRoute.+\$\.eventName\s*=\s*DisassociateRouteTable'
+            AND alarm.metric_name LIKE filter.metric_transformation_name
+            AND subscription.topic_arn = action_arn
+        )
+        SELECT
+          DISTINCT 'arn:' || a.partition || ':::' || a.account_id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN f.trail_name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN f.trail_name IS NULL THEN 'No log metric filter and alarm exist for route table changes.'
+            ELSE filter_name || ' forwards events for route table changes.'
+          END AS reason,
+          a.account_id
+        FROM
+          aws_account AS a
+          LEFT JOIN filter_data AS f ON a.account_id = f.account_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.13'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - scored
+    cis_version:
+      - v1.2.0
+    plugin:
+      - aws
+    service:
+      - AWS/CloudWatch

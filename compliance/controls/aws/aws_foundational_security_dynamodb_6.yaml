@@ -1,28 +1,26 @@
-Description: This control checks whether an Amazon DynamoDB table has deletion protection enabled. The control fails if a DynamoDB table doesn't have deletion protection enabled.
-ID: aws_foundational_security_dynamodb_6
-IntegrationType:
+id: aws_foundational_security_dynamodb_6
+title: 6 DynamoDB tables should have deletion protection enabled
+description: This control checks whether an Amazon DynamoDB table has deletion protection enabled. The control fails if a DynamoDB table doesn't have deletion protection enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_dynamodb_table
-  Parameters: []
-  PrimaryTable: aws_dynamodb_table
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN deletion_protection_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN deletion_protection_enabled THEN title || ' deletion protection enabled.'
-        ELSE title || ' deletion protection disabled.'
-      END AS reason
-    FROM
-      aws_dynamodb_table;
-Severity: medium
-Tags: {}
-Title: 6 DynamoDB tables should have deletion protection enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dynamodb_table
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN deletion_protection_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN deletion_protection_enabled THEN title || ' deletion protection enabled.'
+            ELSE title || ' deletion protection disabled.'
+          END AS reason
+        FROM
+          aws_dynamodb_table;
+severity: medium
+tags: {}

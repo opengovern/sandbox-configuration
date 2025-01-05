@@ -1,46 +1,43 @@
-Description: Ensure that the Managed NAT Gateway service is enabled for high availability (HA).
-ID: aws_managed_nat_gateway_in_use
-IntegrationType:
+id: aws_managed_nat_gateway_in_use
+title: Managed NAT Gateway in Use
+description: Ensure that the Managed NAT Gateway service is enabled for high availability (HA).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - aws_vpc
-    - aws_vpc_nat_gateway
-  Parameters: []
-  PrimaryTable: aws_vpc
-  QueryToExecute: |
-    WITH available_nat_gateways AS (
-      SELECT vpc_id, arn 
-      FROM aws_vpc_nat_gateway 
-      WHERE state = 'available'
-    )
-    SELECT
-      v.arn AS resource,
-      v.platform_integration_id,
-      v.platform_resource_id,
-      CASE
-        WHEN ng.arn IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ng.arn IS NOT NULL THEN v.vpc_id || ' is using Managed NAT Gateways.'
-        ELSE v.vpc_id || ' is not using Managed NAT Gateways.'
-      END AS reason,
-      v.region,
-      v.account_id
-    FROM
-      aws_vpc AS v
-    LEFT JOIN available_nat_gateways AS ng 
-      ON ng.vpc_id = v.vpc_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  platform_score_use_case:
-    - Over Utilization
-  score_service_name:
-    - AWS Virtual Private Cloud (VPC)
-  score_tags:
-    - Over Utilization
-Title: Managed NAT Gateway in Use
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        WITH available_nat_gateways AS (
+          SELECT vpc_id, arn 
+          FROM aws_vpc_nat_gateway 
+          WHERE state = 'available'
+        )
+        SELECT
+          v.arn AS resource,
+          v.platform_integration_id,
+          v.platform_resource_id,
+          CASE
+            WHEN ng.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ng.arn IS NOT NULL THEN v.vpc_id || ' is using Managed NAT Gateways.'
+            ELSE v.vpc_id || ' is not using Managed NAT Gateways.'
+          END AS reason,
+          v.region,
+          v.account_id
+        FROM
+          aws_vpc AS v
+        LEFT JOIN available_nat_gateways AS ng 
+          ON ng.vpc_id = v.vpc_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    platform_score_use_case:
+      - Over Utilization
+    score_service_name:
+      - AWS Virtual Private Cloud (VPC)
+    score_tags:
+      - Over Utilization

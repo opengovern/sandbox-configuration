@@ -1,42 +1,39 @@
-Description: This control ensures whether virtual network network peering is in connected state. This control is non-compliant if network peering is not in connected state.
-ID: azure_network_network_peering_connected
-IntegrationType:
+id: azure_network_network_peering_connected
+title: Virtual network network peering should be in connected state
+description: This control ensures whether virtual network network peering is in connected state. This control is non-compliant if network peering is not in connected state.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_virtual_network
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_virtual_network
-  QueryToExecute: |
-    WITH disconnected_network_peering AS (
-      SELECT
-        DISTINCT id AS vn_id
-      FROM
-        azure_virtual_network AS n,
-        jsonb_array_elements(network_peerings) AS p
-      WHERE
-        p -> 'properties' ->> 'peeringState' = 'Disconnected'
-    )
-    SELECT
-      n.id AS resource,
-      n.platform_integration_id AS platform_integration_id,
-      n.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN jsonb_array_length(network_peerings) = 0 THEN 'ok'
-        WHEN p.vn_id IS NOT NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN jsonb_array_length(network_peerings) = 0 THEN n.title || ' has no network peering.'
-        WHEN p.vn_id IS NOT NULL THEN n.title || ' has network peering in disconnected state.'
-        ELSE n.title || ' has network peering in connected state.'
-      END AS reason
-    FROM
-      azure_virtual_network AS n
-      LEFT JOIN disconnected_network_peering AS p ON p.vn_id = n.id
-      JOIN azure_subscription sub ON sub.subscription_id = n.subscription_id;
-Severity: low
-Tags: {}
-Title: Virtual network network peering should be in connected state
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_virtual_network
+    definition: |
+        WITH disconnected_network_peering AS (
+          SELECT
+            DISTINCT id AS vn_id
+          FROM
+            azure_virtual_network AS n,
+            jsonb_array_elements(network_peerings) AS p
+          WHERE
+            p -> 'properties' ->> 'peeringState' = 'Disconnected'
+        )
+        SELECT
+          n.id AS resource,
+          n.platform_integration_id AS platform_integration_id,
+          n.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(network_peerings) = 0 THEN 'ok'
+            WHEN p.vn_id IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(network_peerings) = 0 THEN n.title || ' has no network peering.'
+            WHEN p.vn_id IS NOT NULL THEN n.title || ' has network peering in disconnected state.'
+            ELSE n.title || ' has network peering in connected state.'
+          END AS reason
+        FROM
+          azure_virtual_network AS n
+          LEFT JOIN disconnected_network_peering AS p ON p.vn_id = n.id
+          JOIN azure_subscription sub ON sub.subscription_id = n.subscription_id;
+severity: low
+tags: {}

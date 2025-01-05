@@ -1,37 +1,35 @@
-Description: Ensure that Amazon ALBs have Access Logging feature enabled for security, troubleshooting and statistical analysis purposes.
-ID: aws_elbv2_access_log
-IntegrationType:
+id: aws_elbv2_access_log
+title: ELBv2 Access Log
+description: Ensure that Amazon ALBs have Access Logging feature enabled for security, troubleshooting and statistical analysis purposes.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_application_load_balancer
-  Parameters: []
-  PrimaryTable: aws_ec2_application_load_balancer
-  QueryToExecute: |
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id,
-      a.platform_resource_id,
-      CASE
-        WHEN lb ->> 'Value' = 'false' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN lb ->> 'Value' = 'false' THEN a.title || ' deletion protection is not enabled.'
-        ELSE a.title || ' deletion protection is enabled.'
-      END AS reason,
-      a.region,
-      a.account_id
-    FROM
-      aws_ec2_application_load_balancer a
-      CROSS JOIN jsonb_array_elements(load_balancer_attributes) AS lb
-    WHERE
-      lb ->> 'Key' = 'access_logs.s3.enabled'
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Load Balancing V2 (ELBv2)
-  score_service_name:
-    - AWS Elastic Load Balancing V2 (ELBv2)
-Title: ELBv2 Access Log
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id,
+          a.platform_resource_id,
+          CASE
+            WHEN lb ->> 'Value' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN lb ->> 'Value' = 'false' THEN a.title || ' deletion protection is not enabled.'
+            ELSE a.title || ' deletion protection is enabled.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_ec2_application_load_balancer a
+          CROSS JOIN jsonb_array_elements(load_balancer_attributes) AS lb
+        WHERE
+          lb ->> 'Key' = 'access_logs.s3.enabled'
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)

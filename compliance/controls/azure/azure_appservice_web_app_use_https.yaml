@@ -1,52 +1,49 @@
-Description: Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks.
-ID: azure_appservice_web_app_use_https
-IntegrationType:
+id: azure_appservice_web_app_use_https
+title: Web Application should only be accessible over HTTPS
+description: Use of HTTPS ensures server/service authentication and protects data in transit from network layer eavesdropping attacks.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_web_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_service_web_app
-  QueryToExecute: |
-    SELECT
-      app.id AS resource,
-      app.platform_integration_id AS platform_integration_id,
-      app.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT https_only THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT https_only THEN name || ' does not redirect all HTTP traffic to HTTPS.'
-        ELSE name || ' redirects all HTTP traffic to HTTPS.'
-      END AS reason,
-      app.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_app_service_web_app AS app,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = app.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "9.2"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "9"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/AppService
-Title: Web Application should only be accessible over HTTPS
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_service_web_app
+    definition: |
+        SELECT
+          app.id AS resource,
+          app.platform_integration_id AS platform_integration_id,
+          app.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT https_only THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT https_only THEN name || ' does not redirect all HTTP traffic to HTTPS.'
+            ELSE name || ' redirects all HTTP traffic to HTTPS.'
+          END AS reason,
+          app.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_app_service_web_app AS app,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = app.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '9.2'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '9'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/AppService

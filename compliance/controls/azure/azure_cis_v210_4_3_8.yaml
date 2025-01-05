@@ -1,32 +1,29 @@
-Description: Azure Database for PostgreSQL servers should be created with 'infrastructure double encryption' enabled.
-ID: azure_cis_v210_4_3_8
-IntegrationType:
+id: azure_cis_v210_4_3_8
+title: 4.3.8 Ensure 'Infrastructure double encryption' for PostgreSQL Database Server is 'Enabled'
+description: Azure Database for PostgreSQL servers should be created with 'infrastructure double encryption' enabled.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN infrastructure_encryption = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN infrastructure_encryption = 'Enabled' THEN name || ' infrastructure encryption enabled.'
-        ELSE name || ' infrastructure encryption disabled.'
-      END AS reason
-    FROM
-      azure_postgresql_server AS s,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: 4.3.8 Ensure 'Infrastructure double encryption' for PostgreSQL Database Server is 'Enabled'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN infrastructure_encryption = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN infrastructure_encryption = 'Enabled' THEN name || ' infrastructure encryption enabled.'
+            ELSE name || ' infrastructure encryption disabled.'
+          END AS reason
+        FROM
+          azure_postgresql_server AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

@@ -1,46 +1,44 @@
-Description: Ensure there are no IAM users with administrative permissions available in your AWS cloud account.
-ID: aws_iam_users_with_administrative_privileges
-IntegrationType:
+id: aws_iam_users_with_administrative_privileges
+title: IAM Users with Administrative Privileges
+description: Ensure there are no IAM users with administrative permissions available in your AWS cloud account.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_iam_user
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
-          WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
-          WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
-        ) THEN name || ' has administrator access'
-        ELSE name || ' does not have administrator access'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_user
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Problem Identities
-Title: IAM Users with Administrative Privileges
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
+              WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements_text(attached_policy_arns::jsonb) AS elem
+              WHERE SUBSTRING(elem::text FROM 'policy/(.*)') = 'AdministratorAccess'
+            ) THEN name || ' has administrator access'
+            ELSE name || ' does not have administrator access'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_user
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

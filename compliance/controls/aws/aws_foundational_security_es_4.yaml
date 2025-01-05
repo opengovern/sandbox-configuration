@@ -1,32 +1,30 @@
-Description: This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs.
-ID: aws_foundational_security_es_4
-IntegrationType:
+id: aws_foundational_security_es_4
+title: 4 Elasticsearch domain error logging to CloudWatch Logs should be enabled
+description: This control checks whether Elasticsearch domains are configured to send error logs to CloudWatch Logs.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_elasticsearch_domain
-  Parameters: []
-  PrimaryTable: aws_elasticsearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN
-          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
-          AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN
-          log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
-          AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN title || ' error logging enabled.'
-        ELSE title || ' error logging disabled.'
-      END AS reason
-    FROM
-      aws_elasticsearch_domain;
-Severity: medium
-Tags: {}
-Title: 4 Elasticsearch domain error logging to CloudWatch Logs should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_elasticsearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN
+              log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+              AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN
+              log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'Enabled' = 'true'
+              AND log_publishing_options -> 'ES_APPLICATION_LOGS' -> 'CloudWatchLogsLogGroupArn' IS NOT NULL THEN title || ' error logging enabled.'
+            ELSE title || ' error logging disabled.'
+          END AS reason
+        FROM
+          aws_elasticsearch_domain;
+severity: medium
+tags: {}

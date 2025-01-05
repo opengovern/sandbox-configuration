@@ -1,53 +1,50 @@
-Description: GuardDuty generates a finding whenever it detects unexpected and potentially malicious activity in your AWS environment. If critical findings are not addressed threats can spread in the environment. This rule is non-compliant if there are high severity findings.
-ID: aws_guardduty_no_high_severity_findings
-IntegrationType:
+id: aws_guardduty_no_high_severity_findings
+title: GuardDuty Detector should not have high severity findings
+description: GuardDuty generates a finding whenever it detects unexpected and potentially malicious activity in your AWS environment. If critical findings are not addressed threats can spread in the environment. This rule is non-compliant if there are high severity findings.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_guardduty_detector
-    - aws_guardduty_finding
-  Parameters: []
-  PrimaryTable: aws_guardduty_detector
-  QueryToExecute: |
-    WITH detectors AS (
-      SELECT
-        detector_id,
-        arn,
-        title,
-        region,
-        account_id,
-        status,
-        platform_integration_id,
-        platform_resource_id
-      FROM
-        aws_guardduty_detector
-    ), finding_count AS (
-      SELECT
-        f.detector_id,
-        COUNT(*) AS count
-      FROM
-        aws_guardduty_finding AS f
-      GROUP BY
-        f.detector_id
-    )
-    SELECT
-      arn AS resource,
-      d.platform_integration_id AS platform_integration_id,
-      d.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN status <> 'ENABLED' THEN 'skip'
-        WHEN fc.count = 0 OR fc.count IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN status <> 'ENABLED' THEN d.detector_id || ' is disabled.'
-        WHEN fc.count = 0 OR fc.count IS NULL THEN d.detector_id || ' is enabled and does not have high severity findings.'
-        ELSE d.detector_id || ' is enabled and has ' || fc.count || ' high severity findings.'
-      END AS reason
-    FROM
-      detectors AS d
-    LEFT JOIN finding_count AS fc ON fc.detector_id = d.detector_id;
-Severity: low
-Tags: {}
-Title: GuardDuty Detector should not have high severity findings
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_guardduty_detector
+    definition: |
+        WITH detectors AS (
+          SELECT
+            detector_id,
+            arn,
+            title,
+            region,
+            account_id,
+            status,
+            platform_integration_id,
+            platform_resource_id
+          FROM
+            aws_guardduty_detector
+        ), finding_count AS (
+          SELECT
+            f.detector_id,
+            COUNT(*) AS count
+          FROM
+            aws_guardduty_finding AS f
+          GROUP BY
+            f.detector_id
+        )
+        SELECT
+          arn AS resource,
+          d.platform_integration_id AS platform_integration_id,
+          d.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN status <> 'ENABLED' THEN 'skip'
+            WHEN fc.count = 0 OR fc.count IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN status <> 'ENABLED' THEN d.detector_id || ' is disabled.'
+            WHEN fc.count = 0 OR fc.count IS NULL THEN d.detector_id || ' is enabled and does not have high severity findings.'
+            ELSE d.detector_id || ' is enabled and has ' || fc.count || ' high severity findings.'
+          END AS reason
+        FROM
+          detectors AS d
+        LEFT JOIN finding_count AS fc ON fc.detector_id = d.detector_id;
+severity: low
+tags: {}

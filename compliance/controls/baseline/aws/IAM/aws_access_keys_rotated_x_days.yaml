@@ -1,43 +1,40 @@
-Description: Ensure AWS IAM access keys are rotated on a periodic basis as a security best practice (X Days).
-ID: aws_access_keys_rotated_x_days
-IntegrationType:
+id: aws_access_keys_rotated_x_days
+title: Access Keys Rotated X Days
+description: Ensure AWS IAM access keys are rotated on a periodic basis as a security best practice (X Days).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_access_key
-  Parameters:
-    - Key: awsIamAccessKeyAge
-      Required: true
-      DefaultValue: "180"
-  PrimaryTable: aws_iam_access_key
-  QueryToExecute: |
-    SELECT
-      access_key_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN status <> 'Active' THEN 'skip'
-        WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status <> 'Active' THEN 'key is not activated'
-        WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'key is too old'
-        ELSE 'key is not old yet'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_access_key v
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Insecure Keys
-Title: Access Keys Rotated X Days
+parameters:
+  - key: awsIamAccessKeyAge
+    value: '180'
+policy:
+    language: sql
+    primary_resource: aws_iam_access_key
+    definition: |
+        SELECT
+          access_key_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN status <> 'Active' THEN 'skip'
+            WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN status <> 'Active' THEN 'key is not activated'
+            WHEN create_date + ('{{.awsIamAccessKeyAge}}' || ' days')::interval < NOW() THEN 'key is too old'
+            ELSE 'key is not old yet'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_access_key v
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Insecure Keys

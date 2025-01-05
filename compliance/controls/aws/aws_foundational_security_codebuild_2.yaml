@@ -1,40 +1,38 @@
-Description: This control checks whether the project contains the environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Authentication credentials AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY should never be stored in clear text, as this could lead to unintended data exposure and unauthorized access.
-ID: aws_foundational_security_codebuild_2
-IntegrationType:
+id: aws_foundational_security_codebuild_2
+title: 2 CodeBuild project environment variables should not contain clear text credentials
+description: This control checks whether the project contains the environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. Authentication credentials AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY should never be stored in clear text, as this could lead to unintended data exposure and unauthorized access.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_codebuild_project
-  Parameters: []
-  PrimaryTable: aws_codebuild_project
-  QueryToExecute: |
-    WITH invalid_key_name AS (
-      SELECT
-        DISTINCT arn,
-        name
-      FROM
-        aws_codebuild_project,
-        jsonb_array_elements(environment -> 'EnvironmentVariables') AS env
-      WHERE
-        env ->> 'Name' ILIKE ANY(ARRAY['%AWS_ACCESS_KEY_ID%', '%AWS_SECRET_ACCESS_KEY%', '%PASSWORD%'])
-        AND env ->> 'Type' = 'PLAINTEXT'
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.arn IS NULL THEN a.title || ' has no plaintext environment variables with sensitive AWS values.'
-        ELSE a.title || ' has plaintext environment variables with sensitive AWS values.'
-      END AS reason
-    FROM
-      aws_codebuild_project AS a
-      LEFT JOIN invalid_key_name b ON a.arn = b.arn;
-Severity: critical
-Tags: {}
-Title: 2 CodeBuild project environment variables should not contain clear text credentials
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_codebuild_project
+    definition: |
+        WITH invalid_key_name AS (
+          SELECT
+            DISTINCT arn,
+            name
+          FROM
+            aws_codebuild_project,
+            jsonb_array_elements(environment -> 'EnvironmentVariables') AS env
+          WHERE
+            env ->> 'Name' ILIKE ANY(ARRAY['%AWS_ACCESS_KEY_ID%', '%AWS_SECRET_ACCESS_KEY%', '%PASSWORD%'])
+            AND env ->> 'Type' = 'PLAINTEXT'
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.arn IS NULL THEN a.title || ' has no plaintext environment variables with sensitive AWS values.'
+            ELSE a.title || ' has plaintext environment variables with sensitive AWS values.'
+          END AS reason
+        FROM
+          aws_codebuild_project AS a
+          LEFT JOIN invalid_key_name b ON a.arn = b.arn;
+severity: critical
+tags: {}

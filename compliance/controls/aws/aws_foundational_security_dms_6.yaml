@@ -1,28 +1,26 @@
-Description: This control checks if automatic minor version upgrade is enabled for an AWS DMS replication instance. The control fails if automatic minor version upgrade isn't enabled for a DMS replication instance.
-ID: aws_foundational_security_dms_6
-IntegrationType:
+id: aws_foundational_security_dms_6
+title: 6 DMS replication instances should have automatic minor version upgrade enabled
+description: This control checks if automatic minor version upgrade is enabled for an AWS DMS replication instance. The control fails if automatic minor version upgrade isn't enabled for a DMS replication instance.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_dms_replication_instance
-  Parameters: []
-  PrimaryTable: aws_dms_replication_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_minor_version_upgrade THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrade enabled.'
-        ELSE title || ' automatic minor version upgrade disabled.'
-      END AS reason
-    FROM
-      aws_dms_replication_instance;
-Severity: medium
-Tags: {}
-Title: 6 DMS replication instances should have automatic minor version upgrade enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dms_replication_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_minor_version_upgrade THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrade enabled.'
+            ELSE title || ' automatic minor version upgrade disabled.'
+          END AS reason
+        FROM
+          aws_dms_replication_instance;
+severity: medium
+tags: {}

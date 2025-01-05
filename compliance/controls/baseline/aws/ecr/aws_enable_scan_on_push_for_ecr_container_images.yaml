@@ -1,34 +1,32 @@
-Description: Ensure that each Amazon ECR container image is automatically scanned for vulnerabilities when pushed to a repository.
-ID: aws_enable_scan_on_push_for_ecr_container_images
-IntegrationType:
+id: aws_enable_scan_on_push_for_ecr_container_images
+title: Enable Scan on Push for ECR Container Images
+description: Ensure that each Amazon ECR container image is automatically scanned for vulnerabilities when pushed to a repository.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecr_repository
-  Parameters: []
-  PrimaryTable: aws_ecr_repository
-  QueryToExecute: |
-    SELECT
-      repository_name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN repository_name || ' container images are automatically scanned for vulnerabilities'
-        ELSE repository_name || ' container images are not automatically scanned for vulnerabilities'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecr_repository
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Registry (ECR)
-  score_service_name:
-    - Elastic Container Registry (ECR)
-Title: Enable Scan on Push for ECR Container Images
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        SELECT
+          repository_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN image_scanning_configuration ->> 'ScanOnPush' = 'true' THEN repository_name || ' container images are automatically scanned for vulnerabilities'
+            ELSE repository_name || ' container images are not automatically scanned for vulnerabilities'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecr_repository
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Registry (ECR)
+    score_service_name:
+      - Elastic Container Registry (ECR)

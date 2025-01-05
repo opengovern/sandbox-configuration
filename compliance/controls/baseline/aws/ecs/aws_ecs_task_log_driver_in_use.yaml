@@ -1,39 +1,37 @@
-Description: Ensure that a log driver has been defined for each active Amazon ECS task definition.
-ID: aws_ecs_task_log_driver_in_use
-IntegrationType:
+id: aws_ecs_task_log_driver_in_use
+title: Amazon ECS Task Log Driver in Use
+description: Ensure that a log driver has been defined for each active Amazon ECS task definition.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_task_definition
-  Parameters: []
-  PrimaryTable: aws_ecs_task_definition
-  QueryToExecute: |
-    SELECT
-      td.task_definition_arn || ' - ' || (c ->> 'Name') AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN (c -> 'LogConfiguration' ->> 'LogDriver') IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (c -> 'LogConfiguration' ->> 'LogDriver') IS NULL THEN td.task_definition_arn || ' - ' || (c ->> 'Name') || ' has no log driver'
-        ELSE td.task_definition_arn || ' - ' || (c ->> 'Name') || ' has log driver'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecs_task_definition AS td,
-      jsonb_array_elements(container_definitions) AS c
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Service (ECS)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - Elastic Container Service (ECS)
-  score_tags:
-    - Exposed Endpoints
-Title: Amazon ECS Task Log Driver in Use
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_task_definition
+    definition: |
+        SELECT
+          td.task_definition_arn || ' - ' || (c ->> 'Name') AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN (c -> 'LogConfiguration' ->> 'LogDriver') IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (c -> 'LogConfiguration' ->> 'LogDriver') IS NULL THEN td.task_definition_arn || ' - ' || (c ->> 'Name') || ' has no log driver'
+            ELSE td.task_definition_arn || ' - ' || (c ->> 'Name') || ' has log driver'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecs_task_definition AS td,
+          jsonb_array_elements(container_definitions) AS c
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Service (ECS)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Elastic Container Service (ECS)
+    score_tags:
+      - Exposed Endpoints

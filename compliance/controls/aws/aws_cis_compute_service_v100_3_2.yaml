@@ -1,22 +1,20 @@
-Description: Change the default settings for the administrator login names and passwords of the application software that you install on Lightsail instances.
-ID: aws_cis_compute_service_v100_3_2
-IntegrationType:
+id: aws_cis_compute_service_v100_3_2
+title: 3.2 Change default Administrator login names and passwords for applications
+description: Change the default settings for the administrator login names and passwords of the application software that you install on Lightsail instances.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'INFO' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 3.2 Change default Administrator login names and passwords for applications
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'INFO' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

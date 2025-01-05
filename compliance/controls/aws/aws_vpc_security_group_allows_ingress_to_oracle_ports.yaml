@@ -1,53 +1,50 @@
-Description: This control checks whether the VPC security groups that are in use allow ingress from 0.0.0.0/0 or ::/0 to oracle ports 1521 or 2483. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 from ports 1521 or 2483.
-ID: aws_vpc_security_group_allows_ingress_to_oracle_ports
-IntegrationType:
+id: aws_vpc_security_group_allows_ingress_to_oracle_ports
+title: VPC security groups should restrict ingress from 0.0.0.0/0 or ::/0 to oracle ports 1521 or 2483
+description: This control checks whether the VPC security groups that are in use allow ingress from 0.0.0.0/0 or ::/0 to oracle ports 1521 or 2483. Optionally the rule checks whether the port numbers are listed in the authorizedTcpPorts parameter. This control passes when none of the rules in a security group allow ingress traffic from 0.0.0.0/0 from ports 1521 or 2483.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group_rule
-    - aws_vpc_security_group
-  Parameters: []
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    WITH ingress_ssh_rules AS (
-      SELECT
-        group_id,
-        COUNT(*) AS num_ssh_rules
-      FROM
-        aws_vpc_security_group_rule
-      WHERE
-        type = 'ingress'
-        AND cidr_ipv4 = '0.0.0.0/0'
-        AND (
-            (ip_protocol = '-1' AND from_port IS NULL)
-            OR (
-              from_port >= 1521
-              AND to_port <= 1521
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        WITH ingress_ssh_rules AS (
+          SELECT
+            group_id,
+            COUNT(*) AS num_ssh_rules
+          FROM
+            aws_vpc_security_group_rule
+          WHERE
+            type = 'ingress'
+            AND cidr_ipv4 = '0.0.0.0/0'
+            AND (
+                (ip_protocol = '-1' AND from_port IS NULL)
+                OR (
+                  from_port >= 1521
+                  AND to_port <= 1521
+                )
+                OR (
+                  from_port >= 2483
+                  AND to_port <= 2483
+                )
             )
-            OR (
-              from_port >= 2483
-              AND to_port <= 2483
-            )
+          GROUP BY
+            group_id
         )
-      GROUP BY
-        group_id
-    )
-    SELECT
-      arn AS resource,
-      sg.platform_integration_id AS platform_integration_id,
-      sg.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ingress_ssh_rules.group_id IS NULL THEN sg.group_id || ' ingress restricted for oracle ports from 0.0.0.0/0.'
-        ELSE sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for oracle ports from 0.0.0.0/0.'
-      END AS reason
-    FROM
-      aws_vpc_security_group AS sg
-      LEFT JOIN ingress_ssh_rules ON ingress_ssh_rules.group_id = sg.group_id;
-Severity: low
-Tags: {}
-Title: VPC security groups should restrict ingress from 0.0.0.0/0 or ::/0 to oracle ports 1521 or 2483
+        SELECT
+          arn AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ingress_ssh_rules.group_id IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ingress_ssh_rules.group_id IS NULL THEN sg.group_id || ' ingress restricted for oracle ports from 0.0.0.0/0.'
+            ELSE sg.group_id || ' contains ' || ingress_ssh_rules.num_ssh_rules || ' ingress rule(s) allowing access for oracle ports from 0.0.0.0/0.'
+          END AS reason
+        FROM
+          aws_vpc_security_group AS sg
+          LEFT JOIN ingress_ssh_rules ON ingress_ssh_rules.group_id = sg.group_id;
+severity: low
+tags: {}

@@ -1,40 +1,38 @@
-Description: With the creation of an AWS account, a 'root user' is created that cannot be disabled or deleted. That user has unrestricted access to and control over all resources in the AWS account. It is highly recommended that the use of this account be avoided for everyday tasks.
-ID: aws_cis_v150_1_7
-IntegrationType:
+id: aws_cis_v150_1_7
+title: 1.7 Eliminate use of the 'root' user for administrative and daily tasks
+description: With the creation of an AWS account, a 'root user' is created that cannot be disabled or deleted. That user has unrestricted access to and control over all resources in the AWS account. It is highly recommended that the use of this account be avoided for everyday tasks.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_credential_report
-  Parameters: []
-  PrimaryTable: aws_iam_credential_report
-  QueryToExecute: |
-    SELECT
-      user_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN password_last_used >= (current_date - INTERVAL '90' day) THEN 'alarm'
-        WHEN access_key_1_last_used_date <= (current_date - INTERVAL '90' day) THEN 'alarm'
-        WHEN access_key_2_last_used_date <= (current_date - INTERVAL '90' day) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN password_last_used IS NULL THEN 'Root never logged in with password.'
-        ELSE 'Root password used ' || TO_CHAR(password_last_used , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - password_last_used) || ' days).'
-      END ||
-      CASE
-        WHEN access_key_1_last_used_date IS NULL THEN ' Access Key 1 never used.'
-        ELSE ' Access Key 1 used ' || TO_CHAR(access_key_1_last_used_date , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - access_key_1_last_used_date) || ' days).'
-      END ||
-      CASE
-        WHEN access_key_2_last_used_date IS NULL THEN ' Access Key 2 never used.'
-        ELSE ' Access Key 2 used ' || TO_CHAR(access_key_2_last_used_date , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - access_key_2_last_used_date) || ' days).'
-      END AS reason
-    FROM
-      aws_iam_credential_report
-    WHERE
-      user_name = '<root_account>';
-Severity: low
-Tags: {}
-Title: 1.7 Eliminate use of the 'root' user for administrative and daily tasks
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN password_last_used >= (current_date - INTERVAL '90' day) THEN 'alarm'
+            WHEN access_key_1_last_used_date <= (current_date - INTERVAL '90' day) THEN 'alarm'
+            WHEN access_key_2_last_used_date <= (current_date - INTERVAL '90' day) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN password_last_used IS NULL THEN 'Root never logged in with password.'
+            ELSE 'Root password used ' || TO_CHAR(password_last_used , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - password_last_used) || ' days).'
+          END ||
+          CASE
+            WHEN access_key_1_last_used_date IS NULL THEN ' Access Key 1 never used.'
+            ELSE ' Access Key 1 used ' || TO_CHAR(access_key_1_last_used_date , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - access_key_1_last_used_date) || ' days).'
+          END ||
+          CASE
+            WHEN access_key_2_last_used_date IS NULL THEN ' Access Key 2 never used.'
+            ELSE ' Access Key 2 used ' || TO_CHAR(access_key_2_last_used_date , 'DD-Mon-YYYY') || ' (' || EXTRACT(day FROM current_timestamp - access_key_2_last_used_date) || ' days).'
+          END AS reason
+        FROM
+          aws_iam_credential_report
+        WHERE
+          user_name = '<root_account>';
+severity: low
+tags: {}

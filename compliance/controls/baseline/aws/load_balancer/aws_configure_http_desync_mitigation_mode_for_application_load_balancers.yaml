@@ -1,48 +1,46 @@
-Description: Ensure that the suitable Desync Mitigation mode is configured for your Application Load Balancers.
-ID: aws_configure_http_desync_mitigation_mode_for_application_load_balancers
-IntegrationType:
+id: aws_configure_http_desync_mitigation_mode_for_application_load_balancers
+title: Configure HTTP Desync Mitigation Mode for Application Load Balancers
+description: Ensure that the suitable Desync Mitigation mode is configured for your Application Load Balancers.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_application_load_balancer
-  Parameters: []
-  PrimaryTable: aws_ec2_application_load_balancer
-  QueryToExecute: |
-    WITH app_lb_desync_mitigation_mode AS (
-      SELECT
-        arn,
-        l ->> 'Key',
-        l ->> 'Value' AS v
-      FROM
-        aws_ec2_application_load_balancer,
-        jsonb_array_elements(load_balancer_attributes) AS l
-      WHERE
-        l ->> 'Key' = 'routing.http.desync_mitigation_mode'
-    )
-    SELECT
-      a.arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN m.v = ANY(ARRAY ['defensive', 'strictest']) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      title || ' has ' || m.v || ' desync mitigation mode.' AS reason,
-      region,
-      account_id
-    FROM
-      aws_ec2_application_load_balancer AS a
-    LEFT JOIN app_lb_desync_mitigation_mode AS m
-    ON a.arn = m.arn;
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Load Balancing V2 (ELBv2)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS Elastic Load Balancing V2 (ELBv2)
-  score_tags:
-    - Exposed Endpoints
-Title: Configure HTTP Desync Mitigation Mode for Application Load Balancers
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_application_load_balancer
+    definition: |
+        WITH app_lb_desync_mitigation_mode AS (
+          SELECT
+            arn,
+            l ->> 'Key',
+            l ->> 'Value' AS v
+          FROM
+            aws_ec2_application_load_balancer,
+            jsonb_array_elements(load_balancer_attributes) AS l
+          WHERE
+            l ->> 'Key' = 'routing.http.desync_mitigation_mode'
+        )
+        SELECT
+          a.arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN m.v = ANY(ARRAY ['defensive', 'strictest']) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' has ' || m.v || ' desync mitigation mode.' AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_application_load_balancer AS a
+        LEFT JOIN app_lb_desync_mitigation_mode AS m
+        ON a.arn = m.arn;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS Elastic Load Balancing V2 (ELBv2)
+    score_tags:
+      - Exposed Endpoints

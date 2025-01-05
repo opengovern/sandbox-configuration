@@ -1,79 +1,73 @@
-Description: By default, Azure Functions, Web, and API Services can be deployed over FTP. 
-  If FTP is required for an essential deployment workflow, FTPS should be required 
-  for FTP login for all App Service Apps and Functions.
-ID: azure_appservice_ftp_deployment_disabled
-IntegrationType:
+id: azure_appservice_ftp_deployment_disabled
+title: Ensure FTP deployments are Disabled
+description: By default, Azure Functions, Web, and API Services can be deployed over FTP. If FTP is required for an essential deployment workflow, FTPS should be required for FTP login for all App Service Apps and Functions.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_service_function_app
-    - azure_app_service_web_app
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-        fa.id AS resource,
-        fa.platform_integration_id AS platform_integration_id,
-        fa.platform_resource_id AS platform_resource_id,
-        'azure_app_service_function_app' AS platform_table_name,
-        CASE
-            WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
-            ELSE 'ok'
-        END AS status,
-        CASE
-            WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN name || ' FTP deployments enabled.'
-            ELSE name || ' FTP deployments disabled.'
-        END AS reason,
-        fa.resource_group AS resource_group,
-        sub.display_name AS subscription
-    FROM
-        azure_app_service_function_app fa,
-        azure_subscription sub
-    WHERE
-        sub.subscription_id = fa.subscription_id
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+            fa.id AS resource,
+            fa.platform_integration_id AS platform_integration_id,
+            fa.platform_resource_id AS platform_resource_id,
+            'azure_app_service_function_app' AS platform_table_name,
+            CASE
+                WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
+                ELSE 'ok'
+            END AS status,
+            CASE
+                WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN name || ' FTP deployments enabled.'
+                ELSE name || ' FTP deployments disabled.'
+            END AS reason,
+            fa.resource_group AS resource_group,
+            sub.display_name AS subscription
+        FROM
+            azure_app_service_function_app fa,
+            azure_subscription sub
+        WHERE
+            sub.subscription_id = fa.subscription_id
 
-    UNION
+        UNION
 
-    SELECT
-        wa.id AS resource,
-        wa.platform_integration_id AS platform_integration_id,
-        wa.platform_resource_id AS platform_resource_id,
-        'azure_app_service_web_app' AS platform_table_name,
-        CASE
-            WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
-            ELSE 'ok'
-        END AS status,
-        CASE
-            WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN name || ' FTP deployments enabled.'
-            ELSE name || ' FTP deployments disabled.'
-        END AS reason,
-        wa.resource_group AS resource_group,
-        sub.display_name AS subscription
-    FROM
-        azure_app_service_web_app AS wa,
-        azure_subscription AS sub
-    WHERE
-        sub.subscription_id = wa.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "9.10"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "9"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/AppService
-Title: Ensure FTP deployments are Disabled
+        SELECT
+            wa.id AS resource,
+            wa.platform_integration_id AS platform_integration_id,
+            wa.platform_resource_id AS platform_resource_id,
+            'azure_app_service_web_app' AS platform_table_name,
+            CASE
+                WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN 'alarm'
+                ELSE 'ok'
+            END AS status,
+            CASE
+                WHEN configuration -> 'properties' ->> 'ftpsState' = 'AllAllowed' THEN name || ' FTP deployments enabled.'
+                ELSE name || ' FTP deployments disabled.'
+            END AS reason,
+            wa.resource_group AS resource_group,
+            sub.display_name AS subscription
+        FROM
+            azure_app_service_web_app AS wa,
+            azure_subscription AS sub
+        WHERE
+            sub.subscription_id = wa.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '9.10'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '9'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/AppService

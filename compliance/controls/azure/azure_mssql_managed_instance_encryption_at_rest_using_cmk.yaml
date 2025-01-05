@@ -1,51 +1,48 @@
-Description: Implementing Transparent Data Encryption (TDE) with your own key provides you with increased transparency and control over the TDE Protector, increased security with an HSM-backed external service, and promotion of separation of duties. This recommendation applies to organizations with a related compliance requirement.
-ID: azure_mssql_managed_instance_encryption_at_rest_using_cmk
-IntegrationType:
+id: azure_mssql_managed_instance_encryption_at_rest_using_cmk
+title: SQL managed instances should use customer-managed keys to encrypt data at rest
+description: Implementing Transparent Data Encryption (TDE) with your own key provides you with increased transparency and control over the TDE Protector, increased security with an HSM-backed external service, and promotion of separation of duties. This recommendation applies to organizations with a related compliance requirement.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_mssql_managed_instance
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_mssql_managed_instance
-  QueryToExecute: |
-    WITH encryption_protector AS (
-      SELECT
-        DISTINCT i.id AS id
-      FROM
-        azure_mssql_managed_instance AS i,
-        jsonb_array_elements(encryption_protectors) a
-      WHERE
-        a ->> 'serverKeyType' = 'AzureKeyVault'
-        AND a ->> 'uri' IS NOT NULL
-    )
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN a.id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN a.id IS NOT NULL THEN s.title || ' encrypted with CMK.'
-        ELSE s.title || ' not encrypted with CMK.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_mssql_managed_instance AS s
-    LEFT JOIN encryption_protector AS a ON s.id = a.id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id
-Severity: high
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/MySQL
-Title: SQL managed instances should use customer-managed keys to encrypt data at rest
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_mssql_managed_instance
+    definition: |
+        WITH encryption_protector AS (
+          SELECT
+            DISTINCT i.id AS id
+          FROM
+            azure_mssql_managed_instance AS i,
+            jsonb_array_elements(encryption_protectors) a
+          WHERE
+            a ->> 'serverKeyType' = 'AzureKeyVault'
+            AND a ->> 'uri' IS NOT NULL
+        )
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.id IS NOT NULL THEN s.title || ' encrypted with CMK.'
+            ELSE s.title || ' not encrypted with CMK.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_mssql_managed_instance AS s
+        LEFT JOIN encryption_protector AS a ON s.id = a.id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id
+severity: high
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/MySQL

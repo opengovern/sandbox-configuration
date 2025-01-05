@@ -1,58 +1,56 @@
-Description: Any ports enable within Lightsail by default are open and exposed to the world. For SSH and RDP access you should identify which IP address need access.
-ID: aws_cis_compute_service_v100_3_5
-IntegrationType:
+id: aws_cis_compute_service_v100_3_5
+title: 3.5 Ensure RDP is restricted to only IP address that should have this access
+description: Any ports enable within Lightsail by default are open and exposed to the world. For SSH and RDP access you should identify which IP address need access.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_lightsail_instance
-  Parameters: []
-  PrimaryTable: aws_lightsail_instance
-  QueryToExecute: |
-    WITH open_ports AS (
-      SELECT
-        name,
-        jsonb_array_elements(networking -> 'Ports') AS port
-      FROM
-        aws_lightsail_instance
-    ),
-    port_cidrs AS (
-      SELECT
-        op.name,
-        (op.port ->> 'FromPort')::int AS from_port,
-        (op.port ->> 'ToPort')::int AS to_port,
-        op.port ->> 'Protocol' AS protocol,
-        jsonb_array_elements_text(op.port -> 'Cidrs') AS cidr
-      FROM
-        open_ports op
-    ),
-    unrestricted_rdp_ports AS (
-      SELECT
-        name
-      FROM
-        port_cidrs
-      WHERE
-        from_port = 3389
-        AND to_port = 3389
-        AND protocol = 'tcp'
-        AND cidr = '0.0.0.0/0'
-    )
-    SELECT
-      i.name AS resource,
-      i.platform_integration_id AS platform_integration_id,
-      i.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN urp.name IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN urp.name IS NULL THEN i.name || ' has RDP (3389) restricted to specific IP addresses.'
-        ELSE i.name || ' has RDP (3389) open to the world (0.0.0.0/0).'
-      END AS reason,
-      i.tags
-    FROM
-      aws_lightsail_instance i
-      LEFT JOIN unrestricted_rdp_ports urp ON i.name = urp.name;
-Severity: low
-Tags: {}
-Title: 3.5 Ensure RDP is restricted to only IP address that should have this access
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_lightsail_instance
+    definition: |
+        WITH open_ports AS (
+          SELECT
+            name,
+            jsonb_array_elements(networking -> 'Ports') AS port
+          FROM
+            aws_lightsail_instance
+        ),
+        port_cidrs AS (
+          SELECT
+            op.name,
+            (op.port ->> 'FromPort')::int AS from_port,
+            (op.port ->> 'ToPort')::int AS to_port,
+            op.port ->> 'Protocol' AS protocol,
+            jsonb_array_elements_text(op.port -> 'Cidrs') AS cidr
+          FROM
+            open_ports op
+        ),
+        unrestricted_rdp_ports AS (
+          SELECT
+            name
+          FROM
+            port_cidrs
+          WHERE
+            from_port = 3389
+            AND to_port = 3389
+            AND protocol = 'tcp'
+            AND cidr = '0.0.0.0/0'
+        )
+        SELECT
+          i.name AS resource,
+          i.platform_integration_id AS platform_integration_id,
+          i.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN urp.name IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN urp.name IS NULL THEN i.name || ' has RDP (3389) restricted to specific IP addresses.'
+            ELSE i.name || ' has RDP (3389) open to the world (0.0.0.0/0).'
+          END AS reason,
+          i.tags
+        FROM
+          aws_lightsail_instance i
+          LEFT JOIN unrestricted_rdp_ports urp ON i.name = urp.name;
+severity: low
+tags: {}

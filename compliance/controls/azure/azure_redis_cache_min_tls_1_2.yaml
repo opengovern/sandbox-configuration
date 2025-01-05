@@ -1,33 +1,30 @@
-Description: This control checks whether 'Minimum TLS version' is set to 1.2. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS version can be configured to later protocols such as TLS 1.2.
-ID: azure_redis_cache_min_tls_1_2
-IntegrationType:
+id: azure_redis_cache_min_tls_1_2
+title: Redis Caches 'Minimum TLS version' should be set to 'Version 1.2'
+description: This control checks whether 'Minimum TLS version' is set to 1.2. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS version can be configured to later protocols such as TLS 1.2.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_redis_cache
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_redis_cache
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN minimum_tls_version IS NULL THEN 'alarm'
-        WHEN minimum_tls_version = '1.2' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN minimum_tls_version IS NULL THEN c.name || ' minimum TLS version not set.'
-        ELSE c.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
-      END AS reason
-    FROM
-      azure_redis_cache AS c,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = c.subscription_id;
-Severity: low
-Tags: {}
-Title: Redis Caches 'Minimum TLS version' should be set to 'Version 1.2'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_redis_cache
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN minimum_tls_version IS NULL THEN 'alarm'
+            WHEN minimum_tls_version = '1.2' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN minimum_tls_version IS NULL THEN c.name || ' minimum TLS version not set.'
+            ELSE c.name || ' minimum TLS version set to ' || minimum_tls_version || '.'
+          END AS reason
+        FROM
+          azure_redis_cache AS c,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: low
+tags: {}

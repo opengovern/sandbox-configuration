@@ -1,52 +1,50 @@
-Description: ""
-ID: aws_iam_role_should_not_have_trust_to_cognito_full_access
-IntegrationType:
+id: aws_iam_role_should_not_have_trust_to_cognito_full_access
+title: AWS IAM role should not have permissive trust with the Cognito Identity service and "FullAccess" permissions
+description: ''
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_iam_role
-  QueryToExecute: |
-    WITH cognito_access AS (
-        SELECT role_id,
-               COUNT(*) AS num_cognito_access
-        FROM aws_iam_role,
-             jsonb_array_elements(assume_role_policy->'Statement') AS stmt
-        WHERE stmt->'Principal'->>'Federated' = 'cognito-identity.amazonaws.com'
-          AND split_part(permissions_boundary_arn, '/', 2) LIKE '%FullAccess%'
-        GROUP BY role_id
-        HAVING COUNT(*) > 0
-    )
-    
-    SELECT role.arn AS resource,
-           role.platform_integration_id AS platform_integration_id,
-           role.platform_resource_id AS platform_resource_id,
-           CASE
-               WHEN cognito_access.role_id IS NULL THEN 'ok'
-               ELSE 'alarm'
-           END AS status,
-           CASE
-               WHEN cognito_access.role_id IS NULL THEN role.role_id || ' does not have cognito access'
-               ELSE role.role_id || ' contains ' || cognito_access.num_cognito_access || ' cognito access'
-           END AS reason,
-           role.region,
-           role.account_id
-    FROM aws_iam_role AS role
-    LEFT JOIN cognito_access ON cognito_access.role_id = role.role_id;
-Severity: critical
-Tags:
-  category: []
-  cis: []
-  cis_item_id: []
-  cis_level: []
-  cis_section_id: []
-  cis_type: []
-  cis_version: []
-  plugin: []
-  service: []
-  x-kaytu-explanation: []
-  x-kaytu-noncompliance-cost: []
-  x-kaytu-usefulness-example: []
-Title: AWS IAM role should not have permissive trust with the Cognito Identity service and "FullAccess" permissions
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_role
+    definition: |
+        WITH cognito_access AS (
+            SELECT role_id,
+                   COUNT(*) AS num_cognito_access
+            FROM aws_iam_role,
+                 jsonb_array_elements(assume_role_policy->'Statement') AS stmt
+            WHERE stmt->'Principal'->>'Federated' = 'cognito-identity.amazonaws.com'
+              AND split_part(permissions_boundary_arn, '/', 2) LIKE '%FullAccess%'
+            GROUP BY role_id
+            HAVING COUNT(*) > 0
+        )
+
+        SELECT role.arn AS resource,
+               role.platform_integration_id AS platform_integration_id,
+               role.platform_resource_id AS platform_resource_id,
+               CASE
+                   WHEN cognito_access.role_id IS NULL THEN 'ok'
+                   ELSE 'alarm'
+               END AS status,
+               CASE
+                   WHEN cognito_access.role_id IS NULL THEN role.role_id || ' does not have cognito access'
+                   ELSE role.role_id || ' contains ' || cognito_access.num_cognito_access || ' cognito access'
+               END AS reason,
+               role.region,
+               role.account_id
+        FROM aws_iam_role AS role
+        LEFT JOIN cognito_access ON cognito_access.role_id = role.role_id;
+severity: critical
+tags:
+    category: []
+    cis: []
+    cis_item_id: []
+    cis_level: []
+    cis_section_id: []
+    cis_type: []
+    cis_version: []
+    plugin: []
+    service: []
+    x-kaytu-explanation: []
+    x-kaytu-noncompliance-cost: []
+    x-kaytu-usefulness-example: []

@@ -1,34 +1,31 @@
-Description: Enable log_disconnections on PostgreSQL Servers.
-ID: azure_cis_v130_4_3_5
-IntegrationType:
+id: azure_cis_v130_4_3_5
+title: 4.3.5 Ensure server parameter 'log_disconnections' is set to 'ON' for PostgreSQL Database Server
+description: Enable log_disconnections on PostgreSQL Servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN name || ' server parameter log_disconnections off.'
-        ELSE name || ' server parameter log_disconnections on.'
-      END AS reason
-    FROM
-      azure_postgresql_server s,
-      jsonb_array_elements(server_configurations) config,
-      azure_subscription sub
-    WHERE
-      config ->> 'Name' = 'log_disconnections'
-      AND sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: 4.3.5 Ensure server parameter 'log_disconnections' is set to 'ON' for PostgreSQL Database Server
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN name || ' server parameter log_disconnections off.'
+            ELSE name || ' server parameter log_disconnections on.'
+          END AS reason
+        FROM
+          azure_postgresql_server s,
+          jsonb_array_elements(server_configurations) config,
+          azure_subscription sub
+        WHERE
+          config ->> 'Name' = 'log_disconnections'
+          AND sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

@@ -1,42 +1,40 @@
-Description: Checks if AWS CloudWatch alarm actions are in enabled state. The rule is non-compliant if the CloudWatch alarm actions are not in enabled state.
-ID: aws_cloudwatch_alarm_action_enabled_check
-IntegrationType:
+id: aws_cloudwatch_alarm_action_enabled_check
+title: CloudWatch alarm action should be enabled
+description: Checks if AWS CloudWatch alarm actions are in enabled state. The rule is non-compliant if the CloudWatch alarm actions are not in enabled state.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudwatch_alarm
-  Parameters: []
-  PrimaryTable: aws_cloudwatch_alarm
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN actions_enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN actions_enabled THEN title || ' alarm actions enabled.'
-        ELSE title || ' alarm actions disabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_cloudwatch_alarm;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/CloudWatch
-  soc_2:
-    - "true"
-Title: CloudWatch alarm action should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudwatch_alarm
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN actions_enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN actions_enabled THEN title || ' alarm actions enabled.'
+            ELSE title || ' alarm actions disabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudwatch_alarm;
+severity: medium
+tags:
+    category:
+      - Compliance
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/CloudWatch
+    soc_2:
+      - 'true'

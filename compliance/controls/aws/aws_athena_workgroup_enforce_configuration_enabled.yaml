@@ -1,28 +1,26 @@
-Description: This control checks if an Athena workgroup enforces configuration. The control fails if an Athena workgroup doesn't enforce configuration.
-ID: aws_athena_workgroup_enforce_configuration_enabled
-IntegrationType:
+id: aws_athena_workgroup_enforce_configuration_enabled
+title: Athena workgroups should enforce configuration
+description: This control checks if an Athena workgroup enforces configuration. The control fails if an Athena workgroup doesn't enforce configuration.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_athena_workgroup
-  Parameters: []
-  PrimaryTable: aws_athena_workgroup
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enforce_workgroup_configuration THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enforce_workgroup_configuration THEN name || ' has enforce workgroup configuration enabled.'
-        ELSE name || ' has enforce workgroup configuration disabled.'
-      END AS reason
-    FROM
-      aws_athena_workgroup;
-Severity: low
-Tags: {}
-Title: Athena workgroups should enforce configuration
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_athena_workgroup
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enforce_workgroup_configuration THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enforce_workgroup_configuration THEN name || ' has enforce workgroup configuration enabled.'
+            ELSE name || ' has enforce workgroup configuration disabled.'
+          END AS reason
+        FROM
+          aws_athena_workgroup;
+severity: low
+tags: {}

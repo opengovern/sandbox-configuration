@@ -1,28 +1,26 @@
-Description: This control checks whether a private ECR repository has tag immutability enabled. This control fails if a private ECR repository has tag immutability disabled. This rule passes if tag immutability is enabled and has the value IMMUTABLE.
-ID: aws_foundational_security_ecr_2
-IntegrationType:
+id: aws_foundational_security_ecr_2
+title: 2 ECR private repositories should have tag immutability configured
+description: This control checks whether a private ECR repository has tag immutability enabled. This control fails if a private ECR repository has tag immutability disabled. This rule passes if tag immutability is enabled and has the value IMMUTABLE.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecr_repository
-  Parameters: []
-  PrimaryTable: aws_ecr_repository
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN image_tag_mutability = 'IMMUTABLE' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN image_tag_mutability = 'IMMUTABLE' THEN title || ' tag immutability enabled.'
-        ELSE title || ' tag immutability disabled.'
-      END AS reason
-    FROM
-      aws_ecr_repository;
-Severity: medium
-Tags: {}
-Title: 2 ECR private repositories should have tag immutability configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN image_tag_mutability = 'IMMUTABLE' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN image_tag_mutability = 'IMMUTABLE' THEN title || ' tag immutability enabled.'
+            ELSE title || ' tag immutability disabled.'
+          END AS reason
+        FROM
+          aws_ecr_repository;
+severity: medium
+tags: {}

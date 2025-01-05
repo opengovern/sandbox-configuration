@@ -1,55 +1,51 @@
-Description: Network Security Group Flow Logs should be enabled and the retention period is set to greater than or equal to 90 days.
-ID: azure_network_sg_flowlog_retention_period_greater_than_90
-IntegrationType:
+id: azure_network_sg_flowlog_retention_period_greater_than_90
+title: Ensure that Network Security Group Flow Log retention period is 'greater than 90 days'
+description: Network Security Group Flow Logs should be enabled and the retention period is set to greater than or equal to 90 days.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_network_security_group
-    - azure_network_watcher_flow_log
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_network_security_group
-  QueryToExecute: |
-    SELECT
-      sg.id AS resource,
-      sg.platform_integration_id AS platform_integration_id,
-      sg.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN fl.id IS NULL OR NOT fl.enabled OR fl.retention_policy_days < 90 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN fl.id IS NULL OR NOT fl.enabled
-          THEN sg.name || ' flowlog not enabled.'
-        WHEN fl.retention_policy_days < 90
-          THEN sg.name || ' flowlog ' || fl.title || ' retention period is less than 90 days.'
-        ELSE sg.name || ' flowlog ' || fl.title || ' retention period is ' || fl.retention_policy_days || ' days.'
-      END AS reason,
-      sg.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_network_security_group sg
-      LEFT JOIN azure_network_watcher_flow_log fl ON sg.id = fl.target_resource_id
-      JOIN azure_subscription sub ON sub.subscription_id = sg.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "6.4"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "6"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Network
-Title: Ensure that Network Security Group Flow Log retention period is 'greater than 90 days'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_network_security_group
+    definition: |
+        SELECT
+          sg.id AS resource,
+          sg.platform_integration_id AS platform_integration_id,
+          sg.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN fl.id IS NULL OR NOT fl.enabled OR fl.retention_policy_days < 90 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN fl.id IS NULL OR NOT fl.enabled
+              THEN sg.name || ' flowlog not enabled.'
+            WHEN fl.retention_policy_days < 90
+              THEN sg.name || ' flowlog ' || fl.title || ' retention period is less than 90 days.'
+            ELSE sg.name || ' flowlog ' || fl.title || ' retention period is ' || fl.retention_policy_days || ' days.'
+          END AS reason,
+          sg.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_network_security_group sg
+          LEFT JOIN azure_network_watcher_flow_log fl ON sg.id = fl.target_resource_id
+          JOIN azure_subscription sub ON sub.subscription_id = sg.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '6.4'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '6'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Network

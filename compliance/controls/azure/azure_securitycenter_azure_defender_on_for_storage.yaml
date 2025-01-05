@@ -1,51 +1,48 @@
-Description: Azure Defender for Storage provides detections of unusual and potentially harmful attempts to access or exploit storage accounts.
-ID: azure_securitycenter_azure_defender_on_for_storage
-IntegrationType:
+id: azure_securitycenter_azure_defender_on_for_storage
+title: Microsoft Defender for Storage (Classic) should be enabled
+description: Azure Defender for Storage provides detections of unusual and potentially harmful attempts to access or exploit storage accounts.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_security_center_subscription_pricing
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_security_center_subscription_pricing
-  QueryToExecute: |
-    SELECT
-      sub_pricing.id AS resource,
-      sub_pricing.platform_integration_id AS platform_integration_id,
-      sub_pricing.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN pricing_tier = 'Standard' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Storage.'
-        ELSE 'Azure Defender off for Storage.'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_security_center_subscription_pricing sub_pricing
-    RIGHT JOIN azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
-    WHERE
-      name = 'StorageAccounts';
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "2.5"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "2"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/SecurityCenter
-Title: Microsoft Defender for Storage (Classic) should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_subscription_pricing
+    definition: |
+        SELECT
+          sub_pricing.id AS resource,
+          sub_pricing.platform_integration_id AS platform_integration_id,
+          sub_pricing.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN pricing_tier = 'Standard' THEN 'Azure Defender on for Storage.'
+            ELSE 'Azure Defender off for Storage.'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_security_center_subscription_pricing sub_pricing
+        RIGHT JOIN azure_subscription sub ON sub_pricing.subscription_id = sub.subscription_id
+        WHERE
+          name = 'StorageAccounts';
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '2.5'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '2'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SecurityCenter

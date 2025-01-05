@@ -1,42 +1,39 @@
-Description: Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Guest users should be review on a monthly basis to ensure that inactive and unneeded accounts are removed.
-ID: azure_cis_v130_1_3
-IntegrationType:
+id: azure_cis_v130_1_3
+title: 1.3 Ensure guest users are reviewed on a monthly basis
+description: Guest users allow you to share your company's applications and services with users from any other organization, while maintaining control over your own corporate data. Guest users should be review on a monthly basis to ensure that inactive and unneeded accounts are removed.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_tenant
-    - entraid_user
-  Parameters: []
-  PrimaryTable: entraid_user
-  QueryToExecute: |
-    WITH distinct_tenant AS (
-      SELECT
-        DISTINCT tenant_id,
-        subscription_id,
-        _ctx
-      FROM
-        azure_tenant
-    )
-    SELECT
-      u.display_name AS resource,
-      u.platform_integration_id AS platform_integration_id,
-      u.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT account_enabled THEN 'alarm'
-        WHEN u.created_date_time::TIMESTAMP <= (CURRENT_DATE - INTERVAL '30' DAY) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT account_enabled THEN 'Guest user ''' || u.display_name || ''' inactive.'
-        ELSE 'Guest user ''' || u.display_name || ''' was created ' || EXTRACT(DAY FROM CURRENT_TIMESTAMP - u.created_date_time::TIMESTAMP) || ' days ago.'
-      END AS reason,
-      t.tenant_id
-    FROM
-      entraid_user AS u
-    LEFT JOIN distinct_tenant AS t ON t.tenant_id = u.tenant_id
-    WHERE
-      u.user_type = 'Guest';
-Severity: low
-Tags: {}
-Title: 1.3 Ensure guest users are reviewed on a monthly basis
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_user
+    definition: |
+        WITH distinct_tenant AS (
+          SELECT
+            DISTINCT tenant_id,
+            subscription_id,
+            _ctx
+          FROM
+            azure_tenant
+        )
+        SELECT
+          u.display_name AS resource,
+          u.platform_integration_id AS platform_integration_id,
+          u.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT account_enabled THEN 'alarm'
+            WHEN u.created_date_time::TIMESTAMP <= (CURRENT_DATE - INTERVAL '30' DAY) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT account_enabled THEN 'Guest user ''' || u.display_name || ''' inactive.'
+            ELSE 'Guest user ''' || u.display_name || ''' was created ' || EXTRACT(DAY FROM CURRENT_TIMESTAMP - u.created_date_time::TIMESTAMP) || ' days ago.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          entraid_user AS u
+        LEFT JOIN distinct_tenant AS t ON t.tenant_id = u.tenant_id
+        WHERE
+          u.user_type = 'Guest';
+severity: low
+tags: {}

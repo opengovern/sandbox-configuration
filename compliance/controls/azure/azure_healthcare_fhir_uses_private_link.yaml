@@ -1,38 +1,35 @@
-Description: Azure API for FHIR should have at least one approved private endpoint connection. Clients in a virtual network can securely access resources that have private endpoint connections through private links.
-ID: azure_healthcare_fhir_uses_private_link
-IntegrationType:
+id: azure_healthcare_fhir_uses_private_link
+title: Azure API for FHIR should use private link
+description: Azure API for FHIR should have at least one approved private endpoint connection. Clients in a virtual network can securely access resources that have private endpoint connections through private links.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_healthcare_service
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_healthcare_service
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN private_endpoint_connections IS NULL THEN 'info'
-        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN private_endpoint_connections IS NULL THEN a.name || ' no private link exists.'
-        WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb THEN a.name || ' using private link.'
-        ELSE a.name || ' not using private link.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_healthcare_service a,
-      azure_subscription sub;
-Severity: high
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/HealthcareAPIs
-Title: Azure API for FHIR should use private link
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_healthcare_service
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN private_endpoint_connections IS NULL THEN 'info'
+            WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN private_endpoint_connections IS NULL THEN a.name || ' no private link exists.'
+            WHEN private_endpoint_connections @> '[{"privateLinkServiceConnectionState": "Approved"}]'::jsonb THEN a.name || ' using private link.'
+            ELSE a.name || ' not using private link.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_healthcare_service a,
+          azure_subscription sub;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/HealthcareAPIs

@@ -1,48 +1,46 @@
-Description: This control checks whether S3 Event Notifications are enabled on an AWS S3 bucket. This control fails if S3 Event Notifications are not enabled on a bucket.
-ID: aws_s3_bucket_event_notifications_enabled
-IntegrationType:
+id: aws_s3_bucket_event_notifications_enabled
+title: S3 buckets should have event notifications enabled
+description: This control checks whether S3 Event Notifications are enabled on an AWS S3 bucket. This control fails if S3 Event Notifications are not enabled on a bucket.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN event_notification_configuration ->> 'EventBridgeConfiguration' IS NULL
-          AND event_notification_configuration ->> 'LambdaFunctionConfigurations' IS NULL
-          AND event_notification_configuration ->> 'QueueConfigurations' IS NULL
-          AND event_notification_configuration ->> 'TopicConfigurations' IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN event_notification_configuration ->> 'EventBridgeConfiguration' IS NULL
-          AND event_notification_configuration ->> 'LambdaFunctionConfigurations' IS NULL
-          AND event_notification_configuration ->> 'QueueConfigurations' IS NULL
-          AND event_notification_configuration ->> 'TopicConfigurations' IS NULL THEN title || ' event notifications disabled.'
-        ELSE title || ' event notifications enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_s3_bucket;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - logging
-  foundational_security_item_id:
-    - s3_11
-  plugin:
-    - aws
-  service:
-    - AWS/S3
-Title: S3 buckets should have event notifications enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN event_notification_configuration ->> 'EventBridgeConfiguration' IS NULL
+              AND event_notification_configuration ->> 'LambdaFunctionConfigurations' IS NULL
+              AND event_notification_configuration ->> 'QueueConfigurations' IS NULL
+              AND event_notification_configuration ->> 'TopicConfigurations' IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN event_notification_configuration ->> 'EventBridgeConfiguration' IS NULL
+              AND event_notification_configuration ->> 'LambdaFunctionConfigurations' IS NULL
+              AND event_notification_configuration ->> 'QueueConfigurations' IS NULL
+              AND event_notification_configuration ->> 'TopicConfigurations' IS NULL THEN title || ' event notifications disabled.'
+            ELSE title || ' event notifications enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_s3_bucket;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - logging
+    foundational_security_item_id:
+      - s3_11
+    plugin:
+      - aws
+    service:
+      - AWS/S3

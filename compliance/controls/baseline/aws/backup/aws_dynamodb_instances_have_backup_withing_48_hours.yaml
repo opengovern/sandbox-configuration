@@ -1,48 +1,45 @@
-Description: Ensure all DynamoDB have a minimum of one restore point time in the last 48 hrs
-ID: aws_dynamodb_instances_have_backup_withing_48_hours
-IntegrationType:
+id: aws_dynamodb_instances_have_backup_withing_48_hours
+title: Dynamodb Instances have backup within 48 hours
+description: Ensure all DynamoDB have a minimum of one restore point time in the last 48 hrs
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_backup_recovery_point
-    - aws_dynamodb_table
-  Parameters: []
-  PrimaryTable: aws_dynamodb_table
-  QueryToExecute: |
-    WITH points AS (
-      SELECT recovery_point_arn, resource_arn
-      FROM aws_backup_recovery_point
-      WHERE now() - creation_date < '48 hours'::interval
-      AND resource_type = 'DynamoDB'
-      AND status = 'COMPLETED'
-    )
-    
-    SELECT
-      t.arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN p.recovery_point_arn IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN p.recovery_point_arn IS NULL THEN 'lacks a backup with last 48 hours'
-        ELSE ''
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_dynamodb_table AS t
-    LEFT JOIN points AS p ON t.arn = p.resource_arn
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Amazon DynamoDB
-  platform_score_use_case:
-    - Missing Backup
-  score_service_name:
-    - Amazon DynamoDB
-  score_tags:
-    - Missing Backup
-Title: Dynamodb Instances have backup within 48 hours
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dynamodb_table
+    definition: |
+        WITH points AS (
+          SELECT recovery_point_arn, resource_arn
+          FROM aws_backup_recovery_point
+          WHERE now() - creation_date < '48 hours'::interval
+          AND resource_type = 'DynamoDB'
+          AND status = 'COMPLETED'
+        )
+
+        SELECT
+          t.arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN p.recovery_point_arn IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN p.recovery_point_arn IS NULL THEN 'lacks a backup with last 48 hours'
+            ELSE ''
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_dynamodb_table AS t
+        LEFT JOIN points AS p ON t.arn = p.resource_arn
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Amazon DynamoDB
+    platform_score_use_case:
+      - Missing Backup
+    score_service_name:
+      - Amazon DynamoDB
+    score_tags:
+      - Missing Backup

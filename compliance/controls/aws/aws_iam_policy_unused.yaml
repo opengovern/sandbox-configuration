@@ -1,70 +1,65 @@
-Description: This control checks whether the IAM policy ARN is attached to an IAM user, or a group with one or more IAM users, or an IAM role with one or more trusted entity.
-ID: aws_iam_policy_unused
-IntegrationType:
+id: aws_iam_policy_unused
+title: IAM policy should be in use
+description: This control checks whether the IAM policy ARN is attached to an IAM user, or a group with one or more IAM users, or an IAM role with one or more trusted entity.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_group
-    - aws_iam_policy
-    - aws_iam_role
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_iam_policy
-  QueryToExecute: |
-    WITH in_use_policies AS (
-      SELECT
-        attached_policy_arns
-      FROM
-        aws_iam_user
-      UNION
-      SELECT
-        attached_policy_arns
-      FROM
-        aws_iam_group
-      WHERE
-        jsonb_array_length(users) > 0
-      UNION
-      SELECT
-        attached_policy_arns
-      FROM
-        aws_iam_role
-    )
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN arn IN (
-          SELECT jsonb_array_elements_text(attached_policy_arns) 
-          FROM in_use_policies
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN arn IN (
-          SELECT jsonb_array_elements_text(attached_policy_arns) 
-          FROM in_use_policies
-        ) THEN title || ' in use.'
-        ELSE title || ' not in use.'
-      END AS reason,
-      account_id
-    FROM
-      aws_iam_policy;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/IAM
-  soc_2:
-    - "true"
-Title: IAM policy should be in use
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH in_use_policies AS (
+          SELECT
+            attached_policy_arns
+          FROM
+            aws_iam_user
+          UNION
+          SELECT
+            attached_policy_arns
+          FROM
+            aws_iam_group
+          WHERE
+            jsonb_array_length(users) > 0
+          UNION
+          SELECT
+            attached_policy_arns
+          FROM
+            aws_iam_role
+        )
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN arn IN (
+              SELECT jsonb_array_elements_text(attached_policy_arns) 
+              FROM in_use_policies
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN arn IN (
+              SELECT jsonb_array_elements_text(attached_policy_arns) 
+              FROM in_use_policies
+            ) THEN title || ' in use.'
+            ELSE title || ' not in use.'
+          END AS reason,
+          account_id
+        FROM
+          aws_iam_policy;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/IAM
+    soc_2:
+      - 'true'

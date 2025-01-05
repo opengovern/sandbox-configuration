@@ -1,58 +1,55 @@
-Description: VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet "Rejects" for VPCs.
-ID: aws_cis_v120_2_9
-IntegrationType:
+id: aws_cis_v120_2_9
+title: 2.9 Ensure VPC flow logging is enabled in all VPCs
+description: VPC Flow Logs is a feature that enables you to capture information about the IP traffic going to and from network interfaces in your VPC. After you've created a flow log, you can view and retrieve its data in Amazon CloudWatch Logs. It is recommended that VPC Flow Logs be enabled for packet "Rejects" for VPCs.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc
-    - aws_vpc_flow_log
-  Parameters: []
-  PrimaryTable: aws_vpc
-  QueryToExecute: |
-    WITH vpcs AS (
-      SELECT
-        arn,
-        account_id,
-        platform_resource_id,
-        platform_integration_id,
-        region,
-        owner_id,
-        vpc_id,
-        tags,
-        _ctx
-      FROM
-        aws_vpc
-      ORDER BY
-        vpc_id
-    ),
-    flowlogs AS (
-      SELECT
-        resource_id,
-        account_id,
-        region
-      FROM
-        aws_vpc_flow_log
-      ORDER BY
-        resource_id
-    )
-    SELECT
-      v.arn AS resource,
-      v.platform_integration_id AS platform_integration_id,
-      v.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN v.account_id <> v.owner_id THEN 'skip'
-        WHEN f.resource_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN v.account_id <> v.owner_id THEN v.vpc_id || ' is a shared VPC.'
-        WHEN f.resource_id IS NOT NULL THEN v.vpc_id || ' flow logging enabled.'
-        ELSE v.vpc_id || ' flow logging disabled.'
-      END AS reason
-    FROM
-      vpcs AS v
-    LEFT JOIN flowlogs AS f ON v.vpc_id = f.resource_id;
-Severity: low
-Tags: {}
-Title: 2.9 Ensure VPC flow logging is enabled in all VPCs
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc
+    definition: |
+        WITH vpcs AS (
+          SELECT
+            arn,
+            account_id,
+            platform_resource_id,
+            platform_integration_id,
+            region,
+            owner_id,
+            vpc_id,
+            tags,
+            _ctx
+          FROM
+            aws_vpc
+          ORDER BY
+            vpc_id
+        ),
+        flowlogs AS (
+          SELECT
+            resource_id,
+            account_id,
+            region
+          FROM
+            aws_vpc_flow_log
+          ORDER BY
+            resource_id
+        )
+        SELECT
+          v.arn AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN 'skip'
+            WHEN f.resource_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN v.account_id <> v.owner_id THEN v.vpc_id || ' is a shared VPC.'
+            WHEN f.resource_id IS NOT NULL THEN v.vpc_id || ' flow logging enabled.'
+            ELSE v.vpc_id || ' flow logging disabled.'
+          END AS reason
+        FROM
+          vpcs AS v
+        LEFT JOIN flowlogs AS f ON v.vpc_id = f.resource_id;
+severity: low
+tags: {}

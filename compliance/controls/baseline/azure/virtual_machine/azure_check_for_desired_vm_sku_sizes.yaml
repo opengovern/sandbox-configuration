@@ -1,45 +1,41 @@
-Description: Ensure that your virtual machine instances are of a given SKU size (e.g. Standard_A8_v2).
-ID: azure_check_for_desired_vm_sku_sizes
-IntegrationType:
+id: azure_check_for_desired_vm_sku_sizes
+title: Check for Desired VM SKU Size(s)
+description: Ensure that your virtual machine instances are of a given SKU size (e.g. Standard_A8_v2).
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_subscription
-  Parameters:
-    - Key: azureAllowedVmSizes
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    SELECT
-      vm.id AS resource,
-      vm.platform_integration_id,
-      vm.platform_resource_id,
-      CASE
-        WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'the virtual machine vm size is not allowed by your organization'
-        ELSE 'the virtual machine vm size is allowed by your organization'
-      END AS reason,
-      vm.resource_group,
-      display_name AS subscription
-    FROM
-      azure_compute_virtual_machine AS vm,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = vm.subscription_id;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  platform_score_use_case:
-    - Unencrypted Traffic
-  score_service_name:
-    - Azure Virtual Machines
-  score_tags:
-    - Unencrypted Traffic
-Title: Check for Desired VM SKU Size(s)
+parameters:
+  - key: azureAllowedVmSizes
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN '{{.azureAllowedVmSizes}}' NOT LIKE '%' || (vm.platform_resource_description -> 'VirtualMachine' -> 'Properties' -> 'HardwareProfile' ->> 'VMSize') || '%' THEN 'the virtual machine vm size is not allowed by your organization'
+            ELSE 'the virtual machine vm size is allowed by your organization'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = vm.subscription_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Unencrypted Traffic
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Unencrypted Traffic

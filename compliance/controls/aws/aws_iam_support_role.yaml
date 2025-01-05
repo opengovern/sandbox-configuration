@@ -1,73 +1,70 @@
-Description: AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services.
-ID: aws_iam_support_role
-IntegrationType:
+id: aws_iam_support_role
+title: Ensure a support role has been created to manage incidents with AWS Support
+description: AWS provides a support center that can be used for incident notification and response, as well as technical support and customer services.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    WITH support_role_count AS (
-      SELECT
-        'arn:' || a.partition || ':::' || a.account_id AS resource,
-        COUNT(policy_arn),
-        a.account_id,
-        a.platform_integration_id AS platform_integration_id,
-        a.platform_resource_id AS platform_resource_id,
-        a._ctx
-      FROM
-        aws_account AS a
-      LEFT JOIN aws_iam_role AS r ON r.account_id = a.account_id
-      LEFT JOIN jsonb_array_elements_text(attached_policy_arns) AS policy_arn ON true
-      WHERE
-        SPLIT_PART(policy_arn, '/', 2) = 'AWSSupportAccess'
-        OR policy_arn IS NULL
-      GROUP BY
-        a.account_id,
-        a.partition,
-        a.platform_integration_id,
-        a.platform_resource_id,
-        a._ctx
-    )
-    SELECT
-      resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COUNT > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN COUNT = 1 THEN 'AWSSupportAccess policy attached to 1 role.'
-        WHEN COUNT > 1 THEN 'AWSSupportAccess policy attached to ' || COUNT || ' roles.'
-        ELSE 'AWSSupportAccess policy not attached to any role.'
-      END AS reason,
-      account_id
-    FROM
-      support_role_count;
-Severity: low
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "1.20"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "1"
-  cis_type:
-    - scored
-  cis_version:
-    - v1.2.0
-  plugin:
-    - aws
-  score_tags:
-    - Problem Identities
-  service:
-    - AWS/IAM
-Title: Ensure a support role has been created to manage incidents with AWS Support
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH support_role_count AS (
+          SELECT
+            'arn:' || a.partition || ':::' || a.account_id AS resource,
+            COUNT(policy_arn),
+            a.account_id,
+            a.platform_integration_id AS platform_integration_id,
+            a.platform_resource_id AS platform_resource_id,
+            a._ctx
+          FROM
+            aws_account AS a
+          LEFT JOIN aws_iam_role AS r ON r.account_id = a.account_id
+          LEFT JOIN jsonb_array_elements_text(attached_policy_arns) AS policy_arn ON true
+          WHERE
+            SPLIT_PART(policy_arn, '/', 2) = 'AWSSupportAccess'
+            OR policy_arn IS NULL
+          GROUP BY
+            a.account_id,
+            a.partition,
+            a.platform_integration_id,
+            a.platform_resource_id,
+            a._ctx
+        )
+        SELECT
+          resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COUNT > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN COUNT = 1 THEN 'AWSSupportAccess policy attached to 1 role.'
+            WHEN COUNT > 1 THEN 'AWSSupportAccess policy attached to ' || COUNT || ' roles.'
+            ELSE 'AWSSupportAccess policy not attached to any role.'
+          END AS reason,
+          account_id
+        FROM
+          support_role_count;
+severity: low
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '1.20'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '1'
+    cis_type:
+      - scored
+    cis_version:
+      - v1.2.0
+    plugin:
+      - aws
+    score_tags:
+      - Problem Identities
+    service:
+      - AWS/IAM

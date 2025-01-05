@@ -1,33 +1,29 @@
-Description: Disallowing public access for a storage account overrides the public access settings for individual containers in that storage account.
-ID: azure_cis_v150_3_7
-IntegrationType:
+id: azure_cis_v150_3_7
+title: 3.7 Ensure that 'Public access level' is disabled for storage accounts with blob containers
+description: Disallowing public access for a storage account overrides the public access settings for individual containers in that storage account.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_container
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_container
-  QueryToExecute: |
-    SELECT
-      container.id AS resource,
-      container.platform_integration_id AS platform_integration_id,
-      container.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT account.allow_blob_public_access AND container.public_access = 'None' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN NOT account.allow_blob_public_access AND container.public_access = 'None'
-          THEN account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
-        ELSE account.name || ' container ' || container.name || ' allows anonymous access.'
-      END AS reason
-    FROM
-      azure_storage_container container
-    JOIN azure_storage_account account ON container.account_name = account.name
-    JOIN azure_subscription sub ON sub.subscription_id = account.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.7 Ensure that 'Public access level' is disabled for storage accounts with blob containers
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          container.id AS resource,
+          container.platform_integration_id AS platform_integration_id,
+          container.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT account.allow_blob_public_access AND container.public_access = 'None' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN NOT account.allow_blob_public_access AND container.public_access = 'None'
+              THEN account.name || ' container ' || container.name || ' doesn''t allow anonymous access.'
+            ELSE account.name || ' container ' || container.name || ' allows anonymous access.'
+          END AS reason
+        FROM
+          azure_storage_container container
+        JOIN azure_storage_account account ON container.account_name = account.name
+        JOIN azure_subscription sub ON sub.subscription_id = account.subscription_id;
+severity: low
+tags: {}

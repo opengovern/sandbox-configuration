@@ -1,28 +1,26 @@
-Description: This control checks whether the assignment of public IPs in Amazon Virtual Private Cloud (Amazon VPC) subnets have MapPublicIpOnLaunch set to FALSE. The control passes if the flag is set to FALSE.
-ID: aws_foundational_security_ec2_15
-IntegrationType:
+id: aws_foundational_security_ec2_15
+title: 15 EC2 subnets should not automatically assign public IP addresses
+description: This control checks whether the assignment of public IPs in Amazon Virtual Private Cloud (Amazon VPC) subnets have MapPublicIpOnLaunch set to FALSE. The control passes if the flag is set to FALSE.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_subnet
-  Parameters: []
-  PrimaryTable: aws_vpc_subnet
-  QueryToExecute: |
-    SELECT
-      subnet_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN map_public_ip_on_launch = 'false' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN map_public_ip_on_launch = 'false' THEN title || ' auto assign public IP disabled.'
-        ELSE title || ' auto assign public IP enabled.'
-      END AS reason
-    FROM
-      aws_vpc_subnet;
-Severity: medium
-Tags: {}
-Title: 15 EC2 subnets should not automatically assign public IP addresses
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_subnet
+    definition: |
+        SELECT
+          subnet_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN map_public_ip_on_launch = 'false' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN map_public_ip_on_launch = 'false' THEN title || ' auto assign public IP disabled.'
+            ELSE title || ' auto assign public IP enabled.'
+          END AS reason
+        FROM
+          aws_vpc_subnet;
+severity: medium
+tags: {}

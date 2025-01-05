@@ -1,50 +1,48 @@
-Description: This rule ensures Elastic IPs allocated to a AWS Virtual Private Cloud (AWS VPC) are attached to AWS Elastic Compute Cloud (AWS EC2) instances or in-use Elastic Network Interfaces.
-ID: aws_vpc_eip_associated
-IntegrationType:
+id: aws_vpc_eip_associated
+title: VPC EIPs should be associated with an EC2 instance or ENI
+description: This rule ensures Elastic IPs allocated to a AWS Virtual Private Cloud (AWS VPC) are attached to AWS Elastic Compute Cloud (AWS EC2) instances or in-use Elastic Network Interfaces.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_eip
-  Parameters: []
-  PrimaryTable: aws_vpc_eip
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':eip/' || allocation_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN association_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END status,
-      CASE
-        WHEN association_id IS NULL THEN title || ' is not associated with any resource.'
-        ELSE title || ' is associated with a resource.'
-      END reason,
-      region,
-      account_id
-    FROM
-      aws_vpc_eip;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  ffiec:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/VPC
-  soc_2:
-    - "true"
-Title: VPC EIPs should be associated with an EC2 instance or ENI
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_eip
+    definition: |
+        SELECT
+          'arn:' || partition || ':ec2:' || region || ':' || account_id || ':eip/' || allocation_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN association_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END status,
+          CASE
+            WHEN association_id IS NULL THEN title || ' is not associated with any resource.'
+            ELSE title || ' is associated with a resource.'
+          END reason,
+          region,
+          account_id
+        FROM
+          aws_vpc_eip;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    ffiec:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/VPC
+    soc_2:
+      - 'true'

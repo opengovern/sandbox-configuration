@@ -1,33 +1,30 @@
-Description: Use Azure Active Directory Authentication for authentication with SQL Database.
-ID: azure_cis_v130_4_4
-IntegrationType:
+id: azure_cis_v130_4_4
+title: 4.4 Ensure that Azure Active Directory Admin is configured
+description: Use Azure Active Directory Authentication for authentication with SQL Database.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_sql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_sql_server
-  QueryToExecute: |
-    SELECT 
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN server_azure_ad_administrator IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN server_azure_ad_administrator IS NULL 
-        THEN name || ' Azure AD authentication not configured.'
-        ELSE name || ' Azure AD authentication configured.'
-      END AS reason
-    FROM 
-      azure_sql_server s,
-      azure_subscription sub
-    WHERE 
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: 4.4 Ensure that Azure Active Directory Admin is configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT 
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN server_azure_ad_administrator IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN server_azure_ad_administrator IS NULL 
+            THEN name || ' Azure AD authentication not configured.'
+            ELSE name || ' Azure AD authentication configured.'
+          END AS reason
+        FROM 
+          azure_sql_server s,
+          azure_subscription sub
+        WHERE 
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

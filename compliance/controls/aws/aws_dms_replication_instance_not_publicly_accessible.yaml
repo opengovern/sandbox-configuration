@@ -1,66 +1,64 @@
-Description: Manage access to the AWS Cloud by ensuring DMS replication instances cannot be publicly accessed.
-ID: aws_dms_replication_instance_not_publicly_accessible
-IntegrationType:
+id: aws_dms_replication_instance_not_publicly_accessible
+title: DMS replication instances should not be publicly accessible
+description: Manage access to the AWS Cloud by ensuring DMS replication instances cannot be publicly accessed.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_dms_replication_instance
-  Parameters: []
-  PrimaryTable: aws_dms_replication_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN publicly_accessible THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN publicly_accessible THEN title || ' publicly accessible.'
-        ELSE title || ' not publicly accessible.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_dms_replication_instance;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/DMS
-  soc_2:
-    - "true"
-Title: DMS replication instances should not be publicly accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_dms_replication_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN publicly_accessible THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN publicly_accessible THEN title || ' publicly accessible.'
+            ELSE title || ' not publicly accessible.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_dms_replication_instance;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/DMS
+    soc_2:
+      - 'true'

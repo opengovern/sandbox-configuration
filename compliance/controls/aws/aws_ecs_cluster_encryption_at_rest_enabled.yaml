@@ -1,47 +1,42 @@
-Description: This control checks whether ECS Clustes have encryption at rest enabled. The check fails if encryption at rest is not enabled as sensitive data should be protected.
-ID: aws_ecs_cluster_encryption_at_rest_enabled
-IntegrationType:
+id: aws_ecs_cluster_encryption_at_rest_enabled
+title: ECS clusters encryption at rest should be enabled
+description: This control checks whether ECS Clustes have encryption at rest enabled. The check fails if encryption at rest is not enabled as sensitive data should be protected.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_container_instance
-    - aws_ec2_instance
-    - aws_ebs_volume
-    - aws_ecs_cluster
-  Parameters: []
-  PrimaryTable: aws_ecs_cluster
-  QueryToExecute: |
-    WITH unencrypted_volumes AS (
-      SELECT
-        DISTINCT cluster_arn
-      FROM
-        aws_ecs_container_instance AS i,
-        aws_ec2_instance AS e,
-        JSONB_ARRAY_ELEMENTS(block_device_mappings) AS b,
-        aws_ebs_volume AS v
-      WHERE
-        i.ec2_instance_id = e.instance_id
-        AND b -> 'Ebs' ->> 'VolumeId' = v.volume_id
-        AND NOT v.encrypted
-    )
-    SELECT
-      c.cluster_arn AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN c.registered_container_instances_count = 0 THEN 'skip'
-        WHEN v.cluster_arn IS NOT NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN c.registered_container_instances_count = 0 THEN c.title || ' has no container instance registered.'
-        WHEN v.cluster_arn IS NOT NULL THEN c.title || ' encryption at rest disabled.'
-        ELSE c.title || ' encryption at rest enabled.'
-      END AS reason
-    FROM
-      aws_ecs_cluster AS c
-      LEFT JOIN unencrypted_volumes AS v ON v.cluster_arn = c.cluster_arn;
-Severity: low
-Tags: {}
-Title: ECS clusters encryption at rest should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_cluster
+    definition: |
+        WITH unencrypted_volumes AS (
+          SELECT
+            DISTINCT cluster_arn
+          FROM
+            aws_ecs_container_instance AS i,
+            aws_ec2_instance AS e,
+            JSONB_ARRAY_ELEMENTS(block_device_mappings) AS b,
+            aws_ebs_volume AS v
+          WHERE
+            i.ec2_instance_id = e.instance_id
+            AND b -> 'Ebs' ->> 'VolumeId' = v.volume_id
+            AND NOT v.encrypted
+        )
+        SELECT
+          c.cluster_arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.registered_container_instances_count = 0 THEN 'skip'
+            WHEN v.cluster_arn IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.registered_container_instances_count = 0 THEN c.title || ' has no container instance registered.'
+            WHEN v.cluster_arn IS NOT NULL THEN c.title || ' encryption at rest disabled.'
+            ELSE c.title || ' encryption at rest enabled.'
+          END AS reason
+        FROM
+          aws_ecs_cluster AS c
+          LEFT JOIN unencrypted_volumes AS v ON v.cluster_arn = c.cluster_arn;
+severity: low
+tags: {}

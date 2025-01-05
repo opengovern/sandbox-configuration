@@ -1,32 +1,29 @@
-Description: This setting enables Windows Defender ATP (WDATP) integration with Security Center.
-ID: azure_cis_v130_2_9
-IntegrationType:
+id: azure_cis_v130_2_9
+title: 2.9 Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected
+description: This setting enables Windows Defender ATP (WDATP) integration with Security Center.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_security_center_setting
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_security_center_setting
-  QueryToExecute: |
-    SELECT
-      sc_sett.id AS resource,
-      sc_sett.platform_integration_id AS platform_integration_id,
-      sc_sett.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enabled THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enabled THEN 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
-        ELSE 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
-      END AS reason
-    FROM
-      azure_security_center_setting sc_sett
-      RIGHT JOIN azure_subscription sub ON sc_sett.subscription_id = sub.subscription_id
-    WHERE
-      name = 'WDATP';
-Severity: low
-Tags: {}
-Title: 2.9 Ensure that Windows Defender ATP (WDATP) integration with Security Center is selected
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_setting
+    definition: |
+        SELECT
+          sc_sett.id AS resource,
+          sc_sett.platform_integration_id AS platform_integration_id,
+          sc_sett.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enabled THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enabled THEN 'Microsoft Cloud App Security (MCAS) integrated with Security Center.'
+            ELSE 'Microsoft Cloud App Security (MCAS) not integrated with Security Center.'
+          END AS reason
+        FROM
+          azure_security_center_setting sc_sett
+          RIGHT JOIN azure_subscription sub ON sc_sett.subscription_id = sub.subscription_id
+        WHERE
+          name = 'WDATP';
+severity: low
+tags: {}

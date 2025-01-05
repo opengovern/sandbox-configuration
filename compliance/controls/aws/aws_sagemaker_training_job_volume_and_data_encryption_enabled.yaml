@@ -1,28 +1,26 @@
-Description: Ensure that SageMaker training jobs have volumes and outputs with KMS encryption enabled in order to have a more granular control over the data-at-rest encryption/decryption process and to meet compliance requirements.
-ID: aws_sagemaker_training_job_volume_and_data_encryption_enabled
-IntegrationType:
+id: aws_sagemaker_training_job_volume_and_data_encryption_enabled
+title: SageMaker training jobs volumes and outputs should have KMS encryption enabled
+description: Ensure that SageMaker training jobs have volumes and outputs with KMS encryption enabled in order to have a more granular control over the data-at-rest encryption/decryption process and to meet compliance requirements.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_sagemaker_training_job
-  Parameters: []
-  PrimaryTable: aws_sagemaker_training_job
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN title || ' volume and output data encryption disabled.'
-        ELSE title || ' volume and output data encryption enabled.'
-      END AS reason
-    FROM
-      aws_sagemaker_training_job;
-Severity: low
-Tags: {}
-Title: SageMaker training jobs volumes and outputs should have KMS encryption enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_training_job
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN output_data_config ->> 'KmsKeyId' IS NULL OR output_data_config ->> 'KmsKeyId' = '' THEN title || ' volume and output data encryption disabled.'
+            ELSE title || ' volume and output data encryption enabled.'
+          END AS reason
+        FROM
+          aws_sagemaker_training_job;
+severity: low
+tags: {}

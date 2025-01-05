@@ -1,34 +1,31 @@
-Description: The storage account container containing the activity log export should not be publicly accessible.
-ID: azure_cis_v200_5_1_3
-IntegrationType:
+id: azure_cis_v200_5_1_3
+title: 5.1.3 Ensure the Storage Container Storing the Activity Logs is not Publicly Accessible
+description: The storage account container containing the activity log export should not be publicly accessible.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_container
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_container
-  QueryToExecute: |
-    SELECT
-      sc.id AS resource,
-      sc.platform_integration_id AS platform_integration_id,
-      sc.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN public_access != 'None' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN public_access != 'None'
-          THEN account_name || ' container insights-activity-logs storing activity logs publicly accessible.'
-        ELSE account_name || ' container insights-activity-logs storing activity logs not publicly accessible.'
-      END AS reason
-    FROM
-      azure_storage_container sc,
-      azure_subscription sub
-    WHERE
-      name = 'insights-activity-logs'
-      AND sub.subscription_id = sc.subscription_id;
-Severity: low
-Tags: {}
-Title: 5.1.3 Ensure the Storage Container Storing the Activity Logs is not Publicly Accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          sc.id AS resource,
+          sc.platform_integration_id AS platform_integration_id,
+          sc.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN public_access != 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN public_access != 'None'
+              THEN account_name || ' container insights-activity-logs storing activity logs publicly accessible.'
+            ELSE account_name || ' container insights-activity-logs storing activity logs not publicly accessible.'
+          END AS reason
+        FROM
+          azure_storage_container sc,
+          azure_subscription sub
+        WHERE
+          name = 'insights-activity-logs'
+          AND sub.subscription_id = sc.subscription_id;
+severity: low
+tags: {}

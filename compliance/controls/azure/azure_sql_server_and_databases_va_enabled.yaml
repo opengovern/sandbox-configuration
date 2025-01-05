@@ -1,54 +1,51 @@
-ID: azure_sql_server_and_databases_va_enabled
-Title: "Vulnerability assessment should be enabled on your SQL servers"
-Description: "Audit Azure SQL servers which do not have recurring vulnerability assessment scans enabled. Vulnerability assessment can discover, track, and help you remediate potential database vulnerabilities."
-Query:
-  Engine: CloudQL-v0.0.1
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN security -> 'properties' ->> 'state' = 'Disabled' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN security -> 'properties' ->> 'state' = 'Disabled' THEN s.name || ' VA setting disabled.'
-        ELSE s.name || ' VA setting enabled.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_sql_server s,
-      JSONB_ARRAY_ELEMENTS(server_security_alert_policy) security,
-      JSONB_ARRAY_ELEMENTS(server_vulnerability_assessment) assessment,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-  PrimaryTable: azure_sql_server
-  ListOfTables:
-    - azure_sql_server
-    - azure_subscription
-  Parameters: []
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 4.2.2
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "4.2"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/SQL
-IntegrationType:
+id: azure_sql_server_and_databases_va_enabled
+title: Vulnerability assessment should be enabled on your SQL servers
+description: Audit Azure SQL servers which do not have recurring vulnerability assessment scans enabled. Vulnerability assessment can discover, track, and help you remediate potential database vulnerabilities.
+integration_type:
   - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_sql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN security -> 'properties' ->> 'state' = 'Disabled' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN security -> 'properties' ->> 'state' = 'Disabled' THEN s.name || ' VA setting disabled.'
+            ELSE s.name || ' VA setting enabled.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_sql_server s,
+          JSONB_ARRAY_ELEMENTS(server_security_alert_policy) security,
+          JSONB_ARRAY_ELEMENTS(server_vulnerability_assessment) assessment,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.2.2
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '4.2'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/SQL

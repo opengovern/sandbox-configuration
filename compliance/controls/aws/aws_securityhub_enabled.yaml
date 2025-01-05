@@ -1,101 +1,97 @@
-Description: AWS Security Hub helps to monitor unauthorized personnel, connections, devices, and software. AWS Security Hub aggregates, organizes, and prioritizes the security alerts, or findings, from multiple AWS services.
-ID: aws_securityhub_enabled
-IntegrationType:
+id: aws_securityhub_enabled
+title: AWS Security Hub should be enabled for an AWS Account
+description: AWS Security Hub helps to monitor unauthorized personnel, connections, devices, and software. AWS Security Hub aggregates, organizes, and prioritizes the security alerts, or findings, from multiple AWS services.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-    - aws_region
-    - aws_securityhub_hub
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    WITH regions AS (
-      SELECT
-        'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
-        r.platform_integration_id AS platform_integration_id,
-        r.platform_resource_id AS platform_resource_id,
-        CASE
-          WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN 1
-          WHEN r.opt_in_status = 'not-opted-in' THEN 1
-          WHEN h.hub_arn IS NOT NULL THEN 0
-          ELSE 2
-        END AS status,
-        CASE
-          WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN r.region || ' region not supported.'
-          WHEN r.opt_in_status = 'not-opted-in' THEN r.region || ' region is disabled.'
-          WHEN h.hub_arn IS NOT NULL THEN 'Security Hub enabled in ' || r.region || '.'
-          ELSE 'Security Hub disabled in ' || r.region || '.'
-        END AS reason,
-        r.region,
-        r.account_id
-      FROM
-        aws_region AS r
-        LEFT JOIN aws_securityhub_hub AS h ON r.account_id = h.account_id AND r.name = h.region
-    ),
-    results AS (
-      SELECT 
-        account_id AS resource,
-        platform_integration_id AS platform_integration_id,
-        platform_integration_id AS platform_resource_id,
-        CASE
-          WHEN MAX(status) = 2 THEN 'alarm'
-          WHEN MAX(status) = 1 THEN 'skip'
-          WHEN MAX(status) = 0 THEN 'ok'
-        END AS status,
-        CASE
-          WHEN MAX(status) = 2 THEN 'SecurityHub is not enabled for this account on regions: [' || STRING_AGG(region, ',') || ']' 
-          WHEN MAX(status) = 1 THEN 'Account is not opted in regions: [' || STRING_AGG(region, ',') || ']'
-          WHEN MAX(status) = 0 THEN 'SecurityHub is enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
-        END AS reason
-      FROM regions
-      GROUP BY account_id, platform_integration_id
-    )
-    SELECT 
-      r.resource AS resource,
-      r.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      r.status AS status,
-      r.reason AS reason
-    FROM results AS r
-    JOIN aws_account AS a ON r.platform_integration_id = a.platform_integration_id
-Severity: low
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  gxp_eu_annex_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/SecurityHub
-  soc_2:
-    - "true"
-Title: AWS Security Hub should be enabled for an AWS Account
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        WITH regions AS (
+          SELECT
+            'arn:' || r.partition || '::' || r.region || ':' || r.account_id AS resource,
+            r.platform_integration_id AS platform_integration_id,
+            r.platform_resource_id AS platform_resource_id,
+            CASE
+              WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN 1
+              WHEN r.opt_in_status = 'not-opted-in' THEN 1
+              WHEN h.hub_arn IS NOT NULL THEN 0
+              ELSE 2
+            END AS status,
+            CASE
+              WHEN r.region = ANY(ARRAY['af-south-1', 'eu-south-1', 'cn-north-1', 'cn-northwest-1', 'ap-northeast-3']) THEN r.region || ' region not supported.'
+              WHEN r.opt_in_status = 'not-opted-in' THEN r.region || ' region is disabled.'
+              WHEN h.hub_arn IS NOT NULL THEN 'Security Hub enabled in ' || r.region || '.'
+              ELSE 'Security Hub disabled in ' || r.region || '.'
+            END AS reason,
+            r.region,
+            r.account_id
+          FROM
+            aws_region AS r
+            LEFT JOIN aws_securityhub_hub AS h ON r.account_id = h.account_id AND r.name = h.region
+        ),
+        results AS (
+          SELECT 
+            account_id AS resource,
+            platform_integration_id AS platform_integration_id,
+            platform_integration_id AS platform_resource_id,
+            CASE
+              WHEN MAX(status) = 2 THEN 'alarm'
+              WHEN MAX(status) = 1 THEN 'skip'
+              WHEN MAX(status) = 0 THEN 'ok'
+            END AS status,
+            CASE
+              WHEN MAX(status) = 2 THEN 'SecurityHub is not enabled for this account on regions: [' || STRING_AGG(region, ',') || ']' 
+              WHEN MAX(status) = 1 THEN 'Account is not opted in regions: [' || STRING_AGG(region, ',') || ']'
+              WHEN MAX(status) = 0 THEN 'SecurityHub is enabled for this account on regions: [' || STRING_AGG(region, ',') || ']'
+            END AS reason
+          FROM regions
+          GROUP BY account_id, platform_integration_id
+        )
+        SELECT 
+          r.resource AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          r.status AS status,
+          r.reason AS reason
+        FROM results AS r
+        JOIN aws_account AS a ON r.platform_integration_id = a.platform_integration_id
+severity: low
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/SecurityHub
+    soc_2:
+      - 'true'

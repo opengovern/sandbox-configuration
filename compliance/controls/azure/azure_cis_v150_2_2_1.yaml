@@ -1,33 +1,30 @@
-Description: Enable automatic provisioning of the monitoring agent to collect security data.
-ID: azure_cis_v150_2_2_1
-IntegrationType:
+id: azure_cis_v150_2_2_1
+title: 2.2.1 Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'
+description: Enable automatic provisioning of the monitoring agent to collect security data.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_security_center_auto_provisioning
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_security_center_auto_provisioning
-  QueryToExecute: |
-    SELECT
-      sc_prov.id AS resource,
-      sc_prov.platform_integration_id AS platform_integration_id,
-      sc_prov.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_provision = 'On' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_provision = 'On' THEN 'Automatic provisioning of monitoring agent is on.'
-        ELSE 'Automatic provisioning of monitoring agent is off.'
-      END AS reason
-    FROM
-      azure_security_center_auto_provisioning sc_prov
-    RIGHT JOIN
-      azure_subscription sub 
-    ON
-      sc_prov.subscription_id = sub.subscription_id;
-Severity: low
-Tags: {}
-Title: 2.2.1 Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_security_center_auto_provisioning
+    definition: |
+        SELECT
+          sc_prov.id AS resource,
+          sc_prov.platform_integration_id AS platform_integration_id,
+          sc_prov.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_provision = 'On' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_provision = 'On' THEN 'Automatic provisioning of monitoring agent is on.'
+            ELSE 'Automatic provisioning of monitoring agent is off.'
+          END AS reason
+        FROM
+          azure_security_center_auto_provisioning sc_prov
+        RIGHT JOIN
+          azure_subscription sub 
+        ON
+          sc_prov.subscription_id = sub.subscription_id;
+severity: low
+tags: {}

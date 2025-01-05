@@ -1,38 +1,36 @@
-Description: Identify and delete any unused Elastic Network Interfaces
-ID: aws_unused_elastic_network_interfaces
-IntegrationType:
+id: aws_unused_elastic_network_interfaces
+title: Unused Elastic Network Interfaces
+description: Identify and delete any unused Elastic Network Interfaces
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_network_interface
-  Parameters: []
-  PrimaryTable: aws_ec2_network_interface
-  QueryToExecute: |
-    SELECT
-      network_interface_id AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN status = 'available' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status = 'available' THEN network_interface_id || ' is unused and can be safely removed'
-        ELSE network_interface_id || ' is used.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ec2_network_interface
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Under Utilization
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Under Utilization
-Title: Unused Elastic Network Interfaces
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_network_interface
+    definition: |
+        SELECT
+          network_interface_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN status = 'available' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN status = 'available' THEN network_interface_id || ' is unused and can be safely removed'
+            ELSE network_interface_id || ' is used.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_network_interface
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Under Utilization
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Under Utilization

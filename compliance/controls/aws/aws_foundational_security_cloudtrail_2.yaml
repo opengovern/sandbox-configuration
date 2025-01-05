@@ -1,30 +1,28 @@
-Description: This control checks whether CloudTrail is configured to use the server-side encryption (SSE) AWS Key Management Service customer master key (CMK) encryption. The check passes if the KmsKeyId is defined.
-ID: aws_foundational_security_cloudtrail_2
-IntegrationType:
+id: aws_foundational_security_cloudtrail_2
+title: 2 CloudTrail should have encryption at rest enabled
+description: This control checks whether CloudTrail is configured to use the server-side encryption (SSE) AWS Key Management Service customer master key (CMK) encryption. The check passes if the KmsKeyId is defined.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudtrail_trail
-  Parameters: []
-  PrimaryTable: aws_cloudtrail_trail
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN kms_key_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN kms_key_id IS NULL THEN title || ' logs are not encrypted at rest.'
-        ELSE title || ' logs are encrypted at rest.'
-      END AS reason
-    FROM
-      aws_cloudtrail_trail
-    WHERE
-      region = home_region;
-Severity: medium
-Tags: {}
-Title: 2 CloudTrail should have encryption at rest enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudtrail_trail
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN kms_key_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN kms_key_id IS NULL THEN title || ' logs are not encrypted at rest.'
+            ELSE title || ' logs are encrypted at rest.'
+          END AS reason
+        FROM
+          aws_cloudtrail_trail
+        WHERE
+          region = home_region;
+severity: medium
+tags: {}

@@ -1,35 +1,33 @@
-Description: A VPC comes with a default security group whose initial settings deny all inbound traffic, allow all outbound traffic, and allow all traffic between instances assigned to the security group. If you don't specify a security group when you launch an instance, the instance is automatically assigned to this default security group. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. It is recommended that the default security group restrict all traffic.
-ID: aws_cis_v150_5_4
-IntegrationType:
+id: aws_cis_v150_5_4
+title: 5.4 Ensure the default security group of every VPC restricts all traffic
+description: A VPC comes with a default security group whose initial settings deny all inbound traffic, allow all outbound traffic, and allow all traffic between instances assigned to the security group. If you don't specify a security group when you launch an instance, the instance is automatically assigned to this default security group. Security groups provide stateful filtering of ingress/egress network traffic to AWS resources. It is recommended that the default security group restrict all traffic.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_security_group
-  Parameters: []
-  PrimaryTable: aws_vpc_security_group
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) = 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) > 0
-          THEN 'Default security group ' || group_id || ' has inbound and outbound rules.'
-        WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) = 0
-          THEN 'Default security group ' || group_id || ' has inbound rules.'
-        WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) > 0
-          THEN 'Default security group ' || group_id || ' has outbound rules.'
-        ELSE 'Default security group ' || group_id || ' has no inbound or outbound rules.'
-      END AS reason
-    FROM
-      aws_vpc_security_group
-    WHERE
-      group_name = 'default';
-Severity: low
-Tags: {}
-Title: 5.4 Ensure the default security group of every VPC restricts all traffic
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_security_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) = 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) > 0
+              THEN 'Default security group ' || group_id || ' has inbound and outbound rules.'
+            WHEN jsonb_array_length(ip_permissions) > 0 AND jsonb_array_length(ip_permissions_egress) = 0
+              THEN 'Default security group ' || group_id || ' has inbound rules.'
+            WHEN jsonb_array_length(ip_permissions) = 0 AND jsonb_array_length(ip_permissions_egress) > 0
+              THEN 'Default security group ' || group_id || ' has outbound rules.'
+            ELSE 'Default security group ' || group_id || ' has no inbound or outbound rules.'
+          END AS reason
+        FROM
+          aws_vpc_security_group
+        WHERE
+          group_name = 'default';
+severity: low
+tags: {}

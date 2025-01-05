@@ -1,99 +1,96 @@
-Description: API Gateway logging displays detailed views of users who accessed the API and the way they accessed the API.
-ID: aws_apigateway_stage_logging_enabled
-IntegrationType:
+id: aws_apigateway_stage_logging_enabled
+title: API Gateway stage logging should be enabled
+description: API Gateway logging displays detailed views of users who accessed the API and the way they accessed the API.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_api_gateway_stage
-    - aws_api_gatewayv2_stage
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    WITH all_stages AS (
-      SELECT
-        name AS stage_name,
-        'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS arn,
-        method_settings -> '*/*' ->> 'LoggingLevel' AS log_level,
-        title,
-        region,
-        account_id,
-        tags,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        'aws_api_gateway_stage' AS platform_table_name,
-        _ctx
-      FROM
-        aws_api_gateway_stage
-      UNION
-      SELECT
-        stage_name,
-        'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS arn,
-        default_route_logging_level AS log_level,
-        title,
-        region,
-        account_id,
-        tags,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        'aws_api_gatewayv2_stage' AS platform_table_name,
-        _ctx
-      FROM
-        aws_api_gatewayv2_stage
-    )
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      platform_table_name AS platform_table_name,
-      CASE
-        WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN title || ' logging not enabled.'
-        ELSE title || ' logging enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      all_stages;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/APIGateway
-  soc_2:
-    - "true"
-Title: API Gateway stage logging should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        WITH all_stages AS (
+          SELECT
+            name AS stage_name,
+            'arn:' || partition || ':apigateway:' || region || '::/apis/' || rest_api_id || '/stages/' || name AS arn,
+            method_settings -> '*/*' ->> 'LoggingLevel' AS log_level,
+            title,
+            region,
+            account_id,
+            tags,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_api_gateway_stage' AS platform_table_name,
+            _ctx
+          FROM
+            aws_api_gateway_stage
+          UNION
+          SELECT
+            stage_name,
+            'arn:' || partition || ':apigateway:' || region || '::/apis/' || api_id || '/stages/' || stage_name AS arn,
+            default_route_logging_level AS log_level,
+            title,
+            region,
+            account_id,
+            tags,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_api_gatewayv2_stage' AS platform_table_name,
+            _ctx
+          FROM
+            aws_api_gatewayv2_stage
+        )
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          platform_table_name AS platform_table_name,
+          CASE
+            WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN log_level IS NULL OR log_level = '' OR log_level = 'OFF' THEN title || ' logging not enabled.'
+            ELSE title || ' logging enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          all_stages;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/APIGateway
+    soc_2:
+      - 'true'

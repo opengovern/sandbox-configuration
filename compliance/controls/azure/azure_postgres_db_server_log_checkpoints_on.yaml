@@ -1,54 +1,51 @@
-Description: Enable log_checkpoints on PostgreSQL Servers.
-ID: azure_postgres_db_server_log_checkpoints_on
-IntegrationType:
+id: azure_postgres_db_server_log_checkpoints_on
+title: Ensure server parameter 'log_checkpoints' is set to 'ON' for PostgreSQL Database Server
+description: Enable log_checkpoints on PostgreSQL Servers.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN s.name || ' server parameter log_checkpoints off.'
-        ELSE s.name || ' server parameter log_checkpoints on.'
-      END AS reason,
-      s.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_postgresql_server s,
-      JSONB_ARRAY_ELEMENTS(server_configurations) config,
-      azure_subscription sub
-    WHERE
-      config ->> 'Name' = 'log_checkpoints'
-      AND sub.subscription_id = s.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 4.3.3
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "4.3"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/PostgreSQL
-Title: Ensure server parameter 'log_checkpoints' is set to 'ON' for PostgreSQL Database Server
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN LOWER(config -> 'ConfigurationProperties' ->> 'value') != 'on' THEN s.name || ' server parameter log_checkpoints off.'
+            ELSE s.name || ' server parameter log_checkpoints on.'
+          END AS reason,
+          s.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_postgresql_server s,
+          JSONB_ARRAY_ELEMENTS(server_configurations) config,
+          azure_subscription sub
+        WHERE
+          config ->> 'Name' = 'log_checkpoints'
+          AND sub.subscription_id = s.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 4.3.3
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '4.3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/PostgreSQL

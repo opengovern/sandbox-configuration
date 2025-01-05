@@ -1,32 +1,29 @@
-Description: This policy identifies Service bus namespaces that are not configured with Azure Active Directory (Azure AD) authentication and are enabled with local authentication. Azure AD provides superior security and ease of use over shared access signatures (SAS). With Azure AD, there's no need to store the tokens in your code and risk potential security vulnerabilities. It is recommended to configure the Service bus namespaces with Azure AD authentication so that all actions are strongly authenticated.
-ID: azure_servicebus_namespace_azure_ad_authentication_enabled
-IntegrationType:
+id: azure_servicebus_namespace_azure_ad_authentication_enabled
+title: Service bus namespace should be configured with Azure Active Directory (Azure AD) authentication
+description: This policy identifies Service bus namespaces that are not configured with Azure Active Directory (Azure AD) authentication and are enabled with local authentication. Azure AD provides superior security and ease of use over shared access signatures (SAS). With Azure AD, there's no need to store the tokens in your code and risk potential security vulnerabilities. It is recommended to configure the Service bus namespaces with Azure AD authentication so that all actions are strongly authenticated.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_servicebus_namespace
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_servicebus_namespace
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN status = 'Active'
-        AND NOT disable_local_auth THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN status = 'Active'
-        AND NOT disable_local_auth THEN a.name || ' namespace not configured with Azure AD authentication.'
-        ELSE a.name || ' namespace configured with Azure AD authentication.'
-      END AS reason
-    FROM
-      azure_servicebus_namespace a,
-      azure_subscription sub;
-Severity: low
-Tags: {}
-Title: Service bus namespace should be configured with Azure Active Directory (Azure AD) authentication
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_servicebus_namespace
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN status = 'Active'
+            AND NOT disable_local_auth THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN status = 'Active'
+            AND NOT disable_local_auth THEN a.name || ' namespace not configured with Azure AD authentication.'
+            ELSE a.name || ' namespace configured with Azure AD authentication.'
+          END AS reason
+        FROM
+          azure_servicebus_namespace a,
+          azure_subscription sub;
+severity: low
+tags: {}

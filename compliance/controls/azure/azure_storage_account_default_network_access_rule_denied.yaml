@@ -1,52 +1,49 @@
-Description: Network access to storage accounts should be restricted. Configure network rules so only applications from allowed networks can access the storage account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges.
-ID: azure_storage_account_default_network_access_rule_denied
-IntegrationType:
+id: azure_storage_account_default_network_access_rule_denied
+title: Storage accounts should restrict network access
+description: Network access to storage accounts should be restricted. Configure network rules so only applications from allowed networks can access the storage account. To allow connections from specific internet or on-premises clients, access can be granted to traffic from specific Azure virtual networks or to public internet IP address ranges.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
-        ELSE name || ' allows traffic from specific networks.'
-      END AS reason,
-      sa.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "3.6"
-  cis_level:
-    - "2"
-  cis_section_id:
-    - "3"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Storage
-Title: Storage accounts should restrict network access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sa.network_rule_default_action = 'Allow' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN sa.network_rule_default_action = 'Allow' THEN name || ' allows traffic from all networks.'
+            ELSE name || ' allows traffic from specific networks.'
+          END AS reason,
+          sa.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '3.6'
+    cis_level:
+      - '2'
+    cis_section_id:
+      - '3'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Storage

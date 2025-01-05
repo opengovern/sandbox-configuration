@@ -1,30 +1,28 @@
-Description: Inter-container traffic encryption should be used to protect data that is transmitted between instances while performing distributed training. This control is compliant when inter-container traffic encryption is enabled.
-ID: aws_sagemaker_training_job_inter_container_traffic_encryption_enabled
-IntegrationType:
+id: aws_sagemaker_training_job_inter_container_traffic_encryption_enabled
+title: SageMaker training jobs should be enabled with inter-container traffic encryption
+description: Inter-container traffic encryption should be used to protect data that is transmitted between instances while performing distributed training. This control is compliant when inter-container traffic encryption is enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_sagemaker_training_job
-  Parameters: []
-  PrimaryTable: aws_sagemaker_training_job
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN enable_inter_container_traffic_encryption THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN enable_inter_container_traffic_encryption THEN 
-          title || ' inter-container traffic encryption enabled.'
-        ELSE 
-          title || ' inter-container traffic encryption disabled.'
-      END AS reason
-    FROM
-      aws_sagemaker_training_job;
-Severity: low
-Tags: {}
-Title: SageMaker training jobs should be enabled with inter-container traffic encryption
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_sagemaker_training_job
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN enable_inter_container_traffic_encryption THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN enable_inter_container_traffic_encryption THEN 
+              title || ' inter-container traffic encryption enabled.'
+            ELSE 
+              title || ' inter-container traffic encryption disabled.'
+          END AS reason
+        FROM
+          aws_sagemaker_training_job;
+severity: low
+tags: {}

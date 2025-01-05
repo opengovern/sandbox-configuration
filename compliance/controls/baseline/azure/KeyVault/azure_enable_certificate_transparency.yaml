@@ -1,41 +1,38 @@
-Description: Ensure there is a sufficient period configured for the SSL certificates auto-renewal.
-ID: azure_enable_certificate_transparency
-IntegrationType:
+id: azure_enable_certificate_transparency
+title: Enable Certificate Transparency
+description: Ensure there is a sufficient period configured for the SSL certificates auto-renewal.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault_certificate
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault_certificate
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_resource_id,
-      c.platform_integration_id,
-      CASE
-        WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'Certificate transparency is not enabled for the certificate'
-        ELSE 'Certificate transparency is enabled for the certificate'
-      END AS reason,
-      resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault_certificate AS c
-      LEFT JOIN azure_subscription AS sub
-        ON c.subscription_id = sub.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Insecure Keys
-Title: Enable Certificate Transparency
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault_certificate
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_resource_id,
+          c.platform_integration_id,
+          CASE
+            WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.issuer_parameters ->> 'CertificateTransparency' = 'true' THEN 'Certificate transparency is not enabled for the certificate'
+            ELSE 'Certificate transparency is enabled for the certificate'
+          END AS reason,
+          resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault_certificate AS c
+          LEFT JOIN azure_subscription AS sub
+            ON c.subscription_id = sub.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Insecure Keys

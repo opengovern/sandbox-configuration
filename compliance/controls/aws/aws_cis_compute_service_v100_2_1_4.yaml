@@ -1,26 +1,24 @@
-Description: Ensure that your AMIs are not older than 90 days.
-ID: aws_cis_compute_service_v100_2_1_4
-IntegrationType:
+id: aws_cis_compute_service_v100_2_1_4
+title: 2.1.4 Ensure Images (AMI) are not older than 90 days
+description: Ensure that your AMIs are not older than 90 days.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_ami
-  Parameters: []
-  PrimaryTable: aws_ec2_ami
-  QueryToExecute: |
-    SELECT
-      image_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN creation_date >= (CURRENT_DATE - INTERVAL '90 days') THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      title || ' created ' || TO_CHAR(creation_date, 'DD-Mon-YYYY') || 
-      ' (' || EXTRACT(DAY FROM CURRENT_TIMESTAMP - creation_date) || ' days).' AS reason
-    FROM
-      aws_ec2_ami;
-Severity: low
-Tags: {}
-Title: 2.1.4 Ensure Images (AMI) are not older than 90 days
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_ami
+    definition: |
+        SELECT
+          image_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN creation_date >= (CURRENT_DATE - INTERVAL '90 days') THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          title || ' created ' || TO_CHAR(creation_date, 'DD-Mon-YYYY') || 
+          ' (' || EXTRACT(DAY FROM CURRENT_TIMESTAMP - creation_date) || ' days).' AS reason
+        FROM
+          aws_ec2_ami;
+severity: low
+tags: {}

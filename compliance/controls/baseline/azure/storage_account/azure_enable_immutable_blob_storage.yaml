@@ -1,38 +1,35 @@
-Description: Ensure that critical Azure Blob Storage data is protected from accidental deletion or modification.
-ID: azure_enable_immutable_blob_storage
-IntegrationType:
+id: azure_enable_immutable_blob_storage
+title: Enable Immutable Blob Storage
+description: Ensure that critical Azure Blob Storage data is protected from accidental deletion or modification.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_storage_container
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_container
-  QueryToExecute: |
-    SELECT
-      sc.id AS resource,
-      sc.platform_integration_id,
-      sc.platform_resource_id,
-      CASE
-        WHEN has_immutability_policy = 'false' AND has_legal_hold = 'false' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN has_immutability_policy = 'false' AND has_legal_hold = 'false' THEN 'Immutable Blob Storage protection feature is not enabled.'
-        ELSE 'Immutable Blob Storage protection feature is enabled.'
-      END AS reason,
-      sc.resource_group,
-      display_name AS subscription
-    FROM
-      azure_storage_container AS sc,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = sc.subscription_id
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Storage Accounts
-  score_service_name:
-    - Azure Storage Accounts
-Title: Enable Immutable Blob Storage
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_container
+    definition: |
+        SELECT
+          sc.id AS resource,
+          sc.platform_integration_id,
+          sc.platform_resource_id,
+          CASE
+            WHEN has_immutability_policy = 'false' AND has_legal_hold = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN has_immutability_policy = 'false' AND has_legal_hold = 'false' THEN 'Immutable Blob Storage protection feature is not enabled.'
+            ELSE 'Immutable Blob Storage protection feature is enabled.'
+          END AS reason,
+          sc.resource_group,
+          display_name AS subscription
+        FROM
+          azure_storage_container AS sc,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = sc.subscription_id
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure Storage Accounts
+    score_service_name:
+      - Azure Storage Accounts

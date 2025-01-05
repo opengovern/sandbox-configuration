@@ -1,28 +1,26 @@
-Description: This control ensures that at least one container instance is registered with an ECS cluster.
-ID: aws_ecs_cluster_no_registered_container_instance
-IntegrationType:
+id: aws_ecs_cluster_no_registered_container_instance
+title: At least one instance should be registered with ECS cluster
+description: This control ensures that at least one container instance is registered with an ECS cluster.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_cluster
-  Parameters: []
-  PrimaryTable: aws_ecs_cluster
-  QueryToExecute: |
-    SELECT
-      cluster_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN registered_container_instances_count = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN registered_container_instances_count = 0 THEN title || ' has no container instance registered.'
-        ELSE title || ' has ' || registered_container_instances_count || ' container instance(s) registered.'
-      END AS reason
-    FROM
-      aws_ecs_cluster;
-Severity: low
-Tags: {}
-Title: At least one instance should be registered with ECS cluster
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_cluster
+    definition: |
+        SELECT
+          cluster_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN registered_container_instances_count = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN registered_container_instances_count = 0 THEN title || ' has no container instance registered.'
+            ELSE title || ' has ' || registered_container_instances_count || ' container instance(s) registered.'
+          END AS reason
+        FROM
+          aws_ecs_cluster;
+severity: low
+tags: {}

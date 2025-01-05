@@ -1,26 +1,24 @@
-Description: 'IAM users are granted access to services, functions, and data through IAM policies. There are three ways to define policies for a user: 1) Edit the user policy directly, aka an inline, or user, policy; 2) attach a policy directly to a user; 3) add the user to an IAM group that has an attached policy. Only the third implementation is recommended.'
-ID: aws_cis_v150_1_15
-IntegrationType:
+id: aws_cis_v150_1_15
+title: 1.15 Ensure IAM Users Receive Permissions Only Through Groups
+description: 'IAM users are granted access to services, functions, and data through IAM policies. There are three ways to define policies for a user: 1) Edit the user policy directly, aka an inline, or user, policy; 2) attach a policy directly to a user; 3) add the user to an IAM group that has an attached policy. Only the third implementation is recommended.'
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_iam_user
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN inline_policies IS NULL AND attached_policy_arns IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      name || ' has ' || COALESCE(jsonb_array_length(inline_policies), 0) || ' inline and ' ||
-        COALESCE(jsonb_array_length(attached_policy_arns), 0) || ' directly attached policies.' AS reason
-    FROM
-      aws_iam_user;
-Severity: low
-Tags: {}
-Title: 1.15 Ensure IAM Users Receive Permissions Only Through Groups
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN inline_policies IS NULL AND attached_policy_arns IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          name || ' has ' || COALESCE(jsonb_array_length(inline_policies), 0) || ' inline and ' ||
+            COALESCE(jsonb_array_length(attached_policy_arns), 0) || ' directly attached policies.' AS reason
+        FROM
+          aws_iam_user;
+severity: low
+tags: {}

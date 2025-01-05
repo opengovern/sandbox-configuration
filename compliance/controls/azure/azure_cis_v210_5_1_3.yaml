@@ -1,37 +1,33 @@
-Description: Storage accounts with the activity log exports can be configured to use Customer Managed Keys (CMK).
-ID: azure_cis_v210_5_1_3
-IntegrationType:
+id: azure_cis_v210_5_1_3
+title: 5.1.3 Ensure the storage account containing the container with activity logs is encrypted with Customer Managed Key
+description: Storage accounts with the activity log exports can be configured to use Customer Managed Keys (CMK).
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_container
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN a.encryption_key_source = 'Microsoft.Keyvault' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN a.encryption_key_source = 'Microsoft.Keyvault'
-          THEN a.name || ' container insights-activity-logs encrypted with BYOK.'
-        ELSE a.name || ' container insights-activity-logs not encrypted with BYOK.'
-      END AS reason
-    FROM
-      azure_storage_container c,
-      azure_storage_account a,
-      azure_subscription sub
-    WHERE
-      c.name = 'insights-activity-logs'
-      AND c.account_name = a.name
-      AND sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: 5.1.3 Ensure the storage account containing the container with activity logs is encrypted with Customer Managed Key
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.encryption_key_source = 'Microsoft.Keyvault' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.encryption_key_source = 'Microsoft.Keyvault'
+              THEN a.name || ' container insights-activity-logs encrypted with BYOK.'
+            ELSE a.name || ' container insights-activity-logs not encrypted with BYOK.'
+          END AS reason
+        FROM
+          azure_storage_container c,
+          azure_storage_account a,
+          azure_subscription sub
+        WHERE
+          c.name = 'insights-activity-logs'
+          AND c.account_name = a.name
+          AND sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

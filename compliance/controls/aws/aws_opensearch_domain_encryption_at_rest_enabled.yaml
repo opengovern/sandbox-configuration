@@ -1,42 +1,40 @@
-Description: This control checks whether AWS OpenSearch domains have encryption-at-rest configuration enabled. The check fails if encryption at rest is not enabled.
-ID: aws_opensearch_domain_encryption_at_rest_enabled
-IntegrationType:
+id: aws_opensearch_domain_encryption_at_rest_enabled
+title: OpenSearch domains should have encryption at rest enabled
+description: This control checks whether AWS OpenSearch domains have encryption-at-rest configuration enabled. The check fails if encryption at rest is not enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_opensearch_domain
-  Parameters: []
-  PrimaryTable: aws_opensearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN title || ' encryption at rest disabled.'
-        ELSE title || ' encryption at rest enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_opensearch_domain;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - encryption_of_data_at_rest
-  foundational_security_item_id:
-    - opensearch_1
-  plugin:
-    - aws
-  service:
-    - AWS/OpenSearch
-Title: OpenSearch domains should have encryption at rest enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN encryption_at_rest_options ->> 'Enabled' = 'false' THEN title || ' encryption at rest disabled.'
+            ELSE title || ' encryption at rest enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_opensearch_domain;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - encryption_of_data_at_rest
+    foundational_security_item_id:
+      - opensearch_1
+    plugin:
+      - aws
+    service:
+      - AWS/OpenSearch

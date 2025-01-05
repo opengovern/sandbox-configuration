@@ -1,50 +1,47 @@
-Description: Require administrators or appropriately delegated users to register third-party applications.
-ID: azure_iam_user_not_allowed_to_register_application
-IntegrationType:
+id: azure_iam_user_not_allowed_to_register_application
+title: Ensure that 'Users Can Register Applications' is set to 'No'
+description: Require administrators or appropriately delegated users to register third-party applications.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_tenant
-    - entraid_authorization_policy
-  Parameters: []
-  PrimaryTable: entraid_authorization_policy
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' 
-        THEN a.display_name || ' does not allow user to register applications.'
-        ELSE a.display_name || ' allows user to register applications.'
-      END AS reason,
-      t.tenant_id
-    FROM
-      azure_tenant AS t,
-      entraid_authorization_policy AS a;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - "1.14"
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "1"
-  cis_type:
-    - manual
-  cis_version:
-    - v1.5.0
-  plugin:
-    - azure
-  service:
-    - Azure/ActiveDirectory
-Title: Ensure that 'Users Can Register Applications' is set to 'No'
+parameters: []
+policy:
+    language: sql
+    primary_resource: entraid_authorization_policy
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.default_user_role_permissions ->> 'allowedToCreateApps' = 'false' 
+            THEN a.display_name || ' does not allow user to register applications.'
+            ELSE a.display_name || ' allows user to register applications.'
+          END AS reason,
+          t.tenant_id
+        FROM
+          azure_tenant AS t,
+          entraid_authorization_policy AS a;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - '1.14'
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '1'
+    cis_type:
+      - manual
+    cis_version:
+      - v1.5.0
+    plugin:
+      - azure
+    service:
+      - Azure/ActiveDirectory

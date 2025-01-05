@@ -1,39 +1,36 @@
-Description: Ensure that EBS volume snapshots exist. This rule is non-compliant if the EBS volume does not have any snapshot.
-ID: aws_ebs_volume_snapshot_exists
-IntegrationType:
+id: aws_ebs_volume_snapshot_exists
+title: EBS volume snapshots should exist
+description: Ensure that EBS volume snapshots exist. This rule is non-compliant if the EBS volume does not have any snapshot.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ebs_snapshot
-    - aws_ebs_volume
-  Parameters: []
-  PrimaryTable: aws_ebs_volume
-  QueryToExecute: |
-    WITH volume_with_snapshots AS (
-      SELECT
-        volume_id,
-        COUNT(*) AS snap_count
-      FROM
-        aws_ebs_snapshot
-      GROUP BY
-        volume_id
-    )
-    SELECT
-      v.arn AS resource,
-      v.platform_integration_id AS platform_integration_id,
-      v.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN s.volume_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN s.volume_id IS NOT NULL THEN v.title || ' has ' || s.snap_count || ' snapshot(s).'
-        ELSE v.title || ' does not have snapshot.'
-      END AS reason
-    FROM
-      aws_ebs_volume AS v
-      LEFT JOIN volume_with_snapshots AS s ON s.volume_id = v.volume_id;
-Severity: low
-Tags: {}
-Title: EBS volume snapshots should exist
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        WITH volume_with_snapshots AS (
+          SELECT
+            volume_id,
+            COUNT(*) AS snap_count
+          FROM
+            aws_ebs_snapshot
+          GROUP BY
+            volume_id
+        )
+        SELECT
+          v.arn AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN s.volume_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN s.volume_id IS NOT NULL THEN v.title || ' has ' || s.snap_count || ' snapshot(s).'
+            ELSE v.title || ' does not have snapshot.'
+          END AS reason
+        FROM
+          aws_ebs_volume AS v
+          LEFT JOIN volume_with_snapshots AS s ON s.volume_id = v.volume_id;
+severity: low
+tags: {}

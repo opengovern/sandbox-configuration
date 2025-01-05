@@ -1,38 +1,36 @@
-Description: Ensure EC2 instances aren't too old.
-ID: aws_ec2_instance_too_old
-IntegrationType:
+id: aws_ec2_instance_too_old
+title: EC2 Instance Too Old
+description: Ensure EC2 instances aren't too old.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_instance
-  Parameters: []
-  PrimaryTable: aws_ec2_instance
-  QueryToExecute: |
-    SELECT
-      instance_id AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted'
-        ELSE instance_id || ' launch time was not much time ago'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ec2_instance
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Under Utilization
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Under Utilization
-Title: EC2 Instance Too Old
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_instance
+    definition: |
+        SELECT
+          instance_id AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN now() - (platform_resource_description -> 'Instance' ->> 'LaunchTime')::timestamp > '180 days'::interval THEN instance_id || ' needs to be restarted'
+            ELSE instance_id || ' launch time was not much time ago'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ec2_instance
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Under Utilization
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Under Utilization

@@ -1,42 +1,39 @@
-ID: azure_disks_should_use_standard_snapshots
-Title: "Disks should use standard snapshots"
-Description: "Use standard storage instead of premium storage for managed disk snapshots to save 60% on costs."
-Query:
-  Engine: odysseus-v0.0.1
-  QueryToExecute: |
-    SELECT
-      ss.id AS resource,
-      ss.platform_resource_id,
-      ss.platform_integration_id,
-      CASE
-        WHEN ss.sku_tier = 'Standard' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ss.sku_tier = 'Standard' THEN ss.title || ' has storage type ' || ss.sku_tier || '.'
-        ELSE ss.title || ' has storage type ' || ss.sku_tier || '.'
-      END AS reason,
-      ss.resource_group,
-      display_name AS subscription
-    FROM
-      azure_compute_snapshot AS ss,
-      azure_subscription AS sub
-    WHERE
-      ss.subscription_id = sub.subscription_id;
-  PrimaryTable: azure_compute_snapshot
-  ListOfTables:
-    - azure_compute_snapshot
-    - azure_subscription
-  Parameters: []
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  platform_score_use_case:
-    - Over Utilization
-  score_service_name:
-    - Azure Virtual Machines
-  score_tags:
-    - Over Utilization
-IntegrationType:
+id: azure_disks_should_use_standard_snapshots
+title: Disks should use standard snapshots
+description: Use standard storage instead of premium storage for managed disk snapshots to save 60% on costs.
+integration_type:
   - azure_subscription
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_snapshot
+    definition: |
+        SELECT
+          ss.id AS resource,
+          ss.platform_resource_id,
+          ss.platform_integration_id,
+          CASE
+            WHEN ss.sku_tier = 'Standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ss.sku_tier = 'Standard' THEN ss.title || ' has storage type ' || ss.sku_tier || '.'
+            ELSE ss.title || ' has storage type ' || ss.sku_tier || '.'
+          END AS reason,
+          ss.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_snapshot AS ss,
+          azure_subscription AS sub
+        WHERE
+          ss.subscription_id = sub.subscription_id;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    platform_score_use_case:
+      - Over Utilization
+    score_service_name:
+      - Azure Virtual Machines
+    score_tags:
+      - Over Utilization

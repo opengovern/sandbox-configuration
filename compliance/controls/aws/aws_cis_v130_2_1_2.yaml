@@ -1,48 +1,46 @@
-Description: At the Amazon S3 bucket level, you can configure permissions through a bucket policy making the objects accessible only through HTTPS.
-ID: aws_cis_v130_2_1_2
-IntegrationType:
+id: aws_cis_v130_2_1_2
+title: 2.1.2 Ensure S3 Bucket Policy allows HTTPS requests
+description: At the Amazon S3 bucket level, you can configure permissions through a bucket policy making the objects accessible only through HTTPS.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    WITH ssl_ok AS (
-      SELECT
-        DISTINCT name,
-        arn,
-        'ok' AS status
-      FROM
-        aws_s3_bucket,
-        jsonb_array_elements(policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
-        jsonb_array_elements_text(s -> 'Action') AS a,
-        jsonb_array_elements_text(s -> 'Resource') AS r,
-        jsonb_array_elements_text(
-          s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
-        ) AS ssl
-      WHERE
-        p = '*'
-        AND s ->> 'Effect' = 'Deny'
-        AND ssl::bool = false
-    )
-    SELECT
-      b.arn AS resource,
-      b.platform_integration_id AS platform_integration_id,
-      b.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN ok.status = 'ok' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN ok.status = 'ok' THEN b.name || ' bucket policy enforces HTTPS.'
-        ELSE b.name || ' bucket policy does not enforce HTTPS.'
-      END AS reason
-    FROM
-      aws_s3_bucket AS b
-      LEFT JOIN ssl_ok AS ok ON ok.name = b.name;
-Severity: low
-Tags: {}
-Title: 2.1.2 Ensure S3 Bucket Policy allows HTTPS requests
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        WITH ssl_ok AS (
+          SELECT
+            DISTINCT name,
+            arn,
+            'ok' AS status
+          FROM
+            aws_s3_bucket,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+            jsonb_array_elements_text(s -> 'Action') AS a,
+            jsonb_array_elements_text(s -> 'Resource') AS r,
+            jsonb_array_elements_text(
+              s -> 'Condition' -> 'Bool' -> 'aws:securetransport'
+            ) AS ssl
+          WHERE
+            p = '*'
+            AND s ->> 'Effect' = 'Deny'
+            AND ssl::bool = false
+        )
+        SELECT
+          b.arn AS resource,
+          b.platform_integration_id AS platform_integration_id,
+          b.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN ok.status = 'ok' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN ok.status = 'ok' THEN b.name || ' bucket policy enforces HTTPS.'
+            ELSE b.name || ' bucket policy does not enforce HTTPS.'
+          END AS reason
+        FROM
+          aws_s3_bucket AS b
+          LEFT JOIN ssl_ok AS ok ON ok.name = b.name;
+severity: low
+tags: {}

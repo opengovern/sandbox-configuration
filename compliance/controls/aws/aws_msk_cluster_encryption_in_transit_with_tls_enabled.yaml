@@ -1,28 +1,26 @@
-Description: This controls checks if an Amazon MSK cluster is encrypted in transit with HTTPS (TLS) among the broker nodes of the cluster. The control fails if plain text communication is enabled for a cluster broker node connection.
-ID: aws_msk_cluster_encryption_in_transit_with_tls_enabled
-IntegrationType:
+id: aws_msk_cluster_encryption_in_transit_with_tls_enabled
+title: MSK clusters should be encrypted in transit among broker nodes
+description: This controls checks if an Amazon MSK cluster is encrypted in transit with HTTPS (TLS) among the broker nodes of the cluster. The control fails if plain text communication is enabled for a cluster broker node connection.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_msk_cluster
-  Parameters: []
-  PrimaryTable: aws_msk_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN provisioned -> 'EncryptionInfo' -> 'EncryptionInTransit' ->> 'ClientBroker' = 'TLS' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN provisioned -> 'EncryptionInfo' -> 'EncryptionInTransit' ->> 'ClientBroker' = 'TLS' THEN title || ' encryption in transit enabled with TLS.'
-        ELSE title || ' encryption in transit enabled with plaintext.'
-      END AS reason
-    FROM
-      aws_msk_cluster;
-Severity: low
-Tags: {}
-Title: MSK clusters should be encrypted in transit among broker nodes
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_msk_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN provisioned -> 'EncryptionInfo' -> 'EncryptionInTransit' ->> 'ClientBroker' = 'TLS' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN provisioned -> 'EncryptionInfo' -> 'EncryptionInTransit' ->> 'ClientBroker' = 'TLS' THEN title || ' encryption in transit enabled with TLS.'
+            ELSE title || ' encryption in transit enabled with plaintext.'
+          END AS reason
+        FROM
+          aws_msk_cluster;
+severity: low
+tags: {}

@@ -1,61 +1,57 @@
-Description: Ensure that a Customer-Managed Key is created for your Azure cloud database tier.
-ID: azure_database_tier_customer_managed_key_in_use
-IntegrationType:
+id: azure_database_tier_customer_managed_key_in_use
+title: Database Tier Customer-Managed Key In Use
+description: Ensure that a Customer-Managed Key is created for your Azure cloud database tier.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_key_vault_key
-    - azure_subscription
-  Parameters:
-    - Key: azureDatabaseTierTags
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: azure_subscription
-  QueryToExecute: |
-    SELECT
-      display_name AS resource,
-      sub.platform_resource_id,
-      sub.platform_integration_id,
-      CASE
-        WHEN EXISTS(
-          SELECT 1 FROM azure_key_vault_key AS k 
-          WHERE (k.subscription_id = sub.subscription_id)
-          AND k.tags IS NOT NULL 
-          AND (k.tags::TEXT LIKE '%' || REPLACE(
-            REPLACE((
-              SELECT jsonb_object_agg(key, value)::TEXT
-              FROM jsonb_each_text('{{.azureDatabaseTierTags}}'::jsonb)
-            ), '{', ''), '}', '') || '%') 
-          AND enabled
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS(
-          SELECT 1 FROM azure_key_vault_key AS k 
-          WHERE (k.subscription_id = sub.subscription_id)
-          AND k.tags IS NOT NULL 
-          AND (k.tags::TEXT LIKE '%' || REPLACE(
-            REPLACE((
-              SELECT jsonb_object_agg(key, value)::TEXT
-              FROM jsonb_each_text('{{.azureDatabaseTierTags}}'::jsonb)
-            ), '{', ''), '}', '') || '%') 
-          AND enabled
-        ) THEN 'subscription has an app-tier cmk'
-        ELSE 'subscription does not have any app-tier cmk'
-      END AS reason,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription AS sub
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - Azure KeyVault
-  platform_score_use_case:
-    - Unencrypted Storage
-  score_service_name:
-    - Azure KeyVault
-  score_tags:
-    - Unencrypted Storage
-Title: Database Tier Customer-Managed Key In Use
+parameters:
+  - key: azureDatabaseTierTags
+    value: ''
+policy:
+    language: sql
+    primary_resource: azure_subscription
+    definition: |
+        SELECT
+          display_name AS resource,
+          sub.platform_resource_id,
+          sub.platform_integration_id,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 FROM azure_key_vault_key AS k 
+              WHERE (k.subscription_id = sub.subscription_id)
+              AND k.tags IS NOT NULL 
+              AND (k.tags::TEXT LIKE '%' || REPLACE(
+                REPLACE((
+                  SELECT jsonb_object_agg(key, value)::TEXT
+                  FROM jsonb_each_text('{{.azureDatabaseTierTags}}'::jsonb)
+                ), '{', ''), '}', '') || '%') 
+              AND enabled
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS(
+              SELECT 1 FROM azure_key_vault_key AS k 
+              WHERE (k.subscription_id = sub.subscription_id)
+              AND k.tags IS NOT NULL 
+              AND (k.tags::TEXT LIKE '%' || REPLACE(
+                REPLACE((
+                  SELECT jsonb_object_agg(key, value)::TEXT
+                  FROM jsonb_each_text('{{.azureDatabaseTierTags}}'::jsonb)
+                ), '{', ''), '}', '') || '%') 
+              AND enabled
+            ) THEN 'subscription has an app-tier cmk'
+            ELSE 'subscription does not have any app-tier cmk'
+          END AS reason,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription AS sub
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - Azure KeyVault
+    platform_score_use_case:
+      - Unencrypted Storage
+    score_service_name:
+      - Azure KeyVault
+    score_tags:
+      - Unencrypted Storage

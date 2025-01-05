@@ -1,28 +1,26 @@
-Description: This control checks whether Amazon API Gateway REST API stages have SSL certificates configured. Backend systems use these certificates to authenticate that incoming requests are from API Gateway.
-ID: aws_foundational_security_apigateway_2
-IntegrationType:
+id: aws_foundational_security_apigateway_2
+title: 2 API Gateway REST API stages should be configured to use SSL certificates for backend authentication
+description: This control checks whether Amazon API Gateway REST API stages have SSL certificates configured. Backend systems use these certificates to authenticate that incoming requests are from API Gateway.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_api_gateway_stage
-  Parameters: []
-  PrimaryTable: aws_api_gateway_stage
-  QueryToExecute: |
-    SELECT 
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN client_certificate_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN client_certificate_id IS NULL THEN title || ' does not use SSL certificate.'
-        ELSE title || ' uses SSL certificate.'
-      END AS reason
-    FROM 
-      aws_api_gateway_stage;
-Severity: medium
-Tags: {}
-Title: 2 API Gateway REST API stages should be configured to use SSL certificates for backend authentication
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_api_gateway_stage
+    definition: |
+        SELECT 
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN client_certificate_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN client_certificate_id IS NULL THEN title || ' does not use SSL certificate.'
+            ELSE title || ' uses SSL certificate.'
+          END AS reason
+        FROM 
+          aws_api_gateway_stage;
+severity: medium
+tags: {}

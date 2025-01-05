@@ -1,46 +1,44 @@
-Description: CloudTrail is a critical service and IAM policies should follow least privilege model for this service in particular. This control is non-compliant if the managed IAM policy allows full access to cloudtrail service.
-ID: aws_iam_policy_no_full_access_to_cloudtrail
-IntegrationType:
+id: aws_iam_policy_no_full_access_to_cloudtrail
+title: IAM policy should not grant full access to cloudtrail service
+description: CloudTrail is a critical service and IAM policies should follow least privilege model for this service in particular. This control is non-compliant if the managed IAM policy allows full access to cloudtrail service.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_policy
-  Parameters: []
-  PrimaryTable: aws_iam_policy
-  QueryToExecute: |
-    WITH cloudtrail_full_access_policies AS (
-      SELECT
-        arn,
-        COUNT(*) AS statements_num
-      FROM
-        aws_iam_policy,
-        jsonb_array_elements(policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Resource') AS resource,
-        jsonb_array_elements_text(s -> 'Action') AS action
-      WHERE
-        NOT is_aws_managed
-        AND s ->> 'Effect' = 'Allow'
-        AND resource = '*'
-        AND action = 'cloudtrail:*'
-      GROUP BY
-        arn
-    )
-    SELECT
-      p.arn AS resource,
-      p.platform_integration_id AS platform_integration_id,
-      p.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN w.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      p.name || ' contains ' || COALESCE(w.statements_num, 0) ||
-        ' statements that allow action "*" on cloudtrail service on resource "*".' AS reason
-    FROM
-      aws_iam_policy AS p
-      LEFT JOIN cloudtrail_full_access_policies AS w ON p.arn = w.arn
-    WHERE
-      NOT p.is_aws_managed;
-Severity: low
-Tags: {}
-Title: IAM policy should not grant full access to cloudtrail service
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH cloudtrail_full_access_policies AS (
+          SELECT
+            arn,
+            COUNT(*) AS statements_num
+          FROM
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            NOT is_aws_managed
+            AND s ->> 'Effect' = 'Allow'
+            AND resource = '*'
+            AND action = 'cloudtrail:*'
+          GROUP BY
+            arn
+        )
+        SELECT
+          p.arn AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN w.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          p.name || ' contains ' || COALESCE(w.statements_num, 0) ||
+            ' statements that allow action "*" on cloudtrail service on resource "*".' AS reason
+        FROM
+          aws_iam_policy AS p
+          LEFT JOIN cloudtrail_full_access_policies AS w ON p.arn = w.arn
+        WHERE
+          NOT p.is_aws_managed;
+severity: low
+tags: {}

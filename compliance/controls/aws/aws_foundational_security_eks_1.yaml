@@ -1,28 +1,26 @@
-Description: This control checks whether an Amazon EKS cluster endpoint is publicly accessible. The control fails if an EKS cluster has an endpoint that is publicly accessible.
-ID: aws_foundational_security_eks_1
-IntegrationType:
+id: aws_foundational_security_eks_1
+title: 1 EKS cluster endpoints should not be publicly accessible
+description: This control checks whether an Amazon EKS cluster endpoint is publicly accessible. The control fails if an EKS cluster has an endpoint that is publicly accessible.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_cluster
-  Parameters: []
-  PrimaryTable: aws_eks_cluster
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN title || ' endpoint publicly accessible.'
-        ELSE title || ' endpoint not publicly accessible.'
-      END AS reason
-    FROM
-      aws_eks_cluster;
-Severity: high
-Tags: {}
-Title: 1 EKS cluster endpoints should not be publicly accessible
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' THEN title || ' endpoint publicly accessible.'
+            ELSE title || ' endpoint not publicly accessible.'
+          END AS reason
+        FROM
+          aws_eks_cluster;
+severity: high
+tags: {}

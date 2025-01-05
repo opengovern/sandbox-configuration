@@ -1,45 +1,42 @@
-Description: Check if Virtual network gateways have mandatory tags.
-ID: azure_mandatory_sql_resource_group_virtual_network_gateway_mandatory
-IntegrationType:
+id: azure_mandatory_sql_resource_group_virtual_network_gateway_mandatory
+title: Virtual network gateways should have mandatory tags
+description: Check if Virtual network gateways have mandatory tags.
+integration_type:
   - azure_subscription
-Query:
-  Engine: steampipe-v0.5
-  ListOfTables:
-    - azure_virtual_network_gateway
-  Parameters:
-    - key: azureMandatoryTags
-      required: true
-  PrimaryTable: azure_virtual_network_gateway
-  QueryToExecute: |
-    WITH analysis AS (
-      SELECT
-        platform_integration_id,
-        platform_resource_id,
-        id,
-        title,
-        tags ?& '{{.azureMandatoryTags}}'::TEXT[] AS has_mandatory_tags,
-        TO_JSONB('{{.azureMandatoryTags}}'::TEXT[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
-        resource_group,
-        subscription_id
-      FROM
-        azure_virtual_network_gateway
-    )
-    SELECT
-        platform_integration_id,
-        platform_resource_id,
-        id AS resource,
-        CASE
-          WHEN has_mandatory_tags THEN 'ok'
-          ELSE 'alarm'
-        END AS status,
-        CASE
-          WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
-          ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
-        END AS reason,
-        resource_group,
-        subscription_id
-    FROM
-      analysis;
-Severity: high
-Tags: {}
-Title: Virtual network gateways should have mandatory tags
+parameters:
+  - key: azureMandatoryTags
+policy:
+    language: sql
+    primary_resource: azure_virtual_network_gateway
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            id,
+            title,
+            tags ?& '{{.azureMandatoryTags}}'::TEXT[] AS has_mandatory_tags,
+            TO_JSONB('{{.azureMandatoryTags}}'::TEXT[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            resource_group,
+            subscription_id
+          FROM
+            azure_virtual_network_gateway
+        )
+        SELECT
+            platform_integration_id,
+            platform_resource_id,
+            id AS resource,
+            CASE
+              WHEN has_mandatory_tags THEN 'ok'
+              ELSE 'alarm'
+            END AS status,
+            CASE
+              WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+              ELSE title || ' is missing tags: ' || ARRAY_TO_STRING(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+            END AS reason,
+            resource_group,
+            subscription_id
+        FROM
+          analysis;
+severity: high
+tags: {}

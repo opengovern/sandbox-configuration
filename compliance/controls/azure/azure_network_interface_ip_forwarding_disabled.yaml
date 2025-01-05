@@ -1,53 +1,49 @@
-Description: Enabling IP forwarding on a virtual machine's NIC allows the machine to receive traffic addressed to other destinations. IP forwarding is rarely required (e.g., when using the VM as a network virtual appliance), and therefore, this should be reviewed by the network security team.
-ID: azure_network_interface_ip_forwarding_disabled
-IntegrationType:
+id: azure_network_interface_ip_forwarding_disabled
+title: IP Forwarding on your virtual machine should be disabled
+description: Enabling IP forwarding on a virtual machine's NIC allows the machine to receive traffic addressed to other destinations. IP forwarding is rarely required (e.g., when using the VM as a network virtual appliance), and therefore, this should be reviewed by the network security team.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_network_interface
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    WITH vm_using_nic AS (
-      SELECT
-        id AS vm_id,
-        name AS vm_name,
-        resource_group,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        _ctx,
-        region,
-        subscription_id,
-        b ->> 'id' AS nic_id
-      FROM
-        azure_compute_virtual_machine AS c,
-        jsonb_array_elements(network_interfaces) AS b
-    )
-    SELECT
-      v.vm_id AS resource,
-      v.platform_integration_id AS platform_integration_id,
-      v.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN i.enable_ip_forwarding THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN i.enable_ip_forwarding THEN v.vm_name || ' using ' || i.name || ' network interface enabled with IP forwarding.'
-        ELSE v.vm_name || ' using ' || i.name || ' network interface disabled with IP forwarding.'
-      END AS reason,
-      v.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_subscription AS sub,
-      vm_using_nic AS v
-    LEFT JOIN azure_network_interface AS i ON i.id = v.nic_id;
-Severity: medium
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/Compute
-Title: IP Forwarding on your virtual machine should be disabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        WITH vm_using_nic AS (
+          SELECT
+            id AS vm_id,
+            name AS vm_name,
+            resource_group,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx,
+            region,
+            subscription_id,
+            b ->> 'id' AS nic_id
+          FROM
+            azure_compute_virtual_machine AS c,
+            jsonb_array_elements(network_interfaces) AS b
+        )
+        SELECT
+          v.vm_id AS resource,
+          v.platform_integration_id AS platform_integration_id,
+          v.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN i.enable_ip_forwarding THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN i.enable_ip_forwarding THEN v.vm_name || ' using ' || i.name || ' network interface enabled with IP forwarding.'
+            ELSE v.vm_name || ' using ' || i.name || ' network interface disabled with IP forwarding.'
+          END AS reason,
+          v.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_subscription AS sub,
+          vm_using_nic AS v
+        LEFT JOIN azure_network_interface AS i ON i.id = v.nic_id;
+severity: medium
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/Compute

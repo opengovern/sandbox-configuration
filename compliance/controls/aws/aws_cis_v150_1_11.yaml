@@ -1,32 +1,30 @@
-Description: AWS console defaults to no check boxes selected when creating a new IAM user. When creating the IAM User credentials you have to determine what type of access they require.
-ID: aws_cis_v150_1_11
-IntegrationType:
+id: aws_cis_v150_1_11
+title: 1.11 Do not setup access keys during initial user setup for all IAM users that have a console password
+description: AWS console defaults to no check boxes selected when creating a new IAM user. When creating the IAM User credentials you have to determine what type of access they require.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_credential_report
-  Parameters: []
-  PrimaryTable: aws_iam_credential_report
-  QueryToExecute: |
-    SELECT
-      user_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN password_enabled 
-             AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT password_enabled THEN user_name || ' password login disabled.'
-        WHEN access_key_1_last_rotated IS NULL THEN user_name || ' has no access keys.'
-        WHEN password_enabled 
-             AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10 THEN user_name || ' has access key created during user creation and password login enabled.'
-        ELSE user_name || ' has access key not created during user creation.'
-      END AS reason
-    FROM
-      aws_iam_credential_report;
-Severity: low
-Tags: {}
-Title: 1.11 Do not setup access keys during initial user setup for all IAM users that have a console password
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN password_enabled 
+                 AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT password_enabled THEN user_name || ' password login disabled.'
+            WHEN access_key_1_last_rotated IS NULL THEN user_name || ' has no access keys.'
+            WHEN password_enabled 
+                 AND extract(epoch FROM (access_key_1_last_rotated - user_creation_time)) < 10 THEN user_name || ' has access key created during user creation and password login enabled.'
+            ELSE user_name || ' has access key not created during user creation.'
+          END AS reason
+        FROM
+          aws_iam_credential_report;
+severity: low
+tags: {}

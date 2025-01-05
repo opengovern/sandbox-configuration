@@ -1,42 +1,40 @@
-Description: This control checks whether an AWS CloudFront distribution is configured to return a specific object that is the default root object. The control fails if the CloudFront distribution does not have a default root object configured.
-ID: aws_cloudfront_distribution_default_root_object_configured
-IntegrationType:
+id: aws_cloudfront_distribution_default_root_object_configured
+title: CloudFront distributions should have a default root object configured
+description: This control checks whether an AWS CloudFront distribution is configured to return a specific object that is the default root object. The control fails if the CloudFront distribution does not have a default root object configured.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudfront_distribution
-  Parameters: []
-  PrimaryTable: aws_cloudfront_distribution
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN default_root_object = '' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN default_root_object = '' THEN title || ' default root object not configured.'
-        ELSE title || ' default root object configured.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_cloudfront_distribution;
-Severity: critical
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - resources_not_publicly_accessible
-  foundational_security_item_id:
-    - cloudfront_1
-  plugin:
-    - aws
-  service:
-    - AWS/CloudFront
-Title: CloudFront distributions should have a default root object configured
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_cloudfront_distribution
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN default_root_object = '' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN default_root_object = '' THEN title || ' default root object not configured.'
+            ELSE title || ' default root object configured.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_cloudfront_distribution;
+severity: critical
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resources_not_publicly_accessible
+    foundational_security_item_id:
+      - cloudfront_1
+    plugin:
+      - aws
+    service:
+      - AWS/CloudFront

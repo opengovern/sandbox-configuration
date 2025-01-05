@@ -1,32 +1,29 @@
-Description: The Azure Storage blobs contain data like ePHI or Financial, which can be secret or personal. Data that is erroneously modified or deleted by an application or other storage account user will cause data loss or unavailability.
-ID: azure_cis_v210_3_11
-IntegrationType:
+id: azure_cis_v210_3_11
+title: 3.11 Ensure Soft Delete is Enabled for Azure Containers and Blob Storage
+description: The Azure Storage blobs contain data like ePHI or Financial, which can be secret or personal. Data that is erroneously modified or deleted by an application or other storage account user will cause data loss or unavailability.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_storage_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_storage_account
-  QueryToExecute: |
-    SELECT
-      sa.id AS resource,
-      sa.platform_integration_id AS platform_integration_id,
-      sa.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT blob_soft_delete_enabled THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT blob_soft_delete_enabled THEN sa.name || ' blobs soft delete disabled.'
-        ELSE sa.name || ' blobs soft delete enabled.'
-      END AS reason
-    FROM
-      azure_storage_account sa,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sa.subscription_id;
-Severity: low
-Tags: {}
-Title: 3.11 Ensure Soft Delete is Enabled for Azure Containers and Blob Storage
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_storage_account
+    definition: |
+        SELECT
+          sa.id AS resource,
+          sa.platform_integration_id AS platform_integration_id,
+          sa.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT blob_soft_delete_enabled THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT blob_soft_delete_enabled THEN sa.name || ' blobs soft delete disabled.'
+            ELSE sa.name || ' blobs soft delete enabled.'
+          END AS reason
+        FROM
+          azure_storage_account sa,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sa.subscription_id;
+severity: low
+tags: {}

@@ -1,40 +1,38 @@
-Description: Set up, organize and manage your AWS accounts for optimal security and manageability.
-ID: aws_multi_account_centralized_management
-IntegrationType:
+id: aws_multi_account_centralized_management
+title: AWS Multi-Account Centralized Management
+description: Set up, organize and manage your AWS accounts for optimal security and manageability.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      organization_id AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN count(*) = 1 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN count(*) = 1 THEN organization_id || ' only has one account'
-        ELSE organization_id || ' has multiple accounts'
-      END AS reason
-    FROM
-      aws_account
-    GROUP BY
-      organization_id,
-      platform_integration_id,
-      platform_resource_id;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Tolerate Failures
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Tolerate Failures
-Title: AWS Multi-Account Centralized Management
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          organization_id AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN count(*) = 1 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN count(*) = 1 THEN organization_id || ' only has one account'
+            ELSE organization_id || ' has multiple accounts'
+          END AS reason
+        FROM
+          aws_account
+        GROUP BY
+          organization_id,
+          platform_integration_id,
+          platform_resource_id;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Tolerate Failures
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Tolerate Failures

@@ -1,29 +1,26 @@
-Description: This control checks whether SignalR service uses paid SKU for its SLA.
-ID: azure_signalr_service_no_free_tier_sku
-IntegrationType:
+id: azure_signalr_service_no_free_tier_sku
+title: SignalR Service should not use free tier SKU
+description: This control checks whether SignalR service uses paid SKU for its SLA.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_signalr_service
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_signalr_service
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sku ->> 'tier' = 'Free' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      a.name || ' is of ' || (sku ->> 'tier') || ' tier.' AS reason
-    FROM
-      azure_signalr_service AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: low
-Tags: {}
-Title: SignalR Service should not use free tier SKU
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_signalr_service
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sku ->> 'tier' = 'Free' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          a.name || ' is of ' || (sku ->> 'tier') || ' tier.' AS reason
+        FROM
+          azure_signalr_service AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: low
+tags: {}

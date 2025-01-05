@@ -1,22 +1,20 @@
-Description: The following policy grants a user access to manage a specific bucket in the Amazon Lightsail object storage service.
-ID: aws_cis_compute_service_v100_3_7
-IntegrationType:
+id: aws_cis_compute_service_v100_3_7
+title: 3.7 Ensure you are using an IAM policy to manage access to buckets in Lightsail
+description: The following policy grants a user access to manage a specific bucket in the Amazon Lightsail object storage service.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_account
-  Parameters: []
-  PrimaryTable: aws_account
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':::' || account_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason
-    FROM
-      aws_account;
-Severity: low
-Tags: {}
-Title: 3.7 Ensure you are using an IAM policy to manage access to buckets in Lightsail
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_account
+    definition: |
+        SELECT
+          'arn:' || partition || ':::' || account_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason
+        FROM
+          aws_account;
+severity: low
+tags: {}

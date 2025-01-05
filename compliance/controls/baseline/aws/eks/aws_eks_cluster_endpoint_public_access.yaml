@@ -1,42 +1,40 @@
-Description: Ensure that AWS EKS cluster endpoint access isn't public and prone to security risks.
-ID: aws_eks_cluster_endpoint_public_access
-IntegrationType:
+id: aws_eks_cluster_endpoint_public_access
+title: EKS Cluster Endpoint Public Access
+description: Ensure that AWS EKS cluster endpoint access isn't public and prone to security risks.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_cluster
-  Parameters: []
-  PrimaryTable: aws_eks_cluster
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
-          AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
-        THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
-          AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
-        THEN name || ' Kubernetes API endpoint configured is publicly accessible.'
-        ELSE name || ' Kubernetes API endpoint configured is not publicly accessible.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_eks_cluster;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  score_tags:
-    - Lacking High Availability
-Title: EKS Cluster Endpoint Public Access
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
+              AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
+            THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN resources_vpc_config ->> 'EndpointPublicAccess' = 'true' 
+              AND (resources_vpc_config ->> 'PublicAccessCidrs')::text LIKE '%"0.0.0.0/0"%' 
+            THEN name || ' Kubernetes API endpoint configured is publicly accessible.'
+            ELSE name || ' Kubernetes API endpoint configured is not publicly accessible.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_eks_cluster;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

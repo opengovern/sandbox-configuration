@@ -1,53 +1,13 @@
-Description: Ensure that your AMIs are not older than 90 days.
-ID: aws_ec2_ami_not_older_than_90_days_rego
-IntegrationType:
+id: aws_ec2_ami_not_older_than_90_days_rego
+title: Ensure Images (AMI) are not older than 90 days
+description: Ensure that your AMIs are not older than 90 days.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: cloudql-rego
-  ListOfTables:
-    - aws_ec2_ami
-  Parameters: []
-  PrimaryTable: aws_ec2_ami
-  RegoPolicies:
-    - |
-      package aws_ec2_ami_not_older_than_90_days_rego
-      import future.keywords.in
-  
-        # Define the result rule
-      result[obj] {
-        some ami in opencomply.aws_ec2_ami({})
-  
-        # Populate the fields in the result object
-        obj := {
-          "resource": ami.image_id,
-          "platform_integration_id": ami.platform_integration_id,
-          "platform_resource_id": ami.platform_resource_id,
-          "status": status(ami.creation_date),
-          "reason": sprintf("%s created %s (%d days).", [
-            ami.title,
-            time.format(ami.creation_date),
-            days_since_creation(ami.creation_date)
-          ])
-        }
-      }
-  
-      # Determine the status based on the creation_date
-      status(creation_date) = "ok" {
-        creation_date >= time.now_ns() - (90 * 24 * 60 * 60 * 1e9)  # 90 days in nanoseconds
-      }
-      status(creation_date) = "alarm" {
-        creation_date < time.now_ns() - (90 * 24 * 60 * 60 * 1e9)
-      }
-      days_since_creation(creation_date) = days {
-        now := time.now_ns()
-        days := floor((now - creation_date) / (24 * 60 * 60 * 1e9))  # Convert nanoseconds to days
-      }
-  QueryToExecute: |
-    data.aws_ec2_ami_not_older_than_90_days_rego.result
-Severity: low
-Tags: {}
-Title: Ensure Images (AMI) are not older than 90 days
-  
-  
-  
-
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_ami
+    definition: |
+        data.aws_ec2_ami_not_older_than_90_days_rego.result
+severity: low
+tags: {}

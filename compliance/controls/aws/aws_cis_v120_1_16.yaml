@@ -1,25 +1,23 @@
-Description: By default, IAM users, groups, and roles have no access to AWS resources. IAM policies are the means by which privileges are granted to users, groups, or roles. It is recommended that IAM policies be applied directly to groups and roles but not users.
-ID: aws_cis_v120_1_16
-IntegrationType:
+id: aws_cis_v120_1_16
+title: 1.16 Ensure IAM policies are attached only to groups or roles
+description: By default, IAM users, groups, and roles have no access to AWS resources. IAM policies are the means by which privileges are granted to users, groups, or roles. It is recommended that IAM policies be applied directly to groups and roles but not users.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_iam_user
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN attached_policy_arns IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      name || ' has ' || COALESCE(jsonb_array_length(attached_policy_arns), 0) || ' attached policies.' AS reason
-    FROM
-      aws_iam_user;
-Severity: low
-Tags: {}
-Title: 1.16 Ensure IAM policies are attached only to groups or roles
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN attached_policy_arns IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          name || ' has ' || COALESCE(jsonb_array_length(attached_policy_arns), 0) || ' attached policies.' AS reason
+        FROM
+          aws_iam_user;
+severity: low
+tags: {}

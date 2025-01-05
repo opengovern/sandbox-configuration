@@ -1,42 +1,40 @@
-Description: Identify unassociated Elastic IP addresses, and delete them to help lower the cost of your monthly AWS bill.
-ID: aws_unassociated_elastic_ip_addresses
-IntegrationType:
+id: aws_unassociated_elastic_ip_addresses
+title: Unassociated Elastic IP Addresses
+description: Identify unassociated Elastic IP addresses, and delete them to help lower the cost of your monthly AWS bill.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_vpc_eip
-  Parameters: []
-  PrimaryTable: aws_vpc_eip
-  QueryToExecute: |
-    SELECT
-      'arn:' || partition || ':ec2:' || region || ':' || account_id || ':eip/' || allocation_id AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN association_id IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN association_id IS NULL THEN title || ' is not associated with any resource.'
-        ELSE title || ' is associated with a resource.'
-      END AS reason,
-      CASE
-        WHEN association_id IS NULL THEN '3.6'::float
-        ELSE '0'::float
-      END AS cost_optimization,
-      region,
-      account_id
-    FROM
-      aws_vpc_eip;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS EC2
-  platform_score_use_case:
-    - Orphaned Resources
-  score_service_name:
-    - AWS EC2
-  score_tags:
-    - Orphaned Resources
-Title: Unassociated Elastic IP Addresses
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_vpc_eip
+    definition: |
+        SELECT
+          'arn:' || partition || ':ec2:' || region || ':' || account_id || ':eip/' || allocation_id AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN association_id IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN association_id IS NULL THEN title || ' is not associated with any resource.'
+            ELSE title || ' is associated with a resource.'
+          END AS reason,
+          CASE
+            WHEN association_id IS NULL THEN '3.6'::float
+            ELSE '0'::float
+          END AS cost_optimization,
+          region,
+          account_id
+        FROM
+          aws_vpc_eip;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS EC2
+    platform_score_use_case:
+      - Orphaned Resources
+    score_service_name:
+      - AWS EC2
+    score_tags:
+      - Orphaned Resources

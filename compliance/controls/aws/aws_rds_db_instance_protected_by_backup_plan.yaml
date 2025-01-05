@@ -1,70 +1,67 @@
-Description: Ensure that AWS Relational Database Service (AWS RDS) instances are protected by a backup plan. The rule is non-compliant if the AWS RDS Database instance is not covered by a backup plan.
-ID: aws_rds_db_instance_protected_by_backup_plan
-IntegrationType:
+id: aws_rds_db_instance_protected_by_backup_plan
+title: RDS DB instance should be protected by backup plan
+description: Ensure that AWS Relational Database Service (AWS RDS) instances are protected by a backup plan. The rule is non-compliant if the AWS RDS Database instance is not covered by a backup plan.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_backup_protected_resource
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    WITH backup_protected_rds_instance AS (
-      SELECT
-        resource_arn AS arn
-      FROM
-        aws_backup_protected_resource AS b
-      WHERE
-        resource_type = 'RDS'
-    )
-    SELECT
-      r.arn AS resource,
-      r.platform_integration_id AS platform_integration_id,
-      r.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.arn IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.arn IS NOT NULL THEN r.title || ' is protected by backup plan.'
-        ELSE r.title || ' is not protected by backup plan.'
-      END AS reason,
-      r.region,
-      r.account_id
-    FROM
-      aws_rds_db_instance AS r
-    LEFT JOIN backup_protected_rds_instance AS b ON r.arn = b.arn;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  gxp_eu_annex_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/RDS
-  soc_2:
-    - "true"
-Title: RDS DB instance should be protected by backup plan
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        WITH backup_protected_rds_instance AS (
+          SELECT
+            resource_arn AS arn
+          FROM
+            aws_backup_protected_resource AS b
+          WHERE
+            resource_type = 'RDS'
+        )
+        SELECT
+          r.arn AS resource,
+          r.platform_integration_id AS platform_integration_id,
+          r.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.arn IS NOT NULL THEN r.title || ' is protected by backup plan.'
+            ELSE r.title || ' is not protected by backup plan.'
+          END AS reason,
+          r.region,
+          r.account_id
+        FROM
+          aws_rds_db_instance AS r
+        LEFT JOIN backup_protected_rds_instance AS b ON r.arn = b.arn;
+severity: high
+tags:
+    category:
+      - Compliance
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    gxp_eu_annex_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/RDS
+    soc_2:
+      - 'true'

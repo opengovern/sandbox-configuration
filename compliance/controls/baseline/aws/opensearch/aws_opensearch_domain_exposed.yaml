@@ -1,54 +1,52 @@
-Description: Ensure Amazon OpenSearch domains aren't exposed to everyone.
-ID: aws_opensearch_domain_exposed
-IntegrationType:
+id: aws_opensearch_domain_exposed
+title: OpenSearch Domain Exposed
+description: Ensure Amazon OpenSearch domains aren't exposed to everyone.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_opensearch_domain
-  Parameters: []
-  PrimaryTable: aws_opensearch_domain
-  QueryToExecute: |
-    SELECT
-      domain_name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS s
-          WHERE (s ->> 'Effect') = 'Allow'
-            AND (
-              (s ->> 'Principal')::text = '"*"' 
-              OR (s ->> 'Principal')::text = '{"AWS": "*"}'
-            )
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS s
-          WHERE (s ->> 'Effect') = 'Allow'
-            AND (
-              (s ->> 'Principal')::text = '"*"'
-              OR (s ->> 'Principal')::text = '{"AWS": "*"}'
-            )
-        ) THEN domain_name || ' is publicly accessible'
-        ELSE domain_name || ' is not publicly accessible'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_opensearch_domain
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS OpenSearch Service
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - AWS OpenSearch Service
-  score_tags:
-    - Exposed Endpoints
-Title: OpenSearch Domain Exposed
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          domain_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS s
+              WHERE (s ->> 'Effect') = 'Allow'
+                AND (
+                  (s ->> 'Principal')::text = '"*"' 
+                  OR (s ->> 'Principal')::text = '{"AWS": "*"}'
+                )
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(access_policies::jsonb -> 'Statement') AS s
+              WHERE (s ->> 'Effect') = 'Allow'
+                AND (
+                  (s ->> 'Principal')::text = '"*"'
+                  OR (s ->> 'Principal')::text = '{"AWS": "*"}'
+                )
+            ) THEN domain_name || ' is publicly accessible'
+            ELSE domain_name || ' is not publicly accessible'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_opensearch_domain
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS OpenSearch Service
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - AWS OpenSearch Service
+    score_tags:
+      - Exposed Endpoints

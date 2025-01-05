@@ -1,50 +1,48 @@
-Description: Amazon Machine Images should utilize EBS Encrypted snapshots
-ID: aws_cis_compute_service_v100_2_1_2
-IntegrationType:
+id: aws_cis_compute_service_v100_2_1_2
+title: 2.1.2 Ensure Images (AMI's) are encrypted
+description: Amazon Machine Images should utilize EBS Encrypted snapshots
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_ami
-  Parameters: []
-  PrimaryTable: aws_ec2_ami
-  QueryToExecute: |
-    WITH encryption_status AS (
-      SELECT
-        image_id AS resource,
-        region,
-        account_id,
-        platform_integration_id,
-        platform_resource_id,
-        tags,
-        _ctx,
-        BOOL_AND(COALESCE((mapping -> 'Ebs' ->> 'Encrypted')::text = 'true', FALSE)) AS all_encrypted
-      FROM
-        aws_ec2_ami
-        CROSS JOIN jsonb_array_elements(block_device_mappings) AS mapping
-      GROUP BY
-        image_id,
-        region,
-        account_id,
-        tags,
-        _ctx,
-        platform_integration_id,
-        platform_resource_id
-    )
-    SELECT
-      resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN all_encrypted THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN all_encrypted THEN resource || ' all EBS volumes are encrypted.'
-        ELSE resource || ' all EBS volumes are not encrypted.'
-      END AS reason
-    FROM
-      encryption_status;
-Severity: low
-Tags: {}
-Title: 2.1.2 Ensure Images (AMI's) are encrypted
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_ami
+    definition: |
+        WITH encryption_status AS (
+          SELECT
+            image_id AS resource,
+            region,
+            account_id,
+            platform_integration_id,
+            platform_resource_id,
+            tags,
+            _ctx,
+            BOOL_AND(COALESCE((mapping -> 'Ebs' ->> 'Encrypted')::text = 'true', FALSE)) AS all_encrypted
+          FROM
+            aws_ec2_ami
+            CROSS JOIN jsonb_array_elements(block_device_mappings) AS mapping
+          GROUP BY
+            image_id,
+            region,
+            account_id,
+            tags,
+            _ctx,
+            platform_integration_id,
+            platform_resource_id
+        )
+        SELECT
+          resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN all_encrypted THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN all_encrypted THEN resource || ' all EBS volumes are encrypted.'
+            ELSE resource || ' all EBS volumes are not encrypted.'
+          END AS reason
+        FROM
+          encryption_status;
+severity: low
+tags: {}

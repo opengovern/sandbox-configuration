@@ -1,28 +1,26 @@
-Description: This control checks whether an AWS WAF rule or rule group has Amazon CloudWatch metrics enabled. The control fails if the rule or rule group doesn't have CloudWatch metrics enabled.
-ID: aws_foundational_security_waf_12
-IntegrationType:
+id: aws_foundational_security_waf_12
+title: 12 AWS WAF rules should have CloudWatch metrics enabled
+description: This control checks whether an AWS WAF rule or rule group has Amazon CloudWatch metrics enabled. The control fails if the rule or rule group doesn't have CloudWatch metrics enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_wafv2_rule_group
-  Parameters: []
-  PrimaryTable: aws_wafv2_rule_group
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN title || ' logging enabled.'
-        ELSE title || ' logging disabled.'
-      END AS reason
-    FROM
-      aws_wafv2_rule_group;
-Severity: medium
-Tags: {}
-Title: 12 AWS WAF rules should have CloudWatch metrics enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_wafv2_rule_group
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (visibility_config ->> 'CloudWatchMetricsEnabled')::bool THEN title || ' logging enabled.'
+            ELSE title || ' logging disabled.'
+          END AS reason
+        FROM
+          aws_wafv2_rule_group;
+severity: medium
+tags: {}

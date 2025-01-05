@@ -1,30 +1,27 @@
-Description: Ensure that managed identity provider is enabled for the Event Grid Topic. This control is non-compliant if Event Grid topic identity provider is disabled.
-ID: azure_eventgrid_topic_identity_provider_enabled
-IntegrationType:
+id: azure_eventgrid_topic_identity_provider_enabled
+title: Event Grid topics identity provider should be enabled
+description: Ensure that managed identity provider is enabled for the Event Grid Topic. This control is non-compliant if Event Grid topic identity provider is disabled.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_eventgrid_topic
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_eventgrid_topic
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN identity ->> 'type' = 'None' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN identity ->> 'type' = 'None' THEN a.name || ' identity provider disabled.'
-        ELSE a.name || ' identity provider enabled.'
-      END AS reason
-    FROM
-      azure_eventgrid_topic a,
-      azure_subscription sub;
-Severity: low
-Tags: {}
-Title: Event Grid topics identity provider should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_eventgrid_topic
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN identity ->> 'type' = 'None' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN identity ->> 'type' = 'None' THEN a.name || ' identity provider disabled.'
+            ELSE a.name || ' identity provider enabled.'
+          END AS reason
+        FROM
+          azure_eventgrid_topic a,
+          azure_subscription sub;
+severity: low
+tags: {}

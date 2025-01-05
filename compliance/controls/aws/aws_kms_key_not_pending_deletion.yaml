@@ -1,62 +1,60 @@
-Description: To help protect data at rest, ensure necessary customer master keys (CMKs) are not scheduled for deletion in AWS Key Management Service (AWS KMS).
-ID: aws_kms_key_not_pending_deletion
-IntegrationType:
+id: aws_kms_key_not_pending_deletion
+title: KMS keys should not be pending deletion
+description: To help protect data at rest, ensure necessary customer master keys (CMKs) are not scheduled for deletion in AWS Key Management Service (AWS KMS).
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_kms_key
-  Parameters: []
-  PrimaryTable: aws_kms_key
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN key_state = 'PendingDeletion' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN key_state = 'PendingDeletion' THEN title || ' scheduled for deletion and will be deleted in ' || EXTRACT(day FROM deletion_date - current_timestamp) || ' day(s).'
-        ELSE title || ' not scheduled for deletion.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_kms_key
-    WHERE
-      key_manager = 'CUSTOMER';
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/KMS
-  soc_2:
-    - "true"
-Title: KMS keys should not be pending deletion
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_kms_key
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN key_state = 'PendingDeletion' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN key_state = 'PendingDeletion' THEN title || ' scheduled for deletion and will be deleted in ' || EXTRACT(day FROM deletion_date - current_timestamp) || ' day(s).'
+            ELSE title || ' not scheduled for deletion.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_kms_key
+        WHERE
+          key_manager = 'CUSTOMER';
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/KMS
+    soc_2:
+      - 'true'

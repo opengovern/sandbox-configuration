@@ -1,52 +1,49 @@
-Description: Ensure there is a maximum of one active SSH public key assigned to any single IAM user.
-ID: aws_unnecessary_ssh_public_keys
-IntegrationType:
+id: aws_unnecessary_ssh_public_keys
+title: Unnecessary SSH Public Keys
+description: Ensure there is a maximum of one active SSH public key assigned to any single IAM user.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_ssh_public_key
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: aws_iam_user
-  QueryToExecute: |
-    WITH active_count AS (
-      SELECT 
-        user_name, 
-        COUNT(*) 
-      FROM 
-        aws_iam_ssh_public_key 
-      WHERE 
-        status = 'Active' 
-      GROUP BY 
-        user_name
-    )
-    SELECT 
-      arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN c.count > 1 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'
-        ELSE u.name || ' does not have more than one active ssh key'
-      END AS reason,
-      region,
-      account_id
-    FROM 
-      aws_iam_user AS u
-    LEFT JOIN active_count AS c 
-      ON u.name = c.user_name;
-Severity: high
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Insecure Keys
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Insecure Keys
-Title: Unnecessary SSH Public Keys
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_user
+    definition: |
+        WITH active_count AS (
+          SELECT 
+            user_name, 
+            COUNT(*) 
+          FROM 
+            aws_iam_ssh_public_key 
+          WHERE 
+            status = 'Active' 
+          GROUP BY 
+            user_name
+        )
+        SELECT 
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN c.count > 1 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.count > 1 THEN u.name || ' has more than one active ssh key'
+            ELSE u.name || ' does not have more than one active ssh key'
+          END AS reason,
+          region,
+          account_id
+        FROM 
+          aws_iam_user AS u
+        LEFT JOIN active_count AS c 
+          ON u.name = c.user_name;
+severity: high
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Insecure Keys
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Insecure Keys

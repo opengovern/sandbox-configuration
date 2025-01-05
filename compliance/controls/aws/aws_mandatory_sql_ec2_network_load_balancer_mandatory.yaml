@@ -1,47 +1,44 @@
-Description: Check if EC2 network load balancers have mandatory tags.
-ID: aws_mandatory_sql_ec2_network_load_balancer_mandatory
-IntegrationType:
+id: aws_mandatory_sql_ec2_network_load_balancer_mandatory
+title: EC2 network load balancers should have mandatory tags
+description: Check if EC2 network load balancers have mandatory tags.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: steampipe-v0.5
-  ListOfTables:
-    - aws_ec2_network_load_balancer
-  Parameters:
-    - key: awsMandatoryTags
-      required: true
-  PrimaryTable: aws_ec2_network_load_balancer
-  QueryToExecute: |
-    WITH analysis AS (
-      SELECT
-        platform_integration_id,
-        platform_resource_id,
-        arn,
-        title,
-        tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
-        to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
-        region,
-        account_id,
-        tags,
-        _ctx
-      FROM
-        aws_ec2_network_load_balancer
-    )
-    SELECT
-      platform_integration_id,
-      platform_resource_id,
-      arn AS resource,
-      CASE
-        WHEN has_mandatory_tags THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
-        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      analysis;
-Severity: high
-Tags: {}
-Title: EC2 network load balancers should have mandatory tags
+parameters:
+  - key: awsMandatoryTags
+policy:
+    language: sql
+    primary_resource: aws_ec2_network_load_balancer
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            arn,
+            title,
+            tags ?& '{{.awsMandatoryTags}}'::text[] AS has_mandatory_tags,
+            to_jsonb('{{.awsMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            region,
+            account_id,
+            tags,
+            _ctx
+          FROM
+            aws_ec2_network_load_balancer
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          arn AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          analysis;
+severity: high
+tags: {}

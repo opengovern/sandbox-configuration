@@ -1,32 +1,29 @@
-Description: This control checks whether Synapse workspace has data exfiltration protection enabled.
-ID: azure_synapse_workspace_data_exfiltration_protection_enabled
-IntegrationType:
+id: azure_synapse_workspace_data_exfiltration_protection_enabled
+title: Synapse workspaces should have data exfiltration protection enabled
+description: This control checks whether Synapse workspace has data exfiltration protection enabled.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_synapse_workspace
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_synapse_workspace
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' THEN s.title || ' data exfiltration protection enabled.'
-        ELSE s.title || ' data exfiltration protection disabled.'
-      END AS reason
-    FROM
-      azure_synapse_workspace AS s,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: Synapse workspaces should have data exfiltration protection enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_synapse_workspace
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN managed_virtual_network_settings ->> 'preventDataExfiltration' = 'true' THEN s.title || ' data exfiltration protection enabled.'
+            ELSE s.title || ' data exfiltration protection disabled.'
+          END AS reason
+        FROM
+          azure_synapse_workspace AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

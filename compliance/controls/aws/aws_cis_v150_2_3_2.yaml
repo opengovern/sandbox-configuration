@@ -1,28 +1,26 @@
-Description: Ensure that RDS database instances have the Auto Minor Version Upgrade flag enabled in order to receive automatically minor engine upgrades during the specified maintenance window. So, RDS instances can get the new features, bug fixes, and security patches for their database engines.
-ID: aws_cis_v150_2_3_2
-IntegrationType:
+id: aws_cis_v150_2_3_2
+title: 2.3.2 Ensure Auto Minor Version Upgrade feature is Enabled for RDS Instances
+description: Ensure that RDS database instances have the Auto Minor Version Upgrade flag enabled in order to receive automatically minor engine upgrades during the specified maintenance window. So, RDS instances can get the new features, bug fixes, and security patches for their database engines.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN auto_minor_version_upgrade THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
-        ELSE title || ' automatic minor version upgrades not enabled.'
-      END AS reason
-    FROM
-      aws_rds_db_instance;
-Severity: low
-Tags: {}
-Title: 2.3.2 Ensure Auto Minor Version Upgrade feature is Enabled for RDS Instances
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN auto_minor_version_upgrade THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN auto_minor_version_upgrade THEN title || ' automatic minor version upgrades enabled.'
+            ELSE title || ' automatic minor version upgrades not enabled.'
+          END AS reason
+        FROM
+          aws_rds_db_instance;
+severity: low
+tags: {}

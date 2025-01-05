@@ -1,32 +1,29 @@
-Description: This control checks if the PostgreSQL server is upgraded to the latest TLS version.
-ID: azure_postgres_db_server_latest_tls_version
-IntegrationType:
+id: azure_postgres_db_server_latest_tls_version
+title: PostgreSQL servers should have the latest TLS version
+description: This control checks if the PostgreSQL server is upgraded to the latest TLS version.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_postgresql_server
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_postgresql_server
-  QueryToExecute: |
-    SELECT
-      s.id AS resource,
-      s.platform_integration_id AS platform_integration_id,
-      s.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN minimal_tls_version = 'TLS1_2' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN minimal_tls_version = 'TLS1_2' THEN name || ' uses the latest version of TLS encryption.'
-        ELSE name || ' does not use the latest version of TLS encryption.'
-      END AS reason
-    FROM
-      azure_postgresql_server AS s,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = s.subscription_id;
-Severity: low
-Tags: {}
-Title: PostgreSQL servers should have the latest TLS version
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_postgresql_server
+    definition: |
+        SELECT
+          s.id AS resource,
+          s.platform_integration_id AS platform_integration_id,
+          s.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN minimal_tls_version = 'TLS1_2' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN minimal_tls_version = 'TLS1_2' THEN name || ' uses the latest version of TLS encryption.'
+            ELSE name || ' does not use the latest version of TLS encryption.'
+          END AS reason
+        FROM
+          azure_postgresql_server AS s,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = s.subscription_id;
+severity: low
+tags: {}

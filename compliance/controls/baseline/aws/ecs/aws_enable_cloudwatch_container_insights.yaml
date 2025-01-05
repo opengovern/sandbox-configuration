@@ -1,41 +1,39 @@
-Description: Ensure that CloudWatch Container Insights feature is enabled for your AWS ECS clusters.
-ID: aws_enable_cloudwatch_container_insights
-IntegrationType:
+id: aws_enable_cloudwatch_container_insights
+title: Enable CloudWatch Container Insights
+description: Ensure that CloudWatch Container Insights feature is enabled for your AWS ECS clusters.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_cluster
-  Parameters: []
-  PrimaryTable: aws_ecs_cluster
-  QueryToExecute: |
-    SELECT
-      cluster_arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(settings) AS s
-          WHERE s ->> 'Name' = 'containerInsights' AND s ->> 'Value' = 'enabled'
-        ) THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(settings) AS s
-          WHERE s ->> 'Name' = 'containerInsights' AND s ->> 'Value' = 'enabled'
-        ) THEN 'Container Insights feature is enabled'
-        ELSE 'Container Insights feature is not currently enabled'
-      END AS reason,
-      region,
-      account_id
-    FROM aws_ecs_cluster
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Service (ECS)
-  score_service_name:
-    - Elastic Container Service (ECS)
-Title: Enable CloudWatch Container Insights
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_cluster
+    definition: |
+        SELECT
+          cluster_arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(settings) AS s
+              WHERE s ->> 'Name' = 'containerInsights' AND s ->> 'Value' = 'enabled'
+            ) THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM jsonb_array_elements(settings) AS s
+              WHERE s ->> 'Name' = 'containerInsights' AND s ->> 'Value' = 'enabled'
+            ) THEN 'Container Insights feature is enabled'
+            ELSE 'Container Insights feature is not currently enabled'
+          END AS reason,
+          region,
+          account_id
+        FROM aws_ecs_cluster
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Service (ECS)
+    score_service_name:
+      - Elastic Container Service (ECS)

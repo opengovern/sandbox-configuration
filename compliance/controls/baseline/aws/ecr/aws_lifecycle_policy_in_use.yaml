@@ -1,49 +1,47 @@
-Description: Ensure that each Amazon ECR container image is automatically scanned for vulnerabilities when pushed to a repository.
-ID: aws_lifecycle_policy_in_use
-IntegrationType:
+id: aws_lifecycle_policy_in_use
+title: Lifecycle Policy in Use
+description: Ensure that each Amazon ECR container image is automatically scanned for vulnerabilities when pushed to a repository.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecr_repository
-  Parameters: []
-  PrimaryTable: aws_ecr_repository
-  QueryToExecute: |
-    WITH repo_with_policy AS (
-      SELECT
-        repository_name
-      FROM
-        aws_ecr_repository,
-        jsonb_array_elements(lifecycle_policy -> 'rules') AS r
-      WHERE
-        (
-          (r -> 'selection' ->> 'tagStatus' = 'untagged')
-          AND (r -> 'selection' ->> 'countType' = 'sinceImagePushed')
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecr_repository
+    definition: |
+        WITH repo_with_policy AS (
+          SELECT
+            repository_name
+          FROM
+            aws_ecr_repository,
+            jsonb_array_elements(lifecycle_policy -> 'rules') AS r
+          WHERE
+            (
+              (r -> 'selection' ->> 'tagStatus' = 'untagged')
+              AND (r -> 'selection' ->> 'countType' = 'sinceImagePushed')
+            )
         )
-    )
-    
-    SELECT
-      r.repository_name AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN p.repository_name IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN p.repository_name IS NOT NULL THEN r.repository_name || ' associated lifecycle policy is configured to remove untagged and old images'
-        ELSE r.repository_name || ' associated lifecycle policy is not configured to remove untagged and old images'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecr_repository AS r
-      LEFT JOIN repo_with_policy AS p
-      ON r.repository_name = p.repository_name
-Severity: low
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Registry (ECR)
-  score_service_name:
-    - Elastic Container Registry (ECR)
-Title: Lifecycle Policy in Use
+
+        SELECT
+          r.repository_name AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN p.repository_name IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN p.repository_name IS NOT NULL THEN r.repository_name || ' associated lifecycle policy is configured to remove untagged and old images'
+            ELSE r.repository_name || ' associated lifecycle policy is not configured to remove untagged and old images'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecr_repository AS r
+          LEFT JOIN repo_with_policy AS p
+          ON r.repository_name = p.repository_name
+severity: low
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Registry (ECR)
+    score_service_name:
+      - Elastic Container Registry (ECR)

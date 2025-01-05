@@ -1,24 +1,23 @@
-Description: Enable automatic provisioning of vulnerability assessment for machines on both Azure and hybrid (Arc enabled) machines.
-ID: azure_cis_v200_2_1_16
-IntegrationType:
+id: azure_cis_v200_2_1_16
+title: 2.1.16 Ensure that Auto provisioning of 'Vulnerability assessment for machines' is Set to 'On'
+description: Enable automatic provisioning of vulnerability assessment for machines on both Azure and hybrid (Arc enabled) machines.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: 2.1.16 Ensure that Auto provisioning of 'Vulnerability assessment for machines' is Set to 'On'
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

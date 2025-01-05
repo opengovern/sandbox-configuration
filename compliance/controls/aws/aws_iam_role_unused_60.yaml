@@ -1,31 +1,29 @@
-Description: This control checks whether the IAM role has been used in 60 days. Unused accounts and roles increase the attack surface area.
-ID: aws_iam_role_unused_60
-IntegrationType:
+id: aws_iam_role_unused_60
+title: IAM roles that have not been used in 60 days should be removed
+description: This control checks whether the IAM role has been used in 60 days. Unused accounts and roles increase the attack surface area.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_role
-  Parameters: []
-  PrimaryTable: aws_iam_role
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN role_last_used_date <= (CURRENT_DATE - INTERVAL '60' DAY) OR role_last_used_date IS NULL
-          THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN role_last_used_date IS NULL
-          THEN name || ' was never used.'
-        ELSE name || ' was last used ' || TO_CHAR(role_last_used_date , 'DD-Mon-YYYY') || 
-          ' (' || EXTRACT(DAY FROM CURRENT_DATE - role_last_used_date) || ' days ago).'
-      END AS reason
-    FROM
-      aws_iam_role;
-Severity: low
-Tags: {}
-Title: IAM roles that have not been used in 60 days should be removed
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_role
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN role_last_used_date <= (CURRENT_DATE - INTERVAL '60' DAY) OR role_last_used_date IS NULL
+              THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN role_last_used_date IS NULL
+              THEN name || ' was never used.'
+            ELSE name || ' was last used ' || TO_CHAR(role_last_used_date , 'DD-Mon-YYYY') || 
+              ' (' || EXTRACT(DAY FROM CURRENT_DATE - role_last_used_date) || ' days ago).'
+          END AS reason
+        FROM
+          aws_iam_role;
+severity: low
+tags: {}

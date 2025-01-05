@@ -1,29 +1,27 @@
-Description: This control checks the number of network hops that a metadata token can travel. The control fails if the metadata response hop limit is greater than 1.
-ID: aws_foundational_security_autoscaling_4
-IntegrationType:
+id: aws_foundational_security_autoscaling_4
+title: 4 Auto Scaling group launch configuration should not have metadata response hop limit greater than 1
+description: This control checks the number of network hops that a metadata token can travel. The control fails if the metadata response hop limit is greater than 1.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_launch_configuration
-  Parameters: []
-  PrimaryTable: aws_ec2_launch_configuration
-  QueryToExecute: |
-    SELECT
-      launch_configuration_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN metadata_options_put_response_hop_limit IS NULL THEN 'ok'
-        WHEN metadata_options_put_response_hop_limit > 1 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN metadata_options_put_response_hop_limit IS NULL THEN title || ' metadata response hop limit set to default.'
-        ELSE title || ' has a metadata response hop limit of ' || metadata_options_put_response_hop_limit || '.'
-      END AS reason
-    FROM
-      aws_ec2_launch_configuration;
-Severity: high
-Tags: {}
-Title: 4 Auto Scaling group launch configuration should not have metadata response hop limit greater than 1
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_launch_configuration
+    definition: |
+        SELECT
+          launch_configuration_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN metadata_options_put_response_hop_limit IS NULL THEN 'ok'
+            WHEN metadata_options_put_response_hop_limit > 1 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN metadata_options_put_response_hop_limit IS NULL THEN title || ' metadata response hop limit set to default.'
+            ELSE title || ' has a metadata response hop limit of ' || metadata_options_put_response_hop_limit || '.'
+          END AS reason
+        FROM
+          aws_ec2_launch_configuration;
+severity: high
+tags: {}

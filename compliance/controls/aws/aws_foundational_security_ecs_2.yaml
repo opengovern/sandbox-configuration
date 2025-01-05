@@ -1,44 +1,41 @@
-Description: This control checks whether Amazon ECS services are configured to automatically assign public IP addresses. This control fails if AssignPublicIP is ENABLED. This control passes if AssignPublicIP is DISABLED.
-ID: aws_foundational_security_ecs_2
-IntegrationType:
+id: aws_foundational_security_ecs_2
+title: 2 Amazon ECS services should not have public IP addresses assigned to them automatically
+description: This control checks whether Amazon ECS services are configured to automatically assign public IP addresses. This control fails if AssignPublicIP is ENABLED. This control passes if AssignPublicIP is DISABLED.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_service
-    - aws_ecs_task_definition
-  Parameters: []
-  PrimaryTable: aws_ecs_service
-  QueryToExecute: |
-    WITH service_awsvpc_mode_task_definition AS (
-      SELECT
-        a.service_name AS service_name,
-        b.task_definition_arn AS task_definition
-      FROM
-        aws_ecs_service AS a
-      LEFT JOIN aws_ecs_task_definition AS b 
-        ON a.task_definition = b.task_definition_arn
-      WHERE
-        b.network_mode = 'awsvpc'
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.service_name IS NULL THEN 'skip'
-        WHEN network_configuration -> 'AwsvpcConfiguration' ->> 'AssignPublicIp' = 'DISABLED' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.service_name IS NULL THEN a.title || ' task definition not host network mode.'
-        WHEN network_configuration -> 'AwsvpcConfiguration' ->> 'AssignPublicIp' = 'DISABLED' THEN a.title || ' not publicly accessible.'
-        ELSE a.title || ' publicly accessible.'
-      END AS reason
-    FROM
-      aws_ecs_service AS a
-    LEFT JOIN service_awsvpc_mode_task_definition AS b
-      ON a.service_name = b.service_name;
-Severity: high
-Tags: {}
-Title: 2 Amazon ECS services should not have public IP addresses assigned to them automatically
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_service
+    definition: |
+        WITH service_awsvpc_mode_task_definition AS (
+          SELECT
+            a.service_name AS service_name,
+            b.task_definition_arn AS task_definition
+          FROM
+            aws_ecs_service AS a
+          LEFT JOIN aws_ecs_task_definition AS b 
+            ON a.task_definition = b.task_definition_arn
+          WHERE
+            b.network_mode = 'awsvpc'
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.service_name IS NULL THEN 'skip'
+            WHEN network_configuration -> 'AwsvpcConfiguration' ->> 'AssignPublicIp' = 'DISABLED' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.service_name IS NULL THEN a.title || ' task definition not host network mode.'
+            WHEN network_configuration -> 'AwsvpcConfiguration' ->> 'AssignPublicIp' = 'DISABLED' THEN a.title || ' not publicly accessible.'
+            ELSE a.title || ' publicly accessible.'
+          END AS reason
+        FROM
+          aws_ecs_service AS a
+        LEFT JOIN service_awsvpc_mode_task_definition AS b
+          ON a.service_name = b.service_name;
+severity: high
+tags: {}

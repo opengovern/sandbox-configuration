@@ -1,68 +1,65 @@
-Description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
-ID: azure_datalake_analytics_account_logging_enabled
-IntegrationType:
+id: azure_datalake_analytics_account_logging_enabled
+title: Resource logs in Data Lake Analytics should be enabled
+description: Audit enabling of resource logs. This enables you to recreate activity trails to use for investigation purposes; when a security incident occurs or when your network is compromised.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_data_lake_analytics_account
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_data_lake_analytics_account
-  QueryToExecute: |
-    WITH logging_details AS (
-      SELECT
-        DISTINCT account_id AS account_id
-      FROM
-        azure_data_lake_analytics_account,
-        jsonb_array_elements(diagnostic_settings) setting,
-        jsonb_array_elements(setting -> 'properties' -> 'logs') log
-      WHERE
-        diagnostic_settings IS NOT NULL
-        AND (
-          (
-            (log ->> 'enabled')::BOOLEAN
-            AND (log -> 'retentionPolicy' ->> 'enabled')::BOOLEAN
-            AND (log -> 'retentionPolicy')::JSONB ? 'days'
-          )
-          OR
-          (
-            (log ->> 'enabled')::BOOLEAN
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_data_lake_analytics_account
+    definition: |
+        WITH logging_details AS (
+          SELECT
+            DISTINCT account_id AS account_id
+          FROM
+            azure_data_lake_analytics_account,
+            jsonb_array_elements(diagnostic_settings) setting,
+            jsonb_array_elements(setting -> 'properties' -> 'logs') log
+          WHERE
+            diagnostic_settings IS NOT NULL
             AND (
-              log -> 'retentionPolicy' ->> 'enabled' <> 'true'
-              OR setting -> 'properties' ->> 'storageAccountId' = ''
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy' ->> 'enabled')::BOOLEAN
+                AND (log -> 'retentionPolicy')::JSONB ? 'days'
+              )
+              OR
+              (
+                (log ->> 'enabled')::BOOLEAN
+                AND (
+                  log -> 'retentionPolicy' ->> 'enabled' <> 'true'
+                  OR setting -> 'properties' ->> 'storageAccountId' = ''
+                )
+              )
             )
-          )
         )
-    )
-    SELECT
-      a.account_id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN a.diagnostic_settings IS NULL THEN 'alarm'
-        WHEN l.account_id IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN a.diagnostic_settings IS NULL THEN a.name || ' logging disabled.'
-        WHEN l.account_id IS NOT NULL THEN a.name || ' logging enabled.'
-        ELSE a.name || ' logging disabled.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_data_lake_analytics_account AS a
-      LEFT JOIN logging_details AS l ON a.account_id = l.account_id,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id
-Severity: medium
-Tags:
-  hipaa_hitrust_v92:
-    - "true"
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/DataLakeAnalytics
-Title: Resource logs in Data Lake Analytics should be enabled
+        SELECT
+          a.account_id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN a.diagnostic_settings IS NULL THEN 'alarm'
+            WHEN l.account_id IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN a.diagnostic_settings IS NULL THEN a.name || ' logging disabled.'
+            WHEN l.account_id IS NOT NULL THEN a.name || ' logging enabled.'
+            ELSE a.name || ' logging disabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_data_lake_analytics_account AS a
+          LEFT JOIN logging_details AS l ON a.account_id = l.account_id,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id
+severity: medium
+tags:
+    hipaa_hitrust_v92:
+      - 'true'
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/DataLakeAnalytics

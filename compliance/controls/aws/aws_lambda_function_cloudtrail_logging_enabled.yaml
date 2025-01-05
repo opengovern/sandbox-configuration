@@ -1,77 +1,74 @@
-Description: Lambda functions logging is essential because once lambdas are triggered, all of the underlying compute resources are automatically managed for you. This control is compliant if CloudTrail logging is enabled.
-ID: aws_lambda_function_cloudtrail_logging_enabled
-IntegrationType:
+id: aws_lambda_function_cloudtrail_logging_enabled
+title: Lambda functions CloudTrail logging should be enabled
+description: Lambda functions logging is essential because once lambdas are triggered, all of the underlying compute resources are automatically managed for you. This control is compliant if CloudTrail logging is enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_cloudtrail_trail
-    - aws_lambda_function
-  Parameters: []
-  PrimaryTable: aws_lambda_function
-  QueryToExecute: |
-    WITH function_logging_cloudtrails AS (
-      SELECT
-        DISTINCT replace(replace(v::text, '"', ''), '/', '') AS lambda_arn,
-        d ->> 'Type' AS type
-      FROM
-        aws_cloudtrail_trail,
-        jsonb_array_elements(event_selectors) e,
-        jsonb_array_elements(e -> 'DataResources') AS d,
-        jsonb_array_elements(d -> 'Values') v
-      WHERE
-        d ->> 'Type' = 'AWS::Lambda::Function'
-        AND replace(replace(v::text, '"', ''), '/', '') <> 'arn:aws:lambda'
-    ), function_logging_region AS (
-      SELECT
-        region AS cloudtrail_region,
-        replace(replace(v::text, '"', ''), '/', '') AS lambda_arn
-      FROM
-        aws_cloudtrail_trail,
-        jsonb_array_elements(event_selectors) e,
-        jsonb_array_elements(e -> 'DataResources') AS d,
-        jsonb_array_elements(d -> 'Values') v
-      WHERE
-        d ->> 'Type' = 'AWS::Lambda::Function'
-        AND replace(replace(v::text, '"', ''), '/', '') = 'arn:aws:lambda'
-      GROUP BY
-        region,
-        lambda_arn
-    ), function_logging_region_advance_es AS (
-      SELECT
-        region AS cloudtrail_region
-      FROM
-        aws_cloudtrail_trail,
-        jsonb_array_elements(advanced_event_selectors) a,
-        jsonb_array_elements(a -> 'FieldSelectors') AS f,
-        jsonb_array_elements_text(f -> 'Equals') e
-      WHERE
-        e = 'AWS::Lambda::Function'
-        AND f ->> 'Field' != 'eventCategory'
-      GROUP BY
-        region
-    )
-    SELECT
-      DISTINCT l.arn AS resource,
-      l.platform_integration_id AS platform_integration_id,
-      l.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN (l.arn = c.lambda_arn)
-          OR (r.lambda_arn = 'arn:aws:lambda' AND r.cloudtrail_region = l.region)
-          OR a.cloudtrail_region = l.region THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN (l.arn = c.lambda_arn)
-          OR (r.lambda_arn = 'arn:aws:s3' AND r.cloudtrail_region = l.region)
-          OR a.cloudtrail_region = l.region THEN l.name || ' logging enabled.'
-        ELSE l.name || ' logging not enabled.'
-      END AS reason
-    FROM
-      aws_lambda_function AS l
-      LEFT JOIN function_logging_cloudtrails AS c ON l.arn = c.lambda_arn
-      LEFT JOIN function_logging_region AS r ON r.cloudtrail_region = l.region
-      LEFT JOIN function_logging_region_advance_es AS a ON a.cloudtrail_region = l.region;
-Severity: low
-Tags: {}
-Title: Lambda functions CloudTrail logging should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_lambda_function
+    definition: |
+        WITH function_logging_cloudtrails AS (
+          SELECT
+            DISTINCT replace(replace(v::text, '"', ''), '/', '') AS lambda_arn,
+            d ->> 'Type' AS type
+          FROM
+            aws_cloudtrail_trail,
+            jsonb_array_elements(event_selectors) e,
+            jsonb_array_elements(e -> 'DataResources') AS d,
+            jsonb_array_elements(d -> 'Values') v
+          WHERE
+            d ->> 'Type' = 'AWS::Lambda::Function'
+            AND replace(replace(v::text, '"', ''), '/', '') <> 'arn:aws:lambda'
+        ), function_logging_region AS (
+          SELECT
+            region AS cloudtrail_region,
+            replace(replace(v::text, '"', ''), '/', '') AS lambda_arn
+          FROM
+            aws_cloudtrail_trail,
+            jsonb_array_elements(event_selectors) e,
+            jsonb_array_elements(e -> 'DataResources') AS d,
+            jsonb_array_elements(d -> 'Values') v
+          WHERE
+            d ->> 'Type' = 'AWS::Lambda::Function'
+            AND replace(replace(v::text, '"', ''), '/', '') = 'arn:aws:lambda'
+          GROUP BY
+            region,
+            lambda_arn
+        ), function_logging_region_advance_es AS (
+          SELECT
+            region AS cloudtrail_region
+          FROM
+            aws_cloudtrail_trail,
+            jsonb_array_elements(advanced_event_selectors) a,
+            jsonb_array_elements(a -> 'FieldSelectors') AS f,
+            jsonb_array_elements_text(f -> 'Equals') e
+          WHERE
+            e = 'AWS::Lambda::Function'
+            AND f ->> 'Field' != 'eventCategory'
+          GROUP BY
+            region
+        )
+        SELECT
+          DISTINCT l.arn AS resource,
+          l.platform_integration_id AS platform_integration_id,
+          l.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN (l.arn = c.lambda_arn)
+              OR (r.lambda_arn = 'arn:aws:lambda' AND r.cloudtrail_region = l.region)
+              OR a.cloudtrail_region = l.region THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN (l.arn = c.lambda_arn)
+              OR (r.lambda_arn = 'arn:aws:s3' AND r.cloudtrail_region = l.region)
+              OR a.cloudtrail_region = l.region THEN l.name || ' logging enabled.'
+            ELSE l.name || ' logging not enabled.'
+          END AS reason
+        FROM
+          aws_lambda_function AS l
+          LEFT JOIN function_logging_cloudtrails AS c ON l.arn = c.lambda_arn
+          LEFT JOIN function_logging_region AS r ON r.cloudtrail_region = l.region
+          LEFT JOIN function_logging_region_advance_es AS a ON a.cloudtrail_region = l.region;
+severity: low
+tags: {}

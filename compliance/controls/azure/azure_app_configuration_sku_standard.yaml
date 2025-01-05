@@ -1,27 +1,24 @@
-Description: Ensure that App Configuration uses standard SKU tier. This control is non-compliant if App Configuration does not use standard SKU.
-ID: azure_app_configuration_sku_standard
-IntegrationType:
+id: azure_app_configuration_sku_standard
+title: App Configuration should use standard SKU
+description: Ensure that App Configuration uses standard SKU tier. This control is non-compliant if App Configuration does not use standard SKU.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_app_configuration
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_app_configuration
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sku_name = 'standard' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      a.name || ' has ' || sku_name || ' SKU tier.' AS reason
-    FROM
-      azure_app_configuration AS a,
-      azure_subscription AS sub;
-Severity: low
-Tags: {}
-Title: App Configuration should use standard SKU
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_app_configuration
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sku_name = 'standard' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          a.name || ' has ' || sku_name || ' SKU tier.' AS reason
+        FROM
+          azure_app_configuration AS a,
+          azure_subscription AS sub;
+severity: low
+tags: {}

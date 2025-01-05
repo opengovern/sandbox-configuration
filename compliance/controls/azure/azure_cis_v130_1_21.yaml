@@ -1,57 +1,54 @@
-Description: Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.
-ID: azure_cis_v130_1_21
-IntegrationType:
+id: azure_cis_v130_1_21
+title: 1.21 Ensure that no custom subscription owner roles are created
+description: Subscription ownership should not include permission to create custom owner roles. The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_role_definition
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_role_definition
-  QueryToExecute: |
-    WITH owner_custom_roles AS (
-      SELECT
-        role_name,
-        role_type,
-        title,
-        platform_integration_id,
-        platform_resource_id,
-        action,
-        _ctx,
-        subscription_id
-      FROM
-        azure_role_definition,
-        jsonb_array_elements(permissions) AS s,
-        jsonb_array_elements_text(s -> 'actions') AS action
-      WHERE
-        role_type = 'CustomRole'
-        AND action IN ('*', '*:*')
-    )
-    SELECT
-      cr.subscription_id AS resource,
-      cr.platform_integration_id AS platform_integration_id,
-      cr.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN COUNT(*) > 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN COUNT(*) = 1 THEN 'There is one custom owner role.'
-        WHEN COUNT(*) > 1 THEN 'There are ' || COUNT(*) || ' custom owner roles.'
-        ELSE 'There are no custom owner roles.'
-      END AS reason
-    FROM
-      owner_custom_roles cr,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = cr.subscription_id
-    GROUP BY
-      cr.subscription_id,
-      cr.platform_integration_id,
-      cr.platform_resource_id,
-      cr._ctx,
-      sub.display_name;
-Severity: low
-Tags: {}
-Title: 1.21 Ensure that no custom subscription owner roles are created
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_role_definition
+    definition: |
+        WITH owner_custom_roles AS (
+          SELECT
+            role_name,
+            role_type,
+            title,
+            platform_integration_id,
+            platform_resource_id,
+            action,
+            _ctx,
+            subscription_id
+          FROM
+            azure_role_definition,
+            jsonb_array_elements(permissions) AS s,
+            jsonb_array_elements_text(s -> 'actions') AS action
+          WHERE
+            role_type = 'CustomRole'
+            AND action IN ('*', '*:*')
+        )
+        SELECT
+          cr.subscription_id AS resource,
+          cr.platform_integration_id AS platform_integration_id,
+          cr.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN COUNT(*) > 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN COUNT(*) = 1 THEN 'There is one custom owner role.'
+            WHEN COUNT(*) > 1 THEN 'There are ' || COUNT(*) || ' custom owner roles.'
+            ELSE 'There are no custom owner roles.'
+          END AS reason
+        FROM
+          owner_custom_roles cr,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = cr.subscription_id
+        GROUP BY
+          cr.subscription_id,
+          cr.platform_integration_id,
+          cr.platform_resource_id,
+          cr._ctx,
+          sub.display_name;
+severity: low
+tags: {}

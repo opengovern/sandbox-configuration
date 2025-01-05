@@ -1,37 +1,34 @@
-Description: Ensure Glue job bookmarks have encryption enabled to protect sensitive information at rest.
-ID: aws_glue_job_bookmarks_encryption_enabled
-IntegrationType:
+id: aws_glue_job_bookmarks_encryption_enabled
+title: Glue jobs bookmarks encryption should be enabled
+description: Ensure Glue job bookmarks have encryption enabled to protect sensitive information at rest.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_glue_job
-    - aws_glue_security_configuration
-  Parameters: []
-  PrimaryTable: aws_glue_job
-  QueryToExecute: |
-    SELECT
-      j.arn AS resource,
-      j.platform_integration_id AS platform_integration_id,
-      j.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN job_bookmarks_encryption IS NOT NULL 
-          AND job_bookmarks_encryption ->> 'JobBookmarksEncryptionMode' != 'DISABLED' 
-        THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN job_bookmarks_encryption IS NOT NULL 
-          AND job_bookmarks_encryption ->> 'JobBookmarksEncryptionMode' != 'DISABLED'
-        THEN j.title || ' job bookmarks encryption enabled.'
-        ELSE j.title || ' job bookmarks encryption disabled.'
-      END AS reason
-    FROM 
-      aws_glue_job AS j
-    LEFT JOIN 
-      aws_glue_security_configuration AS c 
-    ON 
-      j.security_configuration = c.name;
-Severity: low
-Tags: {}
-Title: Glue jobs bookmarks encryption should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_glue_job
+    definition: |
+        SELECT
+          j.arn AS resource,
+          j.platform_integration_id AS platform_integration_id,
+          j.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN job_bookmarks_encryption IS NOT NULL 
+              AND job_bookmarks_encryption ->> 'JobBookmarksEncryptionMode' != 'DISABLED' 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN job_bookmarks_encryption IS NOT NULL 
+              AND job_bookmarks_encryption ->> 'JobBookmarksEncryptionMode' != 'DISABLED'
+            THEN j.title || ' job bookmarks encryption enabled.'
+            ELSE j.title || ' job bookmarks encryption disabled.'
+          END AS reason
+        FROM 
+          aws_glue_job AS j
+        LEFT JOIN 
+          aws_glue_security_configuration AS c 
+        ON 
+          j.security_configuration = c.name;
+severity: low
+tags: {}

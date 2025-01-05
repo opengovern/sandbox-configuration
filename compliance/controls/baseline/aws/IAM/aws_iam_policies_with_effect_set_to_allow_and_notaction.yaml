@@ -1,39 +1,37 @@
-Description: Ensure that IAM policies do not use "Allow" in combination with "NotAction" element to follow IAM security best practices.
-ID: aws_iam_policies_with_effect_set_to_allow_and_notaction
-IntegrationType:
+id: aws_iam_policies_with_effect_set_to_allow_and_notaction
+title: IAM Policies with Effect set to Allow and NotAction
+description: Ensure that IAM policies do not use "Allow" in combination with "NotAction" element to follow IAM security best practices.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_policy
-  Parameters: []
-  PrimaryTable: aws_iam_policy
-  QueryToExecute: |
-    SELECT
-      name AS resource,
-      platform_integration_id,
-      platform_resource_id,
-      CASE
-        WHEN (s -> 'NotAction' IS NOT NULL AND s ->> 'Effect' = 'Allow') THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN (s -> 'NotAction' IS NOT NULL AND s ->> 'Effect' = 'Allow') THEN name || ' has allowed nonAction policy'
-        ELSE name || ' does not have allowed nonAction policy'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_policy,
-      jsonb_array_elements(policy_std -> 'Statement') AS s
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Identity and Access Management (IAM)
-  platform_score_use_case:
-    - Problem Identities
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-  score_tags:
-    - Problem Identities
-Title: IAM Policies with Effect set to Allow and NotAction
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        SELECT
+          name AS resource,
+          platform_integration_id,
+          platform_resource_id,
+          CASE
+            WHEN (s -> 'NotAction' IS NOT NULL AND s ->> 'Effect' = 'Allow') THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN (s -> 'NotAction' IS NOT NULL AND s ->> 'Effect' = 'Allow') THEN name || ' has allowed nonAction policy'
+            ELSE name || ' does not have allowed nonAction policy'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_policy,
+          jsonb_array_elements(policy_std -> 'Statement') AS s
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Identity and Access Management (IAM)
+    platform_score_use_case:
+      - Problem Identities
+    score_service_name:
+      - AWS Identity and Access Management (IAM)
+    score_tags:
+      - Problem Identities

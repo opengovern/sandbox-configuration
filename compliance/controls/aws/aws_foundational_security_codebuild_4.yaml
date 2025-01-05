@@ -1,28 +1,26 @@
-Description: This control checks whether a CodeBuild project environment has at least one log option, either to S3 or CloudWatch logs enabled. This control fails if a CodeBuild project environment does not have at least one log option enabled.
-ID: aws_foundational_security_codebuild_4
-IntegrationType:
+id: aws_foundational_security_codebuild_4
+title: 4 CodeBuild project environments should have a logging configuration
+description: This control checks whether a CodeBuild project environment has at least one log option, either to S3 or CloudWatch logs enabled. This control fails if a CodeBuild project environment does not have at least one log option enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_codebuild_project
-  Parameters: []
-  PrimaryTable: aws_codebuild_project
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN title || ' logging enabled.'
-        ELSE title || ' logging disabled.'
-      END AS reason
-    FROM
-      aws_codebuild_project;
-Severity: medium
-Tags: {}
-Title: 4 CodeBuild project environments should have a logging configuration
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_codebuild_project
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN logs_config -> 'CloudWatchLogs' ->> 'Status' = 'ENABLED' OR logs_config -> 'S3Logs' ->> 'Status' = 'ENABLED' THEN title || ' logging enabled.'
+            ELSE title || ' logging disabled.'
+          END AS reason
+        FROM
+          aws_codebuild_project;
+severity: medium
+tags: {}

@@ -1,82 +1,79 @@
-Description: 'A Diagnostic Setting must exist. If a Diagnostic Setting does not exist, the navigation and options within this recommendation will not be available. Please review the recommendation at the beginning of this subsection titled: ''Ensure that a ''Diagnostic Setting'' exists.'' The diagnostic setting should be configured to log the appropriate activities from the control/management plane.'
-ID: azure_monitor_diagnostic_settings_captures_proper_categories
-IntegrationType:
+id: azure_monitor_diagnostic_settings_captures_proper_categories
+title: Ensure Diagnostic Setting captures appropriate categories
+description: "A Diagnostic Setting must exist. If a Diagnostic Setting does not exist, the navigation and options within this recommendation will not be available. Please review the recommendation at the beginning of this subsection titled: 'Ensure that a 'Diagnostic Setting' exists.' The diagnostic setting should be configured to log the appropriate activities from the control/management plane."
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_diagnostic_setting
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_diagnostic_setting
-  QueryToExecute: |
-    WITH enabled_settings AS (
-      SELECT
-        name,
-        id,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        _ctx,
-        resource_group,
-        subscription_id,
-        COUNT(*) FILTER (WHERE l ->> 'enabled' = 'true'
-          AND l ->> 'category' IN ('Administrative', 'Security', 'Alert', 'Policy')
-        ) AS valid_category_count,
-        STRING_AGG(l ->> 'category', ', ') FILTER (WHERE l ->> 'enabled' = 'true'
-          AND l ->> 'category' IN ('Administrative', 'Security', 'Alert', 'Policy')
-        ) AS valid_categories
-      FROM
-        azure_diagnostic_setting,
-        jsonb_array_elements(logs) AS l
-      GROUP BY
-        name,
-        id,
-        platform_integration_id,
-        platform_resource_id,
-        _ctx,
-        resource_group,
-        subscription_id
-    )
-    SELECT
-      sett.id AS resource,
-      sett.platform_integration_id AS platform_integration_id,
-      sett.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN valid_category_count = 4 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN valid_category_count = 4
-          THEN name || ' logs enabled for required categories administrative, security, alert and policy.'
-        WHEN valid_category_count > 0
-          THEN sett.name || ' logs enabled for ' || valid_categories || ' categories.'
-        ELSE sett.name || ' logs not enabled for categories administrative, security, alert and policy.'
-      END AS reason,
-      sett.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      enabled_settings sett,
-      azure_subscription sub
-    WHERE
-      sub.subscription_id = sett.subscription_id;
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  cis:
-    - "true"
-  cis_item_id:
-    - 5.1.2
-  cis_level:
-    - "1"
-  cis_section_id:
-    - "5.1"
-  cis_type:
-    - automated
-  cis_version:
-    - v1.3.0
-  plugin:
-    - azure
-  service:
-    - Azure/Monitor
-Title: Ensure Diagnostic Setting captures appropriate categories
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_diagnostic_setting
+    definition: |
+        WITH enabled_settings AS (
+          SELECT
+            name,
+            id,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            _ctx,
+            resource_group,
+            subscription_id,
+            COUNT(*) FILTER (WHERE l ->> 'enabled' = 'true'
+              AND l ->> 'category' IN ('Administrative', 'Security', 'Alert', 'Policy')
+            ) AS valid_category_count,
+            STRING_AGG(l ->> 'category', ', ') FILTER (WHERE l ->> 'enabled' = 'true'
+              AND l ->> 'category' IN ('Administrative', 'Security', 'Alert', 'Policy')
+            ) AS valid_categories
+          FROM
+            azure_diagnostic_setting,
+            jsonb_array_elements(logs) AS l
+          GROUP BY
+            name,
+            id,
+            platform_integration_id,
+            platform_resource_id,
+            _ctx,
+            resource_group,
+            subscription_id
+        )
+        SELECT
+          sett.id AS resource,
+          sett.platform_integration_id AS platform_integration_id,
+          sett.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN valid_category_count = 4 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN valid_category_count = 4
+              THEN name || ' logs enabled for required categories administrative, security, alert and policy.'
+            WHEN valid_category_count > 0
+              THEN sett.name || ' logs enabled for ' || valid_categories || ' categories.'
+            ELSE sett.name || ' logs not enabled for categories administrative, security, alert and policy.'
+          END AS reason,
+          sett.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          enabled_settings sett,
+          azure_subscription sub
+        WHERE
+          sub.subscription_id = sett.subscription_id;
+severity: medium
+tags:
+    category:
+      - Compliance
+    cis:
+      - 'true'
+    cis_item_id:
+      - 5.1.2
+    cis_level:
+      - '1'
+    cis_section_id:
+      - '5.1'
+    cis_type:
+      - automated
+    cis_version:
+      - v1.3.0
+    plugin:
+      - azure
+    service:
+      - Azure/Monitor

@@ -1,40 +1,37 @@
-Description: Ensure that instance termination notifications are enabled for your Azure virtual machine scale sets.
-ID: azure_check_for_instance_termination_notifications_for_virtual_machine_scale_sets
-IntegrationType:
+id: azure_check_for_instance_termination_notifications_for_virtual_machine_scale_sets
+title: Check for Instance Termination Notifications for Virtual Machine Scale Sets
+description: Ensure that instance termination notifications are enabled for your Azure virtual machine scale sets.
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine_scale_set
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine_scale_set
-  QueryToExecute: |
-    SELECT 
-      vm.id AS resource,
-      vm.platform_integration_id,
-      vm.platform_resource_id,
-      CASE
-        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
-        THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
-        THEN 'Instance Termination Notifications feature is enabled'
-        ELSE 'Instance Termination Notifications feature is not enabled'
-      END AS reason,
-      vm.resource_group,
-      sub.display_name AS subscription
-    FROM 
-      azure_compute_virtual_machine_scale_set AS vm,
-      azure_subscription AS sub
-    WHERE 
-      sub.subscription_id = vm.subscription_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  score_service_name:
-    - Azure Virtual Machines
-Title: Check for Instance Termination Notifications for Virtual Machine Scale Sets
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine_scale_set
+    definition: |
+        SELECT 
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
+            THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN vm.platform_resource_description -> 'VirtualMachineScaleSet' -> 'Properties' -> 'VirtualMachineProfile' -> 'ScheduledEventsProfile' -> 'TerminateNotificationProfile' ->> 'Enable' = 'true' 
+            THEN 'Instance Termination Notifications feature is enabled'
+            ELSE 'Instance Termination Notifications feature is not enabled'
+          END AS reason,
+          vm.resource_group,
+          sub.display_name AS subscription
+        FROM 
+          azure_compute_virtual_machine_scale_set AS vm,
+          azure_subscription AS sub
+        WHERE 
+          sub.subscription_id = vm.subscription_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

@@ -1,41 +1,38 @@
-Description: Ensure that your Amazon ECS instances are using the latest ECS container agent version.
-ID: aws_check_for_ecs_container_instance_agent_version
-IntegrationType:
+id: aws_check_for_ecs_container_instance_agent_version
+title: Check for ECS Container Instance Agent Version
+description: Ensure that your Amazon ECS instances are using the latest ECS container agent version.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_container_instance
-  Parameters:
-    - Key: awsEcsContainerInstanceAgentVersion
-      Required: true
-      DefaultValue: ""
-  PrimaryTable: aws_ecs_container_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_resource_id,
-      platform_integration_id,
-      CASE
-        WHEN version_info ->> 'AgentVersion' < '{{.awsEcsContainerInstanceAgentVersion}}' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN version_info ->> 'AgentVersion' < '{{.awsEcsContainerInstanceAgentVersion}}' THEN 'Container instance is not using the latest supported version of agent'
-        ELSE 'Container instance is using the latest supported version of agent'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecs_container_instance
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Elastic Container Service (ECS)
-  platform_score_use_case:
-    - Exposed Endpoints
-  score_service_name:
-    - Elastic Container Service (ECS)
-  score_tags:
-    - Exposed Endpoints
-Title: Check for ECS Container Instance Agent Version
+parameters:
+  - key: awsEcsContainerInstanceAgentVersion
+    value: ''
+policy:
+    language: sql
+    primary_resource: aws_ecs_container_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_resource_id,
+          platform_integration_id,
+          CASE
+            WHEN version_info ->> 'AgentVersion' < '{{.awsEcsContainerInstanceAgentVersion}}' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN version_info ->> 'AgentVersion' < '{{.awsEcsContainerInstanceAgentVersion}}' THEN 'Container instance is not using the latest supported version of agent'
+            ELSE 'Container instance is using the latest supported version of agent'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecs_container_instance
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Elastic Container Service (ECS)
+    platform_score_use_case:
+      - Exposed Endpoints
+    score_service_name:
+      - Elastic Container Service (ECS)
+    score_tags:
+      - Exposed Endpoints

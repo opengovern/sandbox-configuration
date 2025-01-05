@@ -1,40 +1,36 @@
-Description: Ensure that Microsoft Azure Backup service is in use for your Azure virtual machines (VMs).
-ID: azure_check_for_backups_for_azure_virtual_machines
-IntegrationType:
+id: azure_check_for_backups_for_azure_virtual_machines
+title: Check for Backups for Azure Virtual Machines
+description: Ensure that Microsoft Azure Backup service is in use for your Azure virtual machines (VMs).
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_compute_virtual_machine
-    - azure_recovery_services_backup_item
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_compute_virtual_machine
-  QueryToExecute: |
-    SELECT
-      vm.id AS resource,
-      vm.platform_integration_id,
-      vm.platform_resource_id,
-      CASE
-        WHEN bi.name IS NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN bi.name IS NULL THEN 'Diagnostic extensions installed on the VM'
-        ELSE 'Diagnostic extensions not installed on the VM'
-      END AS reason,
-      vm.resource_group,
-      display_name AS subscription
-    FROM
-      azure_compute_virtual_machine AS vm
-    LEFT JOIN azure_subscription AS sub 
-      ON sub.subscription_id = vm.subscription_id
-    LEFT JOIN azure_recovery_services_backup_item AS bi 
-      ON vm.id = (bi.properties ->> 'SourceResourceID')
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Virtual Machines
-  score_service_name:
-    - Azure Virtual Machines
-Title: Check for Backups for Azure Virtual Machines
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_compute_virtual_machine
+    definition: |
+        SELECT
+          vm.id AS resource,
+          vm.platform_integration_id,
+          vm.platform_resource_id,
+          CASE
+            WHEN bi.name IS NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN bi.name IS NULL THEN 'Diagnostic extensions installed on the VM'
+            ELSE 'Diagnostic extensions not installed on the VM'
+          END AS reason,
+          vm.resource_group,
+          display_name AS subscription
+        FROM
+          azure_compute_virtual_machine AS vm
+        LEFT JOIN azure_subscription AS sub 
+          ON sub.subscription_id = vm.subscription_id
+        LEFT JOIN azure_recovery_services_backup_item AS bi 
+          ON vm.id = (bi.properties ->> 'SourceResourceID')
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Virtual Machines
+    score_service_name:
+      - Azure Virtual Machines

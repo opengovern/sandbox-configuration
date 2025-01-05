@@ -1,93 +1,91 @@
-Description: To help with logging and monitoring within your environment, ensure AWS Relational Database Service (AWS RDS) logging is enabled.
-ID: aws_rds_db_instance_logging_enabled
-IntegrationType:
+id: aws_rds_db_instance_logging_enabled
+title: Database logging should be enabled
+description: To help with logging and monitoring within your environment, ensure AWS Relational Database Service (AWS RDS) logging is enabled.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_rds_db_instance
-  Parameters: []
-  PrimaryTable: aws_rds_db_instance
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN engine = 'docdb' THEN 'skip'
-        WHEN engine LIKE ANY (ARRAY['mariadb', '%mysql']) 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['audit', 'error', 'general', 'slowquery'] THEN 'ok'
-        WHEN engine LIKE ANY (ARRAY['%postgres%']) 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['postgresql', 'upgrade'] THEN 'ok'
-        WHEN engine LIKE 'oracle%' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['alert', 'audit', 'trace', 'listener'] THEN 'ok'
-        WHEN engine = 'sqlserver-ex' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['error'] THEN 'ok'
-        WHEN engine LIKE 'sqlserver%' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['error', 'agent'] THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN engine = 'docdb' THEN title || ' is docdb instance.'
-        WHEN engine LIKE ANY (ARRAY['mariadb', '%mysql']) 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['audit', 'error', 'general', 'slowquery'] 
-        THEN title || ' ' || engine || ' logging enabled.'
-        WHEN engine LIKE ANY (ARRAY['%postgres%']) 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['postgresql', 'upgrade'] 
-        THEN title || ' ' || engine || ' logging enabled.'
-        WHEN engine LIKE 'oracle%' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['alert', 'audit', 'trace', 'listener'] 
-        THEN title || ' ' || engine || ' logging enabled.'
-        WHEN engine = 'sqlserver-ex' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['error'] 
-        THEN title || ' ' || engine || ' logging enabled.'
-        WHEN engine LIKE 'sqlserver%' 
-             AND enabled_cloudwatch_logs_exports ?& ARRAY['error', 'agent'] 
-        THEN title || ' ' || engine || ' logging enabled.'
-        ELSE title || ' logging not enabled.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_rds_db_instance;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  cisa_cyber_essentials:
-    - "true"
-  fedramp_low_rev_4:
-    - "true"
-  fedramp_moderate_rev_4:
-    - "true"
-  ffiec:
-    - "true"
-  gdpr:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_53_rev_4:
-    - "true"
-  nist_800_53_rev_5:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  rbi_cyber_security:
-    - "true"
-  service:
-    - AWS/RDS
-  soc_2:
-    - "true"
-Title: Database logging should be enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_rds_db_instance
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN engine = 'docdb' THEN 'skip'
+            WHEN engine LIKE ANY (ARRAY['mariadb', '%mysql']) 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['audit', 'error', 'general', 'slowquery'] THEN 'ok'
+            WHEN engine LIKE ANY (ARRAY['%postgres%']) 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['postgresql', 'upgrade'] THEN 'ok'
+            WHEN engine LIKE 'oracle%' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['alert', 'audit', 'trace', 'listener'] THEN 'ok'
+            WHEN engine = 'sqlserver-ex' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['error'] THEN 'ok'
+            WHEN engine LIKE 'sqlserver%' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['error', 'agent'] THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN engine = 'docdb' THEN title || ' is docdb instance.'
+            WHEN engine LIKE ANY (ARRAY['mariadb', '%mysql']) 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['audit', 'error', 'general', 'slowquery'] 
+            THEN title || ' ' || engine || ' logging enabled.'
+            WHEN engine LIKE ANY (ARRAY['%postgres%']) 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['postgresql', 'upgrade'] 
+            THEN title || ' ' || engine || ' logging enabled.'
+            WHEN engine LIKE 'oracle%' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['alert', 'audit', 'trace', 'listener'] 
+            THEN title || ' ' || engine || ' logging enabled.'
+            WHEN engine = 'sqlserver-ex' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['error'] 
+            THEN title || ' ' || engine || ' logging enabled.'
+            WHEN engine LIKE 'sqlserver%' 
+                 AND enabled_cloudwatch_logs_exports ?& ARRAY['error', 'agent'] 
+            THEN title || ' ' || engine || ' logging enabled.'
+            ELSE title || ' logging not enabled.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_rds_db_instance;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    cisa_cyber_essentials:
+      - 'true'
+    fedramp_low_rev_4:
+      - 'true'
+    fedramp_moderate_rev_4:
+      - 'true'
+    ffiec:
+      - 'true'
+    gdpr:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_53_rev_4:
+      - 'true'
+    nist_800_53_rev_5:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    rbi_cyber_security:
+      - 'true'
+    service:
+      - AWS/RDS
+    soc_2:
+      - 'true'

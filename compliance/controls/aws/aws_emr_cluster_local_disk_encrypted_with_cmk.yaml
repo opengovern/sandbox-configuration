@@ -1,41 +1,38 @@
-Description: Ensure EMR cluster local disk are encrypted using CMK. This control fails if an EMR cluster local disk isn't encrypted with CMK.
-ID: aws_emr_cluster_local_disk_encrypted_with_cmk
-IntegrationType:
+id: aws_emr_cluster_local_disk_encrypted_with_cmk
+title: EMR cluster local disks should be encrypted with CMK
+description: Ensure EMR cluster local disk are encrypted using CMK. This control fails if an EMR cluster local disk isn't encrypted with CMK.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_emr_cluster
-    - aws_emr_security_configuration
-  Parameters: []
-  PrimaryTable: aws_emr_cluster
-  QueryToExecute: |
-    SELECT
-      cluster_arn AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN s.name IS NULL THEN 'alarm'
-        WHEN (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NULL THEN 'alarm'
-        WHEN s.name IS NOT NULL
-          AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NOT NULL
-          AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EncryptionKeyProviderType') = 'Custom' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN s.name IS NULL THEN c.title || ' security configuration disabled.'
-        WHEN (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NULL THEN c.title || ' local disk not encrypted.'
-        WHEN s.name IS NOT NULL
-          AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NOT NULL
-          AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EncryptionKeyProviderType') = 'Custom' THEN c.title || ' local disk encrypted with CMK.'
-        ELSE c.title || ' local disk not encrypted with CMK.'
-      END AS reason
-    FROM
-      aws_emr_cluster AS c
-      LEFT JOIN aws_emr_security_configuration AS s 
-        ON c.security_configuration = s.name 
-        AND s.region = s.region 
-        AND s.account_id = c.account_id;
-Severity: low
-Tags: {}
-Title: EMR cluster local disks should be encrypted with CMK
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_emr_cluster
+    definition: |
+        SELECT
+          cluster_arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN s.name IS NULL THEN 'alarm'
+            WHEN (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NULL THEN 'alarm'
+            WHEN s.name IS NOT NULL
+              AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NOT NULL
+              AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EncryptionKeyProviderType') = 'Custom' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN s.name IS NULL THEN c.title || ' security configuration disabled.'
+            WHEN (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NULL THEN c.title || ' local disk not encrypted.'
+            WHEN s.name IS NOT NULL
+              AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration') IS NOT NULL
+              AND (encryption_configuration -> 'AtRestEncryptionConfiguration' -> 'LocalDiskEncryptionConfiguration' ->> 'EncryptionKeyProviderType') = 'Custom' THEN c.title || ' local disk encrypted with CMK.'
+            ELSE c.title || ' local disk not encrypted with CMK.'
+          END AS reason
+        FROM
+          aws_emr_cluster AS c
+          LEFT JOIN aws_emr_security_configuration AS s 
+            ON c.security_configuration = s.name 
+            AND s.region = s.region 
+            AND s.account_id = c.account_id;
+severity: low
+tags: {}

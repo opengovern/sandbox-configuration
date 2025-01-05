@@ -1,64 +1,62 @@
-Description: This control checks whether the S3 bucket policy prevents principals from other AWS accounts from performing denied actions on resources in the S3 bucket.
-ID: aws_s3_bucket_policy_restricts_cross_account_permission_changes
-IntegrationType:
+id: aws_s3_bucket_policy_restricts_cross_account_permission_changes
+title: AWS S3 permissions granted to other AWS accounts in bucket policies should be restricted
+description: This control checks whether the S3 bucket policy prevents principals from other AWS accounts from performing denied actions on resources in the S3 bucket.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_s3_bucket
-  Parameters: []
-  PrimaryTable: aws_s3_bucket
-  QueryToExecute: |
-    WITH cross_account_buckets AS (
-      SELECT
-        DISTINCT arn
-      FROM
-        aws_s3_bucket,
-        jsonb_array_elements(policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
-        string_to_array(p, ':') AS pa,
-        jsonb_array_elements_text(s -> 'Action') AS a
-      WHERE
-        s ->> 'Effect' = 'Allow'
-        AND (
-          pa [5] != account_id
-          OR p = '*'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_s3_bucket
+    definition: |
+        WITH cross_account_buckets AS (
+          SELECT
+            DISTINCT arn
+          FROM
+            aws_s3_bucket,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Principal' -> 'AWS') AS p,
+            string_to_array(p, ':') AS pa,
+            jsonb_array_elements_text(s -> 'Action') AS a
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND (
+              pa [5] != account_id
+              OR p = '*'
+            )
+            AND a IN (
+              's3:deletebucketpolicy',
+              's3:putbucketacl',
+              's3:putbucketpolicy',
+              's3:putencryptionconfiguration',
+              's3:putobjectacl'
+            )
         )
-        AND a IN (
-          's3:deletebucketpolicy',
-          's3:putbucketacl',
-          's3:putbucketpolicy',
-          's3:putencryptionconfiguration',
-          's3:putobjectacl'
-        )
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN b.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN b.arn IS NULL THEN title || ' restricts cross-account bucket access.'
-        ELSE title || ' allows cross-account bucket access.'
-      END AS reason,
-      a.region,
-      a.account_id
-    FROM
-      aws_s3_bucket a
-    LEFT JOIN cross_account_buckets b ON a.arn = b.arn;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cis_controls_v8_ig1:
-    - "true"
-  nist_csf:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/S3
-Title: AWS S3 permissions granted to other AWS accounts in bucket policies should be restricted
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN b.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN b.arn IS NULL THEN title || ' restricts cross-account bucket access.'
+            ELSE title || ' allows cross-account bucket access.'
+          END AS reason,
+          a.region,
+          a.account_id
+        FROM
+          aws_s3_bucket a
+        LEFT JOIN cross_account_buckets b ON a.arn = b.arn;
+severity: high
+tags:
+    category:
+      - Compliance
+    cis_controls_v8_ig1:
+      - 'true'
+    nist_csf:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/S3

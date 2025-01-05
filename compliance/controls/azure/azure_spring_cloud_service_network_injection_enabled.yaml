@@ -1,40 +1,37 @@
-Description: 'Azure Spring Cloud instances should use virtual network injection for the following purposes: 1. Isolate Azure Spring Cloud from Internet. 2. Enable Azure Spring Cloud to interact with systems in either on premises data centers or Azure service in other virtual networks. 3. Empower customers to control inbound and outbound network communications for Azure Spring Cloud.'
-ID: azure_spring_cloud_service_network_injection_enabled
-IntegrationType:
+id: azure_spring_cloud_service_network_injection_enabled
+title: Azure Spring Cloud should use network injection
+description: 'Azure Spring Cloud instances should use virtual network injection for the following purposes: 1. Isolate Azure Spring Cloud from Internet. 2. Enable Azure Spring Cloud to interact with systems in either on premises data centers or Azure service in other virtual networks. 3. Empower customers to control inbound and outbound network communications for Azure Spring Cloud.'
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_spring_cloud_service
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_spring_cloud_service
-  QueryToExecute: |
-    SELECT
-      DISTINCT a.name AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN sku_tier <> 'Standard' THEN 'Skip'
-        WHEN sku_tier = 'Standard' AND network_profile ->> 'ServiceRuntimeSubnetID' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN sku_tier <> 'Standard' THEN a.name || ' is of ' || sku_tier || ' tier.'
-        WHEN sku_tier = 'Standard' AND network_profile ->> 'ServiceRuntimeSubnetID' IS NOT NULL THEN a.name || ' network injection enabled.'
-        ELSE a.name || ' network injection disabled.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_spring_cloud_service AS a,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = a.subscription_id;
-Severity: high
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/SpringCloud
-Title: Azure Spring Cloud should use network injection
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_spring_cloud_service
+    definition: |
+        SELECT
+          DISTINCT a.name AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN sku_tier <> 'Standard' THEN 'Skip'
+            WHEN sku_tier = 'Standard' AND network_profile ->> 'ServiceRuntimeSubnetID' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN sku_tier <> 'Standard' THEN a.name || ' is of ' || sku_tier || ' tier.'
+            WHEN sku_tier = 'Standard' AND network_profile ->> 'ServiceRuntimeSubnetID' IS NOT NULL THEN a.name || ' network injection enabled.'
+            ELSE a.name || ' network injection disabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_spring_cloud_service AS a,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = a.subscription_id;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/SpringCloud

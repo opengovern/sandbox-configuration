@@ -1,49 +1,46 @@
-Description: Ensure that AWS EKS security groups are configured to allow incoming traffic only on TCP port 443.
-ID: aws_eks_security_groups
-IntegrationType:
+id: aws_eks_security_groups
+title: EKS Security Groups
+description: Ensure that AWS EKS security groups are configured to allow incoming traffic only on TCP port 443.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_eks_cluster
-    - aws_vpc_security_group
-  Parameters: []
-  PrimaryTable: aws_eks_cluster
-  QueryToExecute: |
-    SELECT
-      c.name AS resource,
-      c.platform_integration_id,
-      c.platform_resource_id,
-      CASE
-        WHEN EXISTS(
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS ips
-          WHERE (ips ->> 'FromPort' <> '443') AND (ips ->> 'ToPort' <> '443')
-        ) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN EXISTS(
-          SELECT 1
-          FROM jsonb_array_elements(ip_permissions) AS ips
-          WHERE (ips ->> 'FromPort' <> '443') AND (ips ->> 'ToPort' <> '443')
-        ) THEN name || ' Amazon EKS security group is not compliant (allow access on ports different than TCP port 443 (HTTPS))'
-        ELSE name || ' Amazon EKS security group is compliant'
-      END AS reason,
-      c.region,
-      c.account_id
-    FROM
-      aws_eks_cluster AS c
-      CROSS JOIN jsonb_array_elements_text(resources_vpc_config -> 'SecurityGroupIds') AS sg_id
-      LEFT JOIN aws_vpc_security_group AS sg ON sg.group_id = sg_id
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - AWS Elastic Kubernetes Service (EKS)
-  score_tags:
-    - Lacking High Availability
-Title: EKS Security Groups
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_eks_cluster
+    definition: |
+        SELECT
+          c.name AS resource,
+          c.platform_integration_id,
+          c.platform_resource_id,
+          CASE
+            WHEN EXISTS(
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS ips
+              WHERE (ips ->> 'FromPort' <> '443') AND (ips ->> 'ToPort' <> '443')
+            ) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN EXISTS(
+              SELECT 1
+              FROM jsonb_array_elements(ip_permissions) AS ips
+              WHERE (ips ->> 'FromPort' <> '443') AND (ips ->> 'ToPort' <> '443')
+            ) THEN name || ' Amazon EKS security group is not compliant (allow access on ports different than TCP port 443 (HTTPS))'
+            ELSE name || ' Amazon EKS security group is compliant'
+          END AS reason,
+          c.region,
+          c.account_id
+        FROM
+          aws_eks_cluster AS c
+          CROSS JOIN jsonb_array_elements_text(resources_vpc_config -> 'SecurityGroupIds') AS sg_id
+          LEFT JOIN aws_vpc_security_group AS sg ON sg.group_id = sg_id
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - AWS Elastic Kubernetes Service (EKS)
+    score_tags:
+      - Lacking High Availability

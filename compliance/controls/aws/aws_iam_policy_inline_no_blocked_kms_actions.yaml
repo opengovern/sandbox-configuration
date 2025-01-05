@@ -1,106 +1,102 @@
-Description: Checks if the inline policies attached to IAM users, roles, and groups do not allow blocked actions on all AWS Key Management Service (KMS) keys. The rule is non-compliant if any blocked action is allowed on all KMS keys in an inline policy.
-ID: aws_iam_policy_inline_no_blocked_kms_actions
-IntegrationType:
+id: aws_iam_policy_inline_no_blocked_kms_actions
+title: Ensure inline policies attached to IAM users, roles, and groups should not allow blocked actions on KMS keys
+description: Checks if the inline policies attached to IAM users, roles, and groups do not allow blocked actions on all AWS Key Management Service (KMS) keys. The rule is non-compliant if any blocked action is allowed on all KMS keys in an inline policy.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_group
-    - aws_iam_role
-    - aws_iam_user
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    WITH iam_resource_types AS (
-      SELECT
-        arn,
-        inline_policies_std,
-        name,
-        account_id,
-        region,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        'aws_iam_user' AS platform_table_name,
-        _ctx
-      FROM
-        aws_iam_user
-      UNION
-      SELECT
-        arn,
-        inline_policies_std,
-        name,
-        account_id,
-        region,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        'aws_iam_role' AS platform_table_name,
-        _ctx
-      FROM
-        aws_iam_role
-      UNION
-      SELECT
-        arn,
-        inline_policies_std,
-        name,
-        account_id,
-        region,
-        platform_integration_id AS platform_integration_id,
-        platform_resource_id AS platform_resource_id,
-        'aws_iam_group' AS platform_table_name,
-        _ctx
-      FROM
-        aws_iam_group
-    ),
-    kms_blocked_actions AS (
-      SELECT
-        arn,
-        COUNT(*) AS statements_num
-      FROM
-        iam_resource_types,
-        jsonb_array_elements(inline_policies_std) AS policy_std,
-        jsonb_array_elements(policy_std -> 'PolicyDocument' -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Resource') AS resource,
-        jsonb_array_elements_text(s -> 'Action') AS action
-      WHERE
-        s ->> 'Effect' = 'Allow'
-        AND action LIKE ANY(ARRAY['kms:decrypt','kms:decrypt*', 'kms:reencryptfrom', 'kms:*', 'kms:reencrypt*'])
-      GROUP BY
-        arn
-    )
-    SELECT
-      u.arn AS resource,
-      u.platform_integration_id AS platform_integration_id,
-      u.platform_resource_id AS platform_resource_id,
-      u.platform_table_name AS platform_table_name,
-      CASE
-        WHEN w.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      u.name || ' contains ' || COALESCE(w.statements_num, 0) || ' inline policy statement(s) that allow blocked actions on AWS KMS keys.' AS reason,
-      u.account_id
-    FROM
-      iam_resource_types AS u
-    LEFT JOIN kms_blocked_actions AS w ON u.arn = w.arn;
-Severity: high
-Tags:
-  category:
-    - Compliance
-  cisa_cyber_essentials:
-    - "true"
-  gxp_21_cfr_part_11:
-    - "true"
-  hipaa_final_omnibus_security_rule_2013:
-    - "true"
-  hipaa_security_rule_2003:
-    - "true"
-  nist_800_171_rev_2:
-    - "true"
-  nist_csf:
-    - "true"
-  pci_dss_v321:
-    - "true"
-  plugin:
-    - aws
-  service:
-    - AWS/IAM
-Title: Ensure inline policies attached to IAM users, roles, and groups should not allow blocked actions on KMS keys
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        WITH iam_resource_types AS (
+          SELECT
+            arn,
+            inline_policies_std,
+            name,
+            account_id,
+            region,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_iam_user' AS platform_table_name,
+            _ctx
+          FROM
+            aws_iam_user
+          UNION
+          SELECT
+            arn,
+            inline_policies_std,
+            name,
+            account_id,
+            region,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_iam_role' AS platform_table_name,
+            _ctx
+          FROM
+            aws_iam_role
+          UNION
+          SELECT
+            arn,
+            inline_policies_std,
+            name,
+            account_id,
+            region,
+            platform_integration_id AS platform_integration_id,
+            platform_resource_id AS platform_resource_id,
+            'aws_iam_group' AS platform_table_name,
+            _ctx
+          FROM
+            aws_iam_group
+        ),
+        kms_blocked_actions AS (
+          SELECT
+            arn,
+            COUNT(*) AS statements_num
+          FROM
+            iam_resource_types,
+            jsonb_array_elements(inline_policies_std) AS policy_std,
+            jsonb_array_elements(policy_std -> 'PolicyDocument' -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND action LIKE ANY(ARRAY['kms:decrypt','kms:decrypt*', 'kms:reencryptfrom', 'kms:*', 'kms:reencrypt*'])
+          GROUP BY
+            arn
+        )
+        SELECT
+          u.arn AS resource,
+          u.platform_integration_id AS platform_integration_id,
+          u.platform_resource_id AS platform_resource_id,
+          u.platform_table_name AS platform_table_name,
+          CASE
+            WHEN w.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          u.name || ' contains ' || COALESCE(w.statements_num, 0) || ' inline policy statement(s) that allow blocked actions on AWS KMS keys.' AS reason,
+          u.account_id
+        FROM
+          iam_resource_types AS u
+        LEFT JOIN kms_blocked_actions AS w ON u.arn = w.arn;
+severity: high
+tags:
+    category:
+      - Compliance
+    cisa_cyber_essentials:
+      - 'true'
+    gxp_21_cfr_part_11:
+      - 'true'
+    hipaa_final_omnibus_security_rule_2013:
+      - 'true'
+    hipaa_security_rule_2003:
+      - 'true'
+    nist_800_171_rev_2:
+      - 'true'
+    nist_csf:
+      - 'true'
+    pci_dss_v321:
+      - 'true'
+    plugin:
+      - aws
+    service:
+      - AWS/IAM

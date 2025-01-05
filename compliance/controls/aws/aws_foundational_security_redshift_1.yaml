@@ -1,28 +1,26 @@
-Description: This control checks whether Amazon Redshift clusters are publicly accessible. It evaluates the PubliclyAccessible field in the cluster configuration item. The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address. When the cluster is not publicly accessible, it is an internal instance with a DNS name that resolves to a private IP address. Unless you intend for your cluster to be publicly accessible, the cluster should not be configured with PubliclyAccessible set to true.
-ID: aws_foundational_security_redshift_1
-IntegrationType:
+id: aws_foundational_security_redshift_1
+title: 1 Amazon Redshift clusters should prohibit public access
+description: This control checks whether Amazon Redshift clusters are publicly accessible. It evaluates the PubliclyAccessible field in the cluster configuration item. The PubliclyAccessible attribute of the Amazon Redshift cluster configuration indicates whether the cluster is publicly accessible. When the cluster is configured with PubliclyAccessible set to true, it is an Internet-facing instance that has a publicly resolvable DNS name, which resolves to a public IP address. When the cluster is not publicly accessible, it is an internal instance with a DNS name that resolves to a private IP address. Unless you intend for your cluster to be publicly accessible, the cluster should not be configured with PubliclyAccessible set to true.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_redshift_cluster
-  Parameters: []
-  PrimaryTable: aws_redshift_cluster
-  QueryToExecute: |
-    SELECT
-      cluster_namespace_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN publicly_accessible THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN publicly_accessible THEN title || ' publicly accessible.'
-        ELSE title || ' not publicly accessible.'
-      END AS reason
-    FROM
-      aws_redshift_cluster;
-Severity: critical
-Tags: {}
-Title: 1 Amazon Redshift clusters should prohibit public access
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_redshift_cluster
+    definition: |
+        SELECT
+          cluster_namespace_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN publicly_accessible THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN publicly_accessible THEN title || ' publicly accessible.'
+            ELSE title || ' not publicly accessible.'
+          END AS reason
+        FROM
+          aws_redshift_cluster;
+severity: critical
+tags: {}

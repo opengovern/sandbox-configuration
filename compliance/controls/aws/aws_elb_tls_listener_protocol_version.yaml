@@ -1,30 +1,28 @@
-Description: Using insecure ciphers for your ELB Predefined or Custom Security Policy, could make the SSL connection between the client and the load balancer vulnerable to exploits. TLS 1.0 was recommended to be disabled by PCI Council after June 30, 2016.
-ID: aws_elb_tls_listener_protocol_version
-IntegrationType:
+id: aws_elb_tls_listener_protocol_version
+title: ELB listeners SSL/TLS protocol version should be checked
+description: Using insecure ciphers for your ELB Predefined or Custom Security Policy, could make the SSL connection between the client and the load balancer vulnerable to exploits. TLS 1.0 was recommended to be disabled by PCI Council after June 30, 2016.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_load_balancer_listener
-  Parameters: []
-  PrimaryTable: aws_ec2_load_balancer_listener
-  QueryToExecute: |
-    SELECT
-      load_balancer_arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN protocol <> 'HTTPS' THEN 'skip'
-        WHEN protocol = 'HTTPS' AND ssl_policy LIKE ANY (ARRAY['Protocol-SSLv3', 'Protocol-TLSv1']) THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN protocol <> 'HTTPS' THEN title || ' uses protocol ' || protocol || '.'
-        WHEN ssl_policy LIKE ANY (ARRAY['Protocol-SSLv3', 'Protocol-TLSv1']) THEN title || ' uses insecure SSL or TLS cipher.'
-        ELSE title || ' uses secure SSL or TLS cipher.'
-      END AS reason
-    FROM
-      aws_ec2_load_balancer_listener;
-Severity: low
-Tags: {}
-Title: ELB listeners SSL/TLS protocol version should be checked
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_load_balancer_listener
+    definition: |
+        SELECT
+          load_balancer_arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN protocol <> 'HTTPS' THEN 'skip'
+            WHEN protocol = 'HTTPS' AND ssl_policy LIKE ANY (ARRAY['Protocol-SSLv3', 'Protocol-TLSv1']) THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN protocol <> 'HTTPS' THEN title || ' uses protocol ' || protocol || '.'
+            WHEN ssl_policy LIKE ANY (ARRAY['Protocol-SSLv3', 'Protocol-TLSv1']) THEN title || ' uses insecure SSL or TLS cipher.'
+            ELSE title || ' uses secure SSL or TLS cipher.'
+          END AS reason
+        FROM
+          aws_ec2_load_balancer_listener;
+severity: low
+tags: {}

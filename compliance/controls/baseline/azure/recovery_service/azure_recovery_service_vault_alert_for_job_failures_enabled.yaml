@@ -1,40 +1,37 @@
-Description: Ensure all Recovery Service Vaults alert for job failures are enabled
-ID: azure_recovery_service_vault_alert_for_job_failures_enabled
-IntegrationType:
+id: azure_recovery_service_vault_alert_for_job_failures_enabled
+title: Recovery Service Vault alert for job failures enabled
+description: Ensure all Recovery Service Vaults alert for job failures are enabled
+integration_type:
   - azure_subscription
-Query:
-  Engine: odysseus-v0.0.1
-  ListOfTables:
-    - azure_recovery_services_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_recovery_services_vault
-  QueryToExecute: |
-    SELECT
-      v.id AS resource,
-      v.platform_resource_id,
-      v.platform_integration_id,
-      CASE
-        WHEN v.platform_resource_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN v.platform_resource_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN v.name || ' alert for job failures is enabled.'
-        ELSE v.name || ' alert for job failures is not enabled.'
-      END AS reason,
-      v.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_recovery_services_vault AS v
-      LEFT JOIN azure_subscription sub ON sub.subscription_id = v.subscription_id;
-Severity: medium
-Tags:
-  platform_score_cloud_service_name:
-    - Azure Recovery Services
-  platform_score_use_case:
-    - Lacking High Availability
-  score_service_name:
-    - Azure Recovery Services
-  score_tags:
-    - Lacking High Availability
-Title: Recovery Service Vault alert for job failures enabled
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_recovery_services_vault
+    definition: |
+        SELECT
+          v.id AS resource,
+          v.platform_resource_id,
+          v.platform_integration_id,
+          CASE
+            WHEN v.platform_resource_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN v.platform_resource_description -> 'Vault' -> 'Properties' -> 'MonitoringSettings' -> 'AzureMonitorAlertSettings' ->> 'AlertsForAllJobFailures' = 'Enabled' THEN v.name || ' alert for job failures is enabled.'
+            ELSE v.name || ' alert for job failures is not enabled.'
+          END AS reason,
+          v.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_recovery_services_vault AS v
+          LEFT JOIN azure_subscription sub ON sub.subscription_id = v.subscription_id;
+severity: medium
+tags:
+    platform_score_cloud_service_name:
+      - Azure Recovery Services
+    platform_score_use_case:
+      - Lacking High Availability
+    score_service_name:
+      - Azure Recovery Services
+    score_tags:
+      - Lacking High Availability

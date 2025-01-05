@@ -1,41 +1,39 @@
-Description: This control checks whether a WAFV2 web access control list (web ACL) contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
-ID: aws_foundational_security_waf_10
-IntegrationType:
+id: aws_foundational_security_waf_10
+title: 10 AWS WAF web ACLs should have at least one rule or rule group
+description: This control checks whether a WAFV2 web access control list (web ACL) contains at least one WAF rule or WAF rule group. The control fails if a web ACL does not contain any WAF rules or rule groups.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_wafv2_web_acl
-  Parameters: []
-  PrimaryTable: aws_wafv2_web_acl
-  QueryToExecute: |
-    WITH rule_group_count AS (
-      SELECT
-        arn,
-        COUNT(*) AS rule_group_count
-      FROM
-        aws_wafv2_web_acl,
-        jsonb_array_elements(rules) AS r
-      WHERE
-        r -> 'Statement' -> 'RuleGroupReferenceStatement' ->> 'ARN' IS NOT NULL
-      GROUP BY
-        arn
-    )
-    SELECT
-      a.arn AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN title || ' has no attached rules.'
-        ELSE title || ' has ' || c.rule_group_count || ' rule group(s) and ' || (jsonb_array_length(rules) - c.rule_group_count) || ' rule(s) attached.'
-      END AS reason
-    FROM
-      aws_wafv2_web_acl AS a
-      LEFT JOIN rule_group_count AS c ON c.arn = a.arn;
-Severity: medium
-Tags: {}
-Title: 10 AWS WAF web ACLs should have at least one rule or rule group
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_wafv2_web_acl
+    definition: |
+        WITH rule_group_count AS (
+          SELECT
+            arn,
+            COUNT(*) AS rule_group_count
+          FROM
+            aws_wafv2_web_acl,
+            jsonb_array_elements(rules) AS r
+          WHERE
+            r -> 'Statement' -> 'RuleGroupReferenceStatement' ->> 'ARN' IS NOT NULL
+          GROUP BY
+            arn
+        )
+        SELECT
+          a.arn AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN rules IS NULL OR jsonb_array_length(rules) = 0 THEN title || ' has no attached rules.'
+            ELSE title || ' has ' || c.rule_group_count || ' rule group(s) and ' || (jsonb_array_length(rules) - c.rule_group_count) || ' rule(s) attached.'
+          END AS reason
+        FROM
+          aws_wafv2_web_acl AS a
+          LEFT JOIN rule_group_count AS c ON c.arn = a.arn;
+severity: medium
+tags: {}

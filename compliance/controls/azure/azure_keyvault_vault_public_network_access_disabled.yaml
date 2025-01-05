@@ -1,36 +1,33 @@
-Description: Disable public network access for your key vault so that it's not accessible over the public internet. This can reduce data leakage risks.
-ID: azure_keyvault_vault_public_network_access_disabled
-IntegrationType:
+id: azure_keyvault_vault_public_network_access_disabled
+title: Azure Key Vault should disable public network access
+description: Disable public network access for your key vault so that it's not accessible over the public internet. This can reduce data leakage risks.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_key_vault
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_key_vault
-  QueryToExecute: |
-    SELECT
-      a.id AS resource,
-      a.platform_integration_id AS platform_integration_id,
-      a.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' != 'Deny' THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' != 'Deny' THEN a.name || ' public network access enabled.'
-        ELSE a.name || ' public network access disabled.'
-      END AS reason,
-      a.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_key_vault a,
-      azure_subscription sub;
-Severity: high
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/KeyVault
-Title: Azure Key Vault should disable public network access
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_key_vault
+    definition: |
+        SELECT
+          a.id AS resource,
+          a.platform_integration_id AS platform_integration_id,
+          a.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' != 'Deny' THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN network_acls IS NULL OR network_acls ->> 'defaultAction' != 'Deny' THEN a.name || ' public network access enabled.'
+            ELSE a.name || ' public network access disabled.'
+          END AS reason,
+          a.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_key_vault a,
+          azure_subscription sub;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/KeyVault

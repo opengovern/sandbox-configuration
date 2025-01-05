@@ -1,40 +1,35 @@
-Description: ARestrict access to the Kubernetes Service Management API by granting API access only 
-  to IP addresses in specific ranges. It is recommended to limit access to authorized IP ranges to 
-  ensure that only applications from allowed networks can access the cluster.
-ID: azure_kubernetes_cluster_authorized_ip_range_defined
-IntegrationType:
+id: azure_kubernetes_cluster_authorized_ip_range_defined
+title: Authorized IP ranges should be defined on Kubernetes Services
+description: ARestrict access to the Kubernetes Service Management API by granting API access only to IP addresses in specific ranges. It is recommended to limit access to authorized IP ranges to ensure that only applications from allowed networks can access the cluster.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - azure_kubernetes_cluster
-    - azure_subscription
-  Parameters: []
-  PrimaryTable: azure_kubernetes_cluster
-  QueryToExecute: |
-    SELECT
-      c.id AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN api_server_access_profile -> 'AuthorizedIPRanges' IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN api_server_access_profile -> 'AuthorizedIPRanges' IS NOT NULL THEN c.title || ' authorized IP ranges defined.'
-        ELSE c.title || ' authorized IP ranges not defined.'
-      END AS reason,
-      c.resource_group AS resource_group,
-      sub.display_name AS subscription
-    FROM
-      azure_kubernetes_cluster AS c,
-      azure_subscription AS sub
-    WHERE
-      sub.subscription_id = c.subscription_id;
-Severity: high
-Tags:
-  nist_sp_800_53_rev_5:
-    - "true"
-  service:
-    - Azure/KubernetesService
-Title: Authorized IP ranges should be defined on Kubernetes Services
+parameters: []
+policy:
+    language: sql
+    primary_resource: azure_kubernetes_cluster
+    definition: |
+        SELECT
+          c.id AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN api_server_access_profile -> 'AuthorizedIPRanges' IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN api_server_access_profile -> 'AuthorizedIPRanges' IS NOT NULL THEN c.title || ' authorized IP ranges defined.'
+            ELSE c.title || ' authorized IP ranges not defined.'
+          END AS reason,
+          c.resource_group AS resource_group,
+          sub.display_name AS subscription
+        FROM
+          azure_kubernetes_cluster AS c,
+          azure_subscription AS sub
+        WHERE
+          sub.subscription_id = c.subscription_id;
+severity: high
+tags:
+    nist_sp_800_53_rev_5:
+      - 'true'
+    service:
+      - Azure/KubernetesService

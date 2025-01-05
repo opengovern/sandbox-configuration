@@ -1,30 +1,28 @@
-Description: This control checks if DNS query logging is enabled for an Amazon Route 53 public hosted zone. The control fails if DNS query logging isn't enabled for a Route 53 public hosted zone.
-ID: aws_foundational_security_route53_2
-IntegrationType:
+id: aws_foundational_security_route53_2
+title: 2 Route 53 public hosted zones should log DNS queries
+description: This control checks if DNS query logging is enabled for an Amazon Route 53 public hosted zone. The control fails if DNS query logging isn't enabled for a Route 53 public hosted zone.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_route53_zone
-  Parameters: []
-  PrimaryTable: aws_route53_zone
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN private_zone THEN 'skip'
-        WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN private_zone THEN title || ' is private hosted zone.'
-        WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN title || ' query logging to CloudWatch enabled.'
-        ELSE title || ' query logging to CloudWatch disabled.'
-      END AS reason
-    FROM
-      aws_route53_zone;
-Severity: medium
-Tags: {}
-Title: 2 Route 53 public hosted zones should log DNS queries
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_route53_zone
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN private_zone THEN 'skip'
+            WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN private_zone THEN title || ' is private hosted zone.'
+            WHEN query_logging_configs IS NOT NULL OR jsonb_array_length(query_logging_configs) > 0 THEN title || ' query logging to CloudWatch enabled.'
+            ELSE title || ' query logging to CloudWatch disabled.'
+          END AS reason
+        FROM
+          aws_route53_zone;
+severity: medium
+tags: {}

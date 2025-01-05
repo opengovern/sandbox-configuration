@@ -1,45 +1,42 @@
-ID: azure_mandatory_sql_resource_group_public_ip_mandatory
-Title: "Public IPs should have mandatory tags"
-Description: "Check if Public ips have mandatory tags."
-Query:
-  Engine: steampipe-v0.5
-  QueryToExecute: |
-    WITH analysis AS (
-      SELECT
-        platform_integration_id,
-        platform_resource_id,
-        id,
-        title,
-        tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
-        TO_JSONB('{{.azureMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
-        resource_group,
-        subscription_id
-      FROM
-        azure_public_ip
-    )
-    SELECT
-      platform_integration_id,
-      platform_resource_id,
-      id AS resource,
-      CASE
-        WHEN has_mandatory_tags THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
-        ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
-      END AS reason,
-      resource_group,
-      subscription_id
-    FROM
-      analysis;
-  PrimaryTable: azure_public_ip
-  ListOfTables:
-    - azure_public_ip
-  Parameters:
-    - key: azureMandatoryTags
-      required: true
-Severity: high
-Tags: {}
-IntegrationType:
+id: azure_mandatory_sql_resource_group_public_ip_mandatory
+title: Public IPs should have mandatory tags
+description: Check if Public ips have mandatory tags.
+integration_type:
   - azure_subscription
+parameters:
+  - key: azureMandatoryTags
+policy:
+    language: sql
+    primary_resource: azure_public_ip
+    definition: |
+        WITH analysis AS (
+          SELECT
+            platform_integration_id,
+            platform_resource_id,
+            id,
+            title,
+            tags ?& '{{.azureMandatoryTags}}'::text[] AS has_mandatory_tags,
+            TO_JSONB('{{.azureMandatoryTags}}'::text[]) - ARRAY(SELECT jsonb_object_keys(tags)) AS missing_tags,
+            resource_group,
+            subscription_id
+          FROM
+            azure_public_ip
+        )
+        SELECT
+          platform_integration_id,
+          platform_resource_id,
+          id AS resource,
+          CASE
+            WHEN has_mandatory_tags THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN has_mandatory_tags THEN title || ' has all mandatory tags.'
+            ELSE title || ' is missing tags: ' || array_to_string(ARRAY(SELECT jsonb_array_elements_text(missing_tags)), ', ') || '.'
+          END AS reason,
+          resource_group,
+          subscription_id
+        FROM
+          analysis;
+severity: high
+tags: {}

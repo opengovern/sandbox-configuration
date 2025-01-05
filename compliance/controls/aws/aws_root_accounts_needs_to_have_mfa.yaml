@@ -1,36 +1,34 @@
-Description: AWS Root Account cannot have API Keys
-ID: aws_root_accounts_needs_to_have_mfa
-IntegrationType:
+id: aws_root_accounts_needs_to_have_mfa
+title: AWS Root Accounts needs to have MFA
+description: AWS Root Account cannot have API Keys
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_credential_report
-  Parameters: []
-  PrimaryTable: aws_iam_credential_report
-  QueryToExecute: |
-    SELECT
-      user_name AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN NOT mfa_active THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN NOT mfa_active THEN 'root account MFA is not activated'
-        ELSE 'root account MFA is activated'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_iam_credential_report
-    WHERE
-      user_name = '<root_account>';
-Severity: medium
-Tags:
-  category:
-    - Compliance
-  score_service_name:
-    - AWS Identity and Access Management (IAM)
-Title: AWS Root Accounts needs to have MFA
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_credential_report
+    definition: |
+        SELECT
+          user_name AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN NOT mfa_active THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN NOT mfa_active THEN 'root account MFA is not activated'
+            ELSE 'root account MFA is activated'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_iam_credential_report
+        WHERE
+          user_name = '<root_account>';
+severity: medium
+tags:
+    category:
+      - Compliance
+    score_service_name:
+      - AWS Identity and Access Management (IAM)

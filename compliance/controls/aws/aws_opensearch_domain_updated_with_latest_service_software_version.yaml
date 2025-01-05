@@ -1,28 +1,26 @@
-Description: This control checks whether AWS OpenSearch domain has any updates available. This control is non-compliant if the OpenSearch domain has any updates available.
-ID: aws_opensearch_domain_updated_with_latest_service_software_version
-IntegrationType:
+id: aws_opensearch_domain_updated_with_latest_service_software_version
+title: OpenSearch domains should be updated to the latest service software version
+description: This control checks whether AWS OpenSearch domain has any updates available. This control is non-compliant if the OpenSearch domain has any updates available.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_opensearch_domain
-  Parameters: []
-  PrimaryTable: aws_opensearch_domain
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN 'ok'
-        ELSE 'alarm'
-      END status,
-      CASE
-        WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN title || ' updated with latest service software version.'
-        ELSE title || ' not updated with latest service software version.'
-      END reason
-    FROM
-      aws_opensearch_domain;
-Severity: low
-Tags: {}
-Title: OpenSearch domains should be updated to the latest service software version
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_opensearch_domain
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN 'ok'
+            ELSE 'alarm'
+          END status,
+          CASE
+            WHEN service_software_options ->> 'UpdateAvailable' = 'false' THEN title || ' updated with latest service software version.'
+            ELSE title || ' not updated with latest service software version.'
+          END reason
+        FROM
+          aws_opensearch_domain;
+severity: low
+tags: {}

@@ -1,42 +1,40 @@
-Description: This control checks whether an AWS WAF global rule contains any conditions. The control fails if no conditions are present within a rule.
-ID: aws_waf_rule_condition_attached
-IntegrationType:
+id: aws_waf_rule_condition_attached
+title: WAF global rule should have at least one condition
+description: This control checks whether an AWS WAF global rule contains any conditions. The control fails if no conditions are present within a rule.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_waf_rule
-  Parameters: []
-  PrimaryTable: aws_waf_rule
-  QueryToExecute: |
-    SELECT
-      rule_id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
-        ELSE title || ' has ' || jsonb_array_length(predicates) || ' attached conditions.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_waf_rule;
-Severity: medium
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - resource_configuration
-  foundational_security_item_id:
-    - waf_6
-  plugin:
-    - aws
-  service:
-    - AWS/WAF
-Title: WAF global rule should have at least one condition
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_waf_rule
+    definition: |
+        SELECT
+          rule_id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN predicates IS NULL OR jsonb_array_length(predicates) = 0 THEN title || ' has no attached conditions.'
+            ELSE title || ' has ' || jsonb_array_length(predicates) || ' attached conditions.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_waf_rule;
+severity: medium
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - resource_configuration
+    foundational_security_item_id:
+      - waf_6
+    plugin:
+      - aws
+    service:
+      - AWS/WAF

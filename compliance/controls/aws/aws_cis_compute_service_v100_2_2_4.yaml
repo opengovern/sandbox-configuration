@@ -1,28 +1,26 @@
-Description: Identify any unused Elastic Block Store (EBS) volumes in your AWS account and remove them.
-ID: aws_cis_compute_service_v100_2_2_4
-IntegrationType:
+id: aws_cis_compute_service_v100_2_2_4
+title: 2.2.4 Ensure unused EBS volumes are removed
+description: Identify any unused Elastic Block Store (EBS) volumes in your AWS account and remove them.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ebs_volume
-  Parameters: []
-  PrimaryTable: aws_ebs_volume
-  QueryToExecute: |
-    SELECT
-      arn AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN state = 'in-use' THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN state = 'in-use' THEN title || ' attached to EC2 instance.'
-        ELSE title || ' not attached to EC2 instance.'
-      END AS reason
-    FROM
-      aws_ebs_volume;
-Severity: low
-Tags: {}
-Title: 2.2.4 Ensure unused EBS volumes are removed
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ebs_volume
+    definition: |
+        SELECT
+          arn AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN state = 'in-use' THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN state = 'in-use' THEN title || ' attached to EC2 instance.'
+            ELSE title || ' not attached to EC2 instance.'
+          END AS reason
+        FROM
+          aws_ebs_volume;
+severity: low
+tags: {}

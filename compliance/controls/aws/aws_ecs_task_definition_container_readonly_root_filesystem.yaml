@@ -1,55 +1,53 @@
-Description: This control checks if ECS containers are limited to read-only access to mounted root filesystems. This control fails if the ReadonlyRootFilesystem parameter in the container definition of ECS task definitions is set to false.
-ID: aws_ecs_task_definition_container_readonly_root_filesystem
-IntegrationType:
+id: aws_ecs_task_definition_container_readonly_root_filesystem
+title: ECS containers should be limited to read-only access to root filesystems
+description: This control checks if ECS containers are limited to read-only access to mounted root filesystems. This control fails if the ReadonlyRootFilesystem parameter in the container definition of ECS task definitions is set to false.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ecs_task_definition
-  Parameters: []
-  PrimaryTable: aws_ecs_task_definition
-  QueryToExecute: |
-    WITH privileged_container_definition AS (
-      SELECT DISTINCT
-        task_definition_arn AS arn
-      FROM
-        aws_ecs_task_definition,
-        jsonb_array_elements(container_definitions) AS c
-      WHERE
-        c ->> 'ReadonlyRootFilesystem' = 'true'
-    )
-    SELECT
-      d.task_definition_arn AS resource,
-      d.platform_integration_id AS platform_integration_id,
-      d.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN c.arn IS NOT NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN c.arn IS NOT NULL THEN d.title || ' containers limited to read-only access to root filesystems.'
-        ELSE d.title || ' containers not limited to read-only access to root filesystems.'
-      END AS reason,
-      region,
-      account_id
-    FROM
-      aws_ecs_task_definition AS d
-    LEFT JOIN
-      privileged_container_definition AS c
-    ON
-      d.task_definition_arn = c.arn;
-Severity: high
-Tags:
-  aws_foundational_security:
-    - "true"
-  category:
-    - Compliance
-  foundational_security_category:
-    - secure_access_management
-  foundational_security_item_id:
-    - ecs_5
-  plugin:
-    - aws
-  service:
-    - AWS/ECS
-Title: ECS containers should be limited to read-only access to root filesystems
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ecs_task_definition
+    definition: |
+        WITH privileged_container_definition AS (
+          SELECT DISTINCT
+            task_definition_arn AS arn
+          FROM
+            aws_ecs_task_definition,
+            jsonb_array_elements(container_definitions) AS c
+          WHERE
+            c ->> 'ReadonlyRootFilesystem' = 'true'
+        )
+        SELECT
+          d.task_definition_arn AS resource,
+          d.platform_integration_id AS platform_integration_id,
+          d.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.arn IS NOT NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN c.arn IS NOT NULL THEN d.title || ' containers limited to read-only access to root filesystems.'
+            ELSE d.title || ' containers not limited to read-only access to root filesystems.'
+          END AS reason,
+          region,
+          account_id
+        FROM
+          aws_ecs_task_definition AS d
+        LEFT JOIN
+          privileged_container_definition AS c
+        ON
+          d.task_definition_arn = c.arn;
+severity: high
+tags:
+    aws_foundational_security:
+      - 'true'
+    category:
+      - Compliance
+    foundational_security_category:
+      - secure_access_management
+    foundational_security_item_id:
+      - ecs_5
+    plugin:
+      - aws
+    service:
+      - AWS/ECS

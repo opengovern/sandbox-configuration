@@ -1,54 +1,51 @@
-Description: Ensure classic load balancers have at least one outbound rule in all the attached security groups. A security group without any outbound rule rejects all outgoing traffic. This means that all outgoing traffic originating from your cloud assets (instances, containers, etc.) will be dropped when it reaches the ELB layer.
-ID: aws_elb_classic_lb_with_outbound_rule
-IntegrationType:
+id: aws_elb_classic_lb_with_outbound_rule
+title: ELB classic load balancers should have at least one outbound rule
+description: Ensure classic load balancers have at least one outbound rule in all the attached security groups. A security group without any outbound rule rejects all outgoing traffic. This means that all outgoing traffic originating from your cloud assets (instances, containers, etc.) will be dropped when it reaches the ELB layer.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_ec2_classic_load_balancer
-    - aws_vpc_security_group_rule
-  Parameters: []
-  PrimaryTable: aws_ec2_classic_load_balancer
-  QueryToExecute: |
-    WITH sg_with_outbound AS (
-      SELECT
-        arn,
-        sg
-      FROM
-        aws_ec2_classic_load_balancer,
-        JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS sg
-        LEFT JOIN aws_vpc_security_group_rule AS sgr ON sg = sgr.group_id
-      WHERE
-        sgr.type = 'egress'
-      GROUP BY
-        sg,
-        arn
-    ), classic_lb_without_outbound AS (
-      SELECT
-        DISTINCT arn
-      FROM
-        aws_ec2_classic_load_balancer,
-        JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS s
-      WHERE
-        s NOT IN (SELECT sg FROM sg_with_outbound)
-    )
-    SELECT
-      DISTINCT c.arn AS resource,
-      c.platform_integration_id AS platform_integration_id,
-      c.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN c.security_groups IS NULL THEN 'alarm'
-        WHEN o.arn IS NOT NULL THEN 'alarm'
-        ELSE 'ok'
-      END AS status,
-      CASE
-        WHEN c.security_groups IS NULL THEN c.title || ' does not have security group attached.'
-        WHEN o.arn IS NOT NULL THEN c.title || ' all attached security groups do not have outbound rule(s).'
-        ELSE c.title || ' all attached security groups have outbound rule(s).'
-      END AS reason
-    FROM
-      aws_ec2_classic_load_balancer AS c
-      LEFT JOIN classic_lb_without_outbound AS o ON c.arn = o.arn;
-Severity: low
-Tags: {}
-Title: ELB classic load balancers should have at least one outbound rule
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_ec2_classic_load_balancer
+    definition: |
+        WITH sg_with_outbound AS (
+          SELECT
+            arn,
+            sg
+          FROM
+            aws_ec2_classic_load_balancer,
+            JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS sg
+            LEFT JOIN aws_vpc_security_group_rule AS sgr ON sg = sgr.group_id
+          WHERE
+            sgr.type = 'egress'
+          GROUP BY
+            sg,
+            arn
+        ), classic_lb_without_outbound AS (
+          SELECT
+            DISTINCT arn
+          FROM
+            aws_ec2_classic_load_balancer,
+            JSONB_ARRAY_ELEMENTS_TEXT(security_groups) AS s
+          WHERE
+            s NOT IN (SELECT sg FROM sg_with_outbound)
+        )
+        SELECT
+          DISTINCT c.arn AS resource,
+          c.platform_integration_id AS platform_integration_id,
+          c.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN c.security_groups IS NULL THEN 'alarm'
+            WHEN o.arn IS NOT NULL THEN 'alarm'
+            ELSE 'ok'
+          END AS status,
+          CASE
+            WHEN c.security_groups IS NULL THEN c.title || ' does not have security group attached.'
+            WHEN o.arn IS NOT NULL THEN c.title || ' all attached security groups do not have outbound rule(s).'
+            ELSE c.title || ' all attached security groups have outbound rule(s).'
+          END AS reason
+        FROM
+          aws_ec2_classic_load_balancer AS c
+          LEFT JOIN classic_lb_without_outbound AS o ON c.arn = o.arn;
+severity: low
+tags: {}

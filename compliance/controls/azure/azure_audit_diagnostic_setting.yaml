@@ -1,24 +1,23 @@
-Description: Audit diagnostic setting for selected resource types. Be sure to select only resource types which support diagnostics settings.
-ID: azure_audit_diagnostic_setting
-IntegrationType:
+id: azure_audit_diagnostic_setting
+title: Audit diagnostic setting for selected resource types
+description: Audit diagnostic setting for selected resource types. Be sure to select only resource types which support diagnostics settings.
+integration_type:
   - azure_subscription
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables: []
-  Parameters: []
-  PrimaryTable: ""
-  QueryToExecute: |
-    SELECT
-      id AS resource,
-      platform_integration_id AS platform_integration_id,
-      platform_resource_id AS platform_resource_id,
-      'info' AS status,
-      'Manual verification required. Check control description for more details.' AS reason,
-      display_name AS subscription
-    FROM
-      azure_subscription;
-Severity: low
-Tags:
-  manual-verification:
-    - "true"
-Title: Audit diagnostic setting for selected resource types
+parameters: []
+policy:
+    language: sql
+    primary_resource: ''
+    definition: |
+        SELECT
+          id AS resource,
+          platform_integration_id AS platform_integration_id,
+          platform_resource_id AS platform_resource_id,
+          'info' AS status,
+          'Manual verification required. Check control description for more details.' AS reason,
+          display_name AS subscription
+        FROM
+          azure_subscription;
+severity: low
+tags:
+    manual-verification:
+      - 'true'

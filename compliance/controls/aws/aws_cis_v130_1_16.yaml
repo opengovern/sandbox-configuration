@@ -1,54 +1,52 @@
-Description: IAM policies are the means by which privileges are granted to users, groups, or roles. It is recommended and considered a standard security advice to grant least privilege - that is, granting only the permissions required to perform a task. Determine what users need to do and then craft policies for them that let the users perform only those tasks, instead of allowing full administrative privileges.
-ID: aws_cis_v130_1_16
-IntegrationType:
+id: aws_cis_v130_1_16
+title: 1.16 Ensure IAM policies that allow full "*:*" administrative privileges are not attached
+description: IAM policies are the means by which privileges are granted to users, groups, or roles. It is recommended and considered a standard security advice to grant least privilege - that is, granting only the permissions required to perform a task. Determine what users need to do and then craft policies for them that let the users perform only those tasks, instead of allowing full administrative privileges.
+integration_type:
   - aws_cloud_account
-Query:
-  Engine: CloudQL-v0.0.1
-  ListOfTables:
-    - aws_iam_policy
-  Parameters: []
-  PrimaryTable: aws_iam_policy
-  QueryToExecute: |
-    WITH star_access_policies AS (
-      SELECT
-        arn,
-        is_aws_managed,
-        COUNT(*) AS num_bad_statements
-      FROM
-        aws_iam_policy,
-        jsonb_array_elements(policy_std -> 'Statement') AS s,
-        jsonb_array_elements_text(s -> 'Resource') AS resource,
-        jsonb_array_elements_text(s -> 'Action') AS action
-      WHERE
-        s ->> 'Effect' = 'Allow'
-        AND resource = '*'
-        AND (
-          action = '*'
-          OR action = '*:*'
+parameters: []
+policy:
+    language: sql
+    primary_resource: aws_iam_policy
+    definition: |
+        WITH star_access_policies AS (
+          SELECT
+            arn,
+            is_aws_managed,
+            COUNT(*) AS num_bad_statements
+          FROM
+            aws_iam_policy,
+            jsonb_array_elements(policy_std -> 'Statement') AS s,
+            jsonb_array_elements_text(s -> 'Resource') AS resource,
+            jsonb_array_elements_text(s -> 'Action') AS action
+          WHERE
+            s ->> 'Effect' = 'Allow'
+            AND resource = '*'
+            AND (
+              action = '*'
+              OR action = '*:*'
+            )
+            AND is_attached
+          GROUP BY
+            arn,
+            is_aws_managed
         )
-        AND is_attached
-      GROUP BY
-        arn,
-        is_aws_managed
-    )
-    SELECT
-      p.arn AS resource,
-      p.platform_integration_id AS platform_integration_id,
-      p.platform_resource_id AS platform_resource_id,
-      CASE
-        WHEN s.arn IS NOT NULL AND s.is_aws_managed THEN 'info'
-        WHEN s.arn IS NULL THEN 'ok'
-        ELSE 'alarm'
-      END AS status,
-      CASE
-        WHEN s.arn IS NOT NULL AND s.is_aws_managed THEN p.name || ' is an AWS managed policy with ' || COALESCE(s.num_bad_statements, 0) || ' statements that allow action "*" on resource "*".'
-        ELSE p.name || ' contains ' || COALESCE(s.num_bad_statements, 0) || ' statements that allow action "*" on resource "*".'
-      END AS reason
-    FROM
-      aws_iam_policy AS p
-      LEFT JOIN star_access_policies AS s ON p.arn = s.arn
-    WHERE
-      p.is_attached;
-Severity: low
-Tags: {}
-Title: 1.16 Ensure IAM policies that allow full "*:*" administrative privileges are not attached
+        SELECT
+          p.arn AS resource,
+          p.platform_integration_id AS platform_integration_id,
+          p.platform_resource_id AS platform_resource_id,
+          CASE
+            WHEN s.arn IS NOT NULL AND s.is_aws_managed THEN 'info'
+            WHEN s.arn IS NULL THEN 'ok'
+            ELSE 'alarm'
+          END AS status,
+          CASE
+            WHEN s.arn IS NOT NULL AND s.is_aws_managed THEN p.name || ' is an AWS managed policy with ' || COALESCE(s.num_bad_statements, 0) || ' statements that allow action "*" on resource "*".'
+            ELSE p.name || ' contains ' || COALESCE(s.num_bad_statements, 0) || ' statements that allow action "*" on resource "*".'
+          END AS reason
+        FROM
+          aws_iam_policy AS p
+          LEFT JOIN star_access_policies AS s ON p.arn = s.arn
+        WHERE
+          p.is_attached;
+severity: low
+tags: {}
